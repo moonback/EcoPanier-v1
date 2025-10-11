@@ -1,0 +1,458 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../stores/authStore';
+import { formatCurrency, formatDateTime, categories, uploadImage } from '../../utils/helpers';
+import { Plus, Edit, Trash2, Package, Image as ImageIcon } from 'lucide-react';
+import type { Database } from '../../lib/database.types';
+
+type Lot = Database['public']['Tables']['lots']['Row'];
+
+export const LotManagement = () => {
+  const [lots, setLots] = useState<Lot[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [editingLot, setEditingLot] = useState<Lot | null>(null);
+  const { profile } = useAuthStore();
+
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: categories[0],
+    original_price: 0,
+    discounted_price: 0,
+    quantity_total: 1,
+    pickup_start: '',
+    pickup_end: '',
+    requires_cold_chain: false,
+    is_urgent: false,
+    image_urls: [] as string[],
+  });
+
+  useEffect(() => {
+    fetchLots();
+  }, []);
+
+  const fetchLots = async () => {
+    if (!profile) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('lots')
+        .select('*')
+        .eq('merchant_id', profile.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setLots(data);
+    } catch (error) {
+      console.error('Error fetching lots:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const imagePromises = Array.from(files).map((file) => uploadImage(file));
+    const imageUrls = await Promise.all(imagePromises);
+    setFormData({ ...formData, image_urls: [...formData.image_urls, ...imageUrls] });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile) return;
+
+    try {
+      if (editingLot) {
+        const { error } = await supabase
+          .from('lots')
+          .update({
+            ...formData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', editingLot.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('lots').insert({
+          ...formData,
+          merchant_id: profile.id,
+        });
+
+        if (error) throw error;
+      }
+
+      setShowModal(false);
+      setEditingLot(null);
+      resetForm();
+      fetchLots();
+    } catch (error) {
+      console.error('Error saving lot:', error);
+      alert('Erreur lors de l\'enregistrement');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Voulez-vous vraiment supprimer ce lot ?')) return;
+
+    try {
+      const { error } = await supabase.from('lots').delete().eq('id', id);
+
+      if (error) throw error;
+      fetchLots();
+    } catch (error) {
+      console.error('Error deleting lot:', error);
+      alert('Erreur lors de la suppression');
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      category: categories[0],
+      original_price: 0,
+      discounted_price: 0,
+      quantity_total: 1,
+      pickup_start: '',
+      pickup_end: '',
+      requires_cold_chain: false,
+      is_urgent: false,
+      image_urls: [],
+    });
+  };
+
+  const openEditModal = (lot: Lot) => {
+    setEditingLot(lot);
+    setFormData({
+      title: lot.title,
+      description: lot.description,
+      category: lot.category,
+      original_price: lot.original_price,
+      discounted_price: lot.discounted_price,
+      quantity_total: lot.quantity_total,
+      pickup_start: lot.pickup_start.slice(0, 16),
+      pickup_end: lot.pickup_end.slice(0, 16),
+      requires_cold_chain: lot.requires_cold_chain,
+      is_urgent: lot.is_urgent,
+      image_urls: lot.image_urls,
+    });
+    setShowModal(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-6 flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800">Gestion des Lots</h2>
+        <button
+          onClick={() => {
+            resetForm();
+            setEditingLot(null);
+            setShowModal(true);
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          <Plus size={20} />
+          <span>Nouveau Lot</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {lots.map((lot) => {
+          const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+
+          return (
+            <div key={lot.id} className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="relative h-48 bg-gradient-to-br from-green-100 to-blue-100">
+                {lot.image_urls.length > 0 ? (
+                  <img
+                    src={lot.image_urls[0]}
+                    alt={lot.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <Package size={64} className="text-gray-400" />
+                  </div>
+                )}
+                <div className={`absolute top-2 right-2 px-3 py-1 rounded-full text-white font-semibold text-sm ${
+                  lot.status === 'available' ? 'bg-green-500' :
+                  lot.status === 'sold_out' ? 'bg-red-500' :
+                  lot.status === 'expired' ? 'bg-gray-500' : 'bg-yellow-500'
+                }`}>
+                  {lot.status === 'available' ? 'Disponible' :
+                   lot.status === 'sold_out' ? 'Épuisé' :
+                   lot.status === 'expired' ? 'Expiré' : 'Réservé'}
+                </div>
+              </div>
+
+              <div className="p-4">
+                <h3 className="text-lg font-bold text-gray-800 mb-2">{lot.title}</h3>
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{lot.description}</p>
+
+                <div className="space-y-2 text-sm text-gray-600 mb-4">
+                  <div className="flex justify-between">
+                    <span>Total:</span>
+                    <span className="font-semibold">{lot.quantity_total}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Réservé:</span>
+                    <span className="font-semibold">{lot.quantity_reserved}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Vendu:</span>
+                    <span className="font-semibold">{lot.quantity_sold}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Disponible:</span>
+                    <span className="font-semibold text-green-600">{availableQty}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mb-4 pt-4 border-t">
+                  <div>
+                    <span className="text-xl font-bold text-green-600">
+                      {formatCurrency(lot.discounted_price)}
+                    </span>
+                    <span className="text-sm text-gray-500 line-through ml-2">
+                      {formatCurrency(lot.original_price)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openEditModal(lot)}
+                    className="flex-1 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition flex items-center justify-center gap-2"
+                  >
+                    <Edit size={16} />
+                    <span>Modifier</span>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(lot.id)}
+                    className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-2xl w-full p-6 my-8">
+            <h3 className="text-2xl font-bold mb-6">
+              {editingLot ? 'Modifier le lot' : 'Nouveau lot'}
+            </h3>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Titre</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg h-24"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Catégorie
+                  </label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Quantité
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.quantity_total}
+                    onChange={(e) =>
+                      setFormData({ ...formData, quantity_total: parseInt(e.target.value) })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Prix original (€)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.original_price}
+                    onChange={(e) =>
+                      setFormData({ ...formData, original_price: parseFloat(e.target.value) })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Prix réduit (€)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.discounted_price}
+                    onChange={(e) =>
+                      setFormData({ ...formData, discounted_price: parseFloat(e.target.value) })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Début retrait
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formData.pickup_start}
+                    onChange={(e) => setFormData({ ...formData, pickup_start: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Fin retrait
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formData.pickup_end}
+                    onChange={(e) => setFormData({ ...formData, pickup_end: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.requires_cold_chain}
+                    onChange={(e) =>
+                      setFormData({ ...formData, requires_cold_chain: e.target.checked })
+                    }
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm text-gray-700">Chaîne du froid requise</span>
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_urgent}
+                    onChange={(e) => setFormData({ ...formData, is_urgent: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm text-gray-700">Urgent</span>
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Images
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                />
+                {formData.image_urls.length > 0 && (
+                  <div className="mt-2 flex gap-2 flex-wrap">
+                    {formData.image_urls.map((url, i) => (
+                      <img
+                        key={i}
+                        src={url}
+                        alt={`Preview ${i}`}
+                        className="w-20 h-20 object-cover rounded-lg"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false);
+                    setEditingLot(null);
+                    resetForm();
+                  }}
+                  className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                >
+                  {editingLot ? 'Mettre à jour' : 'Créer'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
