@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { LandingPage } from './components/landing/LandingPage';
 import { AuthForm } from './components/auth/AuthForm';
 import { CustomerDashboard } from './components/customer/CustomerDashboard';
 import { MerchantDashboard } from './components/merchant/MerchantDashboard';
@@ -78,11 +79,17 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Page d'accueil publique */}
+        <Route path="/" element={<LandingPage />} />
+        
         {/* Route publique pour la station de retrait */}
         <Route path="/pickup" element={<PickupStation />} />
         
-        {/* Route principale avec authentification */}
-        <Route path="/" element={<DashboardRouter />} />
+        {/* Route pour le dashboard avec authentification */}
+        <Route path="/dashboard" element={<DashboardRouter />} />
+        
+        {/* Route de connexion explicite */}
+        <Route path="/login" element={<DashboardRouter />} />
         
         {/* Redirection par défaut */}
         <Route path="*" element={<Navigate to="/" replace />} />
