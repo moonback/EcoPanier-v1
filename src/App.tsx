@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { LandingPage } from './components/landing/LandingPage';
+import { HowItWorks } from './components/pages/HowItWorks';
+import { HelpCenter } from './components/pages/HelpCenter';
 import { AuthForm } from './components/auth/AuthForm';
 import { CustomerDashboard } from './components/customer/CustomerDashboard';
 import { MerchantDashboard } from './components/merchant/MerchantDashboard';
@@ -81,6 +83,10 @@ function App() {
       <Routes>
         {/* Page d'accueil publique */}
         <Route path="/" element={<LandingPage />} />
+        
+        {/* Pages informatives publiques */}
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/help" element={<HelpCenter />} />
         
         {/* Route publique pour la station de retrait */}
         <Route path="/pickup" element={<PickupStation />} />

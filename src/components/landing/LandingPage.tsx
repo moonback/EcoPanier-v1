@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Header } from '../shared/Header';
+import { Footer } from '../shared/Footer';
 import { 
   Heart, 
   TrendingDown, 
@@ -132,6 +134,8 @@ export const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
+      <Header transparent />
+      
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 overflow-hidden">
         {/* Animated background shapes */}
@@ -184,7 +188,7 @@ export const LandingPage = () => {
               </button>
               
               <button
-                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => navigate('/how-it-works')}
                 className="px-8 py-4 bg-white text-gray-700 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 Comment ça marche ?
@@ -537,58 +541,7 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="text-2xl font-black mb-4 bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
-                FoodShare
-              </h3>
-              <p className="text-gray-400">
-                La plateforme de solidarité alimentaire qui change des vies
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-4">Liens rapides</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">Accueil</a></li>
-                <li><a href="#how-it-works" className="hover:text-white transition">Comment ça marche</a></li>
-                <li><a href="/pickup" className="hover:text-white transition">Station de retrait</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-4">Assistance</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">FAQ</a></li>
-                <li><a href="#" className="hover:text-white transition">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition">Mentions légales</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-4">Suivez-nous</h4>
-              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition">
-                  f
-                </a>
-                <a href="#" className="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition">
-                  📷
-                </a>
-                <a href="#" className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center hover:bg-blue-500 transition">
-                  🐦
-                </a>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
-            <p>© 2025 FoodShare - Tous droits réservés - Fait avec ❤️ pour un monde meilleur</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
