@@ -29,6 +29,7 @@ export const LotBrowser = () => {
         .select('*, profiles(business_name, business_address)')
         .eq('status', 'available')
         .gt('quantity_total', 0)
+        .gt('discounted_price', 0)
         .order('created_at', { ascending: false });
 
       if (selectedCategory) {
