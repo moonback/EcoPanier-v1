@@ -82,6 +82,7 @@ export const LotBrowser = () => {
         .from('lots')
         .update({
           quantity_reserved: lot.quantity_reserved + quantity,
+          updated_at: new Date().toISOString(),
         })
         .eq('id', lot.id);
 

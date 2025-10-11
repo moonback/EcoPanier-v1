@@ -43,11 +43,47 @@ export const LotManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setLots(data);
+      
+      // Supprimer automatiquement les lots épuisés depuis plus de 24 heures
+      await cleanupOldSoldOutLots(data);
+      
+      // Récupérer à nouveau les lots après le nettoyage
+      const { data: updatedData, error: refreshError } = await supabase
+        .from('lots')
+        .select('*')
+        .eq('merchant_id', profile.id)
+        .order('created_at', { ascending: false });
+      
+      if (refreshError) throw refreshError;
+      setLots(updatedData);
     } catch (error) {
       console.error('Error fetching lots:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const cleanupOldSoldOutLots = async (lots: Lot[]) => {
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    for (const lot of lots) {
+      const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+      
+      // Si le lot n'a plus de stock disponible
+      if (availableQty <= 0) {
+        const updatedAt = new Date(lot.updated_at);
+        
+        // Si cela fait plus de 24 heures qu'il a été mis à jour et qu'il n'a plus de stock
+        if (updatedAt < oneDayAgo) {
+          try {
+            await supabase.from('lots').delete().eq('id', lot.id);
+            console.log(`Lot ${lot.id} supprimé automatiquement (épuisé depuis > 24h)`);
+          } catch (error) {
+            console.error(`Erreur lors de la suppression du lot ${lot.id}:`, error);
+          }
+        }
+      }
     }
   };
 
@@ -170,9 +206,15 @@ export const LotManagement = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {lots.map((lot) => {
           const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+          const isOutOfStock = availableQty <= 0;
 
           return (
-            <div key={lot.id} className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div 
+              key={lot.id} 
+              className={`bg-white rounded-xl shadow-md overflow-hidden transition-all ${
+                isOutOfStock ? 'opacity-50 grayscale' : ''
+              }`}
+            >
               <div className="relative h-48 bg-gradient-to-br from-green-100 to-blue-100">
                 {lot.image_urls.length > 0 ? (
                   <img
@@ -186,17 +228,26 @@ export const LotManagement = () => {
                   </div>
                 )}
                 <div className={`absolute top-2 right-2 px-3 py-1 rounded-full text-white font-semibold text-sm ${
+                  isOutOfStock ? 'bg-red-500' :
                   lot.status === 'available' ? 'bg-green-500' :
                   lot.status === 'sold_out' ? 'bg-red-500' :
                   lot.status === 'expired' ? 'bg-gray-500' : 'bg-yellow-500'
                 }`}>
-                  {lot.status === 'available' ? 'Disponible' :
+                  {isOutOfStock ? 'Épuisé' :
+                   lot.status === 'available' ? 'Disponible' :
                    lot.status === 'sold_out' ? 'Épuisé' :
                    lot.status === 'expired' ? 'Expiré' : 'Réservé'}
                 </div>
               </div>
 
               <div className="p-4">
+                {isOutOfStock && (
+                  <div className="mb-3 p-2 bg-orange-100 border border-orange-300 rounded-lg">
+                    <p className="text-xs text-orange-800 font-medium">
+                      ⚠️ Ce produit sera automatiquement supprimé 24h après épuisement
+                    </p>
+                  </div>
+                )}
                 <h3 className="text-lg font-bold text-gray-800 mb-2">{lot.title}</h3>
                 <p className="text-sm text-gray-600 mb-3 line-clamp-2">{lot.description}</p>
 
