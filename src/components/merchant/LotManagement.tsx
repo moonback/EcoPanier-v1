@@ -160,6 +160,73 @@ export const LotManagement = () => {
     });
   };
 
+  const generateFictionalLots = async () => {
+    if (!profile) return;
+    if (!confirm('Voulez-vous créer 25 produits fictifs ? Cette action ajoutera des données de test.')) return;
+
+    const fictionalProducts = [
+      { title: 'Panier de tomates bio', desc: 'Tomates de saison cultivées localement', cat: 'Fruits & Légumes', original: 12, discount: 5, qty: 8, cold: false, urgent: false },
+      { title: 'Pain de campagne du jour', desc: 'Pain frais cuit ce matin, à consommer rapidement', cat: 'Boulangerie', original: 4.5, discount: 2, qty: 15, cold: false, urgent: true },
+      { title: 'Assortiment de viennoiseries', desc: 'Croissants et pains au chocolat de la veille', cat: 'Boulangerie', original: 8, discount: 3, qty: 10, cold: false, urgent: false },
+      { title: 'Saumon frais', desc: 'Filets de saumon à consommer aujourd\'hui', cat: 'Viandes & Poissons', original: 18, discount: 10, qty: 5, cold: true, urgent: true },
+      { title: 'Poulet rôti entier', desc: 'Poulet fermier rôti, prêt à déguster', cat: 'Viandes & Poissons', original: 9, discount: 5, qty: 6, cold: true, urgent: false },
+      { title: 'Fromages variés', desc: 'Sélection de fromages français', cat: 'Produits Laitiers', original: 15, discount: 8, qty: 12, cold: true, urgent: false },
+      { title: 'Yaourts fruits mixtes', desc: 'Lot de 8 yaourts aux fruits, DLC courte', cat: 'Produits Laitiers', original: 6, discount: 0, qty: 20, cold: true, urgent: false },
+      { title: 'Pâtes artisanales', desc: 'Pâtes fraîches faites maison', cat: 'Épicerie', original: 7, discount: 4, qty: 10, cold: false, urgent: false },
+      { title: 'Conserves de légumes', desc: 'Assortiment de conserves bio', cat: 'Épicerie', original: 10, discount: 5, qty: 15, cold: false, urgent: false },
+      { title: 'Plat du jour - Lasagnes', desc: 'Lasagnes bolognaise maison portion familiale', cat: 'Plats Préparés', original: 12, discount: 6, qty: 8, cold: true, urgent: true },
+      { title: 'Salades composées', desc: 'Salades fraîches préparées ce matin', cat: 'Plats Préparés', original: 8, discount: 0, qty: 10, cold: true, urgent: false },
+      { title: 'Pizza margherita', desc: 'Pizza fraîche à cuire, pâte faite maison', cat: 'Plats Préparés', original: 9, discount: 4, qty: 12, cold: true, urgent: false },
+      { title: 'Légumes surgelés', desc: 'Mix de légumes surgelés, emballage abîmé', cat: 'Surgelés', original: 5, discount: 2, qty: 20, cold: true, urgent: false },
+      { title: 'Glaces artisanales', desc: 'Assortiment de glaces maison', cat: 'Surgelés', original: 12, discount: 6, qty: 8, cold: true, urgent: false },
+      { title: 'Fruits de mer surgelés', desc: 'Mix fruits de mer pour paella', cat: 'Surgelés', original: 15, discount: 8, qty: 10, cold: true, urgent: false },
+      { title: 'Bananes mûres', desc: 'Bananes bien mûres, parfaites pour smoothies', cat: 'Fruits & Légumes', original: 3, discount: 1, qty: 25, cold: false, urgent: true },
+      { title: 'Salade verte bio', desc: 'Salade fraîche du jour', cat: 'Fruits & Légumes', original: 2.5, discount: 1, qty: 15, cold: false, urgent: true },
+      { title: 'Baguettes tradition', desc: 'Baguettes fraîches de fin de journée', cat: 'Boulangerie', original: 1.2, discount: 0, qty: 30, cold: false, urgent: true },
+      { title: 'Gâteaux maison', desc: 'Assortiment de pâtisseries maison', cat: 'Boulangerie', original: 15, discount: 7, qty: 5, cold: false, urgent: false },
+      { title: 'Steaks hachés', desc: 'Steaks hachés pur bœuf, DLC proche', cat: 'Viandes & Poissons', original: 8, discount: 4, qty: 12, cold: true, urgent: true },
+      { title: 'Lait frais fermier', desc: 'Bouteilles de lait frais local', cat: 'Produits Laitiers', original: 2.8, discount: 1.5, qty: 20, cold: true, urgent: false },
+      { title: 'Œufs bio plein air', desc: 'Boîte de 12 œufs bio', cat: 'Produits Laitiers', original: 4.5, discount: 0, qty: 15, cold: false, urgent: false },
+      { title: 'Miel local', desc: 'Pot de miel artisanal 500g', cat: 'Épicerie', original: 12, discount: 6, qty: 8, cold: false, urgent: false },
+      { title: 'Quiche lorraine', desc: 'Quiche maison, portion individuelle', cat: 'Plats Préparés', original: 5, discount: 2.5, qty: 18, cold: true, urgent: false },
+      { title: 'Fruits secs assortis', desc: 'Mix de fruits secs et noix', cat: 'Autres', original: 8, discount: 4, qty: 10, cold: false, urgent: false },
+    ];
+
+    try {
+      const now = new Date();
+      const pickupStart = new Date(now.getTime() + 2 * 60 * 60 * 1000); // Dans 2 heures
+      const pickupEnd = new Date(now.getTime() + 8 * 60 * 60 * 1000); // Dans 8 heures
+
+      const lotsToInsert = fictionalProducts.map(product => ({
+        merchant_id: profile.id,
+        title: product.title,
+        description: product.desc,
+        category: product.cat,
+        original_price: product.original,
+        discounted_price: product.discount,
+        quantity_total: product.qty,
+        quantity_reserved: 0,
+        quantity_sold: 0,
+        pickup_start: pickupStart.toISOString(),
+        pickup_end: pickupEnd.toISOString(),
+        requires_cold_chain: product.cold,
+        is_urgent: product.urgent,
+        status: 'available' as const,
+        image_urls: [],
+      }));
+
+      const { error } = await supabase.from('lots').insert(lotsToInsert);
+
+      if (error) throw error;
+
+      alert('✅ 25 produits fictifs créés avec succès !');
+      fetchLots();
+    } catch (error) {
+      console.error('Error creating fictional lots:', error);
+      alert('❌ Erreur lors de la création des produits fictifs');
+    }
+  };
+
   const openEditModal = (lot: Lot) => {
     setEditingLot(lot);
     setFormData({
@@ -190,17 +257,27 @@ export const LotManagement = () => {
     <div>
       <div className="mb-6 flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Gestion des Lots</h2>
-        <button
-          onClick={() => {
-            resetForm();
-            setEditingLot(null);
-            setShowModal(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          <Plus size={20} />
-          <span>Nouveau Lot</span>
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={generateFictionalLots}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+            title="Créer 25 produits de test"
+          >
+            <Package size={20} />
+            <span>Générer produits test</span>
+          </button>
+          <button
+            onClick={() => {
+              resetForm();
+              setEditingLot(null);
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            <Plus size={20} />
+            <span>Nouveau Lot</span>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
