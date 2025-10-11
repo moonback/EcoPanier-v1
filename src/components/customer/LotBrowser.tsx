@@ -38,7 +38,14 @@ export const LotBrowser = () => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setLots(data as Lot[]);
+      
+      // Filtrer les lots avec une quantité disponible réelle > 0
+      const availableLots = (data as Lot[]).filter(lot => {
+        const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+        return availableQty > 0;
+      });
+      
+      setLots(availableLots);
     } catch (error) {
       console.error('Error fetching lots:', error);
     } finally {
