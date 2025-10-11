@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { LotManagement } from './LotManagement';
 import { SalesStats } from './SalesStats';
-import { Package, TrendingUp, LogOut } from 'lucide-react';
+import { Package, TrendingUp, LogOut, Scan } from 'lucide-react';
 
 export const MerchantDashboard = () => {
   const [activeTab, setActiveTab] = useState<'lots' | 'stats'>('lots');
@@ -21,13 +21,24 @@ export const MerchantDashboard = () => {
             <h1 className="text-2xl font-bold text-gray-800">Espace Commerçant</h1>
             <p className="text-sm text-gray-600">{profile?.business_name}</p>
           </div>
-          <button
-            onClick={signOut}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
-          >
-            <LogOut size={20} />
-            <span>Déconnexion</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <a
+              href="/pickup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition"
+            >
+              <Scan size={20} />
+              <span>Station de retrait</span>
+            </a>
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+            >
+              <LogOut size={20} />
+              <span>Déconnexion</span>
+            </button>
+          </div>
         </div>
       </header>
 

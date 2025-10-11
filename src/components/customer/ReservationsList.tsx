@@ -201,6 +201,8 @@ export const ReservationsList = () => {
                 reservationId: selectedReservation.id,
                 pin: selectedReservation.pickup_pin,
                 userId: profile?.id,
+                lotId: selectedReservation.lot_id,
+                timestamp: new Date().toISOString(),
               })}
               title={selectedReservation.lots.title}
             />

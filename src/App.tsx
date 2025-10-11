@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { AuthForm } from './components/auth/AuthForm';
 import { CustomerDashboard } from './components/customer/CustomerDashboard';
@@ -6,14 +7,16 @@ import { MerchantDashboard } from './components/merchant/MerchantDashboard';
 import { BeneficiaryDashboard } from './components/beneficiary/BeneficiaryDashboard';
 import { CollectorDashboard } from './components/collector/CollectorDashboard';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { PickupStation } from './components/pickup/PickupStation';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
 
-function App() {
+function DashboardRouter() {
   const { user, profile, loading, initialized, initialize } = useAuthStore();
 
   useEffect(() => {
     initialize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!initialized || loading) {
@@ -69,6 +72,23 @@ function App() {
   };
 
   return <ErrorBoundary>{renderDashboard()}</ErrorBoundary>;
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Route publique pour la station de retrait */}
+        <Route path="/pickup" element={<PickupStation />} />
+        
+        {/* Route principale avec authentification */}
+        <Route path="/" element={<DashboardRouter />} />
+        
+        {/* Redirection par défaut */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;

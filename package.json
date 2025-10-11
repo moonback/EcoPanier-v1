@@ -13,12 +13,14 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
     "@types/qrcode.react": "^1.0.5",
+    "@yudiel/react-qr-scanner": "^2.3.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.344.0",
     "qrcode.react": "^4.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-qr-scanner": "^1.0.0-alpha.11",
+    "react-router-dom": "^7.9.4",
     "recharts": "^3.2.1",
     "zustand": "^5.0.8"
   },
