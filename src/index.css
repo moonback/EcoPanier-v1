@@ -170,8 +170,36 @@
   }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-blob {
   animation: blob 7s infinite ease-in-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out;
 }
 
 .animation-delay-2000 {
@@ -222,6 +250,16 @@
 
 ::-webkit-scrollbar-thumb {
   @apply bg-neutral-300 rounded-full hover:bg-neutral-400;
+}
+
+/* Masquer la scrollbar (pour le scroll horizontal mobile) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Sélection de texte */
