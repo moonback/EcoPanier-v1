@@ -1,4 +1,5 @@
-import { Package, MapPin, Clock, Key, X } from 'lucide-react';
+import { Package, MapPin, Clock, Key, X, AlertCircle } from 'lucide-react';
+import { differenceInMinutes } from 'date-fns';
 import { formatCurrency, formatDateTime } from '../../../utils/helpers';
 import type { Database } from '../../../lib/database.types';
 
@@ -63,9 +64,27 @@ export function ReservationCard({
   };
 
   const statusStyles = getStatusStyles();
+  // Ne pas afficher le QR code pour les dons (paniers suspendus)
   const canShowQRCode =
-    reservation.status === 'pending' || reservation.status === 'confirmed';
-  const canCancel = reservation.status === 'pending';
+    (reservation.status === 'pending' || reservation.status === 'confirmed') &&
+    !reservation.is_donation;
+  
+  // Vérifier si le don peut être annulé (max 30 minutes après création)
+  const minutesSinceCreation = differenceInMinutes(
+    new Date(),
+    new Date(reservation.created_at)
+  );
+  const isDonationCancellable = reservation.is_donation
+    ? minutesSinceCreation <= 30
+    : true;
+  
+  const canCancel = reservation.status === 'pending' && isDonationCancellable;
+  
+  // Message si le don ne peut plus être annulé
+  const isDonationExpired = 
+    reservation.is_donation && 
+    reservation.status === 'pending' && 
+    !isDonationCancellable;
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">
@@ -94,12 +113,15 @@ export function ReservationCard({
             <Package size={16} />
             <span>Quantité: {reservation.quantity}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Key size={16} />
-            <span className="font-mono font-bold">
-              PIN: {reservation.pickup_pin}
-            </span>
-          </div>
+          {/* Ne pas afficher le PIN pour les dons (c'est le bénéficiaire qui l'utilisera) */}
+          {!reservation.is_donation && (
+            <div className="flex items-center gap-2">
+              <Key size={16} />
+              <span className="font-mono font-bold">
+                PIN: {reservation.pickup_pin}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Badge panier suspendu */}
@@ -108,15 +130,32 @@ export function ReservationCard({
             <p className="text-xs text-pink-700 font-semibold">
               Panier Suspendu - Merci pour votre générosité!
             </p>
+            {reservation.status === 'pending' && isDonationCancellable && (
+              <p className="text-xs text-pink-600 mt-1">
+                Annulation possible pendant encore {30 - minutesSinceCreation} min
+              </p>
+            )}
+          </div>
+        )}
+        
+        {/* Message si le don ne peut plus être annulé */}
+        {isDonationExpired && (
+          <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-2">
+            <AlertCircle size={16} className="text-yellow-600 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-yellow-700">
+              Le délai d'annulation (30 min) est dépassé. Votre don est maintenant confirmé.
+            </p>
           </div>
         )}
 
-        {/* Prix total */}
-        <div className="mt-4 pt-4 border-t">
-          <p className="text-lg font-bold text-gray-800">
-            {formatCurrency(reservation.total_price)}
-          </p>
-        </div>
+        {/* Prix total (masqué pour les dons) */}
+        {!reservation.is_donation && (
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-lg font-bold text-gray-800">
+              {formatCurrency(reservation.total_price)}
+            </p>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="mt-4 flex gap-2">
