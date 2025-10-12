@@ -1,19 +1,21 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, Filter, X, Check } from 'lucide-react';
+import { Package, Filter, X, Zap, Euro } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
 import { useLots } from '../../hooks/useLots';
+import { useAdvancedFilters } from '../../hooks/useAdvancedFilters';
 import {
   LotCard,
   ReservationModal,
   DonationModal,
-  FilterModal,
   LotDetailsModal,
+  AdvancedFilterModal,
   EmptyState,
   InlineSpinner,
 } from './components';
+import type { AdvancedFilters } from './components';
 
 // Imports types
 import type { Database } from '../../lib/database.types';
@@ -25,21 +27,33 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
   };
 };
 
+const DEFAULT_FILTERS: AdvancedFilters = {
+  category: '',
+  minPrice: 0,
+  maxPrice: 100,
+  onlyUrgent: false,
+  minQuantity: 1,
+  sortBy: 'urgent'
+};
+
 /**
  * Composant principal pour parcourir et réserver des lots
- * Gère l'affichage des lots, le filtrage par catégorie et la réservation
+ * Gère l'affichage des lots, le filtrage avancé et la réservation
  */
 export const LotBrowser = () => {
   // État local
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
   const [reservationMode, setReservationMode] = useState<'reserve' | 'donate' | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_FILTERS);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
-  const { lots, loading, error, reserveLot } = useLots(selectedCategory);
+  const { lots, loading, error, reserveLot } = useLots(''); // Charger tous les lots
+  
+  // Appliquer les filtres et tri côté client
+  const filteredLots = useAdvancedFilters(lots, filters);
 
   // Handlers
   const handleViewDetails = (lot: Lot) => {
@@ -108,47 +122,106 @@ export const LotBrowser = () => {
     );
   }
 
+  // Calculer les filtres actifs
+  const activeFiltersCount = 
+    (filters.category ? 1 : 0) +
+    (filters.onlyUrgent ? 1 : 0) +
+    (filters.minQuantity > 1 ? 1 : 0) +
+    ((filters.minPrice > 0 || filters.maxPrice < 100) ? 1 : 0);
+
   // Render principal
   return (
     <div>
-      {/* Barre de filtres */}
-      <div className="mb-4 sm:mb-6 flex items-center justify-between gap-3">
+      {/* Barre de filtres améliorée */}
+      <div className="mb-6 flex items-center justify-between gap-3">
         <button
           onClick={() => setShowFilterModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-200 hover:border-primary-300 font-medium text-sm"
+          className="flex items-center gap-2 px-4 py-3 bg-white text-neutral-700 rounded-xl shadow-md hover:shadow-lg transition-all border-2 border-neutral-200 hover:border-primary-300 font-semibold"
         >
-          <Filter size={18} />
-          <span>Filtrer par catégorie</span>
-          {selectedCategory && (
-            <span className="ml-1 px-2 py-0.5 bg-primary-100 text-primary-700 rounded-full text-xs font-semibold">
-              1
+          <Filter className="w-5 h-5 text-primary-600" />
+          <span>Filtres avancés</span>
+          {activeFiltersCount > 0 && (
+            <span className="ml-1 px-2.5 py-0.5 bg-primary-500 text-white rounded-full text-xs font-bold">
+              {activeFiltersCount}
             </span>
           )}
         </button>
 
-        {selectedCategory && (
-          <button
-            onClick={() => setSelectedCategory('')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all text-sm font-medium"
-          >
-            <X size={16} />
-            <span className="hidden sm:inline">Réinitialiser</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Résultats */}
+          <div className="px-4 py-3 bg-primary-50 text-primary-700 rounded-xl border-2 border-primary-200 font-semibold text-sm">
+            {filteredLots.length} lot{filteredLots.length > 1 ? 's' : ''}
+          </div>
+
+          {/* Réinitialiser */}
+          {activeFiltersCount > 0 && (
+            <button
+              onClick={() => setFilters(DEFAULT_FILTERS)}
+              className="flex items-center gap-1.5 px-3 py-3 bg-neutral-100 text-neutral-700 rounded-xl hover:bg-neutral-200 transition-all text-sm font-semibold"
+            >
+              <X className="w-4 h-4" />
+              <span className="hidden sm:inline">Réinitialiser</span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Affichage du filtre actif */}
-      {selectedCategory && (
-        <div className="mb-4 flex items-center gap-2 px-3 py-2 bg-primary-50 rounded-lg border border-primary-200">
-          <Check size={16} className="text-primary-600" />
-          <span className="text-sm text-primary-800 font-medium">
-            Catégorie : <span className="font-bold">{selectedCategory}</span>
-          </span>
+      {/* Badges filtres actifs */}
+      {activeFiltersCount > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {filters.category && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">
+              <Package className="w-3 h-3" />
+              {filters.category}
+              <button
+                onClick={() => setFilters({ ...filters, category: '' })}
+                className="ml-1 hover:bg-primary-200 rounded-full p-0.5"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {filters.onlyUrgent && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent-100 text-accent-700 rounded-full text-sm font-semibold">
+              <Zap className="w-3 h-3" />
+              Urgents uniquement
+              <button
+                onClick={() => setFilters({ ...filters, onlyUrgent: false })}
+                className="ml-1 hover:bg-accent-200 rounded-full p-0.5"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {(filters.minPrice > 0 || filters.maxPrice < 100) && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary-100 text-secondary-700 rounded-full text-sm font-semibold">
+              <Euro className="w-3 h-3" />
+              {filters.minPrice}€ - {filters.maxPrice}€
+              <button
+                onClick={() => setFilters({ ...filters, minPrice: 0, maxPrice: 100 })}
+                className="ml-1 hover:bg-secondary-200 rounded-full p-0.5"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {filters.minQuantity > 1 && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success-100 text-success-700 rounded-full text-sm font-semibold">
+              <Package className="w-3 h-3" />
+              Min. {filters.minQuantity} unités
+              <button
+                onClick={() => setFilters({ ...filters, minQuantity: 1 })}
+                className="ml-1 hover:bg-success-200 rounded-full p-0.5"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
         </div>
       )}
 
       {/* Grille de lots */}
-      {lots.length === 0 ? (
+      {filteredLots.length === 0 ? (
         <EmptyState
           icon={Package}
           title="Aucun lot disponible"
@@ -156,7 +229,7 @@ export const LotBrowser = () => {
         />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {lots.map((lot) => (
+          {filteredLots.map((lot) => (
             <LotCard
               key={lot.id}
               lot={lot}
@@ -170,9 +243,9 @@ export const LotBrowser = () => {
 
       {/* Modales */}
       {showFilterModal && (
-        <FilterModal
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
+        <AdvancedFilterModal
+          filters={filters}
+          onApplyFilters={setFilters}
           onClose={() => setShowFilterModal(false)}
         />
       )}
