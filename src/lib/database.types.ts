@@ -17,6 +17,7 @@ export interface Database {
           address: string | null;
           business_name: string | null;
           business_address: string | null;
+          business_hours: Record<string, { open: string | null; close: string | null; closed: boolean }> | null;
           latitude: number | null;
           longitude: number | null;
           beneficiary_id: string | null;
@@ -32,6 +33,7 @@ export interface Database {
           address?: string | null;
           business_name?: string | null;
           business_address?: string | null;
+          business_hours?: Record<string, { open: string | null; close: string | null; closed: boolean }> | null;
           latitude?: number | null;
           longitude?: number | null;
           beneficiary_id?: string | null;
@@ -47,6 +49,7 @@ export interface Database {
           address?: string | null;
           business_name?: string | null;
           business_address?: string | null;
+          business_hours?: Record<string, { open: string | null; close: string | null; closed: boolean }> | null;
           latitude?: number | null;
           longitude?: number | null;
           beneficiary_id?: string | null;

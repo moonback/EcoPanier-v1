@@ -1,4 +1,5 @@
-import { ChevronLeft, Store, MapPin, Navigation, Package, Euro, Clock, ShoppingCart } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronLeft, Store, MapPin, Navigation, Package, Euro, Clock, ShoppingCart, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { formatDistance } from '../../../utils/geocodingService';
@@ -10,7 +11,40 @@ interface MerchantLotsViewProps {
   onReserveLot: (lot: LotBase) => void;
 }
 
+// Fonction helper pour formater les horaires
+const formatBusinessHours = (businessHours: Record<string, { open: string | null; close: string | null; closed: boolean }> | null) => {
+  if (!businessHours) return null;
+
+  const daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  const dayNames: Record<string, string> = {
+    monday: 'Lun',
+    tuesday: 'Mar',
+    wednesday: 'Mer',
+    thursday: 'Jeu',
+    friday: 'Ven',
+    saturday: 'Sam',
+    sunday: 'Dim'
+  };
+
+  const today = daysOrder[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+
+  return daysOrder.map(day => {
+    const hours = businessHours[day];
+    const isToday = day === today;
+    
+    return {
+      day: dayNames[day],
+      isToday,
+      isClosed: hours?.closed || false,
+      hours: hours?.closed ? 'Fermé' : `${hours?.open || ''} - ${hours?.close || ''}`
+    };
+  });
+};
+
 export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLotsViewProps) {
+  const businessHours = formatBusinessHours(merchant.business_hours);
+  const [showHoursModal, setShowHoursModal] = useState(false);
+
   return (
     <div className="space-y-4 animate-fade-in">
       {/* Header avec retour - Compact */}
@@ -43,6 +77,17 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
               )}
             </div>
           </div>
+
+          {/* Bouton horaires */}
+          {businessHours && (
+            <button
+              onClick={() => setShowHoursModal(true)}
+              className="flex-shrink-0 inline-flex items-center gap-2 px-3 py-2 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-lg border border-primary-200 hover:border-primary-300 transition-all duration-200"
+            >
+              <Clock className="w-4 h-4" />
+              <span className="font-semibold text-sm hidden sm:inline">Horaires</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -173,6 +218,105 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Modal Horaires d'ouverture */}
+      {showHoursModal && businessHours && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in"
+          onClick={() => setShowHoursModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-slide-in-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-neutral-200">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-primary-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-neutral-900">Horaires d'ouverture</h3>
+                  <p className="text-sm text-neutral-600">{merchant.business_name || merchant.full_name}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowHoursModal(false)}
+                className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-neutral-600" />
+              </button>
+            </div>
+
+            {/* Contenu */}
+            <div className="p-6">
+              <div className="space-y-3">
+                {businessHours.map((dayInfo, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
+                      dayInfo.isToday
+                        ? 'bg-primary-50 border-primary-300 shadow-sm'
+                        : 'bg-neutral-50 border-neutral-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center font-bold ${
+                        dayInfo.isToday
+                          ? 'bg-primary-500 text-white'
+                          : 'bg-neutral-200 text-neutral-700'
+                      }`}>
+                        {dayInfo.day}
+                      </div>
+                      <div>
+                        <div className={`text-sm font-semibold ${
+                          dayInfo.isToday ? 'text-primary-700' : 'text-neutral-700'
+                        }`}>
+                          {dayInfo.day === 'Lun' && 'Lundi'}
+                          {dayInfo.day === 'Mar' && 'Mardi'}
+                          {dayInfo.day === 'Mer' && 'Mercredi'}
+                          {dayInfo.day === 'Jeu' && 'Jeudi'}
+                          {dayInfo.day === 'Ven' && 'Vendredi'}
+                          {dayInfo.day === 'Sam' && 'Samedi'}
+                          {dayInfo.day === 'Dim' && 'Dimanche'}
+                          {dayInfo.isToday && <span className="ml-2 text-primary-500">• Aujourd'hui</span>}
+                        </div>
+                        <div className={`text-xs ${
+                          dayInfo.isToday ? 'text-primary-600' : 'text-neutral-500'
+                        }`}>
+                          {dayInfo.isClosed ? 'Magasin fermé' : 'Ouvert'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className={`text-right ${
+                      dayInfo.isClosed ? 'text-neutral-400' : dayInfo.isToday ? 'text-primary-700 font-bold' : 'text-neutral-700 font-semibold'
+                    }`}>
+                      {dayInfo.hours}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Info supplémentaire */}
+              <div className="mt-6 p-4 bg-primary-50 rounded-xl border border-primary-200">
+                <p className="text-sm text-primary-700 font-medium">
+                  💡 Les horaires de retrait des lots peuvent différer des horaires d'ouverture. Vérifiez bien les heures indiquées sur chaque lot.
+                </p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-neutral-200 bg-neutral-50">
+              <button
+                onClick={() => setShowHoursModal(false)}
+                className="w-full btn-primary rounded-xl"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
