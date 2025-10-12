@@ -99,53 +99,91 @@ export const Header = ({ transparent = false }: HeaderProps) => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden glass border-t border-neutral-100 shadow-soft-lg animate-fade-in">
-            <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-              {navLinks.map((link) => {
-                const Icon = link.icon;
-                return (
-                  <button
-                    key={link.path}
-                    onClick={() => {
-                      navigate(link.path);
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-neutral-700 hover:bg-primary-50 hover:text-primary-600 transition-all font-medium group"
-                  >
-                    <Icon size={20} className="group-hover:scale-110 transition-transform" />
-                    <span>{link.name}</span>
-                  </button>
-                );
-              })}
-              
-              <div className="pt-4 border-t border-neutral-200 space-y-2">
-                <button
-                  onClick={() => {
-                    navigate('/login');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="btn-outline w-full rounded-full"
-                >
-                  <LogIn size={20} />
-                  <span>Connexion</span>
-                </button>
-                <button
-                  onClick={() => {
-                    navigate('/dashboard');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="btn-primary w-full rounded-full"
-                >
-                  <UserPlus size={20} />
-                  <span>S'inscrire gratuitement</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </header>
+
+      {/* Overlay pour fermer la sidebar */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
+        />
+      )}
+
+      {/* Sidebar Mobile */}
+      <div
+        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300 ease-out ${
+          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header de la sidebar */}
+          <div className="flex items-center justify-between p-5 border-b border-neutral-200 bg-gradient-to-r from-primary-50 to-secondary-50">
+            <div className="flex items-center gap-3">
+              <img
+                src="/logo.png"
+                alt="Logo EcoPanier"
+                className="w-100 h-10 rounded-lg object-cover shadow-md"
+              />
+              
+            </div>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 hover:bg-white rounded-lg transition-all"
+            >
+              <X size={24} className="text-neutral-700" />
+            </button>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider px-3 mb-3">
+              Navigation
+            </p>
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <button
+                  key={link.path}
+                  onClick={() => {
+                    navigate(link.path);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-neutral-700 hover:bg-primary-50 hover:text-primary-600 transition-all font-medium group hover-lift"
+                >
+                  <div className="w-10 h-10 flex items-center justify-center bg-neutral-100 group-hover:bg-primary-100 rounded-lg transition-all">
+                    <Icon size={20} className="group-hover:scale-110 transition-transform" />
+                  </div>
+                  <span className="flex-1 text-left">{link.name}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="p-4 border-t border-neutral-200 bg-neutral-50 space-y-3">
+            <button
+              onClick={() => {
+                navigate('/login');
+                setMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-white border-2 border-primary-500 text-primary-600 rounded-xl hover:bg-primary-50 transition-all font-semibold shadow-sm"
+            >
+              <LogIn size={20} />
+              <span>Connexion</span>
+            </button>
+            <button
+              onClick={() => {
+                navigate('/dashboard');
+                setMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-secondary-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold"
+            >
+              <UserPlus size={20} />
+              <span>S'inscrire gratuitement</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
