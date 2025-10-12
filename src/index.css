@@ -143,6 +143,46 @@
   }
 }
 
+@keyframes animate-gradient-x {
+  0%, 100% {
+    background-size: 200% 200%;
+    background-position: left center;
+  }
+  50% {
+    background-size: 200% 200%;
+    background-position: right center;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes scroll {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
 @keyframes shimmer-effect {
   0% {
     background-position: -1000px 0;
@@ -227,6 +267,23 @@
   animation: float 6s ease-in-out infinite;
 }
 
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-scroll {
+  animation: scroll 1.5s ease-in-out infinite;
+}
+
+.animate-gradient-x {
+  animation: animate-gradient-x 3s ease infinite;
+  background-size: 200% 200%;
+}
+
 .animate-shimmer {
   background: linear-gradient(
     to right,
@@ -249,6 +306,18 @@
 
 .hover-glow {
   @apply transition-all duration-300 hover:shadow-glow-md;
+}
+
+.hover-glow-md {
+  @apply transition-all duration-300;
+}
+
+.shadow-glow-md {
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+}
+
+.shadow-soft-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* Scrollbar personnalisée */
@@ -310,4 +379,21 @@
 
 .glass-dark {
   @apply bg-neutral-900/80 backdrop-blur-xl border border-white/10 shadow-soft-xl;
+}
+
+/* Design moderne et épuré */
+.hero-gradient {
+  background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.7) 100%);
+}
+
+.text-shadow-soft {
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.glass-minimal {
+  @apply bg-white/5 backdrop-blur-sm border border-white/10;
+}
+
+.stat-card {
+  @apply flex flex-col items-center space-y-3 p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300;
 }
