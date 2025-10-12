@@ -71,8 +71,22 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,mp4}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp}'],
+        globIgnores: ['**/ÉcoPanier.mp4'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
         runtimeCaching: [
+          {
+            urlPattern: /\.mp4$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'video-cache',
+              expiration: {
+                maxEntries: 5,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 jours
+              },
+              rangeRequests: true
+            }
+          },
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',
