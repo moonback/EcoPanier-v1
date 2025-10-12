@@ -11,14 +11,17 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
-  Target
+  Target,
+  Clock,
+  ShoppingCart
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { useLots } from '../../hooks/useLots';
 import { calculateDistance, formatDistance } from '../../utils/geocodingService';
-import { MerchantLotsModal } from './MerchantLotsModal';
 import { ReservationModal } from './components/ReservationModal';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import type { Database } from '../../lib/database.types';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -186,20 +189,23 @@ export function InteractiveMap() {
     loadMerchantsWithLots();
   }, [loadMerchantsWithLots]);
 
-  // Ouvrir les lots d'un commerçant
-  const openMerchantLots = (merchant: MerchantWithLots) => {
-    if (merchant.latitude && merchant.longitude) {
-      // Centrer la carte sur le commerçant
-      mapRef.current?.flyTo({
-        center: [merchant.longitude, merchant.latitude],
-        zoom: 16,
-        duration: 1200,
-        padding: { top: 0, bottom: 0, left: 0, right: sidebarOpen ? 400 : 0 }
-      });
+  // Gérer le clic sur un commerçant (double clic pour ouvrir modal)
+  const handleMerchantClick = (merchant: MerchantWithLots) => {
+    // Si c'est le même commerçant déjà sélectionné, ouvrir la modal
+    if (selectedMerchant?.id === merchant.id) {
+      setSelectedMerchantForModal(merchant);
+    } else {
+      // Sinon, centrer la carte et sélectionner
+      if (merchant.latitude && merchant.longitude) {
+        mapRef.current?.flyTo({
+          center: [merchant.longitude, merchant.latitude],
+          zoom: 16,
+          duration: 1200,
+          padding: { top: 0, bottom: 0, left: 0, right: sidebarOpen ? 400 : 0 }
+        });
+      }
       setSelectedMerchant(merchant);
     }
-    // Ouvrir la modal avec tous les lots
-    setSelectedMerchantForModal(merchant);
   };
 
   // Gérer la réservation d'un lot
@@ -277,6 +283,182 @@ export function InteractiveMap() {
     );
   }
 
+  // Si un commerçant est sélectionné pour voir ses lots, afficher la page des lots
+  if (selectedMerchantForModal) {
+    return (
+      <div className="space-y-4">
+        {/* Header avec retour */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setSelectedMerchantForModal(null)}
+            className="btn-secondary rounded-xl flex items-center gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Retour à la carte
+          </button>
+          <div className="flex-1">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+                <Store className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-neutral-900">
+                  {selectedMerchantForModal.business_name || selectedMerchantForModal.full_name}
+                </h2>
+                <div className="flex items-center gap-3 text-sm text-neutral-600">
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    {selectedMerchantForModal.business_address || selectedMerchantForModal.address}
+                  </span>
+                  {selectedMerchantForModal.distance && (
+                    <span className="flex items-center gap-1 text-primary-600 font-medium">
+                      <Navigation className="w-4 h-4" />
+                      {formatDistance(selectedMerchantForModal.distance)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats du commerçant */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="card p-4">
+            <div className="text-2xl font-bold text-primary-600">{selectedMerchantForModal.lots.length}</div>
+            <div className="text-sm text-neutral-600">Lots disponibles</div>
+          </div>
+          <div className="card p-4">
+            <div className="text-2xl font-bold text-success-600">
+              {selectedMerchantForModal.lots.reduce((sum, l) => sum + (l.quantity_total - l.quantity_reserved - l.quantity_sold), 0)}
+            </div>
+            <div className="text-sm text-neutral-600">Unités totales</div>
+          </div>
+          <div className="card p-4">
+            <div className="text-2xl font-bold text-accent-600">
+              {selectedMerchantForModal.lots.filter(l => l.is_urgent).length}
+            </div>
+            <div className="text-sm text-neutral-600">Lots urgents</div>
+          </div>
+        </div>
+
+        {/* Grille des lots */}
+        {selectedMerchantForModal.lots.length === 0 ? (
+          <div className="card p-12 text-center">
+            <Package className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
+            <p className="text-neutral-600">Aucun lot disponible pour le moment</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {selectedMerchantForModal.lots.map((lot) => (
+              <div
+                key={lot.id}
+                className="card overflow-hidden hover:shadow-lg transition-all duration-200 group"
+              >
+                {/* Image du lot */}
+                <div className="relative w-full h-40 bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden">
+                  {lot.image_urls && lot.image_urls.length > 0 ? (
+                    <img
+                      src={lot.image_urls[0]}
+                      alt={lot.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f3f4f6" width="200" height="200"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="16" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3E📦%3C/text%3E%3C/svg%3E';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="w-16 h-16 text-neutral-400" />
+                    </div>
+                  )}
+                  {lot.is_urgent && (
+                    <div className="absolute top-2 right-2 bg-accent-500 text-white text-xs px-2 py-1 rounded-lg font-bold animate-pulse shadow-lg">
+                      🔥 Urgent
+                    </div>
+                  )}
+                  <div className="absolute bottom-2 left-2 bg-success-500 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
+                    -{Math.round(((lot.original_price - lot.discounted_price) / lot.original_price) * 100)}%
+                  </div>
+                </div>
+
+                {/* Contenu */}
+                <div className="p-4">
+                  <h3 className="font-bold text-neutral-900 mb-1 line-clamp-2">
+                    {lot.title}
+                  </h3>
+                  <p className="text-xs text-neutral-600 mb-3 line-clamp-2">
+                    {lot.description}
+                  </p>
+
+                  <div className="mb-3">
+                    <span className="bg-neutral-100 text-neutral-700 text-xs px-2 py-1 rounded-full">
+                      {lot.category}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-neutral-400 line-through text-xs">
+                        {lot.original_price}€
+                      </span>
+                      <div className="flex items-center gap-0.5 text-primary-600">
+                        <Euro className="w-5 h-5" />
+                        <span className="text-2xl font-black">{lot.discounted_price}€</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Package className="w-4 h-4 text-neutral-600" />
+                      <span className="text-neutral-700">
+                        <span className="font-bold text-success-600">
+                          {lot.quantity_total - lot.quantity_reserved - lot.quantity_sold}
+                        </span>
+                        {' '}disponibles
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-neutral-600">
+                      <Clock className="w-4 h-4" />
+                      <span>
+                        {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} - {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleReserveLot(lot);
+                    }}
+                    disabled={lot.quantity_total - lot.quantity_reserved - lot.quantity_sold === 0}
+                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold transition-all ${
+                      lot.quantity_total - lot.quantity_reserved - lot.quantity_sold === 0
+                        ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:scale-105'
+                    }`}
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    {lot.quantity_total - lot.quantity_reserved - lot.quantity_sold === 0 ? 'Épuisé' : 'Réserver ce lot'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Modal de réservation */}
+        {selectedLotForReservation && (
+          <ReservationModal
+            lot={selectedLotForReservation}
+            onClose={() => setSelectedLotForReservation(null)}
+            onConfirm={handleConfirmReservation}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 top-[60px] lg:top-[72px]">
       {/* Carte plein écran en arrière-plan */}
@@ -328,18 +510,22 @@ export function InteractiveMap() {
               anchor="bottom"
               onClick={(e) => {
                 e.originalEvent.stopPropagation();
-                openMerchantLots(merchant);
+                handleMerchantClick(merchant);
               }}
             >
               <div className={`relative cursor-pointer transform transition-all duration-300 ${
                 selectedMerchant?.id === merchant.id ? 'scale-125 z-20' : 'hover:scale-110 z-10'
               }`}>
+                {/* Pulsation pour indiquer qu'il faut cliquer à nouveau */}
+                {selectedMerchant?.id === merchant.id && (
+                  <div className="absolute inset-0 bg-primary-400 rounded-full animate-ping opacity-40" />
+                )}
                 {merchant.lots.some(l => l.is_urgent) && (
                   <div className="absolute inset-0 bg-accent-400 rounded-full animate-ping opacity-20" />
                 )}
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-xl border-3 border-white ${
                   selectedMerchant?.id === merchant.id
-                    ? 'bg-gradient-to-br from-accent-500 to-accent-600'
+                    ? 'bg-gradient-to-br from-accent-500 to-accent-600 animate-pulse'
                     : 'bg-gradient-to-br from-primary-500 to-primary-600'
                 }`}>
                   <Store className="w-5 h-5 text-white" />
@@ -352,6 +538,12 @@ export function InteractiveMap() {
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-primary-700 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow border border-white">
                   {merchant.lots.length}
                 </div>
+                {/* Indicateur "Cliquez à nouveau" */}
+                {selectedMerchant?.id === merchant.id && (
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-accent-600 text-white text-xs px-3 py-1 rounded-lg font-bold shadow-lg whitespace-nowrap animate-bounce">
+                    Cliquez à nouveau
+                  </div>
+                )}
               </div>
             </Marker>
           ))}
@@ -479,16 +671,25 @@ export function InteractiveMap() {
                 {merchants.map((merchant) => (
                   <div
                     key={merchant.id}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 relative ${
                       selectedMerchant?.id === merchant.id
                         ? 'border-primary-400 bg-primary-50 shadow-lg'
                         : 'border-neutral-200 bg-white hover:border-primary-200 hover:shadow-md'
                     }`}
-                    onClick={() => openMerchantLots(merchant)}
+                    onClick={() => handleMerchantClick(merchant)}
                   >
+                    {/* Indicateur pour clic sélectionné */}
+                    {selectedMerchant?.id === merchant.id && (
+                      <div className="absolute -top-2 -right-2 bg-accent-600 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg animate-bounce z-10">
+                        Cliquez pour voir les lots
+                      </div>
+                    )}
+                    
                     <div className="flex items-center gap-3 mb-3">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        merchant.lots.some(l => l.is_urgent)
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
+                        selectedMerchant?.id === merchant.id
+                          ? 'bg-gradient-to-br from-accent-500 to-accent-600 animate-pulse'
+                          : merchant.lots.some(l => l.is_urgent)
                           ? 'bg-gradient-to-br from-accent-400 to-accent-600 animate-pulse'
                           : 'bg-gradient-to-br from-primary-500 to-primary-600'
                       }`}>
@@ -633,23 +834,6 @@ export function InteractiveMap() {
         </button>
       )}
 
-      {/* Modal affichant tous les lots d'un commerçant */}
-      {selectedMerchantForModal && (
-        <MerchantLotsModal
-          merchant={selectedMerchantForModal}
-          onClose={() => setSelectedMerchantForModal(null)}
-          onReserve={handleReserveLot}
-        />
-      )}
-
-      {/* Modal de réservation */}
-      {selectedLotForReservation && (
-        <ReservationModal
-          lot={selectedLotForReservation}
-          onClose={() => setSelectedLotForReservation(null)}
-          onConfirm={handleConfirmReservation}
-        />
-      )}
     </div>
   );
 }
