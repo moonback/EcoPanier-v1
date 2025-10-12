@@ -1,65 +1,38 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
-import { useAuthStore } from '../../stores/authStore';
+// Imports externes
 import { TrendingUp, Heart, Package, DollarSign } from 'lucide-react';
-import type { Database } from '../../lib/database.types';
 
-type ImpactMetric = Database['public']['Tables']['impact_metrics']['Row'];
+// Imports internes
+import { useAuthStore } from '../../stores/authStore';
+import {
+  useImpactMetrics,
+  calculateCO2Impact,
+  calculateTreesEquivalent,
+  calculateWaterSaved,
+  calculateEnergySaved,
+} from '../../hooks/useImpactMetrics';
+import { ImpactCard, InlineSpinner } from './components';
 
+/**
+ * Composant pour afficher le tableau de bord d'impact environnemental et social
+ * Affiche les statistiques d'impact du client et leurs équivalences
+ */
 export const ImpactDashboard = () => {
-  const [metrics, setMetrics] = useState({
-    meals_saved: 0,
-    co2_saved: 0,
-    money_saved: 0,
-    donations_made: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
+  const { metrics, loading, error } = useImpactMetrics(profile?.id);
 
-  useEffect(() => {
-    fetchMetrics();
-  }, []);
+  // Early returns (conditions de sortie)
+  if (loading) return <InlineSpinner />;
 
-  const fetchMetrics = async () => {
-    if (!profile) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('impact_metrics')
-        .select('*')
-        .eq('user_id', profile.id);
-
-      if (error) throw error;
-
-      const aggregated = data.reduce(
-        (acc, metric) => {
-          acc[metric.metric_type] += metric.value;
-          return acc;
-        },
-        {
-          meals_saved: 0,
-          co2_saved: 0,
-          money_saved: 0,
-          donations_made: 0,
-        }
-      );
-
-      setMetrics(aggregated);
-    } catch (error) {
-      console.error('Error fetching metrics:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
+  if (error) {
     return (
-      <div className="flex justify-center py-8 sm:py-12">
-        <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-600"></div>
+      <div className="text-center py-12">
+        <p className="text-red-600 font-semibold">{error}</p>
       </div>
     );
   }
 
+  // Données des cartes d'impact
   const impactCards = [
     {
       title: 'Repas Sauvés',
@@ -70,7 +43,7 @@ export const ImpactDashboard = () => {
     },
     {
       title: 'CO₂ Économisé',
-      value: (metrics.meals_saved * 2.5).toFixed(1),
+      value: calculateCO2Impact(metrics.meals_saved).toFixed(1),
       icon: TrendingUp,
       color: 'bg-green-500',
       description: 'kg de CO₂ non émis',
@@ -91,66 +64,72 @@ export const ImpactDashboard = () => {
     },
   ];
 
+  // Render principal
   return (
     <div>
+      {/* Cartes d'impact */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        {impactCards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={card.title}
-              className="bg-white rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition-all hover-lift"
-            >
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className={`${card.color} p-2.5 sm:p-3 rounded-lg flex-shrink-0`}>
-                  <Icon size={20} className="sm:w-6 sm:h-6 text-white" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm text-gray-600 truncate">{card.title}</p>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-800 truncate">{card.value}</p>
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 mt-2 sm:mt-3">{card.description}</p>
-            </div>
-          );
-        })}
+        {impactCards.map((card) => (
+          <ImpactCard key={card.title} {...card} />
+        ))}
       </div>
 
+      {/* Section détaillée de l'impact */}
       <div className="bg-white rounded-xl shadow-md p-5 sm:p-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Votre Impact Environnemental</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">
+          Votre Impact Environnemental
+        </h2>
 
         <div className="space-y-4 sm:space-y-6">
+          {/* Message de félicitations */}
           <div className="p-4 sm:p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
             <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
               Félicitations pour votre engagement!
             </h3>
             <p className="text-sm sm:text-base text-gray-600">
-              En sauvant {metrics.meals_saved.toFixed(0)} repas du gaspillage, vous avez contribué
-              à réduire l'empreinte carbone de notre communauté. Chaque geste compte!
+              En sauvant {metrics.meals_saved.toFixed(0)} repas du gaspillage, vous
+              avez contribué à réduire l'empreinte carbone de notre communauté. Chaque
+              geste compte!
             </p>
           </div>
 
+          {/* Équivalences */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {/* Équivalence environnementale */}
             <div className="p-4 sm:p-6 border border-gray-200 rounded-lg">
-              <h4 className="text-sm sm:text-base font-semibold text-gray-800 mb-3">Équivalence environnementale</h4>
+              <h4 className="text-sm sm:text-base font-semibold text-gray-800 mb-3">
+                Équivalence environnementale
+              </h4>
               <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
                 <li className="flex items-start gap-2">
                   <span className="flex-shrink-0">🌳</span>
-                  <span>{(metrics.meals_saved * 0.1).toFixed(1)} arbres préservés</span>
+                  <span>
+                    {calculateTreesEquivalent(metrics.meals_saved).toFixed(1)} arbres
+                    préservés
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="flex-shrink-0">💧</span>
-                  <span>{(metrics.meals_saved * 50).toFixed(0)} litres d'eau économisés</span>
+                  <span>
+                    {calculateWaterSaved(metrics.meals_saved).toFixed(0)} litres d'eau
+                    économisés
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="flex-shrink-0">⚡</span>
-                  <span>{(metrics.meals_saved * 0.5).toFixed(1)} kWh d'énergie économisés</span>
+                  <span>
+                    {calculateEnergySaved(metrics.meals_saved).toFixed(1)} kWh d'énergie
+                    économisés
+                  </span>
                 </li>
               </ul>
             </div>
 
+            {/* Impact social */}
             <div className="p-4 sm:p-6 border border-gray-200 rounded-lg">
-              <h4 className="text-sm sm:text-base font-semibold text-gray-800 mb-3">Impact social</h4>
+              <h4 className="text-sm sm:text-base font-semibold text-gray-800 mb-3">
+                Impact social
+              </h4>
               <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
                 <li className="flex items-start gap-2">
                   <span className="flex-shrink-0">❤️</span>

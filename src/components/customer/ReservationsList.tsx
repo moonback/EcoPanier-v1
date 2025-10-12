@@ -1,240 +1,107 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../../lib/supabase';
+// Imports externes
+import { useState } from 'react';
+import { Package } from 'lucide-react';
+
+// Imports internes
 import { useAuthStore } from '../../stores/authStore';
-import { QRCodeDisplay } from '../shared/QRCodeDisplay';
-import { formatCurrency, formatDateTime } from '../../utils/helpers';
-import { Package, MapPin, Clock, Key, X } from 'lucide-react';
+import { useReservations } from '../../hooks/useReservations';
+import {
+  ReservationCard,
+  QRCodeModal,
+  EmptyState,
+  InlineSpinner,
+} from './components';
+
+// Imports types
 import type { Database } from '../../lib/database.types';
 
 type Reservation = Database['public']['Tables']['reservations']['Row'] & {
   lots: Database['public']['Tables']['lots']['Row'] & {
-    profiles: { business_name: string; business_address: string };
+    profiles: {
+      business_name: string;
+      business_address: string;
+    };
   };
 };
 
+/**
+ * Composant pour afficher la liste des réservations d'un client
+ * Permet de voir les détails, afficher le QR code et annuler une réservation
+ */
 export const ReservationsList = () => {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  // État local
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(
+    null
+  );
+
+  // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
+  const { reservations, loading, error, cancelReservation } = useReservations(
+    profile?.id
+  );
 
-  const fetchReservations = useCallback(async () => {
-    if (!profile) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('reservations')
-        .select('*, lots(*, profiles(business_name, business_address))')
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setReservations(data as Reservation[]);
-    } catch (error) {
-      console.error('Error fetching reservations:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [profile]);
-
-  useEffect(() => {
-    fetchReservations();
-  }, [fetchReservations]);
-
-  const handleCancel = async (reservationId: string, lotId: string, quantity: number) => {
+  // Handlers
+  const handleCancelReservation = async (
+    reservationId: string,
+    lotId: string,
+    quantity: number
+  ) => {
     if (!confirm('Voulez-vous vraiment annuler cette réservation ?')) return;
 
     try {
-      // Mise à jour du statut de la réservation
-      const { error: updateError } = await (supabase
-        .from('reservations') as unknown as {
-          update: (data: { status: string }) => {
-            eq: (col: string, val: string) => Promise<{ error: Error | null }>;
-          };
-        })
-        .update({ status: 'cancelled' })
-        .eq('id', reservationId);
-
-      if (updateError) throw updateError;
-
-      // Mise à jour de la quantité réservée du lot
-      const reservation = reservations.find((r) => r.id === reservationId);
-      if (reservation) {
-        const newQuantityReserved = reservation.lots.quantity_reserved - quantity;
-        
-        const { error: lotError } = await (supabase
-          .from('lots') as unknown as {
-            update: (data: { quantity_reserved: number }) => {
-              eq: (col: string, val: string) => Promise<{ error: Error | null }>;
-            };
-          })
-          .update({ quantity_reserved: newQuantityReserved })
-          .eq('id', lotId);
-
-        if (lotError) throw lotError;
-      }
-
-      fetchReservations();
-    } catch (error) {
-      console.error('Error cancelling reservation:', error);
-      alert('Erreur lors de l\'annulation');
+      await cancelReservation(reservationId, lotId, quantity);
+    } catch (err) {
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'Erreur lors de l\'annulation de la réservation'
+      );
     }
   };
 
-  if (loading) {
+  // Early returns (conditions de sortie)
+  if (loading) return <InlineSpinner />;
+
+  if (error) {
     return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="text-center py-12">
+        <p className="text-red-600 font-semibold">{error}</p>
       </div>
     );
   }
 
   if (reservations.length === 0) {
     return (
-      <div className="text-center py-12">
-        <Package size={64} className="text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-600">Aucune réservation pour le moment</p>
-      </div>
+      <EmptyState
+        icon={Package}
+        title="Aucune réservation pour le moment"
+        description="Vos réservations apparaîtront ici une fois que vous aurez réservé un lot."
+      />
     );
   }
 
+  // Render principal
   return (
     <div>
+      {/* Grille de réservations */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {reservations.map((reservation) => (
-          <div
+          <ReservationCard
             key={reservation.id}
-            className="bg-white rounded-xl shadow-md overflow-hidden"
-          >
-            <div className={`p-4 ${
-              reservation.status === 'pending'
-                ? 'bg-blue-50'
-                : reservation.status === 'completed'
-                ? 'bg-green-50'
-                : reservation.status === 'cancelled'
-                ? 'bg-gray-50'
-                : 'bg-yellow-50'
-            }`}>
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-bold text-gray-800">{reservation.lots.title}</h3>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    reservation.status === 'pending'
-                      ? 'bg-blue-100 text-blue-700'
-                      : reservation.status === 'completed'
-                      ? 'bg-green-100 text-green-700'
-                      : reservation.status === 'cancelled'
-                      ? 'bg-gray-100 text-gray-700'
-                      : 'bg-yellow-100 text-yellow-700'
-                  }`}
-                >
-                  {reservation.status === 'pending'
-                    ? 'En attente'
-                    : reservation.status === 'completed'
-                    ? 'Récupéré'
-                    : reservation.status === 'cancelled'
-                    ? 'Annulé'
-                    : 'Confirmé'}
-                </span>
-              </div>
-
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <MapPin size={16} />
-                  <span>{reservation.lots.profiles.business_name}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock size={16} />
-                  <span>{formatDateTime(reservation.lots.pickup_start)}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Package size={16} />
-                  <span>Quantité: {reservation.quantity}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Key size={16} />
-                  <span className="font-mono font-bold">PIN: {reservation.pickup_pin}</span>
-                </div>
-              </div>
-
-              {reservation.is_donation && (
-                <div className="mt-2 p-2 bg-pink-100 rounded-lg">
-                  <p className="text-xs text-pink-700 font-semibold">
-                    Panier Suspendu - Merci pour votre générosité!
-                  </p>
-                </div>
-              )}
-
-              <div className="mt-4 pt-4 border-t">
-                <p className="text-lg font-bold text-gray-800">
-                  {formatCurrency(reservation.total_price)}
-                </p>
-              </div>
-
-              <div className="mt-4 flex gap-2">
-                {(reservation.status === 'pending' || reservation.status === 'confirmed') && (
-                  <button
-                    onClick={() => setSelectedReservation(reservation)}
-                    className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                  >
-                    Voir QR Code
-                  </button>
-                )}
-                {reservation.status === 'pending' && (
-                  <button
-                    onClick={() =>
-                      handleCancel(reservation.id, reservation.lot_id, reservation.quantity)
-                    }
-                    className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
-                  >
-                    <X size={20} />
-                  </button>
-                )}
-                {reservation.status === 'completed' && (
-                  <div className="flex-1 py-2 px-4 bg-green-100 text-green-700 rounded-lg text-sm font-medium text-center">
-                    ✓ Lot récupéré
-                  </div>
-                )}
-                {reservation.status === 'cancelled' && (
-                  <div className="flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
-                    Réservation annulée
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+            reservation={reservation}
+            onShowQRCode={setSelectedReservation}
+            onCancel={handleCancelReservation}
+          />
         ))}
       </div>
 
-      {selectedReservation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Code de retrait</h3>
-              <button
-                onClick={() => setSelectedReservation(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <QRCodeDisplay
-              value={JSON.stringify({
-                reservationId: selectedReservation.id,
-                pin: selectedReservation.pickup_pin,
-                userId: profile?.id,
-                lotId: selectedReservation.lot_id,
-                timestamp: new Date().toISOString(),
-              })}
-              title={selectedReservation.lots.title}
-            />
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600 text-center">
-                Code PIN: <span className="font-mono font-bold text-lg">{selectedReservation.pickup_pin}</span>
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Modal QR Code */}
+      {selectedReservation && profile && (
+        <QRCodeModal
+          reservation={selectedReservation}
+          userId={profile.id}
+          onClose={() => setSelectedReservation(null)}
+        />
       )}
     </div>
   );
