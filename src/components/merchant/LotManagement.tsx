@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, categories, uploadImage } from '../../utils/helpers';
 import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
-import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus } from 'lucide-react';
+import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 
 type Lot = Database['public']['Tables']['lots']['Row'];
@@ -17,7 +17,10 @@ export const LotManagement = () => {
   const [editingLot, setEditingLot] = useState<Lot | null>(null);
   const [analyzingImage, setAnalyzingImage] = useState(false);
   const [analysisConfidence, setAnalysisConfidence] = useState<number | null>(null);
+  const [currentStep, setCurrentStep] = useState(1);
   const { profile } = useAuthStore();
+
+  const totalSteps = editingLot ? 4 : 5; // 5 étapes pour création (avec IA), 4 pour édition
 
   const [formData, setFormData] = useState({
     title: '',
@@ -239,6 +242,53 @@ export const LotManagement = () => {
       image_urls: [],
     });
     setAnalysisConfidence(null);
+    setCurrentStep(1);
+  };
+
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const canProceedToNextStep = () => {
+    if (editingLot) {
+      // Mode édition
+      switch (currentStep) {
+        case 1: // Informations de base
+          return formData.title && formData.description && formData.category;
+        case 2: // Prix et quantité
+          return formData.original_price > 0 && formData.discounted_price >= 0 && formData.quantity_total > 0;
+        case 3: // Horaires
+          return formData.pickup_start && formData.pickup_end;
+        case 4: // Options et images
+          return true;
+        default:
+          return false;
+      }
+    } else {
+      // Mode création
+      switch (currentStep) {
+        case 1: // Analyse IA
+          return true; // Optionnel
+        case 2: // Informations de base
+          return formData.title && formData.description && formData.category;
+        case 3: // Prix et quantité
+          return formData.original_price > 0 && formData.discounted_price >= 0 && formData.quantity_total > 0;
+        case 4: // Horaires
+          return formData.pickup_start && formData.pickup_end;
+        case 5: // Options et images
+          return true;
+        default:
+          return false;
+      }
+    }
   };
 
   const generateFictionalLots = async () => {
@@ -324,7 +374,31 @@ export const LotManagement = () => {
       is_urgent: lot.is_urgent,
       image_urls: lot.image_urls,
     });
+    setCurrentStep(1);
     setShowModal(true);
+  };
+
+  const getStepInfo = () => {
+    if (editingLot) {
+      // Mode édition (4 étapes)
+      const steps = [
+        { number: 1, title: 'Informations', icon: FileText },
+        { number: 2, title: 'Prix & Quantité', icon: DollarSign },
+        { number: 3, title: 'Horaires', icon: Clock },
+        { number: 4, title: 'Options & Images', icon: Settings },
+      ];
+      return steps;
+    } else {
+      // Mode création (5 étapes)
+      const steps = [
+        { number: 1, title: 'Analyse IA', icon: Sparkles },
+        { number: 2, title: 'Informations', icon: FileText },
+        { number: 3, title: 'Prix & Quantité', icon: DollarSign },
+        { number: 4, title: 'Horaires', icon: Clock },
+        { number: 5, title: 'Options & Images', icon: Settings },
+      ];
+      return steps;
+    }
   };
 
   if (loading) {
@@ -463,97 +537,212 @@ export const LotManagement = () => {
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-xl max-w-2xl w-full p-6 my-8">
-            <h3 className="text-2xl font-bold mb-4">
-              {editingLot ? 'Modifier le lot' : 'Nouveau lot'}
-            </h3>
-
-            {/* Section d'analyse IA */}
-            {!editingLot && (
-              <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-xl">
-                <div className="flex items-start gap-3 mb-3">
-                  <Sparkles className="text-purple-600 flex-shrink-0 mt-1" size={24} />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-purple-900 mb-1">
-                      🤖 Analyse Intelligente par IA (Gemini 2.0 Flash)
-                    </h4>
-                    <p className="text-sm text-purple-700 mb-3">
-                      Téléchargez une photo de votre produit et l'IA remplira automatiquement tous les champs du formulaire !
-                    </p>
-                    
-                    <label className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition cursor-pointer font-medium">
-                      {analyzingImage ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                          <span>Analyse en cours...</span>
-                        </>
-                      ) : (
-                        <>
-                          <ImagePlus size={20} />
-                          <span>Analyser une image avec l'IA</span>
-                        </>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleAIImageAnalysis}
-                        disabled={analyzingImage}
-                        className="hidden"
-                      />
-                    </label>
-
-                    {!isGeminiConfigured() && (
-                      <p className="text-xs text-orange-600 mt-2">
-                        ⚠️ Configuration requise : ajoutez VITE_GEMINI_API_KEY dans votre fichier .env
-                      </p>
-                    )}
-
-                    {analysisConfidence !== null && (
-                      <div className="mt-3 p-2 bg-white rounded-lg border border-purple-200">
-                        <p className="text-xs text-purple-800">
-                          ✨ Confiance de l'analyse : <span className="font-bold">{Math.round(analysisConfidence * 100)}%</span>
-                          {analysisConfidence < 0.7 && ' - Vérifiez les informations'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full my-8 shadow-2xl">
+            {/* Header avec fermeture */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Titre</label>
+                <h3 className="text-2xl font-bold text-gray-800">
+                  {editingLot ? 'Modifier le lot' : 'Créer un nouveau lot'}
+            </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Étape {currentStep} sur {totalSteps}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setEditingLot(null);
+                  resetForm();
+                }}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Barre de progression avec étapes */}
+            <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                {getStepInfo().map((step, index) => {
+                  const StepIcon = step.icon;
+                  const isActive = currentStep === step.number;
+                  const isCompleted = currentStep > step.number;
+                  
+                  return (
+                    <div key={step.number} className="flex items-center flex-1">
+                      <div className="flex flex-col items-center flex-1">
+                        <div className={`
+                          w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
+                          ${isCompleted ? 'bg-green-500 text-white' : 
+                            isActive ? 'bg-blue-600 text-white ring-4 ring-blue-100' : 
+                            'bg-gray-200 text-gray-500'}
+                        `}>
+                          {isCompleted ? <Check size={20} /> : <StepIcon size={20} />}
+                        </div>
+                        <span className={`text-xs mt-2 font-medium text-center ${
+                          isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                        }`}>
+                          {step.title}
+                        </span>
+                      </div>
+                      {index < getStepInfo().length - 1 && (
+                        <div className={`h-1 flex-1 mx-2 rounded transition-all duration-300 ${
+                          isCompleted ? 'bg-green-500' : 'bg-gray-200'
+                        }`} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Contenu du formulaire selon l'étape */}
+            <div className="p-6 min-h-[400px]">
+              <form onSubmit={handleSubmit}>
+                {/* Étape 1 : Analyse IA (uniquement en création) */}
+                {!editingLot && currentStep === 1 && (
+                  <div className="space-y-6 animate-fade-in">
+                    <div className="text-center mb-8">
+                      <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full mb-4">
+                        <Sparkles size={40} className="text-white" />
+                      </div>
+                      <h4 className="text-xl font-bold text-gray-800 mb-2">
+                        🤖 Analyse Intelligente par IA
+                      </h4>
+                      <p className="text-gray-600 max-w-md mx-auto">
+                        Gagnez du temps ! Uploadez une photo de votre produit et l'IA remplira automatiquement tous les champs.
+                      </p>
+                    </div>
+
+                    <div className="max-w-xl mx-auto">
+                      <div className="p-6 bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border-2 border-purple-200 rounded-2xl">
+                        <label className="block cursor-pointer">
+                          <div className={`
+                            relative p-8 border-3 border-dashed rounded-xl text-center transition-all duration-300
+                            ${analyzingImage ? 'border-blue-400 bg-blue-50' : 'border-purple-300 bg-white hover:bg-purple-50 hover:border-purple-400'}
+                          `}>
+                            {analyzingImage ? (
+                              <div className="space-y-4">
+                                <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto"></div>
+                                <p className="text-purple-600 font-semibold">Analyse en cours...</p>
+                                <p className="text-sm text-gray-600">L'IA analyse votre image</p>
+                              </div>
+                            ) : (
+                              <div className="space-y-4">
+                                <ImagePlus size={48} className="mx-auto text-purple-500" />
+              <div>
+                                  <p className="text-lg font-semibold text-gray-800">
+                                    Cliquez pour sélectionner une image
+                                  </p>
+                                  <p className="text-sm text-gray-500 mt-1">
+                                    ou glissez-déposez ici
+                                  </p>
+                                </div>
+                                <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium">
+                                  <Sparkles size={20} />
+                                  <span>Analyser avec l'IA</span>
+                                </div>
+                              </div>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleAIImageAnalysis}
+                              disabled={analyzingImage}
+                              className="hidden"
+                            />
+                          </div>
+                        </label>
+
+                        {!isGeminiConfigured() && (
+                          <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                            <p className="text-sm text-orange-700 flex items-center gap-2">
+                              <span className="text-lg">⚠️</span>
+                              Configuration requise : ajoutez VITE_GEMINI_API_KEY dans votre fichier .env
+                            </p>
+                          </div>
+                        )}
+
+                        {analysisConfidence !== null && (
+                          <div className="mt-4 p-4 bg-white border-2 border-green-200 rounded-lg animate-fade-in">
+                            <div className="flex items-center gap-3">
+                              <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <Check size={24} className="text-green-600" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-semibold text-green-800">Analyse terminée !</p>
+                                <p className="text-sm text-gray-600">
+                                  Confiance : <span className="font-bold text-green-600">{Math.round(analysisConfidence * 100)}%</span>
+                                  {analysisConfidence < 0.7 && ' - Vérifiez les informations aux étapes suivantes'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-6 text-center">
+                        <button
+                          type="button"
+                          onClick={nextStep}
+                          className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1 mx-auto"
+                        >
+                          <span>Passer cette étape</span>
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Étape 2 (création) ou Étape 1 (édition) : Informations de base */}
+                {((editingLot && currentStep === 1) || (!editingLot && currentStep === 2)) && (
+                  <div className="space-y-6 animate-fade-in">
+                    <div className="text-center mb-6">
+                      <h4 className="text-xl font-bold text-gray-800 mb-2">Informations du produit</h4>
+                      <p className="text-gray-600">Décrivez votre produit en quelques mots</p>
+                    </div>
+
+              <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <span className="text-red-500">*</span> Titre du produit
+                      </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        placeholder="Ex: Baguettes tradition fraîches"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <span className="text-red-500">*</span> Description
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg h-24"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition h-32"
+                        placeholder="Décrivez le produit, son état, sa composition..."
                   required
                 />
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formData.description.length} caractères
+                      </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Catégorie
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <span className="text-red-500">*</span> Catégorie
                   </label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   >
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
@@ -562,138 +751,291 @@ export const LotManagement = () => {
                     ))}
                   </select>
                 </div>
+                  </div>
+                )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quantité
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.quantity_total}
-                    onChange={(e) =>
-                      setFormData({ ...formData, quantity_total: parseInt(e.target.value) })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                    required
-                  />
-                </div>
+                {/* Étape 3 (création) ou Étape 2 (édition) : Prix et Quantité */}
+                {((editingLot && currentStep === 2) || (!editingLot && currentStep === 3)) && (
+                  <div className="space-y-6 animate-fade-in">
+                    <div className="text-center mb-6">
+                      <h4 className="text-xl font-bold text-gray-800 mb-2">Prix et Quantité</h4>
+                      <p className="text-gray-600">Définissez vos tarifs anti-gaspi</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Prix original (€)
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <span className="text-red-500">*</span> Prix original (€)
                   </label>
+                        <div className="relative">
+                          <DollarSign size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="number"
                     min="0"
                     step="0.01"
                     value={formData.original_price}
                     onChange={(e) =>
-                      setFormData({ ...formData, original_price: parseFloat(e.target.value) })
+                              setFormData({ ...formData, original_price: parseFloat(e.target.value) || 0 })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="0.00"
                     required
                   />
                 </div>
+                        <p className="text-xs text-gray-500 mt-1">Prix de vente habituel</p>
+              </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Prix réduit (€)
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <span className="text-red-500">*</span> Prix réduit (€)
                   </label>
+                        <div className="relative">
+                          <DollarSign size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500" />
                   <input
                     type="number"
                     min="0"
                     step="0.01"
                     value={formData.discounted_price}
                     onChange={(e) =>
-                      setFormData({ ...formData, discounted_price: parseFloat(e.target.value) })
+                              setFormData({ ...formData, discounted_price: parseFloat(e.target.value) || 0 })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                            className="w-full pl-10 pr-4 py-3 border-2 border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                            placeholder="0.00"
                     required
                   />
+                        </div>
+                        <p className="text-xs text-green-600 mt-1">
+                          {formData.original_price > 0 && formData.discounted_price > 0
+                            ? `Réduction de ${Math.round((1 - formData.discounted_price / formData.original_price) * 100)}%`
+                            : 'Prix anti-gaspillage'}
+                        </p>
                 </div>
-              </div>
+                </div>
 
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Début retrait
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <span className="text-red-500">*</span> Quantité disponible
                   </label>
+                  <input
+                    type="number"
+                        min="1"
+                        value={formData.quantity_total}
+                    onChange={(e) =>
+                          setFormData({ ...formData, quantity_total: parseInt(e.target.value) || 1 })
+                    }
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        placeholder="1"
+                    required
+                  />
+                      <p className="text-xs text-gray-500 mt-1">Nombre d'unités à vendre</p>
+                </div>
+
+                    {formData.original_price > 0 && formData.discounted_price > 0 && formData.quantity_total > 0 && (
+                      <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                        <h5 className="font-semibold text-blue-900 mb-2">📊 Résumé</h5>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-gray-600">Chiffre d'affaires potentiel</p>
+                            <p className="text-lg font-bold text-blue-600">
+                              {formatCurrency(formData.discounted_price * formData.quantity_total)}
+                            </p>
+              </div>
+                          <div>
+                            <p className="text-gray-600">Économie client</p>
+                            <p className="text-lg font-bold text-green-600">
+                              {formatCurrency((formData.original_price - formData.discounted_price) * formData.quantity_total)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Étape 4 (création) ou Étape 3 (édition) : Horaires de retrait */}
+                {((editingLot && currentStep === 3) || (!editingLot && currentStep === 4)) && (
+                  <div className="space-y-6 animate-fade-in">
+                    <div className="text-center mb-6">
+                      <h4 className="text-xl font-bold text-gray-800 mb-2">Horaires de retrait</h4>
+                      <p className="text-gray-600">Quand vos clients pourront-ils récupérer le produit ?</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <span className="text-red-500">*</span> Début du retrait
+                  </label>
+                        <div className="relative">
+                          <Clock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                   <input
                     type="datetime-local"
                     value={formData.pickup_start}
                     onChange={(e) => setFormData({ ...formData, pickup_start: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     required
                   />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">À partir de quand</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fin retrait
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <span className="text-red-500">*</span> Fin du retrait
                   </label>
+                        <div className="relative">
+                          <Clock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                   <input
                     type="datetime-local"
                     value={formData.pickup_end}
                     onChange={(e) => setFormData({ ...formData, pickup_end: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     required
                   />
                 </div>
+                        <p className="text-xs text-gray-500 mt-1">Jusqu'à quand</p>
+                </div>
               </div>
 
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2">
+                    {formData.pickup_start && formData.pickup_end && (
+                      <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-green-700">
+                          <Check size={20} />
+                          <span className="font-semibold">Créneau de retrait défini</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Étape 5 (création) ou Étape 4 (édition) : Options et Images */}
+                {((editingLot && currentStep === 4) || (!editingLot && currentStep === 5)) && (
+                  <div className="space-y-6 animate-fade-in">
+                    <div className="text-center mb-6">
+                      <h4 className="text-xl font-bold text-gray-800 mb-2">Options et Images</h4>
+                      <p className="text-gray-600">Derniers détails pour votre annonce</p>
+              </div>
+
+                    <div className="space-y-4">
+                      <h5 className="font-semibold text-gray-800 flex items-center gap-2">
+                        <Settings size={20} />
+                        Options du produit
+                      </h5>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label className={`
+                          flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition
+                          ${formData.requires_cold_chain ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300 hover:border-blue-300'}
+                        `}>
                   <input
                     type="checkbox"
                     checked={formData.requires_cold_chain}
                     onChange={(e) =>
                       setFormData({ ...formData, requires_cold_chain: e.target.checked })
                     }
-                    className="w-4 h-4"
+                            className="w-5 h-5 text-blue-600"
                   />
-                  <span className="text-sm text-gray-700">Chaîne du froid requise</span>
+                          <div>
+                            <p className="font-medium text-gray-800">🧊 Chaîne du froid requise</p>
+                            <p className="text-xs text-gray-600">Produit réfrigéré ou surgelé</p>
+                          </div>
                 </label>
 
-                <label className="flex items-center gap-2">
+                        <label className={`
+                          flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition
+                          ${formData.is_urgent ? 'bg-red-50 border-red-400' : 'bg-white border-gray-300 hover:border-red-300'}
+                        `}>
                   <input
                     type="checkbox"
                     checked={formData.is_urgent}
                     onChange={(e) => setFormData({ ...formData, is_urgent: e.target.checked })}
-                    className="w-4 h-4"
+                            className="w-5 h-5 text-red-600"
                   />
-                  <span className="text-sm text-gray-700">Urgent</span>
+                          <div>
+                            <p className="font-medium text-gray-800">⚡ Produit urgent</p>
+                            <p className="text-xs text-gray-600">DLC proche ou très périssable</p>
+                          </div>
                 </label>
+                      </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Images
-                </label>
+                      <h5 className="font-semibold text-gray-800 flex items-center gap-2">
+                        <ImageIcon size={20} />
+                        Photos du produit (optionnel)
+                      </h5>
+                      
+                      <label className="block cursor-pointer">
+                        <div className="p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-center">
+                          <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
+                          <p className="text-sm font-medium text-gray-700">Cliquez pour ajouter des photos</p>
+                          <p className="text-xs text-gray-500 mt-1">Plusieurs images acceptées</p>
                 <input
                   type="file"
                   accept="image/*"
                   multiple
                   onChange={handleImageUpload}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                            className="hidden"
                 />
+                        </div>
+                      </label>
+
                 {formData.image_urls.length > 0 && (
-                  <div className="mt-2 flex gap-2 flex-wrap">
+                        <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                     {formData.image_urls.map((url, i) => (
+                            <div key={i} className="relative group">
                       <img
-                        key={i}
                         src={url}
-                        alt={`Preview ${i}`}
-                        className="w-20 h-20 object-cover rounded-lg"
-                      />
+                                alt={`Preview ${i + 1}`}
+                                className="w-full h-24 object-cover rounded-lg border-2 border-gray-200"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newUrls = formData.image_urls.filter((_, index) => index !== i);
+                                  setFormData({ ...formData, image_urls: newUrls });
+                                }}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
                     ))}
                   </div>
                 )}
               </div>
 
-              <div className="flex gap-2 pt-4">
+                    <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <Check size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                        <div className="text-sm text-green-800">
+                          <p className="font-semibold mb-1">Votre lot est prêt !</p>
+                          <p>Cliquez sur "Créer le lot" pour le publier sur la plateforme.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </form>
+            </div>
+
+            {/* Footer avec navigation */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+              <div>
+                {currentStep > 1 && (
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="flex items-center gap-2 px-6 py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
+                  >
+                    <ChevronLeft size={20} />
+                    <span>Précédent</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -701,18 +1043,44 @@ export const LotManagement = () => {
                     setEditingLot(null);
                     resetForm();
                   }}
-                  className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                  className="px-6 py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
                 >
                   Annuler
                 </button>
+
+                {currentStep < totalSteps ? (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    disabled={!canProceedToNextStep()}
+                    className={`
+                      flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition
+                      ${canProceedToNextStep()
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
+                    `}
+                  >
+                    <span>Suivant</span>
+                    <ChevronRight size={20} />
+                  </button>
+                ) : (
                 <button
                   type="submit"
-                  className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                >
-                  {editingLot ? 'Mettre à jour' : 'Créer'}
+                    onClick={handleSubmit}
+                    disabled={!canProceedToNextStep()}
+                    className={`
+                      flex items-center gap-2 px-8 py-3 rounded-lg font-semibold transition
+                      ${canProceedToNextStep()
+                        ? 'bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
+                    `}
+                  >
+                    <Check size={20} />
+                    <span>{editingLot ? 'Mettre à jour le lot' : 'Créer le lot'}</span>
                 </button>
+                )}
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
