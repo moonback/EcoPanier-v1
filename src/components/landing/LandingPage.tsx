@@ -1,16 +1,18 @@
 import { Header } from '../shared/Header';
 import { Footer } from '../shared/Footer';
 import { StickyCTA } from './StickyCTA';
-import { HeroSection } from './sections/HeroSection';
-import { SuspendedBasketsSection } from './sections/SuspendedBasketsSection';
-import { UserProfilesSection } from './sections/UserProfilesSection';
-import { WhySection } from './sections/WhySection';
-import { FeaturesSection } from './sections/FeaturesSection';
-import { HowItWorksSection } from './sections/HowItWorksSection';
-import { TestimonialsSection } from './sections/TestimonialsSection';
-import { ImpactStatsSection } from './sections/ImpactStatsSection';
-import { FAQSection } from './sections/FAQSection';
-import { FinalCTASection } from './sections/FinalCTASection';
+import {
+  HeroSection,
+  SuspendedBasketsSection,
+  UserProfilesSection,
+  WhySection,
+  FeaturesSection,
+  HowItWorksSection,
+  TestimonialsSection,
+  ImpactStatsSection,
+  FAQSection,
+  FinalCTASection
+} from './sections';
 
 export const LandingPage = () => {
   return (

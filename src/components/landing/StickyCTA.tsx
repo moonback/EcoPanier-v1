@@ -35,8 +35,9 @@ export const StickyCTA = () => {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md"
+          className="fixed bottom-4 left-0 right-0 z-50 px-4"
         >
+          <div className="max-w-md mx-auto">
           <AnimatePresence mode="wait">
             {!showDonation ? (
               <motion.button
@@ -76,6 +77,7 @@ export const StickyCTA = () => {
               </motion.button>
             )}
           </AnimatePresence>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
