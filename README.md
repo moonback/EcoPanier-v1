@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="EcoPanier Logo" width="160" style="border-radius: 12px;" />
+  <img src="/public/logo.png" alt="EcoPanier Logo" width="160" style="border-radius: 12px;" />
 </p>
 
 
