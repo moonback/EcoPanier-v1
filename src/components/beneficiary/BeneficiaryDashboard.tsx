@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
+import { useSettings } from '../../contexts/SettingsContext';
 import { FreeLotsList } from './FreeLotsList';
 import { BeneficiaryReservations } from './BeneficiaryReservations';
 import { QRCodeDisplay } from '../shared/QRCodeDisplay';
@@ -11,6 +12,7 @@ export const BeneficiaryDashboard = () => {
   const [activeTab, setActiveTab] = useState<'browse' | 'reservations' | 'qrcode' | 'profile'>('browse');
   const [dailyCount, setDailyCount] = useState(0);
   const { profile, signOut } = useAuthStore();
+  const { settings } = useSettings();
 
   useEffect(() => {
     checkDailyLimit();
@@ -99,8 +101,8 @@ export const BeneficiaryDashboard = () => {
 
           <div className="mt-4 p-4 bg-primary-50 rounded-xl border-2 border-primary-200">
             <p className="text-sm text-primary-800 font-semibold">
-              <strong>Réservations aujourd'hui:</strong> {dailyCount} / 2
-              {dailyCount >= 2 && (
+              <strong>Réservations aujourd'hui:</strong> {dailyCount} / {settings.maxDailyBeneficiaryReservations}
+              {dailyCount >= settings.maxDailyBeneficiaryReservations && (
                 <span className="ml-2 badge-accent">
                   Limite atteinte
                 </span>

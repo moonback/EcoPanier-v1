@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSettings } from '../../contexts/SettingsContext';
 import { 
   Menu, 
   X, 
@@ -19,6 +20,7 @@ interface HeaderProps {
 export const Header = ({ transparent = false }: HeaderProps) => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { settings } = useSettings();
 
   const navLinks = [
     { name: 'Accueil', path: '/', icon: Home },
@@ -48,7 +50,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
               </div>
               <div className="hidden sm:block">
                 <div className="text-2xl font-black text-gradient tracking-tight">
-                  EcoPanier
+                  {settings.platformName}
                 </div>
                 <div className="text-xs text-neutral-500 -mt-1 font-medium">
                   Solidarité Alimentaire

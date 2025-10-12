@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { SettingsProvider } from './contexts/SettingsContext';
 import { LandingPage } from './components/landing/LandingPage';
 import { HowItWorks } from './components/pages/HowItWorks';
 import { HelpCenter } from './components/pages/HelpCenter';
@@ -79,28 +80,30 @@ function DashboardRouter() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Page d'accueil publique */}
-        <Route path="/" element={<LandingPage />} />
-        
-        {/* Pages informatives publiques */}
-        <Route path="/how-it-works" element={<HowItWorks />} />
-        <Route path="/help" element={<HelpCenter />} />
-        
-        {/* Route publique pour la station de retrait */}
-        <Route path="/pickup" element={<PickupStation />} />
-        
-        {/* Route pour le dashboard avec authentification */}
-        <Route path="/dashboard" element={<DashboardRouter />} />
-        
-        {/* Route de connexion explicite */}
-        <Route path="/login" element={<DashboardRouter />} />
-        
-        {/* Redirection par défaut */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <SettingsProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Page d'accueil publique */}
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Pages informatives publiques */}
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/help" element={<HelpCenter />} />
+          
+          {/* Route publique pour la station de retrait */}
+          <Route path="/pickup" element={<PickupStation />} />
+          
+          {/* Route pour le dashboard avec authentification */}
+          <Route path="/dashboard" element={<DashboardRouter />} />
+          
+          {/* Route de connexion explicite */}
+          <Route path="/login" element={<DashboardRouter />} />
+          
+          {/* Redirection par défaut */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </SettingsProvider>
   );
 }
 

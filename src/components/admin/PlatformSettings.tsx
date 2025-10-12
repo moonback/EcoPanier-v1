@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
+import { useSettings } from '../../contexts/SettingsContext';
 import { 
-  loadPlatformSettings, 
   savePlatformSettings, 
   resetAllSettings,
   PlatformSettings as SettingsType
@@ -23,50 +23,19 @@ import {
 
 export const PlatformSettings = () => {
   const { user } = useAuthStore();
+  const { settings: globalSettings, refreshSettings } = useSettings();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
-  const [settings, setSettings] = useState<SettingsType>({
-    platformName: 'EcoPanier',
-    platformEmail: 'contact@ecopanier.fr',
-    supportPhone: '01 23 45 67 89',
-    minLotPrice: 2,
-    maxLotPrice: 50,
-    defaultLotDuration: 24,
-    maxReservationsPerDay: 2,
-    merchantCommission: 15,
-    collectorCommission: 10,
-    beneficiaryVerificationRequired: true,
-    maxDailyBeneficiaryReservations: 2,
-    emailNotificationsEnabled: true,
-    smsNotificationsEnabled: false,
-    pushNotificationsEnabled: true,
-    twoFactorAuthRequired: false,
-    passwordExpirationDays: 90,
-    maxLoginAttempts: 5,
-  });
+  const [settings, setSettings] = useState<SettingsType>(globalSettings);
 
-  // Charger les paramètres depuis Supabase
+  // Synchroniser avec les paramètres globaux
   useEffect(() => {
-    const loadData = async () => {
-      setLoadingData(true);
-      setError('');
-
-      try {
-        const loadedSettings = await loadPlatformSettings();
-        setSettings(loadedSettings);
-      } catch (err: any) {
-        console.error('Erreur lors du chargement:', err);
-        setError('Erreur lors du chargement des paramètres. Utilisation des valeurs par défaut.');
-      } finally {
-        setLoadingData(false);
-      }
-    };
-
-    loadData();
-  }, []);
+    setSettings(globalSettings);
+    setLoadingData(false);
+  }, [globalSettings]);
 
   const loadSettingsManually = async () => {
     setLoadingData(true);
@@ -74,8 +43,7 @@ export const PlatformSettings = () => {
     setSuccess('');
 
     try {
-      const loadedSettings = await loadPlatformSettings();
-      setSettings(loadedSettings);
+      await refreshSettings();
       setSuccess('Paramètres rechargés ! 🔄');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
@@ -98,6 +66,8 @@ export const PlatformSettings = () => {
 
     try {
       await savePlatformSettings(settings, user.id);
+      // Rafraîchir les paramètres globaux
+      await refreshSettings();
       setSuccess('Paramètres enregistrés avec succès ! ✅');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
@@ -148,8 +118,7 @@ export const PlatformSettings = () => {
 
     try {
       await resetAllSettings(user.id);
-      const loadedSettings = await loadPlatformSettings();
-      setSettings(loadedSettings);
+      await refreshSettings();
       setSuccess('Paramètres réinitialisés aux valeurs par défaut ! 🔄');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {

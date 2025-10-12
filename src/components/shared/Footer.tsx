@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useSettings } from '../../contexts/SettingsContext';
 import { 
   Heart, 
   Mail, 
@@ -13,6 +14,7 @@ import {
 
 export const Footer = () => {
   const navigate = useNavigate();
+  const { settings } = useSettings();
 
   const footerSections = [
     {
@@ -103,7 +105,7 @@ export const Footer = () => {
                 </div>
                 <div>
                   <div className="text-2xl font-black text-gradient tracking-tight">
-                    EcoPanier
+                    {settings.platformName}
                   </div>
                   <div className="text-xs text-neutral-400 -mt-1 font-medium">
                     Solidarité Alimentaire
@@ -116,17 +118,17 @@ export const Footer = () => {
               
               {/* Contact Info */}
               <div className="space-y-3">
-                <a href="mailto:contact@EcoPanier.com" className="flex items-center gap-3 text-neutral-400 hover:text-white transition-all group hover-lift">
+                <a href={`mailto:${settings.platformEmail}`} className="flex items-center gap-3 text-neutral-400 hover:text-white transition-all group hover-lift">
                   <div className="w-8 h-8 bg-neutral-800 rounded-lg flex items-center justify-center group-hover:bg-primary-600 transition-all">
                     <Mail size={16} />
                   </div>
-                  <span className="text-sm font-medium">contact@EcoPanier.com</span>
+                  <span className="text-sm font-medium">{settings.platformEmail}</span>
                 </a>
-                <a href="tel:0123456789" className="flex items-center gap-3 text-neutral-400 hover:text-white transition-all group hover-lift">
+                <a href={`tel:${settings.supportPhone.replace(/\s/g, '')}`} className="flex items-center gap-3 text-neutral-400 hover:text-white transition-all group hover-lift">
                   <div className="w-8 h-8 bg-neutral-800 rounded-lg flex items-center justify-center group-hover:bg-primary-600 transition-all">
                     <Phone size={16} />
                   </div>
-                  <span className="text-sm font-medium">01 23 45 67 89</span>
+                  <span className="text-sm font-medium">{settings.supportPhone}</span>
                 </a>
                 <div className="flex items-center gap-3 text-neutral-400">
                   <div className="w-8 h-8 bg-neutral-800 rounded-lg flex items-center justify-center">
@@ -184,7 +186,7 @@ export const Footer = () => {
               {/* Copyright */}
               <div className="text-center md:text-right">
                 <p className="text-neutral-400 text-sm font-medium">
-                  © 2025 EcoPanier. Tous droits réservés.
+                  © 2025 {settings.platformName}. Tous droits réservés.
                 </p>
                 <p className="text-neutral-500 text-xs mt-1 font-medium">
                   Fait avec <Heart size={12} className="inline text-accent-500" fill="currentColor" /> pour un monde meilleur
