@@ -20,7 +20,7 @@ import {
 
 export const LandingPage = () => {
   const navigate = useNavigate();
-  const [scrollY, setScrollY] = useState(0);
+  const [, setScrollY] = useState(0);
   const [visibleStats, setVisibleStats] = useState(false);
 
   useEffect(() => {
@@ -136,43 +136,48 @@ export const LandingPage = () => {
       <Header transparent />
       
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center section-gradient overflow-hidden">
-        {/* Animated background shapes */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Video Background */}
         <div className="absolute inset-0 overflow-hidden">
-          <div 
-            className="absolute -top-40 -right-40 w-96 h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"
-            style={{ transform: `translateY(${scrollY * 0.5}px)` }}
-          />
-          <div 
-            className="absolute -bottom-40 -left-40 w-96 h-96 bg-secondary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"
-            style={{ transform: `translateY(${scrollY * 0.3}px)` }}
-          />
-          <div 
-            className="absolute top-1/2 left-1/2 w-96 h-96 bg-accent-200 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob animation-delay-4000"
-            style={{ transform: `translateY(${scrollY * 0.4}px)` }}
-          />
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/ÉcoPanier.mp4" type="video/mp4" />
+            {/* Fallback pour les navigateurs qui ne supportent pas la vidéo */}
+            Votre navigateur ne supporte pas la lecture de vidéos.
+          </video>
+          
+          {/* Overlay sombre pour améliorer la lisibilité du texte */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60" />
+          
+          {/* Overlay dégradé coloré subtil pour garder l'identité visuelle */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-900/30 via-transparent to-secondary-900/30" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 py-20 text-center">
           <div className="animate-fade-in-up">
             <div className="flex justify-center mb-6">
-              <div className="glass inline-flex items-center gap-2 px-5 py-2.5 rounded-full shadow-soft-lg hover-lift">
-                <Sparkles size={20} className="text-warning-500 animate-pulse-soft" />
-                <span className="text-sm font-bold text-neutral-700">
+              <div className="glass inline-flex items-center gap-2 px-5 py-2.5 rounded-full shadow-soft-lg hover-lift backdrop-blur-md bg-white/20">
+                <Sparkles size={20} className="text-warning-300 animate-pulse-soft" />
+                <span className="text-sm font-bold text-white">
                   La solidarité alimentaire réinventée
                 </span>
               </div>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-black text-neutral-900 mb-6 leading-tight tracking-tight">
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight tracking-tight drop-shadow-2xl">
               Sauvez des repas,
               <br />
-              <span className="text-gradient">
+              <span className="bg-gradient-to-r from-primary-300 via-secondary-300 to-pink-300 bg-clip-text text-transparent">
                 Nourrissez l'espoir
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-neutral-600 mb-8 max-w-3xl mx-auto font-medium">
+            <p className="text-xl md:text-2xl text-white/95 mb-8 max-w-3xl mx-auto font-medium drop-shadow-lg">
               Rejoignez le mouvement contre le gaspillage alimentaire et pour la solidarité.
               Achetez des invendus à prix réduits et offrez des repas à ceux qui en ont besoin.
             </p>
@@ -395,8 +400,23 @@ export const LandingPage = () => {
       </section>
 
       {/* How it works section */}
-      <section id="how-it-works" className="py-20 bg-gradient-to-b from-neutral-50 to-white">
-        <div className="max-w-7xl mx-auto px-4">
+      <section id="how-it-works" className="relative py-20 overflow-hidden">
+        {/* Image Background */}
+        <div className="absolute inset-0">
+          <img 
+            src="/slide-2.png" 
+            alt="Background" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          
+          {/* Overlay blanc semi-transparent pour la lisibilité */}
+          <div className="absolute inset-0 bg-white/55 backdrop-blur-sm" />
+          
+          {/* Overlay dégradé subtil */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary-50/30 via-transparent to-secondary-50/30" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <div className="badge badge-primary inline-flex items-center gap-2 mb-4">
               <Clock size={20} className="text-primary-600" />
