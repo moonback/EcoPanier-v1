@@ -100,16 +100,14 @@ export const Footer = () => {
             {/* Brand Section */}
             <div className="lg:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-soft-lg">
-                  <Heart size={24} className="text-white" fill="currentColor" />
-                </div>
+                
                 <div>
-                  <div className="text-2xl font-black text-gradient tracking-tight">
-                    {settings.platformName}
-                  </div>
-                  <div className="text-xs text-neutral-400 -mt-1 font-medium">
-                    Solidarité Alimentaire
-                  </div>
+                  <img
+                    src="/logo.png"
+                    alt="Logo EcoPanier"
+                    className="w-120 h-12 rounded-xl object-cover shadow-soft-lg transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-glow-md"
+                  />
+                  
                 </div>
               </div>
               <p className="text-neutral-400 mb-6 leading-relaxed font-medium">

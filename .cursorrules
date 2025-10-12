@@ -1,0 +1,570 @@
+# Règles de développement EcoPanier
+
+## 📋 Contexte du projet
+
+**EcoPanier** est une plateforme anti-gaspillage alimentaire avec volet solidarité sociale (paniers suspendus).
+Elle connecte commerçants, clients, bénéficiaires et collecteurs pour sauver des invendus tout en aidant les personnes en précarité.
+
+### Mission
+- Réduire le gaspillage alimentaire
+- Promouvoir la solidarité (paniers suspendus)
+- Soutenir les commerces locaux
+- Faciliter la logistique solidaire
+
+### Utilisateurs (5 rôles)
+1. **Client** : Achète des lots à prix réduits, offre des paniers suspendus
+2. **Commerçant** : Crée des lots d'invendus, gère une station de retrait
+3. **Bénéficiaire** : Accède aux lots gratuits et paniers suspendus (max 2/jour)
+4. **Collecteur** : Effectue les livraisons solidaires contre rémunération
+5. **Admin** : Gère la plateforme, les utilisateurs et les paramètres
+
+## 🛠️ Stack technique
+
+### Frontend
+- React 18.3.1 + TypeScript 5.5.3
+- Vite 5.4.2 (build tool)
+- React Router DOM 7.9.4 (routing)
+- Tailwind CSS 3.4.1 (styling)
+- Zustand 5.0.8 (state management global)
+- Lucide React (icônes)
+- Recharts 3.2.1 (graphiques)
+- qrcode.react + @yudiel/react-qr-scanner (QR codes)
+- date-fns 4.1.0 (dates)
+
+### Backend
+- Supabase 2.57.4 (BaaS)
+  - PostgreSQL (database)
+  - Auth (authentification)
+  - Storage (futur : images)
+  - Realtime (futur : notifications)
+
+## 📁 Structure du projet
+
+```
+src/
+├── components/              # Composants organisés par domaine métier
+│   ├── admin/              # Dashboard admin, analytics, logs, settings
+│   ├── auth/               # Formulaire d'authentification
+│   ├── beneficiary/        # Interface bénéficiaire
+│   ├── collector/          # Interface collecteur
+│   ├── customer/           # Interface client
+│   ├── merchant/           # Interface commerçant
+│   ├── landing/            # Page d'accueil publique
+│   ├── pages/              # Pages génériques (aide, comment ça marche)
+│   ├── pickup/             # Station de retrait (scan QR)
+│   └── shared/             # Composants réutilisables
+├── contexts/               # React Context (SettingsContext)
+├── hooks/                  # Hooks personnalisés
+├── lib/                    # Configuration (supabase.ts, types DB)
+├── stores/                 # Zustand stores (authStore)
+├── utils/                  # Fonctions utilitaires
+├── App.tsx                 # Routing principal
+├── main.tsx                # Point d'entrée
+└── index.css               # Styles globaux + Tailwind
+
+supabase/
+└── migrations/             # Migrations SQL
+    ├── 20251011204650_create_food_waste_platform_schema.sql
+    ├── 20251012_platform_settings.sql
+    ├── 20251012_suspended_baskets.sql
+    └── 20251012_suspended_baskets_sample_data.sql
+```
+
+## 🎨 Conventions de code
+
+### Nommage
+
+| Élément | Convention | Exemple |
+|---------|-----------|---------|
+| Composants | PascalCase | `UserProfile.tsx` |
+| Fichiers composants | PascalCase | `LotCard.tsx` |
+| Hooks | camelCase + `use` | `useAuthStore.ts`, `useLotFilters.ts` |
+| Fonctions | camelCase | `fetchUserData()`, `calculatePrice()` |
+| Variables | camelCase | `const userData = ...` |
+| Constantes | UPPER_SNAKE_CASE | `const MAX_RETRY = 3` |
+| Types/Interfaces | PascalCase | `interface UserProfile {}` |
+| Fichiers utils | camelCase ou kebab-case | `helpers.ts`, `date-utils.ts` |
+
+### Structure d'un composant
+
+```typescript
+// 1. Imports externes
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// 2. Imports internes (stores, contexts, components)
+import { useAuthStore } from '@/stores/authStore';
+import { Button } from '@/components/shared/Button';
+
+// 3. Imports types
+import type { User } from '@/lib/database.types';
+
+// 4. Définition des types/interfaces du composant
+interface MyComponentProps {
+  user: User;
+  onAction?: () => void;
+}
+
+// 5. Composant
+export function MyComponent({ user, onAction }: MyComponentProps) {
+  // A. État local
+  const [loading, setLoading] = useState(false);
+  
+  // B. Hooks (stores, contexts, router)
+  const { profile } = useAuthStore();
+  const navigate = useNavigate();
+  
+  // C. Effets
+  useEffect(() => {
+    // Side effects
+  }, [user]);
+  
+  // D. Handlers
+  const handleClick = async () => {
+    setLoading(true);
+    // Logic
+    setLoading(false);
+  };
+  
+  // E. Early returns (conditions de sortie)
+  if (!user) return null;
+  if (loading) return <LoadingSpinner />;
+  
+  // F. Render principal
+  return (
+    <div className="card">
+      {/* JSX */}
+    </div>
+  );
+}
+```
+
+### TypeScript
+
+**TOUJOURS utiliser TypeScript. Jamais `any` sauf cas exceptionnel.**
+
+```typescript
+// ✅ BON
+interface LotData {
+  id: string;
+  title: string;
+  price: number;
+}
+
+async function fetchLot(id: string): Promise<LotData> {
+  const { data, error } = await supabase
+    .from('lots')
+    .select('*')
+    .eq('id', id)
+    .single();
+  
+  if (error) throw error;
+  return data;
+}
+
+// ❌ MAUVAIS
+function fetchLot(id: any) {
+  // Pas de types
+}
+```
+
+### Gestion d'erreurs Supabase
+
+```typescript
+// Pattern standard
+try {
+  const { data, error } = await supabase
+    .from('table')
+    .select();
+  
+  if (error) throw error;
+  
+  return data;
+} catch (error) {
+  console.error('Description de l\'erreur:', error);
+  // Gestion spécifique si besoin
+  throw new Error('Message utilisateur friendly');
+}
+```
+
+### Classes Tailwind
+
+**Ordre des classes** : Layout → Spacing → Sizing → Colors → Typography → Effects
+
+```tsx
+// ✅ BON - Classes organisées logiquement
+<div className="flex items-center justify-between gap-4 p-6 w-full bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+
+// ❌ MAUVAIS - Classes désordonnées
+<div className="shadow-md bg-white w-full gap-4 rounded-lg hover:shadow-lg p-6 flex items-center transition-shadow justify-between">
+```
+
+**Classes personnalisées** : Utiliser les classes définies dans `index.css`
+
+```css
+/* Classes utilitaires projet */
+.card { /* Carte standard */ }
+.btn-primary { /* Bouton principal */ }
+.btn-secondary { /* Bouton secondaire */ }
+.section-gradient { /* Dégradé de section */ }
+.hover-lift { /* Effet de levée au hover */ }
+.animate-fade-in-up { /* Animation d'entrée */ }
+```
+
+## 🗄️ Base de données
+
+### Tables principales
+
+1. **profiles** : Profils utilisateurs (étend auth.users)
+   - `role`: customer | merchant | beneficiary | collector | admin
+   - `beneficiary_id`: Format YYYY-BEN-XXXXX pour bénéficiaires
+
+2. **lots** : Lots d'invendus créés par commerçants
+   - `status`: available | reserved | sold_out | expired
+   - `quantity_total`, `quantity_reserved`, `quantity_sold`
+
+3. **reservations** : Réservations avec code PIN à 6 chiffres
+   - `pickup_pin`: Code pour retrait
+   - `status`: pending | confirmed | completed | cancelled
+
+4. **suspended_baskets** : Paniers suspendus (solidarité)
+   - `donor_id`, `merchant_id`, `claimed_by`
+   - `status`: available | reserved | claimed | expired
+
+5. **missions** : Missions pour collecteurs
+   - `collector_id`, `merchant_id`
+   - `status`: available | accepted | in_progress | completed | cancelled
+
+6. **impact_metrics** : Suivi d'impact (repas sauvés, CO₂, dons)
+7. **notifications** : Notifications utilisateurs
+8. **platform_settings** : Paramètres système (admins)
+9. **beneficiary_daily_limits** : Limite 2 réservations/jour
+
+### Requêtes Supabase
+
+**Avec relations (JOIN)** :
+```typescript
+const { data } = await supabase
+  .from('lots')
+  .select(`
+    *,
+    merchant:profiles!merchant_id(full_name, business_name, phone)
+  `)
+  .eq('status', 'available');
+```
+
+**Filtrage** :
+```typescript
+.eq('column', value)           // Égalité
+.neq('column', value)          // Différent
+.gt('column', value)           // Plus grand
+.gte('column', value)          // Plus grand ou égal
+.lt('column', value)           // Plus petit
+.lte('column', value)          // Plus petit ou égal
+.ilike('column', '%search%')   // LIKE insensible à la casse
+.in('column', [val1, val2])    // IN
+.is('column', null)            // IS NULL
+.order('column', { ascending: false })
+.limit(10)
+.range(0, 9)                   // Pagination
+```
+
+## 🎯 Patterns spécifiques
+
+### Authentification
+
+```typescript
+// Store global authStore (Zustand)
+const { user, profile, signIn, signOut } = useAuthStore();
+
+// Protection de route
+if (!user) return <Navigate to="/login" />;
+
+// Protection par rôle
+if (profile?.role !== 'admin') return <AccessDenied />;
+```
+
+### QR Code & Retrait
+
+**Génération** :
+```typescript
+import { QRCodeSVG } from 'qrcode.react';
+
+const qrData = JSON.stringify({
+  reservationId: reservation.id,
+  pin: reservation.pickup_pin,
+  userId: user.id,
+  lotId: reservation.lot_id,
+  timestamp: new Date().toISOString()
+});
+
+<QRCodeSVG value={qrData} size={200} />
+```
+
+**Scan et validation** :
+```typescript
+// 1. Scanner le QR
+const { reservationId, pin } = JSON.parse(qrCodeData);
+
+// 2. Récupérer la réservation
+const { data: reservation } = await supabase
+  .from('reservations')
+  .select('*, lot:lots(*)')
+  .eq('id', reservationId)
+  .single();
+
+// 3. Valider le PIN
+if (inputPin !== reservation.pickup_pin) {
+  throw new Error('Code PIN incorrect');
+}
+
+// 4. Marquer comme complété
+await supabase
+  .from('reservations')
+  .update({
+    status: 'completed',
+    completed_at: new Date().toISOString()
+  })
+  .eq('id', reservationId);
+```
+
+### Calcul d'impact
+
+```typescript
+// Formules standards
+const mealsSaved = quantity;
+const co2Saved = quantity * 0.9; // 0.9 kg CO₂ par repas
+const moneySaved = originalPrice - discountedPrice;
+```
+
+## 🚫 Anti-patterns à éviter
+
+### À NE PAS FAIRE
+
+❌ **Utiliser `any` sans raison**
+```typescript
+function process(data: any) { } // NON
+```
+
+❌ **Ignorer les erreurs Supabase**
+```typescript
+const { data } = await supabase.from('lots').select(); // Où est error?
+```
+
+❌ **Mutations directes d'état**
+```typescript
+state.value = newValue; // NON - utiliser setState
+```
+
+❌ **Composants trop gros** (> 300 lignes)
+→ Diviser en sous-composants
+
+❌ **Logique métier dans les composants**
+→ Extraire dans utils/ ou hooks/
+
+❌ **Styles inline**
+```tsx
+<div style={{ color: 'red' }}> // NON - utiliser Tailwind
+```
+
+❌ **Commits non descriptifs**
+```bash
+git commit -m "fix" // NON
+git commit -m "update stuff" // NON
+```
+
+## ✅ Bonnes pratiques
+
+### À FAIRE
+
+✅ **Typer tout avec TypeScript**
+✅ **Gérer toutes les erreurs explicitement**
+✅ **Utiliser les types Supabase générés** (`database.types.ts`)
+✅ **Extraire les constantes**
+```typescript
+const MAX_RESERVATIONS_PER_DAY = 2;
+const PIN_LENGTH = 6;
+```
+
+✅ **Utiliser les hooks personnalisés pour logique réutilisable**
+```typescript
+// hooks/useLotFilters.ts
+export function useLotFilters() {
+  // Logic
+  return { filteredLots, setFilter };
+}
+```
+
+✅ **Loading states et optimistic UI**
+```typescript
+const [loading, setLoading] = useState(false);
+
+const handleAction = async () => {
+  setLoading(true);
+  try {
+    await doAction();
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+✅ **Composants réutilisables dans shared/**
+```typescript
+// shared/Button.tsx
+export function Button({ children, variant = 'primary', ...props }) {
+  const className = variant === 'primary' ? 'btn-primary' : 'btn-secondary';
+  return <button className={className} {...props}>{children}</button>;
+}
+```
+
+✅ **Messages d'erreur utilisateur-friendly**
+```typescript
+throw new Error('Impossible de charger les lots. Vérifiez votre connexion.');
+```
+
+## 🔐 Sécurité
+
+### Règles importantes
+
+1. **Jamais de secrets dans le frontend** → Variables d'env uniquement
+2. **Valider côté serveur** (RLS policies Supabase)
+3. **Vérifier les rôles** avant affichage de données sensibles
+4. **Sanitiser les entrées** (Supabase le fait, mais attention aux XSS)
+5. **HTTPS obligatoire** en production
+
+### Row Level Security (RLS)
+
+- **Activé** : `platform_settings`, `suspended_baskets`
+- **Désactivé (MVP)** : autres tables pour simplicité
+
+**En production**, activer RLS partout avec policies strictes.
+
+## 📱 Responsive Design
+
+### Breakpoints Tailwind
+
+- `sm`: 640px
+- `md`: 768px (tablette)
+- `lg`: 1024px (desktop)
+- `xl`: 1280px
+- `2xl`: 1536px
+
+### Pattern mobile-first
+
+```tsx
+<div className="
+  flex flex-col          /* Mobile: colonne */
+  md:flex-row           /* Tablette+: ligne */
+  gap-4 md:gap-6        /* Espacement adaptatif */
+">
+```
+
+## 🧪 Tests (futur)
+
+Quand les tests seront implémentés :
+
+```typescript
+// Pattern de test recommandé
+import { render, screen } from '@testing-library/react';
+import { LotCard } from './LotCard';
+
+describe('LotCard', () => {
+  it('affiche le titre du lot', () => {
+    render(<LotCard lot={mockLot} />);
+    expect(screen.getByText(mockLot.title)).toBeInTheDocument();
+  });
+});
+```
+
+## 📝 Commentaires
+
+### Quand commenter
+
+✅ **Commenter** :
+- Logique complexe non évidente
+- Workarounds temporaires (+ TODO)
+- Calculs avec formules (ex: CO₂)
+- Fonctions publiques (JSDoc)
+
+❌ **Ne PAS commenter** :
+- Code évident
+- Répéter ce que le code dit déjà
+
+```typescript
+// ✅ BON
+/**
+ * Calcule l'impact environnemental d'un repas sauvé
+ * Formule : 0.9 kg CO₂ par repas (source: ADEME 2024)
+ */
+function calculateCO2Impact(meals: number): number {
+  return meals * 0.9;
+}
+
+// ❌ MAUVAIS
+// Cette fonction additionne deux nombres
+function add(a: number, b: number) {
+  return a + b; // Retourne la somme
+}
+```
+
+## 🔄 Workflow Git
+
+### Commits conventionnels
+
+```bash
+feat(lots): add search filter by category
+fix(auth): correct PIN validation logic
+docs(readme): update installation steps
+refactor(components): simplify UserCard
+style(lots): improve card spacing
+test(reservations): add PIN validation tests
+chore(deps): update Supabase to 2.57.4
+```
+
+### Branches
+
+```bash
+main                    # Production
+├── develop            # Développement principal
+    ├── feature/...    # Nouvelles fonctionnalités
+    ├── fix/...        # Corrections de bugs
+    ├── refactor/...   # Refactoring
+    └── docs/...       # Documentation
+```
+
+## 📚 Ressources
+
+- [Documentation React](https://react.dev)
+- [Documentation TypeScript](https://www.typescriptlang.org/docs/)
+- [Documentation Tailwind CSS](https://tailwindcss.com/docs)
+- [Documentation Supabase](https://supabase.com/docs)
+- [Documentation Zustand](https://docs.pmnd.rs/zustand)
+
+## 🎯 Checklist avant commit
+
+- [ ] Code compile sans erreur (`npm run build`)
+- [ ] Linter passe (`npm run lint`)
+- [ ] TypeCheck passe (`npm run typecheck`)
+- [ ] Pas de console.log oubliés (sauf debug intentionnel)
+- [ ] Types TypeScript corrects (pas de `any`)
+- [ ] Gestion d'erreurs présente
+- [ ] Composants responsive testés
+- [ ] Code commenté si logique complexe
+- [ ] Message de commit descriptif
+
+## 💡 Philosophie du projet
+
+**Simplicité > Complexité** : Privilégier les solutions simples et maintenables.
+
+**Performance** : Optimiser mais sans sur-optimisation prématurée.
+
+**Accessibilité** : Interface utilisable par tous (contraste, navigation clavier).
+
+**Impact social** : Chaque ligne de code contribue à réduire le gaspillage et aider les personnes dans le besoin.
+
+---
+
+**Version** : 1.0.0
+**Dernière mise à jour** : Janvier 2025
+

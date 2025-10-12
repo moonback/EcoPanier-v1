@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSettings } from '../../contexts/SettingsContext';
 import { 
   Menu, 
   X, 
-  Heart, 
   HelpCircle, 
   Layers,
   QrCode,
@@ -20,7 +18,6 @@ interface HeaderProps {
 export const Header = ({ transparent = false }: HeaderProps) => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { settings } = useSettings();
 
   const navLinks = [
     { name: 'Accueil', path: '/', icon: Home },
@@ -45,17 +42,12 @@ export const Header = ({ transparent = false }: HeaderProps) => {
               onClick={() => navigate('/')}
               className="flex items-center gap-3 group"
             >
-              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-soft-lg group-hover:shadow-glow-md">
-                <Heart size={24} className="text-white" fill="currentColor" />
-              </div>
-              <div className="hidden sm:block">
-                <div className="text-2xl font-black text-gradient tracking-tight">
-                  {settings.platformName}
-                </div>
-                <div className="text-xs text-neutral-500 -mt-1 font-medium">
-                  Solidarité Alimentaire
-                </div>
-              </div>
+              <img
+                src="/logo.png"
+                alt="Logo EcoPanier"
+                className="w-120 h-12 rounded-xl object-cover shadow-soft-lg transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-glow-md"
+              />
+              
             </button>
 
             {/* Desktop Navigation */}
