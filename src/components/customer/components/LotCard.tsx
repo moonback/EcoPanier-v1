@@ -19,7 +19,8 @@ interface LotCardProps {
 
 /**
  * Composant carte pour afficher un lot disponible
- * Design moderne avec image complète et overlay détaillé au hover
+ * Version mobile : Layout vertical avec infos toujours visibles
+ * Version desktop : Design avec overlay détaillé au hover
  */
 export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProps) {
   const availableQty =
@@ -30,11 +31,19 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
 
   return (
     <div 
-      className="group relative card overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-1"
+      className="group relative overflow-hidden cursor-pointer transition-all duration-300
+        /* Mobile : Carte simple avec ombre mobile */
+        shadow-mobile-card active:scale-[0.98] 
+        /* Desktop : Effet hover élégant */
+        md:card md:hover:shadow-2xl md:hover:-translate-y-1"
       onClick={() => onViewDetails?.(lot)}
     >
-      {/* Image plein format */}
-      <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden">
+      {/* Image - Responsive aspect ratio */}
+      <div className="relative w-full overflow-hidden bg-gradient-to-br from-neutral-100 to-neutral-200
+        /* Mobile : Format paysage compact */
+        aspect-[4/3]
+        /* Desktop : Format portrait élégant */
+        md:aspect-[3/4]">
         {lot.image_urls && lot.image_urls.length > 0 ? (
           <img
             src={lot.image_urls[0]}
@@ -50,31 +59,55 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
           </div>
         )}
 
-        {/* Badges fixes en haut */}
+        {/* Badges en haut - Responsive sizing */}
         <div className="absolute top-2 left-2 right-2 flex items-start justify-between z-10">
           {lot.is_urgent && (
-            <span className="inline-flex items-center gap-1 bg-accent-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-xl animate-pulse border-2 border-white">
+            <span className="inline-flex items-center gap-1 bg-accent-500 text-white font-bold shadow-mobile-raised animate-pulse border-2 border-white
+              /* Mobile : Badge plus petit */
+              text-[10px] px-1.5 py-0.5 rounded-full
+              /* Desktop : Badge standard */
+              md:text-xs md:px-2 md:py-1">
               🔥 Urgent
             </span>
           )}
-          <span className="ml-auto bg-success-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-xl border-2 border-white">
+          <span className="ml-auto bg-success-500 text-white font-bold shadow-mobile-raised border-2 border-white
+            /* Mobile : Badge plus petit */
+            text-[10px] px-1.5 py-0.5 rounded-full
+            /* Desktop : Badge standard */
+            md:text-xs md:px-2 md:py-1">
             -{discount}%
           </span>
         </div>
 
-        {/* Prix simple en bas (toujours visible) */}
+        {/* Prix - Responsive */}
         <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between z-10">
-          <div className="flex items-center gap-1 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg">
-            <Euro className="w-4 h-4 text-primary-600" />
-            <span className="text-lg font-black text-primary-600">{lot.discounted_price}€</span>
+          <div className="flex items-center gap-1 bg-white/95 backdrop-blur-sm rounded-full shadow-mobile-raised
+            /* Mobile : Prix compact */
+            px-2 py-1
+            /* Desktop : Prix plus grand */
+            md:px-3 md:py-1.5">
+            <Euro className="w-3 h-3 md:w-4 md:h-4 text-primary-600" />
+            <span className="font-black text-primary-600
+              /* Mobile : Texte plus petit */
+              text-sm
+              /* Desktop : Texte standard */
+              md:text-lg">{lot.discounted_price}€</span>
           </div>
-          <span className="bg-white/95 backdrop-blur-sm text-neutral-700 text-xs px-2 py-1 rounded-full font-medium shadow-lg">
+          <span className="bg-white/95 backdrop-blur-sm text-neutral-700 font-medium shadow-mobile-raised rounded-full
+            /* Mobile : Catégorie compacte */
+            text-[10px] px-1.5 py-0.5
+            /* Desktop : Catégorie standard */
+            md:text-xs md:px-2 md:py-1">
             {lot.category}
           </span>
         </div>
 
-        {/* Overlay détaillé au hover - Apparaît par le bas */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
+        {/* Overlay détaillé - Desktop uniquement (hover) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent transition-transform duration-300 ease-out z-20
+          /* Mobile : Caché */
+          hidden
+          /* Desktop : Visible au hover */
+          md:block md:translate-y-full md:group-hover:translate-y-0">
           <div className="absolute bottom-0 left-0 right-0 p-4 text-white space-y-3">
             {/* Titre */}
             <h3 className="font-bold text-lg line-clamp-2">
@@ -159,6 +192,86 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Contenu mobile - Affiché sous l'image sur mobile uniquement */}
+      <div className="md:hidden p-3 space-y-3 bg-white">
+        {/* Titre et commerçant */}
+        <div className="space-y-1.5">
+          <h3 className="font-bold text-sm line-clamp-2 text-neutral-900">
+            {lot.title}
+          </h3>
+          <div className="flex items-center gap-1.5 text-xs text-neutral-600">
+            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="truncate">{lot.profiles.business_name}</span>
+          </div>
+        </div>
+
+        {/* Prix comparatif */}
+        <div className="flex items-center justify-between py-2 px-3 bg-neutral-50 rounded-lg">
+          <div>
+            <div className="text-[10px] text-neutral-500 uppercase font-medium">Prix initial</div>
+            <div className="text-sm text-neutral-600 line-through font-medium">{lot.original_price}€</div>
+          </div>
+          <div className="text-right">
+            <div className="text-[10px] text-primary-600 uppercase font-medium">Prix réduit</div>
+            <div className="flex items-center gap-0.5">
+              <Euro className="w-4 h-4 text-primary-600" />
+              <span className="text-xl font-black text-primary-600">{lot.discounted_price}€</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Infos compactes */}
+        <div className="flex items-center gap-3 text-xs text-neutral-600">
+          <div className="flex items-center gap-1.5">
+            <Package className="w-3.5 h-3.5 flex-shrink-0" />
+            <span><span className="font-bold text-neutral-900">{availableQty}</span> dispo</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="truncate">
+              {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} - {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+            </span>
+          </div>
+        </div>
+
+        {/* Boutons tactiles - Mobile optimized */}
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onReserve(lot);
+            }}
+            disabled={availableQty === 0}
+            className={`flex-1 flex items-center justify-center gap-2 rounded-lg font-bold transition-all
+              /* Taille tactile optimale (min 44px) */
+              py-3 text-sm
+              /* Feedback tactile */
+              active:scale-95
+              ${
+                availableQty === 0
+                  ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
+                  : 'bg-primary-600 text-white shadow-mobile-raised active:shadow-mobile-card'
+              }`}
+          >
+            <ShoppingCart className="w-4 h-4" />
+            {availableQty === 0 ? 'Épuisé' : 'Réserver'}
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDonate(lot);
+            }}
+            className="flex items-center justify-center bg-accent-500 text-white rounded-lg transition-all shadow-mobile-raised active:scale-95 active:shadow-mobile-card
+              /* Taille tactile optimale */
+              px-4 py-3"
+            title="Panier suspendu"
+            aria-label="Offrir en panier suspendu"
+          >
+            <Heart className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
