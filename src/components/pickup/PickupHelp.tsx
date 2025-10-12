@@ -1,150 +1,186 @@
-import { X, Smartphone, Scan, Lock, CheckCircle, AlertTriangle } from 'lucide-react';
+import { X, Smartphone, Scan, Lock, CheckCircle, AlertTriangle, HelpCircle } from 'lucide-react';
+import { useState } from 'react';
 
 export const PickupHelp = ({ onClose }: { onClose: () => void }) => {
+  const [activeTab, setActiveTab] = useState<'steps' | 'troubleshoot'>('steps');
+
   const steps = [
     {
       icon: Smartphone,
-      title: 'Le client présente son QR code',
-      description: 'Le client ouvre son QR code depuis l\'application sur son téléphone',
+      title: 'Client présente QR code',
+      description: 'Ouvre le QR code dans l\'application',
       color: 'blue',
     },
     {
       icon: Scan,
       title: 'Scannez le code',
-      description: 'Cliquez sur "Scanner le QR Code" et pointez la caméra vers l\'écran du client',
+      description: 'Cliquez sur "Scanner" et pointez la caméra',
       color: 'purple',
     },
     {
       icon: Lock,
-      title: 'Vérifiez le code PIN',
-      description: 'Demandez au client son code PIN à 6 chiffres et saisissez-le',
+      title: 'Vérifiez le PIN',
+      description: 'Demandez le code PIN à 6 chiffres',
       color: 'orange',
     },
     {
       icon: CheckCircle,
       title: 'Remettez le colis',
-      description: 'Une fois validé, remettez le colis au client',
+      description: 'Validé, donnez le colis au client',
       color: 'green',
     },
   ];
 
   const troubleshooting = [
     {
-      problem: 'Le QR code ne se scanne pas',
+      problem: 'QR code ne scanne pas',
       solutions: [
-        'Vérifiez que la caméra est autorisée dans le navigateur',
-        'Assurez-vous d\'un bon éclairage',
-        'Demandez au client d\'augmenter la luminosité de son écran',
-        'Essayez de tenir le téléphone plus stable',
+        'Vérifiez l\'autorisation caméra',
+        'Améliorez l\'éclairage',
+        'Augmentez luminosité écran client',
+        'Tenez l\'appareil stable',
       ],
     },
     {
       problem: 'Code PIN incorrect',
       solutions: [
-        'Demandez au client de vérifier son code PIN',
-        'Assurez-vous de saisir les 6 chiffres correctement',
-        'Le client peut retrouver son PIN dans l\'application',
+        'Demandez vérification au client',
+        'Saisissez bien les 6 chiffres',
+        'PIN visible dans l\'app client',
       ],
     },
     {
-      problem: 'Réservation déjà récupérée',
+      problem: 'Réservation déjà utilisée',
       solutions: [
-        'Vérifiez avec le client s\'il n\'a pas déjà retiré sa commande',
-        'Contactez le support si le problème persiste',
+        'Vérifiez avec le client',
+        'Contactez le support',
       ],
     },
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-xl max-w-4xl w-full p-8 my-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Guide d'utilisation</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 z-50">
+      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-xl font-bold text-gray-800">Guide Station de Retrait</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
+            className="p-1.5 hover:bg-gray-100 rounded-lg transition"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
-        <div className="space-y-8">
-          {/* Étapes */}
-          <div>
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Étapes du retrait</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {steps.map((step, index) => {
-                const Icon = step.icon;
-                return (
-                  <div
-                    key={index}
-                    className={`bg-${step.color}-50 rounded-lg p-6 border-2 border-${step.color}-100`}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className={`bg-${step.color}-100 rounded-full p-3 flex-shrink-0`}>
-                        <Icon size={24} className={`text-${step.color}-600`} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className={`bg-${step.color}-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold`}>
-                            {index + 1}
-                          </span>
-                          <h4 className="font-bold text-gray-800">{step.title}</h4>
+        {/* Tabs */}
+        <div className="flex border-b">
+          <button
+            onClick={() => setActiveTab('steps')}
+            className={`flex-1 py-3 px-4 text-sm font-medium transition ${
+              activeTab === 'steps'
+                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <CheckCircle size={16} className="inline mr-2" />
+            Étapes
+          </button>
+          <button
+            onClick={() => setActiveTab('troubleshoot')}
+            className={`flex-1 py-3 px-4 text-sm font-medium transition ${
+              activeTab === 'troubleshoot'
+                ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <AlertTriangle size={16} className="inline mr-2" />
+            Dépannage
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {activeTab === 'steps' && (
+            <div className="space-y-4">
+              {/* Étapes compactes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {steps.map((step, index) => {
+                  const Icon = step.icon;
+                  const colors = {
+                    blue: { bg: 'bg-blue-50', icon: 'bg-blue-100', text: 'text-blue-600', badge: 'bg-blue-600' },
+                    purple: { bg: 'bg-purple-50', icon: 'bg-purple-100', text: 'text-purple-600', badge: 'bg-purple-600' },
+                    orange: { bg: 'bg-orange-50', icon: 'bg-orange-100', text: 'text-orange-600', badge: 'bg-orange-600' },
+                    green: { bg: 'bg-green-50', icon: 'bg-green-100', text: 'text-green-600', badge: 'bg-green-600' },
+                  };
+                  const colorScheme = colors[step.color as keyof typeof colors];
+                  
+                  return (
+                    <div key={index} className={`${colorScheme.bg} rounded-lg p-3`}>
+                      <div className="flex items-start gap-3">
+                        <div className={`${colorScheme.icon} rounded-full p-2 flex-shrink-0`}>
+                          <Icon size={18} className={colorScheme.text} />
                         </div>
-                        <p className="text-sm text-gray-600">{step.description}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`${colorScheme.badge} text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold`}>
+                              {index + 1}
+                            </span>
+                            <h4 className="font-bold text-gray-800 text-sm">{step.title}</h4>
+                          </div>
+                          <p className="text-xs text-gray-600">{step.description}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                  );
+                })}
+              </div>
 
-          {/* Dépannage */}
-          <div>
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <AlertTriangle size={20} className="text-orange-600" />
-              Résolution de problèmes
-            </h3>
-            <div className="space-y-4">
+              {/* Conseils rapides */}
+              <div className="bg-blue-50 rounded-lg p-3 mt-4">
+                <h3 className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
+                  <HelpCircle size={16} />
+                  Conseils rapides
+                </h3>
+                <ul className="space-y-1 text-xs text-blue-700">
+                  <li>• Bon éclairage pour scanner</li>
+                  <li>• Testez avec le mode démo</li>
+                  <li>• Vérifiez l'identité si nécessaire</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'troubleshoot' && (
+            <div className="space-y-3">
               {troubleshooting.map((item, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-5">
-                  <h4 className="font-bold text-gray-800 mb-3">{item.problem}</h4>
-                  <ul className="space-y-2">
+                <div key={index} className="bg-gray-50 rounded-lg p-3">
+                  <h4 className="font-bold text-gray-800 mb-2 text-sm flex items-center gap-2">
+                    <AlertTriangle size={16} className="text-orange-600" />
+                    {item.problem}
+                  </h4>
+                  <ul className="space-y-1.5 pl-6">
                     {item.solutions.map((solution, sIndex) => (
-                      <li key={sIndex} className="flex items-start gap-2 text-sm text-gray-600">
-                        <span className="text-blue-600 mt-1">•</span>
+                      <li key={sIndex} className="text-xs text-gray-600 flex items-start gap-2">
+                        <span className="text-blue-600 font-bold">→</span>
                         <span>{solution}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               ))}
+
+              {/* Support */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 text-center mt-4">
+                <h3 className="text-sm font-bold text-gray-800 mb-1">Besoin d'aide ?</h3>
+                <p className="text-xs text-gray-600 mb-3">
+                  Support technique disponible
+                </p>
+                <button className="px-4 py-2 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition font-medium">
+                  Contacter le support
+                </button>
+              </div>
             </div>
-          </div>
-
-          {/* Conseils */}
-          <div className="bg-blue-50 rounded-lg p-6">
-            <h3 className="text-lg font-bold text-blue-800 mb-3">💡 Conseils pratiques</h3>
-            <ul className="space-y-2 text-sm text-blue-700">
-              <li>• Gardez toujours l'interface ouverte pendant les heures de retrait</li>
-              <li>• Utilisez une tablette ou un grand écran pour plus de confort</li>
-              <li>• Assurez-vous d'un bon éclairage dans votre zone de scan</li>
-              <li>• Testez régulièrement le scanner avec le mode démonstration</li>
-              <li>• En cas de doute, n'hésitez pas à demander une pièce d'identité au client</li>
-            </ul>
-          </div>
-
-          {/* Support */}
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 text-center">
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Besoin d'aide ?</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Contactez le support technique pour toute assistance supplémentaire
-            </p>
-            <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">
-              Contacter le support
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </div>
