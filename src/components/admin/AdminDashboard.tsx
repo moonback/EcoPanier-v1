@@ -1,4 +1,8 @@
+// Imports externes
 import { useState } from 'react';
+import { BarChart3, Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, Heart, ChevronLeft, ChevronRight, Home, Menu, X } from 'lucide-react';
+
+// Imports internes
 import { useAuthStore } from '../../stores/authStore';
 import { AdminStats } from './AdminStats';
 import { UserManagement } from './UserManagement';
@@ -9,11 +13,21 @@ import { AdvancedAnalytics } from './AdvancedAnalytics';
 import { ActivityLogs } from './ActivityLogs';
 import { ReportsGenerator } from './ReportsGenerator';
 import { SuspendedBaskets } from './SuspendedBaskets';
-import { BarChart3, Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, Heart, ChevronLeft, ChevronRight, Home } from 'lucide-react';
 
+// Type pour les onglets
+type TabId = 'stats' | 'users' | 'baskets' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile';
+
+/**
+ * Dashboard principal pour les administrateurs
+ * Interface complète de gestion avec menu latéral et navigation par sections
+ */
 export const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'baskets' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile'>('stats');
+  // État local
+  const [activeTab, setActiveTab] = useState<TabId>('stats');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Hooks (stores, contexts, router)
   const { profile, signOut } = useAuthStore();
 
   const menuSections = [
@@ -65,10 +79,30 @@ export const AdminDashboard = () => {
     return colorMap[color] || colorMap.primary;
   };
 
+  // Handlers
+  const handleTabChange = (tabId: TabId) => {
+    setActiveTab(tabId);
+    setMobileMenuOpen(false); // Fermer le menu mobile après sélection
+  };
+
+  // Render principal
   return (
     <div className="min-h-screen bg-neutral-50 flex">
+      {/* Overlay pour mobile */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar Menu */}
-      <aside className={`${sidebarCollapsed ? 'w-20' : 'w-72'} bg-white border-r border-neutral-200 shadow-soft-lg transition-all duration-300 flex flex-col sticky top-0 h-screen`}>
+      <aside className={`
+        ${sidebarCollapsed ? 'w-20' : 'w-72'}
+        bg-white border-r border-neutral-200 shadow-soft-lg transition-all duration-300 flex flex-col
+        fixed lg:sticky top-0 h-screen z-50
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         {/* Header Sidebar */}
         <div className="p-4 border-b border-neutral-200">
           <div className="flex items-center justify-between">
@@ -88,9 +122,18 @@ export const AdminDashboard = () => {
                 <Shield size={20} className="text-white" />
               </div>
             )}
+            {/* Bouton fermer sur mobile */}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-8 h-8 lg:hidden bg-neutral-100 hover:bg-neutral-200 rounded-lg flex items-center justify-center transition-all ml-auto"
+              aria-label="Fermer le menu"
+            >
+              <X size={16} className="text-neutral-600" />
+            </button>
+            {/* Bouton collapse sur desktop */}
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="w-8 h-8 bg-neutral-100 hover:bg-neutral-200 rounded-lg flex items-center justify-center transition-all ml-auto"
+              className="hidden lg:flex w-8 h-8 bg-neutral-100 hover:bg-neutral-200 rounded-lg items-center justify-center transition-all ml-auto"
               title={sidebarCollapsed ? 'Étendre' : 'Réduire'}
             >
               {sidebarCollapsed ? (
@@ -120,7 +163,7 @@ export const AdminDashboard = () => {
                   return (
                     <button
                       key={item.id}
-                      onClick={() => setActiveTab(item.id as any)}
+                      onClick={() => handleTabChange(item.id as TabId)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all group relative ${
                         isActive
                           ? `${colors.bg} ${colors.text}`
@@ -169,28 +212,46 @@ export const AdminDashboard = () => {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
         <header className="glass sticky top-0 z-30 border-b border-neutral-100 shadow-soft">
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-black text-neutral-900 tracking-tight">
+          <div className="px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
+            {/* Bouton menu burger sur mobile */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden w-9 h-9 bg-neutral-100 hover:bg-neutral-200 rounded-lg flex items-center justify-center transition-all flex-shrink-0"
+              aria-label="Ouvrir le menu"
+            >
+              <Menu size={20} className="text-neutral-600" />
+            </button>
+
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-2xl font-black text-neutral-900 tracking-tight truncate">
                 {menuSections.flatMap(s => s.items).find(i => i.id === activeTab)?.label || 'Tableau de bord'}
               </h1>
-              <p className="text-sm text-neutral-600 font-medium mt-0.5">
+              <p className="text-xs sm:text-sm text-neutral-600 font-medium mt-0.5 truncate">
                 Panneau d'administration - {profile?.full_name}
               </p>
             </div>
             
             {/* Quick Stats */}
-            <div className="hidden lg:flex items-center gap-4">
+            <div className="hidden xl:flex items-center gap-4 flex-shrink-0">
               <div className="flex items-center gap-2 px-4 py-2 bg-success-50 rounded-xl border border-success-200">
                 <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
                 <span className="text-sm font-bold text-success-700">Système opérationnel</span>
               </div>
             </div>
+
+            {/* Bouton déconnexion mobile */}
+            <button
+              onClick={signOut}
+              className="lg:hidden w-9 h-9 bg-accent-50 hover:bg-accent-100 rounded-lg flex items-center justify-center transition-all flex-shrink-0"
+              aria-label="Se déconnecter"
+            >
+              <LogOut size={18} className="text-accent-600" />
+            </button>
           </div>
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-6 overflow-y-auto">
           <div className="max-w-12xl mx-auto">
             {activeTab === 'stats' && <AdminStats />}
             {activeTab === 'users' && <UserManagement />}
