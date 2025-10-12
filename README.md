@@ -1,4 +1,8 @@
-# 🌱 EcoPanier - Plateforme Anti-Gaspillage et Solidarité Alimentaire
+<p align="center">
+  <img src="logo.png" alt="EcoPanier Logo" width="160" style="border-radius: 12px;" />
+</p>
+
+
 
 > **Combattez le gaspillage alimentaire tout en nourrissant l'espoir** - Une plateforme moderne qui connecte commerçants, clients, bénéficiaires et collecteurs pour réduire le gaspillage et promouvoir la solidarité.
 
