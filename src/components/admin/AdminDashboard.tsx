@@ -8,15 +8,17 @@ import { SettingsHistory } from './SettingsHistory';
 import { AdvancedAnalytics } from './AdvancedAnalytics';
 import { ActivityLogs } from './ActivityLogs';
 import { ReportsGenerator } from './ReportsGenerator';
-import { BarChart3, Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText } from 'lucide-react';
+import { SuspendedBaskets } from './SuspendedBaskets';
+import { BarChart3, Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, Heart } from 'lucide-react';
 
 export const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'baskets' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile'>('stats');
   const { profile, signOut } = useAuthStore();
 
   const tabs = [
     { id: 'stats', label: 'Tableau de bord', icon: BarChart3 },
     { id: 'users', label: 'Utilisateurs', icon: Users },
+    { id: 'baskets', label: 'Paniers Suspendus', icon: Heart },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'reports', label: 'Rapports', icon: FileText },
     { id: 'logs', label: 'Logs', icon: Activity },
@@ -80,6 +82,7 @@ export const AdminDashboard = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === 'stats' && <AdminStats />}
         {activeTab === 'users' && <UserManagement />}
+        {activeTab === 'baskets' && <SuspendedBaskets />}
         {activeTab === 'analytics' && <AdvancedAnalytics />}
         {activeTab === 'reports' && <ReportsGenerator />}
         {activeTab === 'logs' && <ActivityLogs />}
