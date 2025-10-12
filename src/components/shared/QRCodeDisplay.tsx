@@ -6,7 +6,7 @@ interface QRCodeDisplayProps {
   title?: string;
 }
 
-export const QRCodeDisplay = ({ value, size = 200, title }: QRCodeDisplayProps) => {
+export const QRCodeDisplay = ({ value, size = 300, title }: QRCodeDisplayProps) => {
   return (
     <div className="flex flex-col items-center gap-4 p-6 bg-white rounded-lg shadow-md">
       {title && <h3 className="text-lg font-semibold text-gray-800">{title}</h3>}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { QRCodeDisplay } from '../shared/QRCodeDisplay';
@@ -18,11 +18,7 @@ export const ReservationsList = () => {
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const { profile } = useAuthStore();
 
-  useEffect(() => {
-    fetchReservations();
-  }, []);
-
-  const fetchReservations = async () => {
+  const fetchReservations = useCallback(async () => {
     if (!profile) return;
 
     try {
@@ -39,26 +35,40 @@ export const ReservationsList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile]);
+
+  useEffect(() => {
+    fetchReservations();
+  }, [fetchReservations]);
 
   const handleCancel = async (reservationId: string, lotId: string, quantity: number) => {
     if (!confirm('Voulez-vous vraiment annuler cette réservation ?')) return;
 
     try {
-      const { error: updateError } = await supabase
-        .from('reservations')
+      // Mise à jour du statut de la réservation
+      const { error: updateError } = await (supabase
+        .from('reservations') as unknown as {
+          update: (data: { status: string }) => {
+            eq: (col: string, val: string) => Promise<{ error: Error | null }>;
+          };
+        })
         .update({ status: 'cancelled' })
         .eq('id', reservationId);
 
       if (updateError) throw updateError;
 
+      // Mise à jour de la quantité réservée du lot
       const reservation = reservations.find((r) => r.id === reservationId);
       if (reservation) {
-        const { error: lotError } = await supabase
-          .from('lots')
-          .update({
-            quantity_reserved: reservation.lots.quantity_reserved - quantity,
+        const newQuantityReserved = reservation.lots.quantity_reserved - quantity;
+        
+        const { error: lotError } = await (supabase
+          .from('lots') as unknown as {
+            update: (data: { quantity_reserved: number }) => {
+              eq: (col: string, val: string) => Promise<{ error: Error | null }>;
+            };
           })
+          .update({ quantity_reserved: newQuantityReserved })
           .eq('id', lotId);
 
         if (lotError) throw lotError;
@@ -162,12 +172,14 @@ export const ReservationsList = () => {
               </div>
 
               <div className="mt-4 flex gap-2">
-                <button
-                  onClick={() => setSelectedReservation(reservation)}
-                  className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                >
-                  Voir QR Code
-                </button>
+                {(reservation.status === 'pending' || reservation.status === 'confirmed') && (
+                  <button
+                    onClick={() => setSelectedReservation(reservation)}
+                    className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                  >
+                    Voir QR Code
+                  </button>
+                )}
                 {reservation.status === 'pending' && (
                   <button
                     onClick={() =>
@@ -177,6 +189,16 @@ export const ReservationsList = () => {
                   >
                     <X size={20} />
                   </button>
+                )}
+                {reservation.status === 'completed' && (
+                  <div className="flex-1 py-2 px-4 bg-green-100 text-green-700 rounded-lg text-sm font-medium text-center">
+                    ✓ Lot récupéré
+                  </div>
+                )}
+                {reservation.status === 'cancelled' && (
+                  <div className="flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
+                    Réservation annulée
+                  </div>
                 )}
               </div>
             </div>
