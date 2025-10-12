@@ -5,7 +5,7 @@ import {
   X, 
   HelpCircle, 
   Layers,
-  QrCode,
+  // QrCode,
   LogIn,
   UserPlus,
   Home
@@ -22,7 +22,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
   const navLinks = [
     { name: 'Accueil', path: '/', icon: Home },
     { name: 'Comment ça marche', path: '/how-it-works', icon: Layers },
-    { name: 'Station de retrait', path: '/pickup', icon: QrCode },
+    // { name: 'Station de retrait', path: '/pickup', icon: QrCode },
     { name: 'Centre d\'aide', path: '/help', icon: HelpCircle },
   ];
 
