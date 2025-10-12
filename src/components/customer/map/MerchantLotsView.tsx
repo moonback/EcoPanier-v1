@@ -109,14 +109,14 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
         </div>
       </div>
 
-      {/* Grille des lots - 6 colonnes avec infos au-dessus */}
+      {/* Grille des lots - Image complète avec overlay détaillé au hover */}
       {merchant.lots.length === 0 ? (
         <div className="card p-12 text-center">
           <Package className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
           <p className="text-neutral-600">Aucun invendu disponible pour le moment</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {merchant.lots.map((lot) => {
             const availableQuantity = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
             const discountPercent = Math.round(((lot.original_price - lot.discounted_price) / lot.original_price) * 100);
@@ -124,96 +124,115 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
             return (
               <div
                 key={lot.id}
-                className="card overflow-hidden hover:shadow-lg transition-all duration-200 group"
+                className="group relative card overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-1"
+                onClick={() => onReserveLot(lot)}
               >
-                {/* Contenu au-dessus - Titre et prix */}
-                <div className="p-3 pb-2">
-                  <h3 className="font-bold text-neutral-900 text-sm mb-2 line-clamp-2 min-h-[2.5rem] group-hover:text-primary-600 transition-colors">
-                    {lot.title}
-                  </h3>
-
-                  {/* Prix et réduction */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex flex-col">
-                      <span className="text-neutral-400 line-through text-xs">
-                        {lot.original_price}€
-                      </span>
-                      <div className="flex items-center gap-0.5 text-primary-600">
-                        <Euro className="w-4 h-4" />
-                        <span className="text-xl font-black">{lot.discounted_price}€</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="bg-success-500 text-white px-2 py-0.5 rounded text-xs font-bold">
-                        -{discountPercent}%
-                      </span>
-                      {lot.is_urgent && (
-                        <span className="bg-accent-500 text-white text-xs px-2 py-0.5 rounded font-bold animate-pulse">
-                          🔥
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Infos rapides */}
-                  <div className="space-y-1 mb-2">
-                    <div className="flex items-center gap-1 text-xs">
-                      <Package className="w-3 h-3 text-success-600 flex-shrink-0" />
-                      <span className="text-neutral-700">
-                        <span className="font-bold text-success-600">{availableQuantity}</span> dispo
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-neutral-600">
-                      <Clock className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate">
-                        {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Image du lot */}
-                <div className="relative w-full h-32 bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden">
+                {/* Image plein format */}
+                <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden">
                   {lot.image_urls && lot.image_urls.length > 0 ? (
                     <img
                       src={lot.image_urls[0]}
                       alt={lot.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
                         e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f3f4f6" width="200" height="200"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="16" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3E📦%3C/text%3E%3C/svg%3E';
                       }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Package className="w-12 h-12 text-neutral-400" />
+                      <Package className="w-16 h-16 text-neutral-400" />
                     </div>
                   )}
-                  
-                  {/* Badge catégorie sur l'image */}
-                  <div className="absolute bottom-2 left-2 right-2">
-                    <span className="inline-block bg-white/95 backdrop-blur-sm text-neutral-700 text-xs px-2 py-1 rounded-full font-medium shadow-lg truncate max-w-full">
+
+                  {/* Badges fixes en haut */}
+                  <div className="absolute top-2 left-2 right-2 flex items-start justify-between z-10">
+                    {lot.is_urgent && (
+                      <span className="inline-flex items-center gap-1 bg-accent-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-xl animate-pulse border-2 border-white">
+                        🔥 Urgent
+                      </span>
+                    )}
+                    <span className="ml-auto bg-success-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-xl border-2 border-white">
+                      -{discountPercent}%
+                    </span>
+                  </div>
+
+                  {/* Prix simple en bas (toujours visible) */}
+                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between z-10">
+                    <div className="flex items-center gap-1 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg">
+                      <Euro className="w-4 h-4 text-primary-600" />
+                      <span className="text-lg font-black text-primary-600">{lot.discounted_price}€</span>
+                    </div>
+                    <span className="bg-white/95 backdrop-blur-sm text-neutral-700 text-xs px-2 py-1 rounded-full font-medium shadow-lg">
                       {lot.category}
                     </span>
                   </div>
-                </div>
 
-                {/* Bouton réserver - Footer */}
-                <div className="p-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onReserveLot(lot);
-                    }}
-                    disabled={availableQuantity === 0}
-                    className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      availableQuantity === 0
-                        ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 hover:shadow-md'
-                    }`}
-                  >
-                    <ShoppingCart className="w-3.5 h-3.5" />
-                    {availableQuantity === 0 ? 'Épuisé' : 'Réserver'}
-                  </button>
+                  {/* Overlay détaillé au hover - Apparaît par le bas */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white space-y-3">
+                      {/* Titre */}
+                      <h3 className="font-bold text-lg line-clamp-2">
+                        {lot.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-sm text-white/90 line-clamp-2">
+                        {lot.description}
+                      </p>
+
+                      {/* Prix détaillé */}
+                      <div className="flex items-center justify-between py-2 px-3 bg-white/10 backdrop-blur-sm rounded-lg">
+                        <div>
+                          <div className="text-xs text-white/70">Prix initial</div>
+                          <div className="text-white/80 line-through font-medium">{lot.original_price}€</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-white/70">Prix réduit</div>
+                          <div className="flex items-center gap-1">
+                            <Euro className="w-5 h-5" />
+                            <span className="text-2xl font-black">{lot.discounted_price}€</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Infos détaillées */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Package className="w-4 h-4" />
+                          </div>
+                          <span>
+                            <span className="font-bold">{availableQuantity}</span> unités disponibles
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <span>
+                            Retrait : {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} - {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Bouton réserver dans l'overlay */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onReserveLot(lot);
+                        }}
+                        disabled={availableQuantity === 0}
+                        className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${
+                          availableQuantity === 0
+                            ? 'bg-white/20 text-white/50 cursor-not-allowed'
+                            : 'bg-white text-primary-600 hover:bg-primary-50 shadow-lg hover:shadow-xl'
+                        }`}
+                      >
+                        <ShoppingCart className="w-4 h-4" />
+                        {availableQuantity === 0 ? 'Épuisé' : 'Réserver maintenant'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             );

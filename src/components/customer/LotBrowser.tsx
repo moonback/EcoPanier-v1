@@ -10,6 +10,7 @@ import {
   ReservationModal,
   DonationModal,
   FilterModal,
+  LotDetailsModal,
   EmptyState,
   InlineSpinner,
 } from './components';
@@ -34,19 +35,37 @@ export const LotBrowser = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
   const [reservationMode, setReservationMode] = useState<'reserve' | 'donate' | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
   const { lots, loading, error, reserveLot } = useLots(selectedCategory);
 
   // Handlers
+  const handleViewDetails = (lot: Lot) => {
+    setSelectedLot(lot);
+    setShowDetailsModal(true);
+  };
+
   const handleReserveLot = (lot: Lot) => {
     setSelectedLot(lot);
+    setShowDetailsModal(false);
     setReservationMode('reserve');
   };
 
   const handleDonateLot = (lot: Lot) => {
     setSelectedLot(lot);
+    setShowDetailsModal(false);
+    setReservationMode('donate');
+  };
+
+  const handleReserveFromDetails = () => {
+    setShowDetailsModal(false);
+    setReservationMode('reserve');
+  };
+
+  const handleDonateFromDetails = () => {
+    setShowDetailsModal(false);
     setReservationMode('donate');
   };
 
@@ -71,6 +90,11 @@ export const LotBrowser = () => {
   const handleCloseModal = () => {
     setSelectedLot(null);
     setReservationMode(null);
+  };
+
+  const handleCloseDetailsModal = () => {
+    setShowDetailsModal(false);
+    setSelectedLot(null);
   };
 
   // Early returns (conditions de sortie)
@@ -131,13 +155,14 @@ export const LotBrowser = () => {
           description="Aucun lot ne correspond à vos critères. Essayez de modifier vos filtres."
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {lots.map((lot) => (
             <LotCard
               key={lot.id}
               lot={lot}
               onReserve={handleReserveLot}
               onDonate={handleDonateLot}
+              onViewDetails={handleViewDetails}
             />
           ))}
         </div>
@@ -149,6 +174,15 @@ export const LotBrowser = () => {
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
           onClose={() => setShowFilterModal(false)}
+        />
+      )}
+
+      {selectedLot && showDetailsModal && (
+        <LotDetailsModal
+          lot={selectedLot}
+          onClose={handleCloseDetailsModal}
+          onReserve={handleReserveFromDetails}
+          onDonate={handleDonateFromDetails}
         />
       )}
 
