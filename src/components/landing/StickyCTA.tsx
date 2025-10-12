@@ -72,7 +72,7 @@ export const StickyCTA = () => {
                   <span>🎁 Offrir un panier suspendu</span>
                 </span>
                 <div className="text-xs mt-1 text-accent-100 font-semibold">
-                  1 clic = 1 repas offert ❤️
+                  1 clic = 1 repas offert pour un bénéficiaire ❤️
                 </div>
               </motion.button>
             )}
