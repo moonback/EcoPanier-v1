@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
+import { BusinessHoursEditor } from './BusinessHoursEditor';
 import { 
   User, 
   Mail, 
@@ -17,7 +18,8 @@ import {
   TrendingUp,
   Heart,
   Package,
-  Star
+  Star,
+  Clock
 } from 'lucide-react';
 
 interface ProfileStats {
@@ -30,6 +32,7 @@ interface ProfileStats {
 export const ProfilePage = () => {
   const { profile, user, fetchProfile } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingHours, setIsEditingHours] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -42,6 +45,9 @@ export const ProfilePage = () => {
     business_name: profile?.business_name || '',
     business_address: profile?.business_address || '',
   });
+
+  // Business hours state
+  const [businessHours, setBusinessHours] = useState(profile?.business_hours || null);
 
   // Role-specific stats
   const getRoleStats = (): ProfileStats[] => {
@@ -138,6 +144,39 @@ export const ProfilePage = () => {
       business_address: profile?.business_address || '',
     });
     setIsEditing(false);
+    setError('');
+  };
+
+  const handleSaveBusinessHours = async () => {
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          business_hours: businessHours
+        })
+        .eq('id', user?.id);
+
+      if (updateError) throw updateError;
+
+      await fetchProfile();
+      setSuccess('Horaires d\'ouverture enregistrés avec succès ! ✅');
+      setIsEditingHours(false);
+      
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de l\'enregistrement des horaires');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelBusinessHours = () => {
+    setBusinessHours(profile?.business_hours || null);
+    setIsEditingHours(false);
     setError('');
   };
 
@@ -487,6 +526,70 @@ export const ProfilePage = () => {
           </div>
         )}
       </div>
+
+      {/* Business Hours (Merchant only) */}
+      {profile?.role === 'merchant' && (
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+                <Clock size={20} className="text-primary-600" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-neutral-900">Horaires d'ouverture</h2>
+                <p className="text-sm text-neutral-600">Informez vos clients de vos horaires</p>
+              </div>
+            </div>
+            {!isEditingHours && (
+              <button
+                onClick={() => setIsEditingHours(true)}
+                className="btn-secondary rounded-lg flex items-center gap-2"
+              >
+                <Edit2 size={18} />
+                <span>{businessHours ? 'Modifier' : 'Définir'} les horaires</span>
+              </button>
+            )}
+          </div>
+
+          {isEditingHours ? (
+            <BusinessHoursEditor
+              value={businessHours}
+              onChange={setBusinessHours}
+              onSave={handleSaveBusinessHours}
+              onCancel={handleCancelBusinessHours}
+              saving={loading}
+            />
+          ) : businessHours ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mt-4">
+              {Object.entries(businessHours).map(([day, hours]) => {
+                const dayNames: Record<string, string> = {
+                  monday: 'Lun',
+                  tuesday: 'Mar',
+                  wednesday: 'Mer',
+                  thursday: 'Jeu',
+                  friday: 'Ven',
+                  saturday: 'Sam',
+                  sunday: 'Dim'
+                };
+                return (
+                  <div key={day} className="p-3 bg-neutral-50 rounded-lg text-center border border-neutral-200">
+                    <div className="text-xs font-bold text-neutral-700 mb-1">{dayNames[day]}</div>
+                    <div className={`text-xs ${hours.closed ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                      {hours.closed ? 'Fermé' : `${hours.open} - ${hours.close}`}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-8 text-center bg-neutral-50 rounded-xl border-2 border-dashed border-neutral-300">
+              <Clock className="w-12 h-12 text-neutral-400 mx-auto mb-3" />
+              <p className="text-neutral-600 font-medium">Aucun horaire défini</p>
+              <p className="text-sm text-neutral-500 mt-1">Cliquez sur "Définir les horaires" pour ajouter vos horaires d'ouverture</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Account Settings */}
       <div className="card p-8">

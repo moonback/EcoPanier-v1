@@ -9,6 +9,9 @@ export { ReservationModal } from './ReservationModal';
 export { DonationModal } from './DonationModal';
 export { FilterModal } from './FilterModal';
 export { QRCodeModal } from './QRCodeModal';
+export { LotDetailsModal } from './LotDetailsModal';
+export { AdvancedFilterModal } from './AdvancedFilterModal';
+export type { AdvancedFilters } from './AdvancedFilterModal';
 export { EmptyState } from './EmptyState';
 export { InlineSpinner } from './InlineSpinner';
 
