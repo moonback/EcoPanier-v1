@@ -3,8 +3,10 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, categories, uploadImage } from '../../utils/helpers';
 import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
-import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
+import { format, addDays, startOfDay, setHours, setMinutes } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 type Lot = Database['public']['Tables']['lots']['Row'];
 type LotInsert = Database['public']['Tables']['lots']['Insert'];
@@ -22,6 +24,12 @@ export const LotManagement = () => {
 
   const totalSteps = editingLot ? 4 : 5; // 5 étapes pour création (avec IA), 4 pour édition
 
+  // État pour la sélection du jour et des horaires
+  const [selectedDateOption, setSelectedDateOption] = useState<'today' | 'tomorrow' | 'custom'>('today');
+  const [customDate, setCustomDate] = useState('');
+  const [startTime, setStartTime] = useState('18:00');
+  const [endTime, setEndTime] = useState('20:00');
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -35,6 +43,36 @@ export const LotManagement = () => {
     is_urgent: false,
     image_urls: [] as string[],
   });
+
+  // Effet pour mettre à jour les dates de retrait selon la sélection
+  useEffect(() => {
+    let selectedDate: Date;
+
+    if (selectedDateOption === 'today') {
+      selectedDate = startOfDay(new Date());
+    } else if (selectedDateOption === 'tomorrow') {
+      selectedDate = startOfDay(addDays(new Date(), 1));
+    } else if (selectedDateOption === 'custom' && customDate) {
+      selectedDate = startOfDay(new Date(customDate));
+    } else {
+      return; // Pas de date sélectionnée
+    }
+
+    // Parser les heures
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+
+    // Créer les dates complètes
+    const pickupStartDate = setMinutes(setHours(selectedDate, startHour), startMinute);
+    const pickupEndDate = setMinutes(setHours(selectedDate, endHour), endMinute);
+
+    // Mettre à jour le formData avec les timestamps ISO
+    setFormData(prev => ({
+      ...prev,
+      pickup_start: pickupStartDate.toISOString().slice(0, 16),
+      pickup_end: pickupEndDate.toISOString().slice(0, 16),
+    }));
+  }, [selectedDateOption, customDate, startTime, endTime]);
 
   const cleanupOldSoldOutLots = useCallback(async (lots: Lot[]) => {
     const now = new Date();
@@ -243,6 +281,10 @@ export const LotManagement = () => {
     });
     setAnalysisConfidence(null);
     setCurrentStep(1);
+    setSelectedDateOption('today');
+    setCustomDate('');
+    setStartTime('18:00');
+    setEndTime('20:00');
   };
 
   const nextStep = () => {
@@ -374,6 +416,25 @@ export const LotManagement = () => {
       is_urgent: lot.is_urgent,
       image_urls: lot.image_urls,
     });
+
+    // Extraire la date et les heures pour pré-remplir les champs
+    const pickupDate = new Date(lot.pickup_start);
+    const today = startOfDay(new Date());
+    const tomorrow = startOfDay(addDays(new Date(), 1));
+    const lotDate = startOfDay(pickupDate);
+
+    if (lotDate.getTime() === today.getTime()) {
+      setSelectedDateOption('today');
+    } else if (lotDate.getTime() === tomorrow.getTime()) {
+      setSelectedDateOption('tomorrow');
+    } else {
+      setSelectedDateOption('custom');
+      setCustomDate(format(pickupDate, 'yyyy-MM-dd'));
+    }
+
+    setStartTime(format(new Date(lot.pickup_start), 'HH:mm'));
+    setEndTime(format(new Date(lot.pickup_end), 'HH:mm'));
+
     setCurrentStep(1);
     setShowModal(true);
   };
@@ -865,47 +926,175 @@ export const LotManagement = () => {
                       <p className="text-gray-600">Quand vos clients pourront-ils récupérer le produit ?</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          <span className="text-red-500">*</span> Début du retrait
-                  </label>
-                        <div className="relative">
-                          <Clock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-                  <input
-                    type="datetime-local"
-                    value={formData.pickup_start}
-                    onChange={(e) => setFormData({ ...formData, pickup_start: e.target.value })}
-                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    required
-                  />
+                    {/* Sélection du jour */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        <Calendar className="inline-block mr-2" size={16} />
+                        <span className="text-red-500">*</span> Choisissez le jour
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedDateOption('today')}
+                          className={`
+                            p-4 rounded-lg border-2 transition-all text-left
+                            ${selectedDateOption === 'today'
+                              ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                              : 'border-gray-300 hover:border-blue-300 hover:bg-blue-50'}
+                          `}
+                        >
+                          <div className="font-semibold text-gray-900">Aujourd'hui</div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            {format(new Date(), 'EEEE d MMMM', { locale: fr })}
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedDateOption('tomorrow')}
+                          className={`
+                            p-4 rounded-lg border-2 transition-all text-left
+                            ${selectedDateOption === 'tomorrow'
+                              ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                              : 'border-gray-300 hover:border-blue-300 hover:bg-blue-50'}
+                          `}
+                        >
+                          <div className="font-semibold text-gray-900">Demain</div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            {format(addDays(new Date(), 1), 'EEEE d MMMM', { locale: fr })}
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedDateOption('custom')}
+                          className={`
+                            p-4 rounded-lg border-2 transition-all text-left
+                            ${selectedDateOption === 'custom'
+                              ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                              : 'border-gray-300 hover:border-blue-300 hover:bg-blue-50'}
+                          `}
+                        >
+                          <div className="font-semibold text-gray-900">Autre jour</div>
+                          <div className="text-sm text-gray-600 mt-1">Date personnalisée</div>
+                        </button>
+                      </div>
+
+                      {selectedDateOption === 'custom' && (
+                        <div className="mt-3">
+                          <input
+                            type="date"
+                            value={customDate}
+                            onChange={(e) => setCustomDate(e.target.value)}
+                            min={format(new Date(), 'yyyy-MM-dd')}
+                            className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            required
+                          />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">À partir de quand</p>
-                </div>
+                      )}
+                    </div>
 
-                <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          <span className="text-red-500">*</span> Fin du retrait
-                  </label>
-                        <div className="relative">
-                          <Clock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-                  <input
-                    type="datetime-local"
-                    value={formData.pickup_end}
-                    onChange={(e) => setFormData({ ...formData, pickup_end: e.target.value })}
-                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    required
-                  />
-                </div>
-                        <p className="text-xs text-gray-500 mt-1">Jusqu'à quand</p>
-                </div>
-              </div>
+                    {/* Créneaux horaires prédéfinis */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        <Clock className="inline-block mr-2" size={16} />
+                        <span className="text-red-500">*</span> Créneaux horaires
+                      </label>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStartTime('12:00');
+                            setEndTime('14:00');
+                          }}
+                          className="p-3 border-2 border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-left"
+                        >
+                          <div className="font-medium text-gray-900">🌞 Midi</div>
+                          <div className="text-sm text-gray-600">12:00 - 14:00</div>
+                        </button>
 
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStartTime('18:00');
+                            setEndTime('20:00');
+                          }}
+                          className="p-3 border-2 border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-left"
+                        >
+                          <div className="font-medium text-gray-900">🌙 Soir</div>
+                          <div className="text-sm text-gray-600">18:00 - 20:00</div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStartTime('08:00');
+                            setEndTime('12:00');
+                          }}
+                          className="p-3 border-2 border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-left"
+                        >
+                          <div className="font-medium text-gray-900">🌅 Matin</div>
+                          <div className="text-sm text-gray-600">08:00 - 12:00</div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStartTime('14:00');
+                            setEndTime('18:00');
+                          }}
+                          className="p-3 border-2 border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition text-left"
+                        >
+                          <div className="font-medium text-gray-900">☀️ Après-midi</div>
+                          <div className="text-sm text-gray-600">14:00 - 18:00</div>
+                        </button>
+                      </div>
+
+                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <p className="text-sm font-medium text-gray-700 mb-3">Ou personnalisez :</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                              Début
+                            </label>
+                            <input
+                              type="time"
+                              value={startTime}
+                              onChange={(e) => setStartTime(e.target.value)}
+                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                              Fin
+                            </label>
+                            <input
+                              type="time"
+                              value={endTime}
+                              onChange={(e) => setEndTime(e.target.value)}
+                              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Aperçu du créneau */}
                     {formData.pickup_start && formData.pickup_end && (
                       <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
-                        <div className="flex items-center gap-2 text-green-700">
-                          <Check size={20} />
-                          <span className="font-semibold">Créneau de retrait défini</span>
+                        <div className="flex items-start gap-3">
+                          <Check size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="font-semibold text-green-800 mb-1">Créneau de retrait défini</p>
+                            <p className="text-sm text-green-700">
+                              {format(new Date(formData.pickup_start), "EEEE d MMMM 'de' HH:mm", { locale: fr })}
+                              {' '}à{' '}
+                              {format(new Date(formData.pickup_end), 'HH:mm', { locale: fr })}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     )}
