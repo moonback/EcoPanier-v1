@@ -32,6 +32,13 @@ interface SuspendedBasket {
   beneficiary_code?: string;
 }
 
+interface Beneficiary {
+  id: string;
+  full_name: string;
+  beneficiary_id: string;
+  phone: string | null;
+}
+
 export const SuspendedBaskets = () => {
   const [baskets, setBaskets] = useState<SuspendedBasket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +46,12 @@ export const SuspendedBaskets = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBasket, setSelectedBasket] = useState<SuspendedBasket | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
+  const [selectedBeneficiary, setSelectedBeneficiary] = useState<string>('');
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assignSuccess, setAssignSuccess] = useState('');
+  const [assignError, setAssignError] = useState('');
 
   // Statistiques
   const [stats, setStats] = useState({
@@ -306,6 +319,78 @@ export const SuspendedBaskets = () => {
   const closeModal = () => {
     setShowModal(false);
     setSelectedBasket(null);
+  };
+
+  const loadBeneficiaries = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, beneficiary_id, phone')
+        .eq('role', 'beneficiary')
+        .eq('verified', true)
+        .order('full_name');
+
+      if (error) throw error;
+      setBeneficiaries(data || []);
+    } catch (err) {
+      console.error('Erreur lors du chargement des bénéficiaires:', err);
+    }
+  };
+
+  const openAssignModal = async (basket: SuspendedBasket) => {
+    setSelectedBasket(basket);
+    setAssignError('');
+    setAssignSuccess('');
+    setSelectedBeneficiary('');
+    await loadBeneficiaries();
+    setShowAssignModal(true);
+  };
+
+  const closeAssignModal = () => {
+    setShowAssignModal(false);
+    setSelectedBasket(null);
+    setSelectedBeneficiary('');
+    setAssignError('');
+    setAssignSuccess('');
+  };
+
+  const handleAssign = async () => {
+    if (!selectedBeneficiary || !selectedBasket) {
+      setAssignError('Veuillez sélectionner un bénéficiaire');
+      return;
+    }
+
+    setAssignLoading(true);
+    setAssignError('');
+    setAssignSuccess('');
+
+    try {
+      // Mettre à jour le panier suspendu
+      const { error: updateError } = await supabase
+        .from('suspended_baskets')
+        .update({
+          status: 'claimed',
+          claimed_by: selectedBeneficiary,
+          claimed_at: new Date().toISOString()
+        })
+        .eq('id', selectedBasket.id);
+
+      if (updateError) throw updateError;
+
+      setAssignSuccess('Panier attribué avec succès ! ✅');
+      
+      // Recharger les paniers
+      setTimeout(async () => {
+        await loadBaskets();
+        closeAssignModal();
+        setShowModal(false);
+      }, 1500);
+    } catch (err: any) {
+      console.error('Erreur lors de l\'attribution:', err);
+      setAssignError(err.message || 'Erreur lors de l\'attribution du panier');
+    } finally {
+      setAssignLoading(false);
+    }
   };
 
   const filteredBaskets = baskets.filter(basket => {
@@ -919,11 +1004,144 @@ export const SuspendedBaskets = () => {
                   Fermer
                 </button>
                 {selectedBasket.status === 'available' && (
-                  <button className="btn-accent rounded-xl flex-1">
+                  <button 
+                    onClick={() => openAssignModal(selectedBasket)}
+                    className="btn-accent rounded-xl flex-1"
+                  >
                     <Heart size={20} />
                     <span>Attribuer manuellement</span>
                   </button>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal d'attribution */}
+      {showAssignModal && selectedBasket && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="card max-w-lg w-full animate-fade-in-up">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-accent-500 to-accent-600 p-6 rounded-t-large">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Heart size={24} className="text-white" fill="currentColor" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                    Attribuer le Panier
+                  </h3>
+                  <p className="text-accent-100 font-medium">
+                    Valeur : {selectedBasket.amount}€
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contenu */}
+            <div className="p-6 space-y-6">
+              {assignSuccess && (
+                <div className="p-4 bg-success-50 border-2 border-success-200 rounded-xl text-success-700 font-semibold animate-fade-in">
+                  {assignSuccess}
+                </div>
+              )}
+
+              {assignError && (
+                <div className="p-4 bg-accent-50 border-2 border-accent-200 rounded-xl text-accent-700 font-semibold animate-fade-in">
+                  ⚠️ {assignError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-semibold text-neutral-700 mb-3">
+                  Sélectionner un bénéficiaire
+                </label>
+                
+                {beneficiaries.length === 0 ? (
+                  <div className="p-6 bg-warning-50 border-2 border-warning-200 rounded-xl text-center">
+                    <p className="text-warning-700 font-semibold mb-2">
+                      Aucun bénéficiaire vérifié disponible
+                    </p>
+                    <p className="text-sm text-warning-600 font-medium">
+                      Vérifiez d'abord des bénéficiaires dans la section "Utilisateurs"
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    {beneficiaries.map((beneficiary) => (
+                      <label
+                        key={beneficiary.id}
+                        className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all hover-lift ${
+                          selectedBeneficiary === beneficiary.id
+                            ? 'border-accent-500 bg-accent-50'
+                            : 'border-neutral-200 hover:border-accent-300'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="beneficiary"
+                          value={beneficiary.id}
+                          checked={selectedBeneficiary === beneficiary.id}
+                          onChange={(e) => setSelectedBeneficiary(e.target.value)}
+                          className="w-5 h-5 text-accent-600 focus:ring-accent-500"
+                        />
+                        <div className="flex-1">
+                          <div className="font-bold text-neutral-900 flex items-center gap-2">
+                            {beneficiary.full_name}
+                            <span className="badge-primary text-xs">{beneficiary.beneficiary_id}</span>
+                          </div>
+                          {beneficiary.phone && (
+                            <div className="text-sm text-neutral-600 font-medium mt-1">
+                              📞 {beneficiary.phone}
+                            </div>
+                          )}
+                        </div>
+                        {selectedBeneficiary === beneficiary.id && (
+                          <div className="w-6 h-6 bg-accent-500 rounded-full flex items-center justify-center">
+                            <CheckCircle size={16} className="text-white" />
+                          </div>
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Info Box */}
+              <div className="p-4 bg-primary-50 border-2 border-primary-200 rounded-xl">
+                <p className="text-sm text-primary-800 font-semibold">
+                  💡 <strong>Information :</strong> Le bénéficiaire recevra une notification 
+                  et pourra récupérer le panier chez <strong>{selectedBasket.merchant_name}</strong>
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <button
+                  onClick={closeAssignModal}
+                  disabled={assignLoading}
+                  className="btn-secondary rounded-xl flex-1"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleAssign}
+                  disabled={assignLoading || !selectedBeneficiary || beneficiaries.length === 0}
+                  className="btn-accent rounded-xl flex-1"
+                >
+                  {assignLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                      <span>Attribution...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Heart size={20} fill="currentColor" />
+                      <span>Attribuer</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
