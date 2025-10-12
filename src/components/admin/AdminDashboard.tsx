@@ -3,16 +3,26 @@ import { useAuthStore } from '../../stores/authStore';
 import { AdminStats } from './AdminStats';
 import { UserManagement } from './UserManagement';
 import { ProfilePage } from '../shared/ProfilePage';
-import { BarChart3, Users, LogOut, User, Shield } from 'lucide-react';
+import { PlatformSettings } from './PlatformSettings';
+import { SettingsHistory } from './SettingsHistory';
+import { AdvancedAnalytics } from './AdvancedAnalytics';
+import { ActivityLogs } from './ActivityLogs';
+import { ReportsGenerator } from './ReportsGenerator';
+import { BarChart3, Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText } from 'lucide-react';
 
 export const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'profile'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile'>('stats');
   const { profile, signOut } = useAuthStore();
 
   const tabs = [
-    { id: 'stats', label: 'Statistiques', icon: BarChart3 },
-    { id: 'users', label: 'Gestion des utilisateurs', icon: Users },
-    { id: 'profile', label: 'Mon profil', icon: User },
+    { id: 'stats', label: 'Tableau de bord', icon: BarChart3 },
+    { id: 'users', label: 'Utilisateurs', icon: Users },
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+    { id: 'reports', label: 'Rapports', icon: FileText },
+    { id: 'logs', label: 'Logs', icon: Activity },
+    { id: 'settings', label: 'Paramètres', icon: Settings },
+    { id: 'history', label: 'Historique', icon: History },
+    { id: 'profile', label: 'Profil', icon: User },
   ];
 
   return (
@@ -70,6 +80,11 @@ export const AdminDashboard = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === 'stats' && <AdminStats />}
         {activeTab === 'users' && <UserManagement />}
+        {activeTab === 'analytics' && <AdvancedAnalytics />}
+        {activeTab === 'reports' && <ReportsGenerator />}
+        {activeTab === 'logs' && <ActivityLogs />}
+        {activeTab === 'settings' && <PlatformSettings />}
+        {activeTab === 'history' && <SettingsHistory />}
         {activeTab === 'profile' && <ProfilePage />}
       </main>
     </div>
