@@ -5,10 +5,11 @@ import { LotBrowser } from './LotBrowser';
 import { ReservationsList } from './ReservationsList';
 import { ImpactDashboard } from './ImpactDashboard';
 import { QRCodeDisplay } from '../shared/QRCodeDisplay';
-import { ShoppingBag, History, TrendingUp, QrCode, LogOut } from 'lucide-react';
+import { ProfilePage } from '../shared/ProfilePage';
+import { ShoppingBag, History, TrendingUp, QrCode, User, LogOut } from 'lucide-react';
 
 export const CustomerDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'browse' | 'reservations' | 'impact' | 'qrcode'>('browse');
+  const [activeTab, setActiveTab] = useState<'browse' | 'reservations' | 'impact' | 'qrcode' | 'profile'>('browse');
   const { profile, signOut } = useAuthStore();
 
   const tabs = [
@@ -16,6 +17,7 @@ export const CustomerDashboard = () => {
     { id: 'reservations', label: 'Mes réservations', icon: History },
     { id: 'impact', label: 'Mon impact', icon: TrendingUp },
     { id: 'qrcode', label: 'Mon QR Code', icon: QrCode },
+    { id: 'profile', label: 'Mon profil', icon: User },
   ];
 
   return (
@@ -77,6 +79,7 @@ export const CustomerDashboard = () => {
             </div>
           </div>
         )}
+        {activeTab === 'profile' && <ProfilePage />}
       </main>
     </div>
   );

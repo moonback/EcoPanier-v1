@@ -2,38 +2,43 @@ import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { LotManagement } from './LotManagement';
 import { SalesStats } from './SalesStats';
-import { Package, TrendingUp, LogOut, Scan } from 'lucide-react';
+import { ProfilePage } from '../shared/ProfilePage';
+import { Package, TrendingUp, LogOut, Scan, User } from 'lucide-react';
 
 export const MerchantDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'lots' | 'stats'>('lots');
+  const [activeTab, setActiveTab] = useState<'lots' | 'stats' | 'profile'>('lots');
   const { profile, signOut } = useAuthStore();
 
   const tabs = [
     { id: 'lots', label: 'Mes Lots', icon: Package },
     { id: 'stats', label: 'Statistiques', icon: TrendingUp },
+    { id: 'profile', label: 'Mon profil', icon: User },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div className="min-h-screen bg-neutral-50">
+      <header className="glass sticky top-0 z-40 shadow-soft-md border-b border-neutral-100">
+        <div className="max-w-7xl mx-auto px-4 py-5 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Espace Commerçant</h1>
-            <p className="text-sm text-gray-600">{profile?.business_name}</p>
+            <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">Espace Commerçant</h1>
+            <p className="text-sm text-neutral-600 mt-1 flex items-center gap-2">
+              <span className="inline-block w-2 h-2 bg-success-500 rounded-full animate-pulse"></span>
+              <span className="font-semibold text-primary-600">{profile?.business_name}</span>
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <a
               href="/pickup"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition"
+              className="btn-primary rounded-xl flex items-center gap-2"
             >
               <Scan size={20} />
               <span>Station de retrait</span>
             </a>
             <button
               onClick={signOut}
-              className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+              className="flex items-center gap-2 px-5 py-2.5 text-neutral-600 hover:text-accent-600 hover:bg-accent-50 rounded-xl transition-all hover-lift font-medium"
             >
               <LogOut size={20} />
               <span>Déconnexion</span>
@@ -42,22 +47,22 @@ export const MerchantDashboard = () => {
         </div>
       </header>
 
-      <nav className="bg-white border-b">
+      <nav className="bg-white border-b border-neutral-100 shadow-soft">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-1">
+          <div className="flex space-x-1 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium border-b-2 transition ${
+                  className={`flex items-center gap-2 px-6 py-4 font-semibold border-b-3 transition-all group ${
                     activeTab === tab.id
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-600 hover:text-gray-800'
+                      ? 'border-primary-600 text-primary-600 bg-primary-50/50'
+                      : 'border-transparent text-neutral-600 hover:text-primary-500 hover:bg-neutral-50'
                   }`}
                 >
-                  <Icon size={20} />
+                  <Icon size={20} className={`transition-transform ${activeTab === tab.id ? 'scale-110' : 'group-hover:scale-105'}`} />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -69,6 +74,7 @@ export const MerchantDashboard = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === 'lots' && <LotManagement />}
         {activeTab === 'stats' && <SalesStats />}
+        {activeTab === 'profile' && <ProfilePage />}
       </main>
     </div>
   );
