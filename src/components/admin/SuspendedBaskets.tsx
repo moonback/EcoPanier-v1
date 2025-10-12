@@ -78,9 +78,10 @@ export const SuspendedBaskets = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erreur lors du chargement:', error);
-        // Si la table n'existe pas encore, utiliser des données mockées
-        loadMockBaskets();
+        console.error('Erreur lors du chargement des paniers suspendus:', error);
+        // En cas d'erreur, afficher un message mais ne pas charger de données mockées
+        setBaskets([]);
+        calculateStats([]);
         return;
       }
 
@@ -104,115 +105,17 @@ export const SuspendedBaskets = () => {
         setBaskets(transformedBaskets);
         calculateStats(transformedBaskets);
       } else {
-        // Aucune donnée trouvée, utiliser des données d'exemple
-        loadMockBaskets();
+        // Aucune donnée trouvée - base de données vide
+        setBaskets([]);
+        calculateStats([]);
       }
     } catch (err) {
       console.error('Erreur lors du chargement des paniers:', err);
-      loadMockBaskets();
+      setBaskets([]);
+      calculateStats([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const loadMockBaskets = () => {
-    const mockBaskets: SuspendedBasket[] = [
-        {
-          id: '1',
-          donor_name: 'Marie Dupont',
-          donor_id: 'user-123',
-          amount: 5,
-          created_at: '2025-10-12T10:30:00',
-          claimed_at: null,
-          claimed_by: null,
-          status: 'available',
-          merchant_name: 'Boulangerie du Coin'
-        },
-        {
-          id: '2',
-          donor_name: 'Jean Martin',
-          donor_id: 'user-456',
-          amount: 10,
-          created_at: '2025-10-12T09:15:00',
-          claimed_at: '2025-10-12T11:20:00',
-          claimed_by: 'beneficiary-789',
-          status: 'claimed',
-          merchant_name: 'Épicerie Bio',
-          beneficiary_name: 'Association Entraide'
-        },
-        {
-          id: '3',
-          donor_name: 'Sophie Bernard',
-          donor_id: 'user-789',
-          amount: 5,
-          created_at: '2025-10-11T14:20:00',
-          claimed_at: null,
-          claimed_by: null,
-          status: 'available',
-          merchant_name: 'Primeur des Halles'
-        },
-        {
-          id: '4',
-          donor_name: 'Pierre Dubois',
-          donor_id: 'user-101',
-          amount: 7.5,
-          created_at: '2025-10-11T16:45:00',
-          claimed_at: '2025-10-12T08:30:00',
-          claimed_by: 'beneficiary-456',
-          status: 'claimed',
-          merchant_name: 'Fromagerie Artisanale',
-          beneficiary_name: 'Resto du Cœur'
-        },
-        {
-          id: '5',
-          donor_name: 'Emma Petit',
-          donor_id: 'user-202',
-          amount: 5,
-          created_at: '2025-10-10T11:00:00',
-          claimed_at: null,
-          claimed_by: null,
-          status: 'available',
-          merchant_name: 'Boucherie Moderne'
-        },
-        {
-          id: '6',
-          donor_name: 'Luc Thomas',
-          donor_id: 'user-303',
-          amount: 15,
-          created_at: '2025-10-10T15:30:00',
-          claimed_at: null,
-          claimed_by: 'beneficiary-123',
-          status: 'reserved',
-          merchant_name: 'Traiteur Délices'
-        },
-        {
-          id: '7',
-          donor_name: 'Claire Robert',
-          donor_id: 'user-404',
-          amount: 5,
-          created_at: '2025-10-09T13:15:00',
-          claimed_at: '2025-10-10T09:00:00',
-          claimed_by: 'beneficiary-234',
-          status: 'claimed',
-          merchant_name: 'Pâtisserie Sucrée',
-          beneficiary_name: 'Secours Populaire'
-        },
-        {
-          id: '8',
-          donor_name: 'Antoine Moreau',
-          donor_id: 'user-505',
-          amount: 10,
-          created_at: '2025-10-08T10:45:00',
-          claimed_at: '2025-10-09T14:20:00',
-          claimed_by: 'beneficiary-345',
-          status: 'claimed',
-          merchant_name: 'Supermarché Local',
-          beneficiary_name: 'Croix-Rouge'
-        },
-      ];
-
-      setBaskets(mockBaskets);
-      calculateStats(mockBaskets);
   };
 
   const calculateStats = (basketsList: SuspendedBasket[]) => {
@@ -554,23 +457,25 @@ export const SuspendedBaskets = () => {
       </div>
 
       {/* Impact Banner */}
-      <div className="card p-8 bg-gradient-to-br from-accent-50 to-secondary-50 border-2 border-accent-200">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-accent-500 rounded-2xl flex items-center justify-center shadow-soft-lg animate-pulse-soft">
-            <Heart size={32} className="text-white" fill="currentColor" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-2xl font-bold text-neutral-900 mb-2">
-              Impact Solidaire
-            </h3>
-            <p className="text-neutral-700 font-medium">
-              <strong className="text-accent-600">{stats.claimed} paniers</strong> ont été offerts à des personnes dans le besoin,
-              pour une valeur totale de <strong className="text-accent-600">{stats.totalAmount}€</strong>.
-              Merci aux donateurs pour leur générosité ! 💚
-            </p>
+      {stats.total > 0 && (
+        <div className="card p-8 bg-gradient-to-br from-accent-50 to-secondary-50 border-2 border-accent-200">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-accent-500 rounded-2xl flex items-center justify-center shadow-soft-lg animate-pulse-soft">
+              <Heart size={32} className="text-white" fill="currentColor" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-2xl font-bold text-neutral-900 mb-2">
+                Impact Solidaire
+              </h3>
+              <p className="text-neutral-700 font-medium">
+                <strong className="text-accent-600">{stats.claimed} panier{stats.claimed > 1 ? 's' : ''}</strong> {stats.claimed > 1 ? 'ont' : 'a'} été offert{stats.claimed > 1 ? 's' : ''} à des personnes dans le besoin,
+                pour une valeur totale de <strong className="text-accent-600">{stats.totalAmount.toFixed(2)}€</strong>.
+                Merci aux donateurs pour leur générosité ! 💚
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Baskets List */}
       <div className="space-y-4">
@@ -583,10 +488,12 @@ export const SuspendedBaskets = () => {
           <div className="card p-12 text-center">
             <Gift size={48} className="text-neutral-300 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-neutral-900 mb-2">
-              Aucun panier trouvé
+              {baskets.length === 0 ? 'Aucun panier suspendu pour le moment' : 'Aucun panier trouvé'}
             </h3>
             <p className="text-neutral-600 font-medium">
-              Modifiez vos filtres pour voir plus de résultats
+              {baskets.length === 0 
+                ? 'Les paniers suspendus offerts par les clients apparaîtront ici'
+                : 'Modifiez vos filtres pour voir plus de résultats'}
             </p>
           </div>
         ) : (
@@ -685,65 +592,67 @@ export const SuspendedBaskets = () => {
       </div>
 
       {/* Insights */}
-      <div className="card p-8 bg-gradient-to-br from-primary-50 to-secondary-50 border-2 border-primary-200">
-        <h3 className="text-xl font-bold text-neutral-900 mb-4 flex items-center gap-2">
-          <TrendingUp size={24} className="text-success-600" />
-          Tendances & Insights
-        </h3>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="bg-white rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-success-500 rounded-full"></div>
-              <span className="text-sm font-semibold text-neutral-700">Taux de récupération</span>
+      {stats.total > 0 && (
+        <div className="card p-8 bg-gradient-to-br from-primary-50 to-secondary-50 border-2 border-primary-200">
+          <h3 className="text-xl font-bold text-neutral-900 mb-4 flex items-center gap-2">
+            <TrendingUp size={24} className="text-success-600" />
+            Tendances & Insights
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-success-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-neutral-700">Taux de récupération</span>
+              </div>
+              <div className="text-2xl font-black text-gradient mb-1">
+                {((stats.claimed / stats.total) * 100).toFixed(1)}%
+              </div>
+              <div className="text-sm text-neutral-600 font-medium">
+                {stats.claimed} paniers sur {stats.total} ont été récupérés
+              </div>
             </div>
-            <div className="text-2xl font-black text-gradient mb-1">
-              {((stats.claimed / stats.total) * 100).toFixed(1)}%
-            </div>
-            <div className="text-sm text-neutral-600 font-medium">
-              {stats.claimed} paniers sur {stats.total} ont été récupérés
-            </div>
-          </div>
 
-          <div className="bg-white rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-accent-500 rounded-full"></div>
-              <span className="text-sm font-semibold text-neutral-700">Don moyen</span>
+            <div className="bg-white rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-accent-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-neutral-700">Don moyen</span>
+              </div>
+              <div className="text-2xl font-black text-gradient mb-1">
+                {(stats.totalAmount / stats.total).toFixed(2)}€
+              </div>
+              <div className="text-sm text-neutral-600 font-medium">
+                Par panier suspendu
+              </div>
             </div>
-            <div className="text-2xl font-black text-gradient mb-1">
-              {(stats.totalAmount / stats.total).toFixed(2)}€
-            </div>
-            <div className="text-sm text-neutral-600 font-medium">
-              Par panier suspendu
-            </div>
-          </div>
 
-          <div className="bg-white rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-secondary-500 rounded-full"></div>
-              <span className="text-sm font-semibold text-neutral-700">Croissance mensuelle</span>
+            <div className="bg-white rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-secondary-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-neutral-700">Croissance mensuelle</span>
+              </div>
+              <div className="text-2xl font-black text-gradient mb-1">
+                +{stats.thisMonth}
+              </div>
+              <div className="text-sm text-neutral-600 font-medium">
+                Nouveaux paniers ce mois
+              </div>
             </div>
-            <div className="text-2xl font-black text-gradient mb-1">
-              +{stats.thisMonth}
-            </div>
-            <div className="text-sm text-neutral-600 font-medium">
-              Nouveaux paniers ce mois
-            </div>
-          </div>
 
-          <div className="bg-white rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-warning-500 rounded-full"></div>
-              <span className="text-sm font-semibold text-neutral-700">Taux de disponibilité</span>
-            </div>
-            <div className="text-2xl font-black text-gradient mb-1">
-              {((stats.available / stats.total) * 100).toFixed(1)}%
-            </div>
-            <div className="text-sm text-neutral-600 font-medium">
-              {stats.available} paniers disponibles
+            <div className="bg-white rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-warning-500 rounded-full"></div>
+                <span className="text-sm font-semibold text-neutral-700">Taux de disponibilité</span>
+              </div>
+              <div className="text-2xl font-black text-gradient mb-1">
+                {((stats.available / stats.total) * 100).toFixed(1)}%
+              </div>
+              <div className="text-sm text-neutral-600 font-medium">
+                {stats.available} paniers disponibles
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Top Donors */}
       <div className="grid md:grid-cols-2 gap-6">
