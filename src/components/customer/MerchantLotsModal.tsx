@@ -79,88 +79,109 @@ export function MerchantLotsModal({ merchant, onClose, onReserve }: MerchantLots
               {merchant.lots.map((lot) => (
                 <div
                   key={lot.id}
-                  className={`border-2 rounded-xl p-3 transition-all duration-200 cursor-pointer ${
+                  className={`border-2 rounded-xl overflow-hidden transition-all duration-200 cursor-pointer ${
                     selectedLot?.id === lot.id
                       ? 'border-primary-400 bg-primary-50 shadow-lg scale-[1.02]'
                       : 'border-neutral-200 hover:border-primary-300 hover:shadow-md'
                   }`}
                   onClick={() => setSelectedLot(lot)}
                 >
-                  {/* Header compact */}
-                  <div className="mb-2">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <h3 className="font-bold text-sm text-neutral-900 line-clamp-1 flex-1">
-                        {lot.title}
-                      </h3>
-                      {lot.is_urgent && (
-                        <span className="bg-accent-100 text-accent-700 text-xs px-1.5 py-0.5 rounded font-bold animate-pulse flex-shrink-0">
-                          🔥
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-neutral-600 line-clamp-1">
-                      {lot.description}
-                    </p>
-                  </div>
-
-                  {/* Catégorie compacte */}
-                  <div className="mb-2">
-                    <span className="bg-neutral-100 text-neutral-700 text-xs px-2 py-0.5 rounded-full">
-                      {lot.category}
-                    </span>
-                  </div>
-
-                  {/* Prix compact */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-neutral-400 line-through text-xs">
-                        {lot.original_price}€
-                      </span>
-                      <div className="flex items-center gap-0.5 text-primary-600">
-                        <Euro className="w-4 h-4" />
-                        <span className="text-xl font-black">{lot.discounted_price}€</span>
+                  {/* Image du lot */}
+                  <div className="relative w-full h-32 bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden">
+                    {lot.image_urls && lot.image_urls.length > 0 ? (
+                      <img
+                        src={lot.image_urls[0]}
+                        alt={lot.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Image par défaut si erreur de chargement
+                          e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f3f4f6" width="200" height="200"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="16" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3E📦%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="w-12 h-12 text-neutral-400" />
                       </div>
-                    </div>
-                    <div className="bg-success-100 text-success-700 px-1.5 py-0.5 rounded text-xs font-bold">
+                    )}
+                    {lot.is_urgent && (
+                      <div className="absolute top-2 right-2 bg-accent-500 text-white text-xs px-2 py-1 rounded-lg font-bold animate-pulse shadow-lg">
+                        🔥 Urgent
+                      </div>
+                    )}
+                    {/* Badge réduction */}
+                    <div className="absolute bottom-2 left-2 bg-success-500 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
                       -{Math.round(((lot.original_price - lot.discounted_price) / lot.original_price) * 100)}%
                     </div>
                   </div>
 
-                  {/* Info compacte */}
-                  <div className="space-y-1.5 mb-3">
-                    <div className="flex items-center gap-1.5 text-xs">
-                      <Package className="w-3 h-3 text-neutral-600" />
-                      <span className="text-neutral-700">
-                        <span className="font-bold text-success-600">
-                          {lot.quantity_total - lot.quantity_reserved - lot.quantity_sold}
-                        </span>
-                        {' '}dispo
-                      </span>
+                  {/* Contenu */}
+                  <div className="p-3">
+                    {/* Header compact */}
+                    <div className="mb-2">
+                      <h3 className="font-bold text-sm text-neutral-900 line-clamp-2 mb-1">
+                        {lot.title}
+                      </h3>
+                      <p className="text-xs text-neutral-600 line-clamp-1">
+                        {lot.description}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-neutral-600">
-                      <Clock className="w-3 h-3" />
-                      <span>
-                        {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} - {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Bouton compact */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onReserve(lot);
-                    }}
-                    disabled={lot.quantity_total - lot.quantity_reserved - lot.quantity_sold === 0}
-                    className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      lot.quantity_total - lot.quantity_reserved - lot.quantity_sold === 0
-                        ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 hover:shadow-lg'
-                    }`}
-                  >
-                    <ShoppingCart className="w-3.5 h-3.5" />
-                    {lot.quantity_total - lot.quantity_reserved - lot.quantity_sold === 0 ? 'Épuisé' : 'Réserver'}
-                  </button>
+                    {/* Catégorie compacte */}
+                    <div className="mb-2">
+                      <span className="bg-neutral-100 text-neutral-700 text-xs px-2 py-0.5 rounded-full">
+                        {lot.category}
+                      </span>
+                    </div>
+
+                    {/* Prix compact */}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-neutral-400 line-through text-xs">
+                          {lot.original_price}€
+                        </span>
+                        <div className="flex items-center gap-0.5 text-primary-600">
+                          <Euro className="w-4 h-4" />
+                          <span className="text-xl font-black">{lot.discounted_price}€</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Info compacte */}
+                    <div className="space-y-1.5 mb-3">
+                      <div className="flex items-center gap-1.5 text-xs">
+                        <Package className="w-3 h-3 text-neutral-600" />
+                        <span className="text-neutral-700">
+                          <span className="font-bold text-success-600">
+                            {lot.quantity_total - lot.quantity_reserved - lot.quantity_sold}
+                          </span>
+                          {' '}dispo
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-neutral-600">
+                        <Clock className="w-3 h-3" />
+                        <span>
+                          {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} - {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bouton compact */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onReserve(lot);
+                      }}
+                      disabled={lot.quantity_total - lot.quantity_reserved - lot.quantity_sold === 0}
+                      className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                        lot.quantity_total - lot.quantity_reserved - lot.quantity_sold === 0
+                          ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:scale-105'
+                      }`}
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      {lot.quantity_total - lot.quantity_reserved - lot.quantity_sold === 0 ? 'Épuisé' : 'Réserver'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
