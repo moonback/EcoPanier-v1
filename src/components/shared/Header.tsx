@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSettings } from '../../contexts/SettingsContext';
 import { 
   Menu, 
   X, 
@@ -19,6 +20,7 @@ interface HeaderProps {
 export const Header = ({ transparent = false }: HeaderProps) => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { settings } = useSettings();
 
   const navLinks = [
     { name: 'Accueil', path: '/', icon: Home },
@@ -32,8 +34,8 @@ export const Header = ({ transparent = false }: HeaderProps) => {
       <header 
         className={`sticky top-0 z-50 transition-all duration-300 ${
           transparent 
-            ? 'bg-white/80 backdrop-blur-lg shadow-lg' 
-            : 'bg-white shadow-md'
+            ? 'glass shadow-soft-lg' 
+            : 'bg-white shadow-soft-md border-b border-neutral-100'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4">
@@ -43,14 +45,14 @@ export const Header = ({ transparent = false }: HeaderProps) => {
               onClick={() => navigate('/')}
               className="flex items-center gap-3 group"
             >
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform shadow-lg">
-                <Heart size={24} className="text-white" />
+              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-soft-lg group-hover:shadow-glow-md">
+                <Heart size={24} className="text-white" fill="currentColor" />
               </div>
               <div className="hidden sm:block">
-                <div className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                  EcoPanier
+                <div className="text-2xl font-black text-gradient tracking-tight">
+                  {settings.platformName}
                 </div>
-                <div className="text-xs text-gray-600 -mt-1">
+                <div className="text-xs text-neutral-500 -mt-1 font-medium">
                   Solidarité Alimentaire
                 </div>
               </div>
@@ -64,9 +66,9 @@ export const Header = ({ transparent = false }: HeaderProps) => {
                   <button
                     key={link.path}
                     onClick={() => navigate(link.path)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-purple-600 transition-all font-medium"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-neutral-600 hover:bg-primary-50 hover:text-primary-600 transition-all font-medium group"
                   >
-                    <Icon size={18} />
+                    <Icon size={18} className="group-hover:scale-110 transition-transform" />
                     <span>{link.name}</span>
                   </button>
                 );
@@ -77,29 +79,29 @@ export const Header = ({ transparent = false }: HeaderProps) => {
             <div className="hidden lg:flex items-center gap-3">
               <button
                 onClick={() => navigate('/login')}
-                className="flex items-center gap-2 px-5 py-2.5 text-gray-700 hover:text-purple-600 font-semibold transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 text-neutral-600 hover:text-primary-600 font-semibold transition-all hover-lift rounded-xl"
               >
                 <LogIn size={20} />
-                Connexion
+                <span>Connexion</span>
               </button>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+                className="btn-primary rounded-full"
               >
                 <UserPlus size={20} />
-                S'inscrire
+                <span>S'inscrire</span>
               </button>
             </div>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-2 rounded-xl hover:bg-neutral-100 transition-all hover-lift"
             >
               {mobileMenuOpen ? (
-                <X size={28} className="text-gray-700" />
+                <X size={28} className="text-neutral-700" />
               ) : (
-                <Menu size={28} className="text-gray-700" />
+                <Menu size={28} className="text-neutral-700" />
               )}
             </button>
           </div>
@@ -107,7 +109,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t shadow-lg">
+          <div className="lg:hidden glass border-t border-neutral-100 shadow-soft-lg animate-fade-in">
             <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
               {navLinks.map((link) => {
                 const Icon = link.icon;
@@ -118,34 +120,34 @@ export const Header = ({ transparent = false }: HeaderProps) => {
                       navigate(link.path);
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-purple-600 transition-all font-medium"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-neutral-700 hover:bg-primary-50 hover:text-primary-600 transition-all font-medium group"
                   >
-                    <Icon size={20} />
+                    <Icon size={20} className="group-hover:scale-110 transition-transform" />
                     <span>{link.name}</span>
                   </button>
                 );
               })}
               
-              <div className="pt-4 border-t space-y-2">
+              <div className="pt-4 border-t border-neutral-200 space-y-2">
                 <button
                   onClick={() => {
                     navigate('/login');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3 border-2 border-purple-600 text-purple-600 rounded-full font-semibold hover:bg-purple-50 transition-colors"
+                  className="btn-outline w-full rounded-full"
                 >
                   <LogIn size={20} />
-                  Connexion
+                  <span>Connexion</span>
                 </button>
                 <button
                   onClick={() => {
                     navigate('/dashboard');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold shadow-lg"
+                  className="btn-primary w-full rounded-full"
                 >
                   <UserPlus size={20} />
-                  S'inscrire gratuitement
+                  <span>S'inscrire gratuitement</span>
                 </button>
               </div>
             </div>
