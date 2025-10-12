@@ -36,7 +36,7 @@ export function InteractiveMap() {
 
   // État de l'UI
   const [showFilters, setShowFilters] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filters, setFilters] = useState<MapFilters>(DEFAULT_FILTERS);
 
   // Charger les commerçants avec le hook personnalisé
