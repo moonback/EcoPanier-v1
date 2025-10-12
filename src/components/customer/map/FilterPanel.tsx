@@ -12,6 +12,16 @@ interface FilterPanelProps {
 export function FilterPanel({ filters, onFiltersChange, onClose, isMobile = false }: FilterPanelProps) {
   const { selectedCategory, maxDistance, onlyUrgent } = filters;
 
+  // Fonction pour gérer les changements de filtres (avec fermeture auto en mobile)
+  const handleFilterChange = (newFilters: Partial<MapFilters>) => {
+    onFiltersChange(newFilters);
+    // Fermer automatiquement les filtres en mobile après sélection
+    if (isMobile && onClose) {
+      // Petit délai pour que l'utilisateur voie le changement
+      setTimeout(() => onClose(), 150);
+    }
+  };
+
   const content = (
     <div className="p-4 space-y-4">
       {/* Catégorie */}
@@ -24,7 +34,7 @@ export function FilterPanel({ filters, onFiltersChange, onClose, isMobile = fals
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
-                onClick={() => onFiltersChange({ selectedCategory: cat })}
+                onClick={() => handleFilterChange({ selectedCategory: cat })}
                 className={`p-2 text-xs rounded-lg border-2 transition-all ${
                   selectedCategory === cat
                     ? 'border-primary-400 bg-primary-100 text-primary-700 font-semibold'
@@ -38,7 +48,7 @@ export function FilterPanel({ filters, onFiltersChange, onClose, isMobile = fals
         ) : (
           <select
             value={selectedCategory}
-            onChange={(e) => onFiltersChange({ selectedCategory: e.target.value })}
+            onChange={(e) => handleFilterChange({ selectedCategory: e.target.value })}
             className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
             {CATEGORIES.map((cat) => (
@@ -58,7 +68,7 @@ export function FilterPanel({ filters, onFiltersChange, onClose, isMobile = fals
           min="1"
           max="50"
           value={maxDistance}
-          onChange={(e) => onFiltersChange({ maxDistance: Number(e.target.value) })}
+          onChange={(e) => handleFilterChange({ maxDistance: Number(e.target.value) })}
           className="w-full"
         />
       </div>
@@ -68,7 +78,7 @@ export function FilterPanel({ filters, onFiltersChange, onClose, isMobile = fals
         <input
           type="checkbox"
           checked={onlyUrgent}
-          onChange={(e) => onFiltersChange({ onlyUrgent: e.target.checked })}
+          onChange={(e) => handleFilterChange({ onlyUrgent: e.target.checked })}
           className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
         />
         <span className="text-sm font-medium text-neutral-700">Lots urgents uniquement</span>

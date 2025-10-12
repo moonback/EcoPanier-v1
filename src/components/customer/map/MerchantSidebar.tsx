@@ -43,11 +43,11 @@ export function MerchantSidebar({
     <div className={`absolute top-0 bottom-0 right-0 transition-all duration-300 ${
       isOpen ? 'w-full max-w-md lg:w-[420px]' : 'w-0'
     } z-10`}>
-      <div className={`h-full bg-white/95 backdrop-blur-md shadow-2xl border-l border-neutral-200 transition-opacity duration-300 ${
+      <div className={`h-full bg-white/95 backdrop-blur-md shadow-2xl border-l border-neutral-200 transition-opacity duration-300 flex flex-col ${
         isOpen ? 'opacity-100' : 'opacity-0'
       }`}>
         {/* Header sidebar */}
-        <div className="p-4 border-b border-neutral-200 bg-white">
+        <div className="p-4 border-b border-neutral-200 bg-white flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Store className="w-5 h-5 text-primary-600" />
@@ -97,14 +97,16 @@ export function MerchantSidebar({
 
         {/* Filtres */}
         {showFilters && (
-          <FilterPanel
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
+          <div className="flex-shrink-0">
+            <FilterPanel
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+            />
+          </div>
         )}
 
         {/* Liste des commerçants */}
-        <div className="overflow-y-auto" style={{ height: 'calc(100% - 250px)' }}>
+        <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="p-8 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto" />

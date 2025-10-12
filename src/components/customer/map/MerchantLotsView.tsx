@@ -48,25 +48,31 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
   return (
     <div className="space-y-4 animate-fade-in">
       {/* Header avec retour - Compact */}
-      <div className="card p-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="flex-shrink-0 inline-flex items-center gap-2 px-3 py-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-700 rounded-lg border border-neutral-200 hover:border-primary-300 transition-all duration-200"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span className="font-semibold text-sm">Retour</span>
-          </button>
+      <div className="card p-4 relative">
+        {/* Bouton Retour flottant, accessible et visible en permanence */}
+        <button
+          onClick={onBack}
+          className="absolute top-2 left-2 z-20 btn-secondary flex items-center gap-2 px-3 py-2 rounded-lg shadow-md hover:bg-neutral-100 transition-all"
+          aria-label="Retour à la liste des commerçants"
+          type="button"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span className="font-semibold text-sm">Retour</span>
+        </button>
 
-          <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-md">
-            <Store className="w-6 h-6 text-white" />
+        {/* Partie logo, infos et horaires organisés verticalement */}
+        <div className="flex flex-col items-center gap-4 pt-2">
+          {/* Logo commerçant avec effet visuel */}
+          <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-200 mb-2">
+            <Store className="w-7 h-7 text-white" />
           </div>
 
-          <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-bold text-neutral-900 truncate">
+          {/* Identité du commerce */}
+          <div className="w-full text-center mb-1">
+            <h2 className="text-xl font-bold text-neutral-900 truncate mb-1">
               {merchant.business_name || merchant.full_name}
             </h2>
-            <div className="flex items-center gap-2 text-sm text-neutral-600">
+            <div className="flex justify-center items-center flex-wrap gap-2 text-sm text-neutral-600">
               <MapPin className="w-3 h-3 flex-shrink-0" />
               <span className="truncate">{merchant.business_address || merchant.address}</span>
               {merchant.distance && (
@@ -78,14 +84,32 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
             </div>
           </div>
 
-          {/* Bouton horaires */}
+          {/* Bouton horaires affichant si ouvert/fermé aujourd'hui */}
           {businessHours && (
             <button
               onClick={() => setShowHoursModal(true)}
-              className="flex-shrink-0 inline-flex items-center gap-2 px-3 py-2 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-lg border border-primary-200 hover:border-primary-300 transition-all duration-200"
+              className="btn-primary flex items-center gap-2 px-3 py-2 rounded-lg"
+              type="button"
+              aria-label="Afficher les horaires d'ouverture"
             >
               <Clock className="w-4 h-4" />
-              <span className="font-semibold text-sm hidden sm:inline">Horaires</span>
+              <span className="font-semibold text-sm hidden sm:inline">
+                Horaires
+              </span>
+              {/* Statut ouvert/fermé du jour */}
+              {(() => {
+                const today = businessHours.find((h) => h.isToday);
+                if (!today) return null;
+                return (
+                  <span
+                    className={`ml-2 text-xs font-medium ${
+                      today.isClosed ? 'text-accent-600' : 'text-success-600'
+                    } hidden xl:inline`}
+                  >
+                    {today.isClosed ? 'Fermé' : `Ouvert ${today.hours}`}
+                  </span>
+                );
+              })()}
             </button>
           )}
         </div>
