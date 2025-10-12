@@ -14,6 +14,8 @@ import { AdminDashboard } from './components/admin/AdminDashboard';
 import { PickupStation } from './components/pickup/PickupStation';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
+import { PWAInstallPrompt } from './components/shared/PWAInstallPrompt';
+import { OnlineStatus } from './components/shared/OnlineStatus';
 
 function DashboardRouter() {
   const { user, profile, loading, initialized, initialize } = useAuthStore();
@@ -102,6 +104,12 @@ function App() {
           {/* Redirection par défaut */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        
+        {/* Prompt d'installation et de mise à jour PWA */}
+        <PWAInstallPrompt />
+        
+        {/* Indicateur d'état de connexion */}
+        <OnlineStatus />
       </BrowserRouter>
     </SettingsProvider>
   );

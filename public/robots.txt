@@ -1,0 +1,10 @@
+# robots.txt pour EcoPanier
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /pickup
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://ecopanier.fr/sitemap.xml
+
