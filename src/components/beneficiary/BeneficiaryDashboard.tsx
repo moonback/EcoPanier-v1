@@ -90,13 +90,12 @@ export const BeneficiaryDashboard = () => {
               <h1 className="text-lg sm:text-2xl font-bold text-neutral-900 tracking-tight truncate">
                 Espace Bénéficiaire
               </h1>
-              <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 text-xs text-neutral-600">
-                <span className="inline-block w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse"></span>
-                <span className="truncate">
-                  <span className="font-medium text-primary-600">{profile?.full_name}</span>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5 text-xs text-neutral-600">
+                <span className="inline-block w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse flex-shrink-0"></span>
+                <span className="font-medium text-primary-600 truncate">
+                  {profile?.full_name}
                 </span>
-                <span className="hidden sm:inline text-xs text-neutral-400">•</span>
-                <span className="hidden sm:inline badge-primary text-xs px-1.5 py-0.5 leading-tight">
+                <span className="badge-primary text-xs px-1.5 py-0.5 leading-tight font-mono whitespace-nowrap">
                   {profile?.beneficiary_id}
                 </span>
               </div>
