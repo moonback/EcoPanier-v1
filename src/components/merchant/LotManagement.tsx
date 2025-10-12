@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
-import { formatCurrency, formatDateTime, categories, uploadImage } from '../../utils/helpers';
-import { Plus, Edit, Trash2, Package, Image as ImageIcon } from 'lucide-react';
+import { formatCurrency, categories, uploadImage } from '../../utils/helpers';
+import { Plus, Edit, Trash2, Package } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 
 type Lot = Database['public']['Tables']['lots']['Row'];
+type LotInsert = Database['public']['Tables']['lots']['Insert'];
+type LotUpdate = Database['public']['Tables']['lots']['Update'];
 
 export const LotManagement = () => {
   const [lots, setLots] = useState<Lot[]>([]);
@@ -28,11 +30,31 @@ export const LotManagement = () => {
     image_urls: [] as string[],
   });
 
-  useEffect(() => {
-    fetchLots();
+  const cleanupOldSoldOutLots = useCallback(async (lots: Lot[]) => {
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    for (const lot of lots) {
+      const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+      
+      // Si le lot n'a plus de stock disponible
+      if (availableQty <= 0) {
+        const updatedAt = new Date(lot.updated_at);
+        
+        // Si cela fait plus de 24 heures qu'il a été mis à jour et qu'il n'a plus de stock
+        if (updatedAt < oneDayAgo) {
+          try {
+            await supabase.from('lots').delete().eq('id', lot.id);
+            console.log(`Lot ${lot.id} supprimé automatiquement (épuisé depuis > 24h)`);
+          } catch (error) {
+            console.error(`Erreur lors de la suppression du lot ${lot.id}:`, error);
+          }
+        }
+      }
+    }
   }, []);
 
-  const fetchLots = async () => {
+  const fetchLots = useCallback(async () => {
     if (!profile) return;
 
     try {
@@ -61,31 +83,11 @@ export const LotManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile, cleanupOldSoldOutLots]);
 
-  const cleanupOldSoldOutLots = async (lots: Lot[]) => {
-    const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-    for (const lot of lots) {
-      const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
-      
-      // Si le lot n'a plus de stock disponible
-      if (availableQty <= 0) {
-        const updatedAt = new Date(lot.updated_at);
-        
-        // Si cela fait plus de 24 heures qu'il a été mis à jour et qu'il n'a plus de stock
-        if (updatedAt < oneDayAgo) {
-          try {
-            await supabase.from('lots').delete().eq('id', lot.id);
-            console.log(`Lot ${lot.id} supprimé automatiquement (épuisé depuis > 24h)`);
-          } catch (error) {
-            console.error(`Erreur lors de la suppression du lot ${lot.id}:`, error);
-          }
-        }
-      }
-    }
-  };
+  useEffect(() => {
+    fetchLots();
+  }, [fetchLots]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -102,20 +104,46 @@ export const LotManagement = () => {
 
     try {
       if (editingLot) {
+        const updateData: LotUpdate = {
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          original_price: formData.original_price,
+          discounted_price: formData.discounted_price,
+          quantity_total: formData.quantity_total,
+          pickup_start: formData.pickup_start,
+          pickup_end: formData.pickup_end,
+          requires_cold_chain: formData.requires_cold_chain,
+          is_urgent: formData.is_urgent,
+          image_urls: formData.image_urls,
+          updated_at: new Date().toISOString(),
+        };
+
         const { error } = await supabase
           .from('lots')
-          .update({
-            ...formData,
-            updated_at: new Date().toISOString(),
-          })
+          // @ts-expect-error - Type mismatch due to Supabase type generation issue
+          .update(updateData)
           .eq('id', editingLot.id);
 
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('lots').insert({
-          ...formData,
+        const insertData: LotInsert = {
           merchant_id: profile.id,
-        });
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          original_price: formData.original_price,
+          discounted_price: formData.discounted_price,
+          quantity_total: formData.quantity_total,
+          pickup_start: formData.pickup_start,
+          pickup_end: formData.pickup_end,
+          requires_cold_chain: formData.requires_cold_chain,
+          is_urgent: formData.is_urgent,
+          image_urls: formData.image_urls,
+        };
+
+        // @ts-expect-error - Type mismatch due to Supabase type generation issue
+        const { error } = await supabase.from('lots').insert(insertData);
 
         if (error) throw error;
       }
@@ -197,7 +225,7 @@ export const LotManagement = () => {
       const pickupStart = new Date(now.getTime() + 2 * 60 * 60 * 1000); // Dans 2 heures
       const pickupEnd = new Date(now.getTime() + 8 * 60 * 60 * 1000); // Dans 8 heures
 
-      const lotsToInsert = fictionalProducts.map(product => ({
+      const lotsToInsert: LotInsert[] = fictionalProducts.map(product => ({
         merchant_id: profile.id,
         title: product.title,
         description: product.desc,
@@ -215,6 +243,7 @@ export const LotManagement = () => {
         image_urls: [],
       }));
 
+      // @ts-expect-error - Type mismatch due to Supabase type generation issue
       const { error } = await supabase.from('lots').insert(lotsToInsert);
 
       if (error) throw error;
