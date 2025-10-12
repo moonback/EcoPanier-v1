@@ -60,6 +60,10 @@
     @apply btn bg-transparent border-2 border-primary-500 text-primary-600 hover:bg-primary-500 hover:text-white hover:shadow-glow-md focus:ring-primary-200;
   }
 
+  .btn-accent {
+    @apply btn bg-gradient-to-r from-accent-500 to-accent-600 text-white shadow-soft-lg hover:shadow-soft-xl hover:scale-[1.02] focus:ring-accent-200;
+  }
+
   /* Cartes modernes */
   .card {
     @apply bg-white rounded-large shadow-soft-md hover:shadow-soft-lg transition-all duration-300 border border-neutral-100;

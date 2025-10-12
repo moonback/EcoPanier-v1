@@ -37,6 +37,8 @@ export const SuspendedBaskets = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'reserved' | 'claimed' | 'expired'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedBasket, setSelectedBasket] = useState<SuspendedBasket | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Statistiques
   const [stats, setStats] = useState({
@@ -294,6 +296,16 @@ export const SuspendedBaskets = () => {
   const exportData = () => {
     console.log('Export des données...');
     // Implémentation de l'export
+  };
+
+  const openDetails = (basket: SuspendedBasket) => {
+    setSelectedBasket(basket);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedBasket(null);
   };
 
   const filteredBaskets = baskets.filter(basket => {
@@ -572,7 +584,10 @@ export const SuspendedBaskets = () => {
 
                   {/* Actions */}
                   <div className="flex md:flex-col gap-2">
-                    <button className="btn-outline rounded-xl flex-1 md:flex-initial">
+                    <button 
+                      onClick={() => openDetails(basket)}
+                      className="btn-outline rounded-xl flex-1 md:flex-initial"
+                    >
                       <Eye size={16} />
                       <span className="hidden md:inline">Détails</span>
                     </button>
@@ -713,6 +728,207 @@ export const SuspendedBaskets = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de détails */}
+      {showModal && selectedBasket && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in-up">
+            {/* Header de la modal */}
+            <div className="sticky top-0 bg-gradient-primary p-6 rounded-t-large">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Gift size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white tracking-tight">
+                      Détails du Panier Suspendu
+                    </h3>
+                    <p className="text-primary-100 font-medium">
+                      ID: {selectedBasket.id.substring(0, 8)}...
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={closeModal}
+                  className="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center transition-all"
+                >
+                  <Eye size={20} className="text-white" />
+                </button>
+              </div>
+            </div>
+
+            {/* Contenu de la modal */}
+            <div className="p-6 space-y-6">
+              {/* Statut */}
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-600 font-semibold">Statut</span>
+                <div>{getStatusBadge(selectedBasket.status)}</div>
+              </div>
+
+              {/* Montant */}
+              <div className="p-6 bg-gradient-to-br from-secondary-50 to-accent-50 rounded-xl border-2 border-secondary-200 text-center">
+                <div className="text-sm font-semibold text-neutral-600 mb-2">Valeur du don</div>
+                <div className="text-5xl font-black text-gradient mb-2">
+                  {selectedBasket.amount}€
+                </div>
+                <div className="text-sm text-neutral-600 font-medium">
+                  Panier suspendu offert avec générosité
+                </div>
+              </div>
+
+              {/* Informations du Donateur */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-neutral-900 flex items-center gap-2">
+                  <User size={20} className="text-primary-600" />
+                  Donateur
+                </h4>
+                <div className="grid gap-3">
+                  <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+                    <span className="text-sm font-semibold text-neutral-600">Nom</span>
+                    <span className="font-bold text-neutral-900">{selectedBasket.donor_name}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+                    <span className="text-sm font-semibold text-neutral-600">ID</span>
+                    <span className="font-mono text-sm text-neutral-700">{selectedBasket.donor_id.substring(0, 8)}...</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+                    <span className="text-sm font-semibold text-neutral-600">Date du don</span>
+                    <span className="font-bold text-neutral-900">{formatDate(selectedBasket.created_at)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations du Commerce */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-neutral-900 flex items-center gap-2">
+                  <MapPin size={20} className="text-success-600" />
+                  Commerce
+                </h4>
+                <div className="grid gap-3">
+                  <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+                    <span className="text-sm font-semibold text-neutral-600">Nom</span>
+                    <span className="font-bold text-neutral-900">{selectedBasket.merchant_name}</span>
+                  </div>
+                  {selectedBasket.merchant_business_name && (
+                    <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+                      <span className="text-sm font-semibold text-neutral-600">Enseigne</span>
+                      <span className="font-bold text-neutral-900">{selectedBasket.merchant_business_name}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Informations du Bénéficiaire */}
+              {(selectedBasket.beneficiary_name || selectedBasket.claimed_by) && (
+                <div className="space-y-3">
+                  <h4 className="font-bold text-neutral-900 flex items-center gap-2">
+                    <Heart size={20} className="text-accent-600" />
+                    Bénéficiaire
+                  </h4>
+                  <div className="grid gap-3">
+                    {selectedBasket.beneficiary_name ? (
+                      <>
+                        <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+                          <span className="text-sm font-semibold text-neutral-600">Nom</span>
+                          <span className="font-bold text-neutral-900">{selectedBasket.beneficiary_name}</span>
+                        </div>
+                        {selectedBasket.beneficiary_code && (
+                          <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+                            <span className="text-sm font-semibold text-neutral-600">Code bénéficiaire</span>
+                            <span className="badge-primary font-mono">{selectedBasket.beneficiary_code}</span>
+                          </div>
+                        )}
+                        {selectedBasket.claimed_at && (
+                          <div className="flex items-center justify-between p-3 bg-success-50 rounded-xl border border-success-200">
+                            <span className="text-sm font-semibold text-success-700">Récupéré le</span>
+                            <span className="font-bold text-success-900">{formatDate(selectedBasket.claimed_at)}</span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="p-4 bg-warning-50 rounded-xl border border-warning-200 text-center">
+                        <p className="text-sm font-semibold text-warning-700">
+                          {selectedBasket.status === 'reserved' 
+                            ? '⏳ Panier réservé - En attente de récupération'
+                            : '✨ Panier disponible - En attente d\'attribution'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Timeline */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-neutral-900 flex items-center gap-2">
+                  <Clock size={20} className="text-secondary-600" />
+                  Chronologie
+                </h4>
+                <div className="relative pl-8 space-y-4">
+                  {/* Ligne de temps */}
+                  <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-neutral-200"></div>
+                  
+                  {/* Création */}
+                  <div className="relative">
+                    <div className="absolute left-[-1.9rem] w-6 h-6 bg-success-500 rounded-full flex items-center justify-center">
+                      <CheckCircle size={14} className="text-white" />
+                    </div>
+                    <div className="bg-success-50 p-3 rounded-xl border border-success-200">
+                      <div className="text-sm font-bold text-success-900">Panier créé</div>
+                      <div className="text-xs text-success-700 font-medium">{formatDate(selectedBasket.created_at)}</div>
+                    </div>
+                  </div>
+
+                  {/* Réservation/Récupération */}
+                  {selectedBasket.claimed_at && (
+                    <div className="relative">
+                      <div className="absolute left-[-1.9rem] w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center">
+                        <Gift size={14} className="text-white" />
+                      </div>
+                      <div className="bg-primary-50 p-3 rounded-xl border border-primary-200">
+                        <div className="text-sm font-bold text-primary-900">
+                          {selectedBasket.status === 'claimed' ? 'Panier récupéré' : 'Panier réservé'}
+                        </div>
+                        <div className="text-xs text-primary-700 font-medium">{formatDate(selectedBasket.claimed_at)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* En attente */}
+                  {!selectedBasket.claimed_at && selectedBasket.status === 'available' && (
+                    <div className="relative">
+                      <div className="absolute left-[-1.9rem] w-6 h-6 bg-warning-500 rounded-full flex items-center justify-center animate-pulse">
+                        <Clock size={14} className="text-white" />
+                      </div>
+                      <div className="bg-warning-50 p-3 rounded-xl border border-warning-200">
+                        <div className="text-sm font-bold text-warning-900">En attente</div>
+                        <div className="text-xs text-warning-700 font-medium">Panier disponible pour les bénéficiaires</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4 border-t border-neutral-200">
+                <button 
+                  onClick={closeModal}
+                  className="btn-secondary rounded-xl flex-1"
+                >
+                  Fermer
+                </button>
+                {selectedBasket.status === 'available' && (
+                  <button className="btn-accent rounded-xl flex-1">
+                    <Heart size={20} />
+                    <span>Attribuer manuellement</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
