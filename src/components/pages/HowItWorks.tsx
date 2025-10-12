@@ -245,7 +245,7 @@ export const HowItWorks = () => {
 
       {/* Role selector */}
       <section className="py-8">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-12xl mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-4">
             {roles.map((role) => {
               const Icon = role.icon;
@@ -270,7 +270,7 @@ export const HowItWorks = () => {
 
       {/* Steps */}
       <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-12xl mx-auto px-4">
           <div className="space-y-16">
             {getSteps().map((step, index) => {
               const Icon = step.icon;
@@ -324,7 +324,7 @@ export const HowItWorks = () => {
 
       {/* Features */}
       <section className="py-16 bg-gradient-to-r from-blue-50 to-purple-50">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-12xl mx-auto px-4">
           <h2 className="text-3xl font-black text-gray-900 text-center mb-12">
             Pourquoi choisir notre plateforme ?
           </h2>

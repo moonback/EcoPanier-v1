@@ -18,7 +18,7 @@ export const MerchantDashboard = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       <header className="glass sticky top-0 z-40 shadow-soft-md border-b border-neutral-100">
-        <div className="max-w-7xl mx-auto px-4 py-5 flex justify-between items-center">
+        <div className="max-w-12xl mx-auto px-4 py-5 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">Espace Commerçant</h1>
             <p className="text-sm text-neutral-600 mt-1 flex items-center gap-2">
@@ -48,14 +48,14 @@ export const MerchantDashboard = () => {
       </header>
 
       <nav className="bg-white border-b border-neutral-100 shadow-soft">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-12xl mx-auto px-4">
           <div className="flex space-x-1 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as 'lots' | 'stats' | 'profile')}
                   className={`flex items-center gap-2 px-6 py-4 font-semibold border-b-3 transition-all group ${
                     activeTab === tab.id
                       ? 'border-primary-600 text-primary-600 bg-primary-50/50'
@@ -71,7 +71,7 @@ export const MerchantDashboard = () => {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-12xl mx-auto px-4 py-8">
         {activeTab === 'lots' && <LotManagement />}
         {activeTab === 'stats' && <SalesStats />}
         {activeTab === 'profile' && <ProfilePage />}

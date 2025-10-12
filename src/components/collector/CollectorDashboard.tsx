@@ -18,7 +18,7 @@ export const CollectorDashboard = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       <header className="glass sticky top-0 z-40 shadow-soft-md border-b border-neutral-100">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3">
+        <div className="max-w-12xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
               <h1 className="text-lg sm:text-2xl font-bold text-neutral-900 tracking-tight truncate">
@@ -44,7 +44,7 @@ export const CollectorDashboard = () => {
       </header>
 
       <nav className="bg-white border-b border-neutral-100 shadow-soft sticky top-[70px] sm:top-[65px] z-30">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+        <div className="max-w-12xl mx-auto px-2 sm:px-4">
           <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -67,7 +67,7 @@ export const CollectorDashboard = () => {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <main className="max-w-12xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {activeTab === 'available' && <MissionsList />}
         {activeTab === 'my-missions' && <MyMissions />}
         {activeTab === 'profile' && <ProfilePage />}

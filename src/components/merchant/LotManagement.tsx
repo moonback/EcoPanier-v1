@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, categories, uploadImage } from '../../utils/helpers';
-import { Plus, Edit, Trash2, Package } from 'lucide-react';
+import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
+import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 
 type Lot = Database['public']['Tables']['lots']['Row'];
@@ -14,6 +15,8 @@ export const LotManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingLot, setEditingLot] = useState<Lot | null>(null);
+  const [analyzingImage, setAnalyzingImage] = useState(false);
+  const [analysisConfidence, setAnalysisConfidence] = useState<number | null>(null);
   const { profile } = useAuthStore();
 
   const [formData, setFormData] = useState({
@@ -96,6 +99,55 @@ export const LotManagement = () => {
     const imagePromises = Array.from(files).map((file) => uploadImage(file));
     const imageUrls = await Promise.all(imagePromises);
     setFormData({ ...formData, image_urls: [...formData.image_urls, ...imageUrls] });
+  };
+
+  const handleAIImageAnalysis = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!isGeminiConfigured()) {
+      alert('⚠️ L\'analyse IA n\'est pas configurée. Ajoutez votre clé API Gemini dans le fichier .env (VITE_GEMINI_API_KEY)');
+      return;
+    }
+
+    setAnalyzingImage(true);
+    setAnalysisConfidence(null);
+
+    try {
+      // Analyser l'image avec Gemini
+      const analysis = await analyzeFoodImage(file);
+
+      // Uploader l'image pour l'afficher
+      const imageUrl = await uploadImage(file);
+
+      // Remplir le formulaire avec les données analysées
+      setFormData({
+        ...formData,
+        title: analysis.title,
+        description: analysis.description,
+        category: analysis.category,
+        original_price: analysis.original_price,
+        discounted_price: analysis.discounted_price,
+        quantity_total: analysis.quantity_total,
+        requires_cold_chain: analysis.requires_cold_chain,
+        is_urgent: analysis.is_urgent,
+        image_urls: [imageUrl, ...formData.image_urls],
+      });
+
+      setAnalysisConfidence(analysis.confidence);
+
+      // Message de succès
+      const confidencePercent = Math.round(analysis.confidence * 100);
+      alert(`✅ Image analysée avec succès !\n\nConfiance de l'analyse : ${confidencePercent}%\n\nVérifiez et ajustez les champs si nécessaire.`);
+    } catch (error) {
+      console.error('Erreur lors de l\'analyse:', error);
+      alert(error instanceof Error ? error.message : 'Erreur lors de l\'analyse de l\'image');
+    } finally {
+      setAnalyzingImage(false);
+    }
+
+    // Réinitialiser l'input
+    e.target.value = '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -186,6 +238,7 @@ export const LotManagement = () => {
       is_urgent: false,
       image_urls: [],
     });
+    setAnalysisConfidence(null);
   };
 
   const generateFictionalLots = async () => {
@@ -309,7 +362,7 @@ export const LotManagement = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {lots.map((lot) => {
           const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
           const isOutOfStock = availableQty <= 0;
@@ -411,9 +464,62 @@ export const LotManagement = () => {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white rounded-xl max-w-2xl w-full p-6 my-8">
-            <h3 className="text-2xl font-bold mb-6">
+            <h3 className="text-2xl font-bold mb-4">
               {editingLot ? 'Modifier le lot' : 'Nouveau lot'}
             </h3>
+
+            {/* Section d'analyse IA */}
+            {!editingLot && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-xl">
+                <div className="flex items-start gap-3 mb-3">
+                  <Sparkles className="text-purple-600 flex-shrink-0 mt-1" size={24} />
+                  <div className="flex-1">
+                    <h4 className="font-bold text-purple-900 mb-1">
+                      🤖 Analyse Intelligente par IA (Gemini 2.0 Flash)
+                    </h4>
+                    <p className="text-sm text-purple-700 mb-3">
+                      Téléchargez une photo de votre produit et l'IA remplira automatiquement tous les champs du formulaire !
+                    </p>
+                    
+                    <label className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition cursor-pointer font-medium">
+                      {analyzingImage ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                          <span>Analyse en cours...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ImagePlus size={20} />
+                          <span>Analyser une image avec l'IA</span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAIImageAnalysis}
+                        disabled={analyzingImage}
+                        className="hidden"
+                      />
+                    </label>
+
+                    {!isGeminiConfigured() && (
+                      <p className="text-xs text-orange-600 mt-2">
+                        ⚠️ Configuration requise : ajoutez VITE_GEMINI_API_KEY dans votre fichier .env
+                      </p>
+                    )}
+
+                    {analysisConfidence !== null && (
+                      <div className="mt-3 p-2 bg-white rounded-lg border border-purple-200">
+                        <p className="text-xs text-purple-800">
+                          ✨ Confiance de l'analyse : <span className="font-bold">{Math.round(analysisConfidence * 100)}%</span>
+                          {analysisConfidence < 0.7 && ' - Vérifiez les informations'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

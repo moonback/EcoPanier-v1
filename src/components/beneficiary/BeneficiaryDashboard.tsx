@@ -83,7 +83,7 @@ export const BeneficiaryDashboard = () => {
   return (
     <div className="min-h-screen bg-neutral-50">
       <header className="glass sticky top-0 z-40 shadow-soft-md border-b border-neutral-100">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6">
+        <div className="max-w-12xl mx-auto px-3 sm:px-6">
           {/* Ligne principale compacte */}
           <div className="flex items-center justify-between py-2.5 sm:py-3 gap-2">
             <div className="flex-1 min-w-0">
@@ -132,7 +132,7 @@ export const BeneficiaryDashboard = () => {
       </header>
 
       <nav className="bg-white border-b border-neutral-100 shadow-soft sticky top-[110px] sm:top-[95px] z-30">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+        <div className="max-w-12xl mx-auto px-2 sm:px-4">
           <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -155,7 +155,7 @@ export const BeneficiaryDashboard = () => {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <main className="max-w-12xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {activeTab === 'browse' && (
           <FreeLotsList dailyCount={dailyCount} onReservationMade={checkDailyLimit} />
         )}

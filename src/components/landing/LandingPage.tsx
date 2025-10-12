@@ -94,7 +94,7 @@ export const LandingPage = () => {
           </video>
           <div className="absolute inset-0 bg-black/40" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center text-white">
+        <div className="relative z-10 max-w-12xl mx-auto px-4 text-center text-white">
           <div className="mb-12 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
             <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
             <span className="text-sm font-medium">Plateforme solidaire française</span>
@@ -135,7 +135,7 @@ export const LandingPage = () => {
 
       {/* Mission Sociale */}
       <section className="py-20 bg-gradient-to-r from-blue-50 to-purple-50">
-        <div className="max-w-7xl mx-auto px-4 text-center">
+        <div className="max-w-12xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-pink-50 text-pink-600">
             <Heart size={16} fill="currentColor" />
             <span className="text-sm font-medium">Notre Mission Sociale</span>
@@ -176,7 +176,7 @@ export const LandingPage = () => {
 
       {/* Pourquoi nous rejoindre ? */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 text-center">
+        <div className="max-w-12xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-12">Pourquoi nous rejoindre ?</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, i) => (
@@ -194,7 +194,7 @@ export const LandingPage = () => {
 
       {/* Comment ça marche ? */}
       <section className="py-20 bg-gradient-to-r from-green-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-4 text-center">
+        <div className="max-w-12xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-green-50 text-green-600">
             <Clock size={16} />
             <span className="text-sm font-medium">Simple et rapide</span>
@@ -219,7 +219,7 @@ export const LandingPage = () => {
 
       {/* Témoignages */}
       <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 text-center">
+        <div className="max-w-12xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-12">Ils témoignent</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, i) => (
@@ -237,7 +237,7 @@ export const LandingPage = () => {
 
       {/* Impact en chiffres */}
       <section id="stats-section" className="py-20 bg-gradient-to-r from-gray-800 to-black text-white">
-        <div className="max-w-7xl mx-auto px-4 text-center">
+        <div className="max-w-12xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-12">Notre impact en chiffres</h2>
           <div className="grid md:grid-cols-4 gap-8">
             {[{ icon: Package, value: '10,247', label: 'Repas sauvés' }, { icon: Users, value: '5,423', label: 'Personnes aidées' }, { icon: Leaf, value: '15.2', label: 'Tonnes CO₂ évitées' }, { icon: DollarSign, value: '52,800', label: 'Euros de dons' }].map((stat, i) => (

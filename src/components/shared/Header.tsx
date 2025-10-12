@@ -35,7 +35,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
             : 'bg-white shadow-soft-md border-b border-neutral-100'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-12xl mx-auto px-4">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <button

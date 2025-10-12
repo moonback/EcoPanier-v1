@@ -42,6 +42,7 @@ La plateforme gère **5 types d'utilisateurs** avec des fonctionnalités dédié
 
 #### 🏪 **Commerçant**
 - Création et gestion des lots d'invendus
+- **🤖 Analyse IA des images (Gemini 2.0 Flash)** : Remplissage automatique du formulaire à partir d'une photo
 - Définition des prix réduits et horaires de retrait
 - Statistiques de ventes et d'impact
 - Station de retrait avec scanner QR code
@@ -97,6 +98,36 @@ Suivi de l'impact environnemental et social :
 - Dons effectués
 - Personnes aidées
 
+### 🤖 Analyse IA avec Gemini 2.0 Flash (Nouveau !)
+
+**Innovation majeure** : Les commerçants peuvent maintenant créer des lots en quelques secondes grâce à l'intelligence artificielle !
+
+#### Comment ça marche ?
+
+1. **📸 Prenez une photo** de votre produit alimentaire
+2. **🤖 L'IA analyse** l'image automatiquement (Gemini 2.0 Flash)
+3. **✨ Les champs se remplissent** : titre, description, catégorie, prix, quantité...
+4. **✅ Vérifiez et validez** - Ajustez si nécessaire et enregistrez !
+
+#### Ce qui est détecté automatiquement :
+
+- ✅ **Titre du produit** : Nom court et descriptif
+- ✅ **Description détaillée** : Composition, état, conservation
+- ✅ **Catégorie** : Classification intelligente (Fruits & Légumes, Boulangerie, etc.)
+- ✅ **Prix estimés** : Prix original et prix anti-gaspi (30-70% de réduction)
+- ✅ **Quantité** : Nombre d'unités détectées
+- ✅ **Chaîne du froid** : Détection automatique si réfrigération nécessaire
+- ✅ **Urgence** : Identification des produits très périssables
+
+#### Avantages
+
+- ⚡ **Gain de temps** : Création d'un lot en < 30 secondes
+- 🎯 **Précision** : Score de confiance affiché pour chaque analyse
+- 🚀 **Simple** : Un clic, une photo, c'est prêt !
+- 💡 **Intelligent** : Suggestions de prix cohérentes avec le marché
+
+👉 **Documentation complète** : [GEMINI_SETUP.md](./GEMINI_SETUP.md)
+
 ---
 
 ## 🛠️ Stack technique
@@ -125,6 +156,12 @@ Suivi de l'impact environnemental et social :
 
 ### Charts & Analytics
 - **Recharts 3.2.1** - Graphiques et visualisations
+
+### Intelligence Artificielle
+- **@google/generative-ai** - API Gemini 2.0 Flash pour l'analyse d'images
+  - Analyse automatique de produits alimentaires
+  - Extraction intelligente d'informations (titre, prix, catégorie...)
+  - Score de confiance pour chaque analyse
 
 ### Dev Tools
 - **ESLint 9.9.1** - Linter JavaScript/TypeScript
@@ -178,9 +215,14 @@ Remplissez les variables d'environnement :
 # Supabase Configuration
 VITE_SUPABASE_URL=https://votre-projet.supabase.co
 VITE_SUPABASE_ANON_KEY=votre-cle-anonyme-publique
+
+# Gemini AI Configuration (optionnel, pour l'analyse d'images)
+VITE_GEMINI_API_KEY=votre-cle-gemini-api
 ```
 
 > **⚠️ Important** : Ne commitez JAMAIS le fichier `.env` ! Il est déjà dans `.gitignore`.
+> 
+> **✨ Nouveau** : La clé Gemini AI est **optionnelle** mais recommandée pour activer l'analyse automatique d'images. Obtenez-la gratuitement sur [Google AI Studio](https://ai.google.dev/). Voir [GEMINI_SETUP.md](./GEMINI_SETUP.md) pour plus de détails.
 
 ### 4. Configuration de Supabase
 

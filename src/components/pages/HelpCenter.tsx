@@ -216,7 +216,7 @@ export const HelpCenter = () => {
 
       {/* Quick stats */}
       <section className="py-8 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-12xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
               <div className="text-3xl font-black text-purple-600">500+</div>
@@ -240,7 +240,7 @@ export const HelpCenter = () => {
 
       {/* Categories */}
       <section className="py-8">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-12xl mx-auto px-4">
           <div className="flex flex-wrap gap-3 justify-center">
             {categories.map((category) => {
               const Icon = category.icon;
@@ -331,7 +331,7 @@ export const HelpCenter = () => {
 
       {/* Contact methods */}
       <section className="py-16 bg-gradient-to-r from-purple-50 to-pink-50">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-12xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-black text-gray-900 mb-4">
               Toujours besoin d'aide ?
@@ -371,7 +371,7 @@ export const HelpCenter = () => {
 
       {/* Guides section */}
       <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-12xl mx-auto px-4">
           <h2 className="text-3xl font-black text-gray-900 text-center mb-12">
             Guides pratiques
           </h2>
