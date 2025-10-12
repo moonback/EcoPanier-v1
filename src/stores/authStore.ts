@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import type { Database } from '../lib/database.types';
@@ -18,46 +19,68 @@ interface AuthState {
   initialize: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  user: null,
-  profile: null,
-  loading: true,
-  initialized: false,
+// Variable pour stocker l'unsubscribe du listener
+let authListener: { data: { subscription: { unsubscribe: () => void } } } | null = null;
 
-  initialize: async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      profile: null,
+      loading: true,
+      initialized: false,
 
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-
-        set({ user: session.user, profile, loading: false, initialized: true });
-      } else {
-        set({ user: null, profile: null, loading: false, initialized: true });
-      }
-
-      supabase.auth.onAuthStateChange(async (_event, session) => {
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
-
-          set({ user: session.user, profile });
-        } else {
-          set({ user: null, profile: null });
+      initialize: async () => {
+        const state = get();
+        
+        // Éviter de réinitialiser si déjà initialisé
+        if (state.initialized) {
+          set({ loading: false });
+          return;
         }
-      });
-    } catch (error) {
-      console.error('Auth initialization error:', error);
-      set({ loading: false, initialized: true });
-    }
-  },
+
+        try {
+          // Nettoyer l'ancien listener s'il existe
+          if (authListener) {
+            authListener.data.subscription.unsubscribe();
+            authListener = null;
+          }
+
+          const { data: { session } } = await supabase.auth.getSession();
+
+          if (session?.user) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .maybeSingle();
+
+            set({ user: session.user, profile, loading: false, initialized: true });
+          } else {
+            set({ user: null, profile: null, loading: false, initialized: true });
+          }
+
+          // Configurer le listener d'auth une seule fois
+          authListener = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth state changed:', event);
+            
+            if (session?.user) {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .maybeSingle();
+
+              set({ user: session.user, profile, loading: false });
+            } else {
+              set({ user: null, profile: null, loading: false });
+            }
+          });
+        } catch (error) {
+          console.error('Auth initialization error:', error);
+          set({ loading: false, initialized: true });
+        }
+      },
 
   signIn: async (email: string, password: string) => {
     set({ loading: true });
@@ -180,4 +203,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw error;
     }
   },
-}));
+}),
+    {
+      name: 'auth-storage', // Nom unique pour le localStorage
+      partialize: (state) => ({
+        // Ne persister que les données nécessaires, pas les états de chargement
+        user: state.user,
+        profile: state.profile,
+        initialized: state.initialized,
+      }),
+    }
+  )
+);

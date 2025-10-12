@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { supabase } from './lib/supabase';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { LandingPage } from './components/landing/LandingPage';
 import { HowItWorks } from './components/pages/HowItWorks';
@@ -16,12 +17,36 @@ import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
 
 function DashboardRouter() {
-  const { user, profile, loading, initialized, initialize } = useAuthStore();
+  const { user, profile, loading, initialized, initialize, fetchProfile } = useAuthStore();
 
   useEffect(() => {
+    // Initialiser l'authentification au montage
     initialize();
+
+    // Gérer la visibilité de la page pour rafraîchir la session
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && user) {
+        try {
+          // Rafraîchir la session Supabase
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session?.user) {
+            // Recharger le profil pour s'assurer d'avoir les données à jour
+            await fetchProfile();
+          }
+        } catch (error) {
+          console.error('Error refreshing session:', error);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   if (!initialized || loading) {
     return <LoadingSpinner />;
