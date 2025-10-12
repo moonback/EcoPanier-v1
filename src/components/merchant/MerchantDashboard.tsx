@@ -1,15 +1,16 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, LogOut, Scan, User } from 'lucide-react';
+import { Package, TrendingUp, LogOut, Scan, User, ClipboardList } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
 import { LotManagement } from './LotManagement';
+import { MerchantReservations } from './MerchantReservations';
 import { SalesStats } from './SalesStats';
 import { ProfilePage } from '../shared/ProfilePage';
 
 // Type pour les onglets
-type TabId = 'lots' | 'stats' | 'profile';
+type TabId = 'lots' | 'reservations' | 'stats' | 'profile';
 
 /**
  * Dashboard principal pour les commerçants
@@ -26,6 +27,7 @@ export const MerchantDashboard = () => {
   // Configuration des onglets
   const tabs = [
     { id: 'lots' as TabId, label: 'Mes Lots', icon: Package },
+    { id: 'reservations' as TabId, label: 'Réservations', icon: ClipboardList },
     { id: 'stats' as TabId, label: 'Statistiques', icon: TrendingUp },
     { id: 'profile' as TabId, label: 'Mon profil', icon: User },
   ];
@@ -75,10 +77,18 @@ export const MerchantDashboard = () => {
         </div>
       </header>
 
-      {/* Navigation par onglets */}
-      <nav className="bg-white border-b border-neutral-100 shadow-soft sticky top-[70px] sm:top-[65px] z-30">
-        <div className="max-w-12xl mx-auto px-2 sm:px-4">
-          <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
+      {/* Contenu principal avec padding bottom pour la navigation */}
+      <main className="max-w-12xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-24">
+        {activeTab === 'lots' && <LotManagement />}
+        {activeTab === 'reservations' && <MerchantReservations />}
+        {activeTab === 'stats' && <SalesStats />}
+        {activeTab === 'profile' && <ProfilePage />}
+      </main>
+
+      {/* Barre de navigation fixe en bas */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 shadow-2xl z-50">
+        <div className="max-w-12xl mx-auto px-2">
+          <div className="flex items-center justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -87,34 +97,39 @@ export const MerchantDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 sm:py-3 font-semibold border-b-3 transition-all group whitespace-nowrap text-xs sm:text-base ${
+                  className={`flex flex-col items-center justify-center gap-1 px-3 py-3 flex-1 transition-all ${
                     isActive
-                      ? 'border-primary-600 text-primary-600 bg-primary-50/50'
-                      : 'border-transparent text-neutral-600 hover:text-primary-500 hover:bg-neutral-50'
+                      ? 'text-primary-600'
+                      : 'text-neutral-500 hover:text-primary-500'
                   }`}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon
-                    size={16}
-                    className={`sm:w-5 sm:h-5 transition-transform ${
-                      isActive ? 'scale-110' : 'group-hover:scale-105'
+                  <div className="relative">
+                    <Icon
+                      size={22}
+                      className={`transition-transform ${
+                        isActive ? 'scale-110' : ''
+                      }`}
+                      strokeWidth={isActive ? 2.5 : 2}
+                    />
+                    {isActive && (
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
+                    )}
+                  </div>
+                  <span
+                    className={`text-[10px] font-medium transition-all ${
+                      isActive ? 'font-bold' : ''
                     }`}
-                  />
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  >
+                    {tab.label.replace('Mes ', '').replace('Mon ', '')}
+                  </span>
                 </button>
               );
             })}
           </div>
         </div>
       </nav>
-
-      {/* Contenu principal */}
-      <main className="max-w-12xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-        {activeTab === 'lots' && <LotManagement />}
-        {activeTab === 'stats' && <SalesStats />}
-        {activeTab === 'profile' && <ProfilePage />}
-      </main>
     </div>
   );
 };

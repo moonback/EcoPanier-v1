@@ -74,42 +74,8 @@ export const CustomerDashboard = () => {
         </div>
       </header>
 
-      {/* Navigation par onglets */}
-      <nav className="bg-white border-b border-neutral-100 shadow-soft sticky top-[70px] sm:top-[65px] z-30">
-        <div className="max-w-12xl mx-auto px-2 sm:px-4">
-          <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 sm:py-3 font-semibold border-b-3 transition-all group whitespace-nowrap text-xs sm:text-base ${
-                    isActive
-                      ? 'border-primary-600 text-primary-600 bg-primary-50/50'
-                      : 'border-transparent text-neutral-600 hover:text-primary-500 hover:bg-neutral-50'
-                  }`}
-                  aria-label={tab.label}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <Icon
-                    size={16}
-                    className={`sm:w-5 sm:h-5 transition-transform ${
-                      isActive ? 'scale-110' : 'group-hover:scale-105'
-                    }`}
-                  />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </nav>
-
-      {/* Contenu principal */}
-      <main className="max-w-12xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      {/* Contenu principal avec padding bottom pour la navigation */}
+      <main className="max-w-12xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-24">
         {activeTab === 'browse' && <LotBrowser />}
         {activeTab === 'reservations' && <ReservationsList />}
         {activeTab === 'impact' && <ImpactDashboard />}
@@ -125,6 +91,52 @@ export const CustomerDashboard = () => {
         )}
         {activeTab === 'profile' && <ProfilePage />}
       </main>
+
+      {/* Barre de navigation fixe en bas */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 shadow-2xl z-50">
+        <div className="max-w-12xl mx-auto px-2">
+          <div className="flex items-center justify-around">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex flex-col items-center justify-center gap-1 px-3 py-3 flex-1 transition-all ${
+                    isActive
+                      ? 'text-primary-600'
+                      : 'text-neutral-500 hover:text-primary-500'
+                  }`}
+                  aria-label={tab.label}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <div className="relative">
+                    <Icon
+                      size={22}
+                      className={`transition-transform ${
+                        isActive ? 'scale-110' : ''
+                      }`}
+                      strokeWidth={isActive ? 2.5 : 2}
+                    />
+                    {isActive && (
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
+                    )}
+                  </div>
+                  <span
+                    className={`text-[10px] font-medium transition-all ${
+                      isActive ? 'font-bold' : ''
+                    }`}
+                  >
+                    {tab.label.replace('Mes ', '').replace('Mon ', '')}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </nav>
     </div>
   );
 };
