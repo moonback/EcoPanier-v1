@@ -56,8 +56,23 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center section-gradient p-3 sm:p-4">
-      <div className="max-w-md w-full bg-white rounded-xl sm:rounded-2xl shadow-soft-xl border border-neutral-100 p-5 sm:p-8 animate-fade-in-up">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-3 sm:p-4">
+      {/* Vidéo en arrière-plan */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/ÉcoPanier.mp4" type="video/mp4" />
+      </video>
+      
+      {/* Overlay avec dégradé pour lisibilité */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-900/80 via-secondary-900/70 to-neutral-900/80 backdrop-blur-sm"></div>
+      
+      {/* Conteneur du formulaire */}
+      <div className="max-w-md w-full bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl shadow-2xl border border-white/20 p-5 sm:p-8 animate-fade-in-up relative z-10">
         {/* Header avec logo et titre */}
         <div className="text-center mb-6 sm:mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-primary rounded-xl sm:rounded-2xl shadow-soft-lg mb-3 sm:mb-4">
