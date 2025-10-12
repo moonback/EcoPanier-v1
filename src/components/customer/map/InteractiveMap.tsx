@@ -70,7 +70,7 @@ export function InteractiveMap() {
         setSelectedMerchantForModal(updatedMerchant);
       }
     }
-  }, [merchants]);
+  }, [merchants, selectedMerchantForModal]);
 
   // Gérer le clic sur un commerçant
   const handleMerchantClick = (merchant: MerchantWithLots) => {
