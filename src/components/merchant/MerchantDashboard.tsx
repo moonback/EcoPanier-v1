@@ -1,15 +1,16 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, LogOut, Scan, User } from 'lucide-react';
+import { Package, TrendingUp, LogOut, Scan, User, ClipboardList } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
 import { LotManagement } from './LotManagement';
+import { MerchantReservations } from './MerchantReservations';
 import { SalesStats } from './SalesStats';
 import { ProfilePage } from '../shared/ProfilePage';
 
 // Type pour les onglets
-type TabId = 'lots' | 'stats' | 'profile';
+type TabId = 'lots' | 'reservations' | 'stats' | 'profile';
 
 /**
  * Dashboard principal pour les commerçants
@@ -26,6 +27,7 @@ export const MerchantDashboard = () => {
   // Configuration des onglets
   const tabs = [
     { id: 'lots' as TabId, label: 'Mes Lots', icon: Package },
+    { id: 'reservations' as TabId, label: 'Réservations', icon: ClipboardList },
     { id: 'stats' as TabId, label: 'Statistiques', icon: TrendingUp },
     { id: 'profile' as TabId, label: 'Mon profil', icon: User },
   ];
@@ -78,6 +80,7 @@ export const MerchantDashboard = () => {
       {/* Contenu principal avec padding bottom pour la navigation */}
       <main className="max-w-12xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-24">
         {activeTab === 'lots' && <LotManagement />}
+        {activeTab === 'reservations' && <MerchantReservations />}
         {activeTab === 'stats' && <SalesStats />}
         {activeTab === 'profile' && <ProfilePage />}
       </main>
