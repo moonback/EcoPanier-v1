@@ -7,6 +7,7 @@ import {
   QrCode,
   User,
   LogOut,
+  MapPin,
 } from 'lucide-react';
 
 // Imports internes
@@ -16,9 +17,10 @@ import { ReservationsList } from './ReservationsList';
 import { ImpactDashboard } from './ImpactDashboard';
 import { QRCodeDisplay } from '../shared/QRCodeDisplay';
 import { ProfilePage } from '../shared/ProfilePage';
+import { InteractiveMap } from './InteractiveMap';
 
 // Type pour les onglets
-type TabId = 'browse' | 'reservations' | 'impact' | 'qrcode' | 'profile';
+type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'qrcode' | 'profile';
 
 /**
  * Dashboard principal pour les clients
@@ -35,6 +37,7 @@ export const CustomerDashboard = () => {
   // Configuration des onglets
   const tabs = [
     { id: 'browse' as TabId, label: 'Parcourir', icon: ShoppingBag },
+    { id: 'map' as TabId, label: 'Carte', icon: MapPin },
     { id: 'reservations' as TabId, label: 'Mes réservations', icon: History },
     { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp },
     { id: 'qrcode' as TabId, label: 'Mon QR Code', icon: QrCode },
@@ -77,6 +80,7 @@ export const CustomerDashboard = () => {
       {/* Contenu principal avec padding bottom pour la navigation */}
       <main className="max-w-12xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-24">
         {activeTab === 'browse' && <LotBrowser />}
+        {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}
         {activeTab === 'impact' && <ImpactDashboard />}
         {activeTab === 'qrcode' && (
