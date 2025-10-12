@@ -474,7 +474,7 @@ export const LotManagement = () => {
     <div>
       {/* Header avec boutons d'action */}
       <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Gestion des Lots</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Gestion des invendus</h2>
         <div className="flex gap-2">
           <button
             onClick={generateFictionalLots}
@@ -482,7 +482,7 @@ export const LotManagement = () => {
             title="Créer 25 produits de test"
           >
             <Package size={16} className="sm:w-5 sm:h-5" />
-            <span className="hidden sm:inline">Générer produits test</span>
+            <span className="hidden sm:inline">Générer invendus</span>
             <span className="sm:hidden">Test</span>
           </button>
           <button
@@ -494,7 +494,7 @@ export const LotManagement = () => {
             className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base font-medium"
           >
             <Plus size={16} className="sm:w-5 sm:h-5" />
-            <span>Nouveau Lot</span>
+            <span>Nouvel invendu</span>
           </button>
         </div>
       </div>

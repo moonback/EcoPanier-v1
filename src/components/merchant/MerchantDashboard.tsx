@@ -26,7 +26,7 @@ export const MerchantDashboard = () => {
 
   // Configuration des onglets
   const tabs = [
-    { id: 'lots' as TabId, label: 'Mes Lots', icon: Package },
+    { id: 'lots' as TabId, label: 'Mes invendus', icon: Package },
     { id: 'reservations' as TabId, label: 'Réservations', icon: ClipboardList },
     { id: 'stats' as TabId, label: 'Statistiques', icon: TrendingUp },
     { id: 'profile' as TabId, label: 'Mon profil', icon: User },
@@ -39,37 +39,46 @@ export const MerchantDashboard = () => {
       <header className="glass sticky top-0 z-40 shadow-soft-md border-b border-neutral-100">
         <div className="max-w-12xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3">
           <div className="flex items-center justify-between gap-2">
+            {/* Bloc titre + identité commerçant */}
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg sm:text-2xl font-bold text-neutral-900 tracking-tight truncate">
-                Espace Commerçant
+              <h1 className="text-lg sm:text-2xl font-black text-neutral-900 tracking-tight truncate flex items-center gap-2">
+                <Package className="hidden sm:inline text-primary-500" size={26} aria-hidden />
+                Espace commerçant
               </h1>
-              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-neutral-600">
-                <span className="inline-block w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse"></span>
-                <span className="truncate">
-                  <span className="font-medium text-primary-600">
-                    {profile?.business_name || profile?.full_name}
+              <div className="flex items-center gap-2 mt-0.5 text-xs text-neutral-600">
+                <span className="inline-block w-2 h-2 bg-success-500 rounded-full animate-pulse shadow-success-300 shadow"/>
+                <span className="truncate flex items-baseline gap-1">
+                  <span className="font-semibold text-primary-700">
+                    {profile?.business_name || profile?.full_name || 'Commerçant'}
                   </span>
+                  {profile?.business_name && (
+                    <span className="px-1.5 py-0.5 rounded bg-primary-50 text-primary-600 font-semibold text-[10px] uppercase ml-1">
+                      {profile?.full_name}
+                    </span>
+                  )}
                 </span>
               </div>
             </div>
-
+            {/* Actions principales */}
             <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
               <a
                 href="/pickup"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-2.5 sm:px-4 py-2 text-sm bg-primary-600 text-white hover:bg-primary-700 rounded-lg transition-all font-medium whitespace-nowrap"
+                className="flex items-center gap-1.5 px-2.5 sm:px-4 py-2 text-sm bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-400 rounded-lg transition-all font-semibold whitespace-nowrap shadow hover:shadow-lg"
                 aria-label="Ouvrir la station de retrait"
+                tabIndex={0}
               >
-                <Scan size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <Scan size={18} className="sm:w-[20px] sm:h-[20px]" />
                 <span className="hidden sm:inline">Station</span>
               </a>
               <button
                 onClick={signOut}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm text-neutral-600 hover:text-accent-600 hover:bg-accent-50 rounded-lg transition-all font-medium whitespace-nowrap"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm text-neutral-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all font-medium whitespace-nowrap focus-visible:ring-2 focus-visible:ring-red-200"
                 aria-label="Se déconnecter"
+                tabIndex={0}
               >
-                <LogOut size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <LogOut size={18} className="sm:w-[20px] sm:h-[20px]" />
                 <span className="hidden sm:inline">Quitter</span>
               </button>
             </div>
