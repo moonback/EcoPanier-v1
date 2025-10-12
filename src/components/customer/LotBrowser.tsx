@@ -220,7 +220,7 @@ export const LotBrowser = () => {
         </div>
       )}
 
-      {/* Grille de lots */}
+      {/* Grille de lots - Mobile: 1 colonne, Desktop: grille responsive */}
       {filteredLots.length === 0 ? (
         <EmptyState
           icon={Package}
@@ -228,7 +228,17 @@ export const LotBrowser = () => {
           description="Aucun lot ne correspond à vos critères. Essayez de modifier vos filtres."
         />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid gap-4
+          /* Mobile : 1 lot par ligne (pleine largeur) */
+          grid-cols-1
+          /* Petits écrans : 2 colonnes */
+          sm:grid-cols-2
+          /* Tablettes : 3 colonnes */
+          md:grid-cols-3
+          /* Desktop : 4 colonnes */
+          lg:grid-cols-4
+          /* Large desktop : 5 colonnes */
+          xl:grid-cols-5">
           {filteredLots.map((lot) => (
             <LotCard
               key={lot.id}

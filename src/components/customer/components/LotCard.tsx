@@ -81,18 +81,7 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
 
         {/* Prix - Responsive */}
         <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between z-10">
-          <div className="flex items-center gap-1 bg-white/95 backdrop-blur-sm rounded-full shadow-mobile-raised
-            /* Mobile : Prix compact */
-            px-2 py-1
-            /* Desktop : Prix plus grand */
-            md:px-3 md:py-1.5">
-            <Euro className="w-3 h-3 md:w-4 md:h-4 text-primary-600" />
-            <span className="font-black text-primary-600
-              /* Mobile : Texte plus petit */
-              text-sm
-              /* Desktop : Texte standard */
-              md:text-lg">{lot.discounted_price}€</span>
-          </div>
+          
           <span className="bg-white/95 backdrop-blur-sm text-neutral-700 font-medium shadow-mobile-raised rounded-full
             /* Mobile : Catégorie compacte */
             text-[10px] px-1.5 py-0.5
