@@ -30,7 +30,7 @@ export const StickyCTA = () => {
     type: "spring",
     stiffness: 200,
     damping: 25,
-  } as const;
+  };
 
   return (
     <AnimatePresence>
