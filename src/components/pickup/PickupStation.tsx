@@ -137,29 +137,63 @@ export const PickupStation = () => {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: 'url(/slide-1.png)' }}
         >
-          <div className="absolute inset-0 bg-green-50/85 backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-green-50/90 via-emerald-50/90 to-teal-50/90 backdrop-blur-sm"></div>
         </div>
 
-        <div className="bg-white/98 backdrop-blur-md rounded-3xl shadow-2xl p-8 max-w-lg w-full text-center animate-fade-in border-2 border-green-200 relative z-10">
-          <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
-            <CheckCircle size={56} className="text-white" strokeWidth={2.5} />
+        <div className="bg-white/98 backdrop-blur-md rounded-3xl shadow-2xl p-10 max-w-xl w-full text-center animate-fade-in border-2 border-green-300 relative z-10 overflow-hidden">
+          {/* Confettis décoratifs */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div className="absolute top-10 left-10 w-3 h-3 bg-green-400 rounded-full animate-bounce"></div>
+            <div className="absolute top-20 right-20 w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="absolute bottom-20 left-20 w-2 h-2 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            <div className="absolute bottom-10 right-10 w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.6s' }}></div>
           </div>
-          
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Retrait validé !
-          </h2>
-          
-          <p className="text-xl text-gray-600 mb-8">
-            Le colis a été remis avec succès
-          </p>
-          
-          <button
-            onClick={resetState}
-            className="w-full py-5 bg-green-600 text-white rounded-xl hover:bg-green-700 active:scale-[0.98] transition-all font-bold text-xl shadow-lg"
-          >
-            Nouveau retrait
-          </button>
-        </div>
+
+              <div className="relative">
+            {/* Icône de succès animée */}
+            <div className="relative inline-block mb-6">
+              <div className="absolute inset-0 bg-green-400 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+              <div className="relative w-28 h-28 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl">
+                <CheckCircle size={64} className="text-white animate-bounce" strokeWidth={2.5} style={{ animationDuration: '2s' }} />
+              </div>
+            </div>
+            
+            <h2 className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4">
+                Retrait validé !
+              </h2>
+              
+            <p className="text-2xl text-gray-700 font-semibold mb-2">
+              Votre casier est ouvert
+            </p>
+            
+            <p className="text-lg text-gray-500 mb-8">
+              Récupérez votre commande et fermez le casier
+            </p>
+            
+            {/* Barre de progression auto-reset */}
+            <div className="mb-6">
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full animate-[shrink_3s_linear]"></div>
+              </div>
+              <p className="text-sm text-gray-500 mt-2">Retour automatique dans quelques secondes...</p>
+              </div>
+              
+              <button
+                onClick={resetState}
+              className="group relative w-full py-6 bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-2xl hover:from-green-700 hover:to-emerald-800 active:scale-[0.98] transition-all font-bold text-2xl shadow-xl overflow-hidden"
+              >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+              <span className="relative">Nouveau retrait</span>
+              </button>
+            </div>
+          </div>
+
+        <style>{`
+          @keyframes shrink {
+            from { width: 100%; }
+            to { width: 0%; }
+          }
+        `}</style>
       </div>
     );
   }
@@ -172,27 +206,27 @@ export const PickupStation = () => {
         style={{ backgroundImage: 'url(/slide-1.png)' }}
       >
         <div className="absolute inset-0 bg-white/85 backdrop-blur-sm"></div>
-      </div>
+          </div>
 
       <div className="bg-white/98 backdrop-blur-md rounded-3xl shadow-2xl w-[95%] h-[95vh] max-w-[1800px] border-2 border-gray-200 flex flex-col relative z-10">
         {/* Header compact */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-t-3xl flex items-center justify-between">
+        <div className="bg-white text-blue-600 px-6 py-4 rounded-t-3xl flex items-center justify-between">
           {/* Logo à gauche */}
-          <div className="w-14">
-            <img src="/logo.png" alt="EcoPanier" className="w-14 h-14 object-contain" />
+          <div className="w-25">
+            <img src="/logo.png" alt="EcoPanier" className="w-25 h-25 object-contain" />
           </div>
           
           {/* Titre au centre */}
           <h1 className="text-2xl font-bold absolute left-1/2 transform -translate-x-1/2">
-            Station de Retrait
-          </h1>
+                Station de Retrait
+              </h1>
           
           {/* Bouton aide à droite */}
           <button
             onClick={() => setHelpActive(true)}
-            className="p-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all active:scale-95"
+            className="p-3 bg-blue-600/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all active:scale-95"
           >
-            <HelpCircle size={24} className="text-white" />
+            <HelpCircle size={24} className="text-blue-600" />
           </button>
         </div>
 
@@ -213,41 +247,78 @@ export const PickupStation = () => {
         {/* Contenu principal */}
         {!reservation ? (
           <div className="flex-1 flex items-center justify-center p-6">
-            <div className="w-full max-w-4xl">
-              {/* Bouton principal de scan */}
+            <div className="w-full max-w-5xl">
+              {/* Instruction principale */}
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">Bienvenue</h2>
+                <p className="text-xl text-gray-600">Scannez votre QR code pour récupérer votre commande</p>
+              </div>
+
+              {/* Bouton principal de scan avec animation */}
+              <div className="relative mb-8">
               <button
                 onClick={() => setScannerActive(true)}
                 disabled={loading}
-                className="group w-full py-16 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-3xl hover:from-blue-700 hover:to-blue-800 active:scale-[0.98] transition-all shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+                className="group relative w-full py-10 bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-2xl hover:shadow-xl active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
               >
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                    <Scan size={56} className="text-white group-hover:scale-110 transition-transform" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <div className="relative flex flex-col items-center gap-2">
+                  <div className="relative w-16 h-16 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-white/20 rounded-xl blur-md animate-pulse"></div>
+                    <div className="relative w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border-2 border-white/30">
+                      <Scan size={40} className="text-white group-hover:scale-105 transition-transform duration-300" />
+                    </div>
                   </div>
-                  <span className="text-4xl font-bold">Scanner le QR Code</span>
-                  <span className="text-lg text-blue-100">Appuyez pour commencer</span>
+                  <div className="text-center">
+                    <span className="text-xl font-bold block mb-1">Scanner le QR Code</span>
+                    <span className="text-base text-blue-100 flex items-center justify-center gap-2">
+                      <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                      Appuyer pour démarrer
+                    </span>
+                  </div>
                 </div>
               </button>
+            </div>
 
-              {/* Instructions compactes */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white rounded-xl p-4 border-2 border-gray-200 text-center shadow-lg">
-                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <span className="text-2xl font-bold text-white">1</span>
+              {/* Instructions étapes avec design amélioré */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="group bg-gradient-to-br from-white to-gray-50 rounded-2xl p-5 border border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg">
+                  <div className="flex flex-col items-center">
+                    <div className="relative mb-4">
+                      <div className="absolute inset-0 bg-blue-100 rounded-xl blur-md opacity-50"></div>
+                      <div className="relative w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <span className="text-2xl font-bold text-white">1</span>
+                      </div>
                   </div>
-                  <p className="text-base font-bold text-gray-800">Scan QR Code</p>
+                    <p className="text-base font-bold text-gray-800 text-center">Scanner le QR Code</p>
+                    <p className="text-xs text-gray-500 mt-1 text-center">Présentez votre code</p>
+                  </div>
                 </div>
-                <div className="bg-white rounded-xl p-4 border-2 border-gray-200 text-center shadow-lg">
-                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <span className="text-2xl font-bold text-white">2</span>
+
+                <div className="group bg-gradient-to-br from-white to-gray-50 rounded-2xl p-5 border border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg">
+                  <div className="flex flex-col items-center">
+                    <div className="relative mb-4">
+                      <div className="absolute inset-0 bg-indigo-100 rounded-xl blur-md opacity-50"></div>
+                      <div className="relative w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <span className="text-2xl font-bold text-white">2</span>
+                      </div>
                   </div>
-                  <p className="text-base font-bold text-gray-800">Code PIN</p>
+                    <p className="text-base font-bold text-gray-800 text-center">Saisir le code PIN</p>
+                    <p className="text-xs text-gray-500 mt-1 text-center">6 chiffres de sécurité</p>
+                  </div>
                 </div>
-                <div className="bg-white rounded-xl p-4 border-2 border-gray-200 text-center shadow-lg">
-                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <span className="text-2xl font-bold text-white">3</span>
+
+                <div className="group bg-gradient-to-br from-white to-gray-50 rounded-2xl p-5 border border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg">
+                  <div className="flex flex-col items-center">
+                    <div className="relative mb-4">
+                      <div className="absolute inset-0 bg-green-100 rounded-xl blur-md opacity-50"></div>
+                      <div className="relative w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <span className="text-2xl font-bold text-white">3</span>
+                      </div>
                   </div>
-                  <p className="text-base font-bold text-gray-800">Remise colis</p>
+                    <p className="text-base font-bold text-gray-800 text-center">Récupérer le colis</p>
+                    <p className="text-xs text-gray-500 mt-1 text-center">Ouvrez le casier</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -308,43 +379,75 @@ export const PickupStation = () => {
 
             {/* Colonne droite - Validation PIN tactile */}
             <div className="w-1/2 flex flex-col gap-4">
-              <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border-2 border-blue-200 flex flex-col justify-center">
-                <label className="flex items-center justify-center gap-3 text-2xl font-bold text-gray-900 mb-6">
-                  <Lock size={28} className="text-blue-600" />
-                  Code PIN de sécurité
+              <div className="flex-1 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 border-2 border-blue-200 flex flex-col justify-center relative overflow-hidden">
+                {/* Effet de fond décoratif */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200 rounded-full blur-3xl opacity-30"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-200 rounded-full blur-3xl opacity-30"></div>
+                
+                <div className="relative">
+                  <label className="flex items-center justify-center gap-3 text-2xl font-bold text-gray-900 mb-6">
+                    <div className="p-2 bg-blue-600 rounded-xl">
+                      <Lock size={24} className="text-white" />
+                    </div>
+                    Code PIN de sécurité
                 </label>
+                  
+                  {/* Input PIN avec design amélioré */}
+                  <div className="relative mb-4">
                 <input
                   type="text"
                   inputMode="numeric"
                   maxLength={6}
                   value={enteredPin}
                   onChange={(e) => setEnteredPin(e.target.value.replace(/\D/g, ''))}
-                  className="w-full px-6 py-6 text-center text-5xl font-mono font-bold border-3 border-blue-300 rounded-xl focus:border-blue-600 focus:ring-3 focus:ring-blue-200 outline-none bg-white shadow-lg transition-all tracking-[1rem]"
+                      className="w-full px-6 py-6 text-center text-5xl font-mono font-bold border-3 border-blue-300 rounded-2xl focus:border-blue-600 focus:ring-4 focus:ring-blue-200 outline-none bg-white shadow-xl transition-all tracking-[1rem]"
                   placeholder="● ● ● ● ● ●"
                   autoFocus
                 />
-                <div className="mt-4 p-3 bg-white rounded-xl border border-blue-200 shadow-sm">
-                  <p className="text-sm text-gray-700 text-center font-semibold">
-                    Demandez au client son code PIN à 6 chiffres
-                  </p>
+                    {/* Indicateur de progression */}
+                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
+                      {[...Array(6)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            i < enteredPin.length ? 'bg-blue-600 scale-110' : 'bg-gray-300'
+                          }`}
+                        ></div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-blue-200 shadow-sm">
+                    <p className="text-sm text-gray-700 text-center font-semibold flex items-center justify-center gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                      Demandez au client son code PIN à 6 chiffres
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Boutons d'action tactiles */}
+              {/* Boutons d'action avec design amélioré */}
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={resetState}
-                  className="py-5 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400 active:scale-[0.98] transition-all font-bold text-lg shadow-lg"
+                  className="group py-5 bg-gradient-to-br from-gray-200 to-gray-300 text-gray-800 rounded-xl hover:from-gray-300 hover:to-gray-400 active:scale-[0.98] transition-all font-bold text-lg shadow-lg border border-gray-400"
                 >
-                  Annuler
+                  <span className="flex items-center justify-center gap-2">
+                    <XCircle size={20} className="group-hover:rotate-90 transition-transform duration-300" />
+                    Annuler
+                  </span>
                 </button>
                 <button
                   onClick={handleValidatePin}
                   disabled={enteredPin.length !== 6 || loading}
-                  className="py-5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 active:scale-[0.98] transition-all font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="group py-5 bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-xl hover:from-green-700 hover:to-emerald-800 active:scale-[0.98] transition-all font-bold text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
                 >
-                  <CheckCircle size={24} strokeWidth={2.5} />
-                  Valider
+                  {/* Effet de brillance */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                  <span className="relative flex items-center justify-center gap-2">
+                    <CheckCircle size={24} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+                    Valider
+                  </span>
                 </button>
               </div>
             </div>
