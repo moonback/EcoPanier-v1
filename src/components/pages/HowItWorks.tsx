@@ -12,8 +12,7 @@ import {
   Package,
   Smartphone,
   CreditCard,
-  Clock,
-  MapPin,
+  
   CheckCircle,
   Gift,
   Users,
@@ -252,7 +251,7 @@ export const HowItWorks = () => {
               return (
                 <button
                   key={role.id}
-                  onClick={() => setActiveRole(role.id as any)}
+                  onClick={() => setActiveRole(role.id as 'customer' | 'merchant' | 'beneficiary')}
                   className={`p-6 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
                     activeRole === role.id
                       ? `bg-gradient-to-r from-${role.color}-600 to-${role.color}-500 text-white shadow-xl`
