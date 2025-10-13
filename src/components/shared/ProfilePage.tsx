@@ -93,12 +93,8 @@ export const ProfilePage = () => {
           { label: 'Gaspillage évité', value: `${stats.wasteAvoided?.toFixed(1) || 0}kg`, icon: Award, color: 'secondary' },
         ];
       case 'beneficiary':
-        return [
-          { label: 'Paniers reçus', value: stats.basketsReceived || 0, icon: Package, color: 'primary' },
-          { label: 'Valeur totale', value: `${stats.totalValue?.toFixed(2) || 0}€`, icon: Heart, color: 'accent' },
-          { label: 'Depuis', value: stats.memberSince || 'Nouveau', icon: Calendar, color: 'secondary' },
-          { label: 'Impact social', value: 'Fort', icon: Award, color: 'success' },
-        ];
+        // Pas de statistiques pour les bénéficiaires
+        return [];
       case 'collector':
         return [
           { label: 'Missions', value: stats.missionsCompleted || 0, icon: Package, color: 'primary' },

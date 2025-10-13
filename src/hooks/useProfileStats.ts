@@ -15,11 +15,6 @@ interface ProfileStats {
   averageRating?: number;
   wasteAvoided?: number;
   
-  // Bénéficiaire
-  basketsReceived?: number;
-  totalValue?: number;
-  memberSince?: string;
-  
   // Collecteur
   missionsCompleted?: number;
   totalDistance?: number;
@@ -101,36 +96,8 @@ export function useProfileStats(userId: string | undefined, role: UserRole | und
         }
 
         case 'beneficiary': {
-          // Récupérer les réservations gratuites du bénéficiaire
-          const { data: reservations } = await supabase
-            .from('reservations')
-            .select('quantity, total_price, created_at')
-            .eq('user_id', userId)
-            .eq('is_donation', true);
-
-          const basketsReceived = reservations?.length || 0;
-          const totalValue = reservations?.reduce((sum, res) => sum + res.total_price, 0) || 0;
-
-          // Calculer depuis quand il est membre
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('created_at')
-            .eq('id', userId)
-            .single();
-
-          let memberSince = 'Nouveau';
-          if (profile?.created_at) {
-            const createdDate = new Date(profile.created_at);
-            const now = new Date();
-            const monthsDiff = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
-            memberSince = monthsDiff > 0 ? `${monthsDiff} mois` : 'Nouveau';
-          }
-
-          setStats({
-            basketsReceived,
-            totalValue: Math.round(totalValue * 100) / 100,
-            memberSince,
-          });
+          // Pas de statistiques pour les bénéficiaires
+          setStats({});
           break;
         }
 
