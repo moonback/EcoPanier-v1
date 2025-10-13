@@ -200,7 +200,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
       {lots.length === 0 ? (
         <div className="text-center py-8 sm:py-12 px-4">
           <Package size={48} className="sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-sm sm:text-base text-gray-600">Aucun don gratuit disponible pour le moment</p>
+          <p className="text-sm sm:text-base text-gray-600">Aucun lot d'aide alimentaire disponible pour le moment</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -226,7 +226,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
                   )}
                   <div className="absolute top-2 right-2 bg-pink-500 text-white px-2 sm:px-3 py-1 rounded-full font-bold text-xs sm:text-sm flex items-center gap-1 shadow-lg">
                     <Heart size={14} className="sm:w-4 sm:h-4" />
-                    <span>GRATUIT</span>
+                    <span>SOLIDAIRE</span>
                   </div>
                 </div>
 
@@ -256,7 +256,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
                     }}
                     className="w-full py-2 sm:py-2.5 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-all font-medium text-sm sm:text-base shadow-md hover:shadow-lg"
                   >
-                    Réserver Gratuitement
+                    Réserver mon lot
                   </button>
                 </div>
               </div>
@@ -372,7 +372,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
               <div className="flex items-start gap-2">
                 <Heart size={18} className="text-pink-600 flex-shrink-0 mt-0.5" />
                 <p className="text-xs sm:text-sm text-pink-800 font-medium">
-                  Ce don est entièrement gratuit. Merci à nos généreux donateurs!
+                  Ce lot fait partie du programme d'aide alimentaire solidaire. Merci aux commerçants partenaires!
                 </p>
               </div>
             </div>

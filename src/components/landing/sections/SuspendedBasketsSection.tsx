@@ -14,8 +14,8 @@ export const SuspendedBasketsSection = () => {
     },
     {
       title: 'Bénéficiaires',
-      description: 'Accédez gratuitement à une alimentation de qualité',
-      stats: '2 lots gratuits par jour'
+      description: 'Accédez au programme d\'aide alimentaire solidaire',
+      stats: '2 lots d\'aide par jour'
     }
   ];
 

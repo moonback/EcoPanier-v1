@@ -6,15 +6,23 @@ export const FinalCTASection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-32 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+    <section className="py-32 bg-gray-50 relative overflow-hidden">
+      {/* Image de fond */}
+      <img
+        src="/slide-5.png"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none opacity-25"
+      />
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-black rounded-3xl p-12 md:p-20 text-center"
+          className="bg-black rounded-3xl p-12 md:p-20 text-center bg-opacity-70"
         >
+          
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight max-w-3xl mx-auto">
             Prêt à faire la différence ?
           </h2>

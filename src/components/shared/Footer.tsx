@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useSettings } from '../../contexts/SettingsContext';
 import { 
-  Heart, 
   Mail, 
   Phone, 
   MapPin,
@@ -9,7 +8,6 @@ import {
   Instagram,
   Twitter,
   Linkedin,
-  ArrowRight
 } from 'lucide-react';
 
 export const Footer = () => {
@@ -100,7 +98,7 @@ export const Footer = () => {
             <div className="lg:col-span-2">
               <div className="mb-4">
                 <img
-                  src="/logo.png"
+                  src="/logo-white.png"
                   alt="Logo EcoPanier"
                   className="h-10 rounded-lg object-cover"
                 />

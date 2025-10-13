@@ -144,19 +144,19 @@ export const HowItWorks = () => {
     },
     {
       number: 2,
-      title: 'Accédez aux lots gratuits',
-      description: 'Consultez les lots exclusifs',
+      title: 'Accédez au programme d\'aide alimentaire',
+      description: 'Consultez les lots solidaires disponibles',
       icon: Gift,
       details: [
         'Connectez-vous',
-        'Parcourez les lots gratuits',
+        'Parcourez les lots d\'aide alimentaire',
         'Limite : 2 lots par jour',
       ],
     },
     {
       number: 3,
-      title: 'Réservez gratuitement',
-      description: '100% gratuit',
+      title: 'Réservez votre lot',
+      description: 'Via le programme solidaire',
       icon: Heart,
       details: [
         'Sélectionnez votre lot',

@@ -99,20 +99,20 @@ export const HelpCenter = () => {
     },
     {
       category: 'merchant',
-      question: 'Comment créer des lots gratuits pour bénéficiaires ?',
-      answer: 'Lors de la création d\'un lot, sélectionnez l\'option "Lot gratuit pour bénéficiaires". Ces lots seront exclusivement accessibles aux personnes en situation de précarité, participant ainsi à la solidarité locale.',
+      question: 'Comment participer au programme d\'aide alimentaire solidaire ?',
+      answer: 'Lors de la création d\'un lot, sélectionnez l\'option "Programme d\'aide alimentaire". Ces lots seront exclusivement accessibles aux personnes en situation de précarité via le programme solidaire.',
       icon: Heart,
     },
     {
       category: 'beneficiary',
       question: 'Comment devenir bénéficiaire ?',
-      answer: 'Rapprochez-vous d\'une association partenaire qui évaluera votre situation et vous délivrera un identifiant bénéficiaire unique. Cet identifiant vous permettra d\'accéder aux lots gratuits.',
+      answer: 'Rapprochez-vous d\'une association partenaire qui évaluera votre situation et vous délivrera un identifiant bénéficiaire unique. Cet identifiant vous permettra d\'accéder au programme d\'aide alimentaire solidaire.',
       icon: Users,
     },
     {
       category: 'beneficiary',
       question: 'Combien de réservations puis-je faire ?',
-      answer: 'Les bénéficiaires peuvent réserver jusqu\'à 2 lots gratuits par jour maximum. Cette limite permet de garantir un accès équitable aux lots gratuits créés par les commerçants pour tous.',
+      answer: 'Les bénéficiaires peuvent accéder à 2 lots par jour maximum via le programme d\'aide alimentaire. Cette limite permet de garantir un accès équitable aux lots proposés par les commerçants partenaires pour tous.',
       icon: Package,
     },
     {

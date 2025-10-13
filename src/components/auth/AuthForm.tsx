@@ -174,7 +174,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   <Heart className="mb-2" size={24} strokeWidth={1.5} />
                   <div className="font-medium text-sm">Bénéficiaire</div>
                   <div className={`text-xs mt-1 ${role === 'beneficiary' ? 'text-gray-300' : 'text-gray-500'}`}>
-                    Dons gratuits
+                    Aide alimentaire
                   </div>
                 </button>
 

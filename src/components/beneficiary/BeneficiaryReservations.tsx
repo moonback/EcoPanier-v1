@@ -121,7 +121,7 @@ export const BeneficiaryReservations = () => {
                 <div className="flex items-center justify-center gap-1.5">
                   <Heart size={14} className="text-pink-600" />
                   <p className="text-xs font-semibold text-pink-700">
-                    DON GRATUIT
+                    AIDE SOLIDAIRE
                   </p>
                 </div>
               </div>

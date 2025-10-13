@@ -61,7 +61,7 @@ export const BeneficiaryDashboard = () => {
               Compte en attente
             </h1>
             <p className="text-gray-700 mb-6 font-light leading-relaxed">
-              Votre compte doit être vérifié par un administrateur avant d'accéder aux dons gratuits.
+              Votre compte doit être vérifié par un administrateur avant d'accéder au programme d'aide alimentaire solidaire.
             </p>
             <div className="p-4 bg-gray-50 rounded-lg mb-6 border border-gray-200">
               <p className="text-sm text-gray-700 font-light mb-2">

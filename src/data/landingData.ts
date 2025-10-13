@@ -63,7 +63,7 @@ export interface FAQItem {
 
 export const stats: Stat[] = [
   { value: '-70%', label: 'Réduction max clients', icon: DollarSign, color: 'blue' },
-  { value: '2/jour', label: 'Lots gratuits bénéficiaires', icon: Heart, color: 'red' },
+  { value: '2/jour', label: 'Aide alimentaire solidaire', icon: Heart, color: 'red' },
   { value: '10k+', label: 'Repas sauvés', icon: Package, color: 'green' },
   { value: '15T', label: 'CO₂ économisé', icon: Leaf, color: 'pink' },
 ];
@@ -77,8 +77,8 @@ export const features: Feature[] = [
   },
   {
     icon: HandHeart,
-    title: 'Lots gratuits pour bénéficiaires',
-    description: 'Les commerçants offrent des lots gratuits exclusifs aux personnes en précarité (2 lots/jour max).',
+    title: 'Programme d\'aide alimentaire',
+    description: 'Les commerçants participent à un programme solidaire d\'aide alimentaire pour les personnes en précarité (2 lots/jour max).',
     color: 'pink',
   },
   {
@@ -117,7 +117,7 @@ export const howItWorks: HowItWorksStep[] = [
   {
     step: 4,
     title: 'Partagez la solidarité',
-    description: 'Les commerçants créent des lots gratuits pour les bénéficiaires',
+    description: 'Les commerçants participent au programme d\'aide alimentaire solidaire',
     icon: Heart,
   },
 ];
@@ -127,19 +127,19 @@ export const testimonials: Testimonial[] = [
     name: 'Marie L.',
     role: 'Cliente',
     text: 'Grâce à cette plateforme, j\'économise 50€ par mois tout en aidant mon quartier. Une initiative magnifique !',
-    avatar: '👩',
+    avatar: '/testimonial/testimonials-1.png',
   },
   {
     name: 'Pierre D.',
     role: 'Commerçant',
     text: 'Fini le gaspillage ! Je valorise mes invendus et je participe à une action solidaire. Bravo !',
-    avatar: '👨‍🍳',
+    avatar: '/testimonial/testimonials-2.png',
   },
   {
     name: 'Association Entraide',
     role: 'Bénéficiaire',
-    text: 'Les lots gratuits permettent à nos bénéficiaires d\'accéder à 2 lots par jour de produits frais dans la dignité.',
-    avatar: '🤝',
+    text: 'Le programme d\'aide alimentaire solidaire permet à nos bénéficiaires d\'accéder à 2 lots par jour de produits frais dans la dignité.',
+    avatar: '/testimonial/testimonials-3.png',
   },
 ];
 
@@ -166,7 +166,7 @@ export const userProfiles: UserProfile[] = [
     description: 'Valorisez vos invendus au lieu de les jeter, tout en augmentant vos revenus',
     benefits: [
       'Réduisez vos pertes financières',
-      'Créez des lots gratuits pour bénéficiaires',
+      'Participez au programme d\'aide alimentaire',
       'Améliorez votre image de marque',
       'Gestion simple et rapide des lots',
       'Statistiques de vente détaillées'
@@ -178,11 +178,11 @@ export const userProfiles: UserProfile[] = [
     icon: Heart,
     title: 'Bénéficiaires',
     subtitle: 'Personnes en situation de précarité',
-    description: 'Accédez à des produits frais gratuitement dans le respect et la dignité',
+    description: 'Accédez au programme d\'aide alimentaire solidaire dans le respect et la dignité',
     benefits: [
-      '2 lots gratuits par jour maximum',
-      'Lots gratuits exclusifs des commerçants',
-      'Produits frais et de qualité 100% gratuits',
+      '2 lots d\'aide alimentaire par jour maximum',
+      'Programme solidaire financé par les commerçants',
+      'Produits frais et de qualité garantie',
       'Retrait simple avec QR code',
       'Accompagnement par les associations'
     ],
@@ -217,7 +217,7 @@ export const whyReasons: WhyReason[] = [
   {
     icon: Heart,
     title: 'Solidarité Sociale',
-    description: 'En France, 1 personne sur 10 a recours à l\'aide alimentaire. Les lots gratuits (2/jour max) offrent une aide digne et respectueuse.',
+    description: 'En France, 1 personne sur 10 a recours à l\'aide alimentaire. Notre programme solidaire (2 lots/jour max) offre une aide digne et respectueuse.',
     stats: '5,000+ personnes aidées',
     color: 'accent'
   },
@@ -255,8 +255,8 @@ export const faqItems: FAQItem[] = [
     answer: 'Oui ! Vous pouvez filtrer les lots par commerçant, localisation, catégorie de produits et prix pour trouver exactement ce que vous cherchez.'
   },
   {
-    question: 'Comment fonctionnent les lots gratuits pour bénéficiaires ?',
-    answer: 'Les commerçants créent des lots gratuits exclusifs pour les personnes en précarité. Les bénéficiaires peuvent réserver jusqu\'à 2 lots gratuits par jour et les récupérer avec leur QR code en toute dignité.'
+    question: 'Comment fonctionne le programme d\'aide alimentaire solidaire ?',
+    answer: 'Les commerçants partenaires participent à un programme d\'aide alimentaire en proposant des lots aux personnes en précarité. Les bénéficiaires peuvent accéder à 2 lots par jour maximum via ce programme solidaire et les récupérer avec leur QR code en toute dignité.'
   },
   {
     question: 'Comment devenir commerçant partenaire ?',

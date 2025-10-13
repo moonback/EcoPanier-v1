@@ -31,9 +31,12 @@ export const TestimonialsSection = () => {
               className="bg-white rounded-2xl p-8"
             >
               <div className="flex items-center gap-4 mb-6">
-                <div className="text-4xl w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center">
-                  {testimonial.avatar}
-                </div>
+                <img
+                  src={testimonial.avatar}
+                  alt={testimonial.name}
+                  className="w-14 h-14 rounded-full object-cover bg-gray-100"
+                  loading="lazy"
+                />
                 <div>
                   <div className="font-semibold text-black">{testimonial.name}</div>
                   <div className="text-sm text-gray-600 font-light">{testimonial.role}</div>
