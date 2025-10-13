@@ -145,7 +145,7 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
                   <Clock className="w-4 h-4" />
                 </div>
                 <span>
-                  Retrait : {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} - {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                  Retrait : {format(new Date(lot.pickup_start), 'EEE dd/MM', { locale: fr })} • {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
                 </span>
               </div>
             </div>
@@ -212,15 +212,15 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
         </div>
 
         {/* Infos compactes */}
-        <div className="flex items-center gap-3 text-xs text-neutral-600">
+        <div className="space-y-1.5 text-xs text-neutral-600">
           <div className="flex items-center gap-1.5">
             <Package className="w-3.5 h-3.5 flex-shrink-0" />
-            <span><span className="font-bold text-neutral-900">{availableQty}</span> dispo</span>
+            <span><span className="font-bold text-neutral-900">{availableQty}</span> unités disponibles</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="truncate">
-              {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} - {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+            <span>
+              {format(new Date(lot.pickup_start), 'EEE dd/MM', { locale: fr })} • {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
             </span>
           </div>
         </div>

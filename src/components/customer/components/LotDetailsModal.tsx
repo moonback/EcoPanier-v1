@@ -163,7 +163,9 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
                 </div>
                 <div>
                   <div className="text-xs text-neutral-600 font-medium">Retrait</div>
-                  <div className="text-sm font-bold text-primary-700">Aujourd'hui</div>
+                  <div className="text-sm font-bold text-primary-700">
+                    {format(new Date(lot.pickup_start), 'EEEE dd MMMM', { locale: fr })}
+                  </div>
                 </div>
               </div>
               <div className="text-xs text-neutral-600">
