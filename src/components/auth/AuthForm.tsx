@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck } from 'lucide-react';
 
 interface AuthFormProps {
   onSuccess?: () => void;
@@ -123,19 +123,78 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-black mb-2">
+              <label className="block text-sm font-medium text-black mb-3">
                 Type de compte
               </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
-                className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black focus:border-black focus:ring-2 focus:ring-gray-200 transition-all outline-none font-light"
-              >
-                <option value="customer">Client - Acheter des lots</option>
-                <option value="merchant">Commerçant - Vendre invendus</option>
-                <option value="beneficiary">Bénéficiaire - Dons gratuits</option>
-                <option value="collector">Collecteur - Livraisons</option>
-              </select>
+              <div className="grid grid-cols-2 gap-3">
+                {/* Client */}
+                <button
+                  type="button"
+                  onClick={() => setRole('customer')}
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    role === 'customer'
+                      ? 'border-black bg-black text-white'
+                      : 'border-gray-300 bg-white text-black hover:border-gray-400'
+                  }`}
+                >
+                  <ShoppingCart className="mb-2" size={24} strokeWidth={1.5} />
+                  <div className="font-medium text-sm">Client</div>
+                  <div className={`text-xs mt-1 ${role === 'customer' ? 'text-gray-300' : 'text-gray-500'}`}>
+                    Acheter des lots
+                  </div>
+                </button>
+
+                {/* Commerçant */}
+                <button
+                  type="button"
+                  onClick={() => setRole('merchant')}
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    role === 'merchant'
+                      ? 'border-black bg-black text-white'
+                      : 'border-gray-300 bg-white text-black hover:border-gray-400'
+                  }`}
+                >
+                  <Store className="mb-2" size={24} strokeWidth={1.5} />
+                  <div className="font-medium text-sm">Commerçant</div>
+                  <div className={`text-xs mt-1 ${role === 'merchant' ? 'text-gray-300' : 'text-gray-500'}`}>
+                    Vendre invendus
+                  </div>
+                </button>
+
+                {/* Bénéficiaire */}
+                <button
+                  type="button"
+                  onClick={() => setRole('beneficiary')}
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    role === 'beneficiary'
+                      ? 'border-black bg-black text-white'
+                      : 'border-gray-300 bg-white text-black hover:border-gray-400'
+                  }`}
+                >
+                  <Heart className="mb-2" size={24} strokeWidth={1.5} />
+                  <div className="font-medium text-sm">Bénéficiaire</div>
+                  <div className={`text-xs mt-1 ${role === 'beneficiary' ? 'text-gray-300' : 'text-gray-500'}`}>
+                    Dons gratuits
+                  </div>
+                </button>
+
+                {/* Collecteur */}
+                <button
+                  type="button"
+                  onClick={() => setRole('collector')}
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    role === 'collector'
+                      ? 'border-black bg-black text-white'
+                      : 'border-gray-300 bg-white text-black hover:border-gray-400'
+                  }`}
+                >
+                  <Truck className="mb-2" size={24} strokeWidth={1.5} />
+                  <div className="font-medium text-sm">Collecteur</div>
+                  <div className={`text-xs mt-1 ${role === 'collector' ? 'text-gray-300' : 'text-gray-500'}`}>
+                    Livraisons
+                  </div>
+                </button>
+              </div>
             </div>
           )}
 
