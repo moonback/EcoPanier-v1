@@ -101,10 +101,17 @@ export function MapView({
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-primary-700 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow border border-white">
               {merchant.lots.length}
             </div>
-            {/* Indicateur "Cliquez à nouveau" */}
+            {/* Tooltip avec nom du commerce */}
             {selectedMerchant?.id === merchant.id && (
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-accent-600 text-white text-xs px-3 py-1 rounded-lg font-bold shadow-lg whitespace-nowrap animate-bounce">
-                Cliquez à nouveau
+              <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-neutral-900 text-white px-3 py-2 rounded-xl shadow-2xl whitespace-nowrap animate-fade-in border-2 border-white max-w-[200px]">
+                <div className="text-sm font-bold text-center mb-0.5 truncate">
+                  {merchant.business_name || merchant.full_name}
+                </div>
+                <div className="text-[10px] text-center text-white/80 font-medium">
+                  Cliquez à nouveau pour voir les lots
+                </div>
+                {/* Flèche pointant vers le marqueur */}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-neutral-900" />
               </div>
             )}
           </div>
