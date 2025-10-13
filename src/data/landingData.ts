@@ -98,25 +98,25 @@ export const features: Feature[] = [
 export const howItWorks: HowItWorksStep[] = [
   {
     step: 1,
-    title: 'Découvrez les lots',
+    title: 'Découvrez les lots d\'invendus',
     description: 'Parcourez les invendus disponibles près de chez vous',
     icon: MapPin,
   },
   {
     step: 2,
-    title: 'Réservez en ligne',
+    title: 'Réservez votre lot en ligne',
     description: 'Choisissez votre lot et payez en ligne de manière sécurisée',
     icon: ShoppingBag,
   },
   {
     step: 3,
-    title: 'Récupérez vos courses',
+    title: 'Récupérez votre lot',
     description: 'Présentez votre QR code au point de retrait',
     icon: Package,
   },
   {
     step: 4,
-    title: 'Partagez la solidarité',
+    title: 'Partagez la solidarité avec les commerçants',
     description: 'Les commerçants participent au programme d\'aide alimentaire solidaire',
     icon: Heart,
   },
