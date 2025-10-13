@@ -141,8 +141,20 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
         <div className="px-3 pb-3 -mt-8 relative z-10">
           {/* Logo commerçant compact - Superposé sur le bandeau */}
           <div className="flex justify-center mb-2">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-xl border-3 border-white hover:scale-110 hover:rotate-3 transition-all duration-300 cursor-pointer">
-              <Store className="w-8 h-8 text-white" />
+            <div className="w-16 h-16  rounded-2xl flex items-center justify-center shadow-xl border-3 border-white hover:scale-110 hover:rotate-3 transition-all duration-300 cursor-pointer overflow-hidden">
+              {merchant.business_logo_url ? (
+                <img
+                  src={merchant.business_logo_url}
+                  alt={merchant.business_name || merchant.full_name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback vers l'icône si l'image ne charge pas
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <Store className={`w-8 h-8 text-white ${merchant.business_logo_url ? 'hidden' : ''}`} />
             </div>
           </div>
 

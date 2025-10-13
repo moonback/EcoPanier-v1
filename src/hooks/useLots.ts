@@ -7,6 +7,7 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: {
     business_name: string;
     business_address: string;
+    business_logo_url?: string | null;
   };
 };
 
@@ -37,7 +38,7 @@ export function useLots(selectedCategory: string = ''): UseLotsReturn {
       setError(null);
       let query = supabase
         .from('lots')
-        .select('*, profiles(business_name, business_address)')
+        .select('*, profiles(business_name, business_address, business_logo_url)')
         .eq('status', 'available')
         .gt('quantity_total', 0)
         .gt('discounted_price', 0)

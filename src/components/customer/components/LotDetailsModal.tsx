@@ -7,6 +7,7 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: {
     business_name: string;
     business_address: string;
+    business_logo_url?: string | null;
   };
 };
 
@@ -121,16 +122,33 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
                 </div>
               </div>
 
-              {/* Commerçant */}
-              <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200">
-                <h4 className="text-sm font-bold text-neutral-700 mb-2">Commerçant</h4>
+              {/* Commerçant avec logo */}
+              <div className="p-4 bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-xl border-2 border-neutral-200 hover:border-primary-300 transition-all duration-300 hover:shadow-md">
+                <h4 className="text-sm font-bold text-neutral-700 mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary-600" />
+                  Commerçant
+                </h4>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-white" />
+                  <div className="w-14 h-14  flex items-center justify-center overflow-hidden flex-shrink-0 shadow-lg hover:scale-110 transition-transform duration-300">
+                    {lot.profiles.business_logo_url ? (
+                      <img
+                        src={lot.profiles.business_logo_url}
+                        alt={lot.profiles.business_name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <MapPin className={`w-7 h-7 text-white ${lot.profiles.business_logo_url ? 'hidden' : ''}`} />
                   </div>
-                  <div>
-                    <div className="font-bold text-neutral-900">{lot.profiles.business_name}</div>
-                    <div className="text-sm text-neutral-600">{lot.profiles.business_address}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-neutral-900 text-lg mb-0.5 truncate">{lot.profiles.business_name}</div>
+                    <div className="text-sm text-neutral-600 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-neutral-400" />
+                      <span className="truncate">{lot.profiles.business_address}</span>
+                    </div>
                   </div>
                 </div>
               </div>

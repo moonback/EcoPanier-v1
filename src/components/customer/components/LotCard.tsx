@@ -7,6 +7,7 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: {
     business_name: string;
     business_address: string;
+    business_logo_url?: string | null;
   };
 };
 
@@ -108,12 +109,23 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
               {lot.description}
             </p>
 
-            {/* Commerçant */}
+            {/* Commerçant avec logo */}
             <div className="flex items-center gap-2 text-sm">
-              <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-4 h-4" />
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {lot.profiles.business_logo_url ? (
+                  <img
+                    src={lot.profiles.business_logo_url}
+                    alt={lot.profiles.business_name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <MapPin className={`w-4 h-4 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} />
               </div>
-              <span className="truncate">{lot.profiles.business_name}</span>
+              <span className="truncate font-semibold">{lot.profiles.business_name}</span>
             </div>
 
             {/* Prix détaillé */}
@@ -191,8 +203,22 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
             {lot.title}
           </h3>
           <div className="flex items-center gap-1.5 text-xs text-neutral-600">
-            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="truncate">{lot.profiles.business_name}</span>
+            {/* Logo du commerçant en petit */}
+            <div className="w-5 h-5 bg-neutral-100 rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+              {lot.profiles.business_logo_url ? (
+                <img
+                  src={lot.profiles.business_logo_url}
+                  alt={lot.profiles.business_name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <MapPin className={`w-3 h-3 text-neutral-500 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} />
+            </div>
+            <span className="truncate font-medium">{lot.profiles.business_name}</span>
           </div>
         </div>
 
