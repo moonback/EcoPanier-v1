@@ -1,6 +1,6 @@
 // Imports externes
 import { useState } from 'react';
-import { BarChart3, Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, Heart, ChevronLeft, ChevronRight, Home, Menu, X, MapPin, Package } from 'lucide-react';
+import { BarChart3, Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, ChevronLeft, ChevronRight, Home, Menu, X, MapPin, Package } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -12,12 +12,11 @@ import { SettingsHistory } from './SettingsHistory';
 import { AdvancedAnalytics } from './AdvancedAnalytics';
 import { ActivityLogs } from './ActivityLogs';
 import { ReportsGenerator } from './ReportsGenerator';
-import { SuspendedBaskets } from './SuspendedBaskets';
 import { GeocodeMerchants } from './GeocodeMerchants';
 import { LotModeration } from './LotModeration';
 
 // Type pour les onglets
-type TabId = 'stats' | 'users' | 'lots' | 'baskets' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile' | 'geocode';
+type TabId = 'stats' | 'users' | 'lots' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile' | 'geocode';
 
 /**
  * Dashboard principal pour les administrateurs
@@ -44,7 +43,6 @@ export const AdminDashboard = () => {
       items: [
         { id: 'users', label: 'Utilisateurs', icon: Users, color: 'secondary' },
         { id: 'lots', label: 'Modération Lots', icon: Package, color: 'warning' },
-        { id: 'baskets', label: 'Paniers Suspendus', icon: Heart, color: 'accent' },
         { id: 'geocode', label: 'Géocodage', icon: MapPin, color: 'primary' },
       ]
     },
@@ -260,7 +258,6 @@ export const AdminDashboard = () => {
             {activeTab === 'stats' && <AdminStats />}
             {activeTab === 'users' && <UserManagement />}
             {activeTab === 'lots' && <LotModeration />}
-            {activeTab === 'baskets' && <SuspendedBaskets />}
             {activeTab === 'analytics' && <AdvancedAnalytics />}
             {activeTab === 'reports' && <ReportsGenerator />}
             {activeTab === 'logs' && <ActivityLogs />}
