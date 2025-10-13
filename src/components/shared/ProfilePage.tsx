@@ -16,7 +16,6 @@ import {
   Edit2,
   Save,
   X,
-  Camera,
   Award,
   TrendingUp,
   Heart,
@@ -252,9 +251,7 @@ export const ProfilePage = () => {
             <div className="w-32 h-32 bg-black rounded-2xl flex items-center justify-center text-white text-5xl font-bold transition">
               {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
             </div>
-            <button className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-200">
-              <Camera size={20} strokeWidth={1.5} />
-            </button>
+            
           </div>
 
           {/* User Info */}
