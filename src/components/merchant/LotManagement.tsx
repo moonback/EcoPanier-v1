@@ -487,7 +487,7 @@ export const LotManagement = () => {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
       </div>
     );
   }
@@ -495,16 +495,16 @@ export const LotManagement = () => {
   return (
     <div>
       {/* Header avec boutons d'action */}
-      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Gestion des invendus</h2>
+      <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <h2 className="text-2xl font-bold text-black">Gestion des invendus</h2>
         <div className="flex gap-2">
           <button
             onClick={generateFictionalLots}
-            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm sm:text-base"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition font-medium"
             title="Créer 25 produits de test"
           >
-            <Package size={16} className="sm:w-5 sm:h-5" />
-            <span className="hidden sm:inline">Générer invendus</span>
+            <Package size={18} strokeWidth={1.5} />
+            <span className="hidden sm:inline">Générer test</span>
             <span className="sm:hidden">Test</span>
           </button>
           <button
@@ -513,16 +513,16 @@ export const LotManagement = () => {
               setEditingLot(null);
               setShowModal(true);
             }}
-            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm sm:text-base font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 transition font-medium"
           >
-            <Plus size={16} className="sm:w-5 sm:h-5" />
+            <Plus size={18} strokeWidth={1.5} />
             <span>Nouvel invendu</span>
           </button>
         </div>
       </div>
 
       {/* Grille de lots */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {lots.map((lot) => {
           const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
           const isOutOfStock = availableQty <= 0;
@@ -530,11 +530,11 @@ export const LotManagement = () => {
           return (
             <div 
               key={lot.id} 
-              className={`bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg ${
+              className={`bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition ${
                 isOutOfStock ? 'opacity-50 grayscale' : ''
               }`}
             >
-              <div className="relative h-40 sm:h-48 bg-gradient-to-br from-green-100 to-blue-100">
+              <div className="relative h-48 bg-gray-100">
                 {lot.image_urls.length > 0 ? (
                   <img
                     src={lot.image_urls[0]}
@@ -543,14 +543,14 @@ export const LotManagement = () => {
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    <Package size={48} className="sm:w-16 sm:h-16 text-gray-400" />
+                    <Package size={48} className="text-gray-300" strokeWidth={1} />
                   </div>
                 )}
-                <div className={`absolute top-2 right-2 px-2 sm:px-3 py-1 rounded-full text-white font-semibold text-xs sm:text-sm ${
-                  isOutOfStock ? 'bg-red-500' :
-                  lot.status === 'available' ? 'bg-green-500' :
-                  lot.status === 'sold_out' ? 'bg-red-500' :
-                  lot.status === 'expired' ? 'bg-gray-500' : 'bg-yellow-500'
+                <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-white font-medium text-xs ${
+                  isOutOfStock ? 'bg-black' :
+                  lot.status === 'available' ? 'bg-black' :
+                  lot.status === 'sold_out' ? 'bg-black' :
+                  lot.status === 'expired' ? 'bg-gray-500' : 'bg-black'
                 }`}>
                   {isOutOfStock ? 'Épuisé' :
                    lot.status === 'available' ? 'Disponible' :
@@ -559,42 +559,42 @@ export const LotManagement = () => {
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4">
+              <div className="p-4">
                 {isOutOfStock && (
-                  <div className="mb-2 sm:mb-3 p-2 bg-orange-100 border border-orange-300 rounded-lg">
-                    <p className="text-xs text-orange-800 font-medium">
-                      ⚠️ Ce produit sera automatiquement supprimé 24h après épuisement
+                  <div className="mb-3 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p className="text-xs text-gray-700 font-light">
+                      Suppression auto dans 24h
                     </p>
                   </div>
                 )}
-                <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-1 sm:mb-2 line-clamp-1">{lot.title}</h3>
-                <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 line-clamp-2">{lot.description}</p>
+                <h3 className="text-base font-bold text-black mb-2 line-clamp-1">{lot.title}</h3>
+                <p className="text-sm text-gray-600 font-light mb-3 line-clamp-2">{lot.description}</p>
 
-                <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+                <div className="space-y-2 text-sm text-gray-700 font-light mb-4">
                   <div className="flex justify-between">
                     <span>Total:</span>
-                    <span className="font-semibold">{lot.quantity_total}</span>
+                    <span className="font-medium">{lot.quantity_total}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Réservé:</span>
-                    <span className="font-semibold">{lot.quantity_reserved}</span>
+                    <span className="font-medium">{lot.quantity_reserved}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Vendu:</span>
-                    <span className="font-semibold">{lot.quantity_sold}</span>
+                    <span className="font-medium">{lot.quantity_sold}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Disponible:</span>
-                    <span className="font-semibold text-green-600">{availableQty}</span>
+                    <span className="font-semibold text-black">{availableQty}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-3 sm:mb-4 pt-3 sm:pt-4 border-t">
+                <div className="flex items-center justify-between mb-4 pt-4 border-t border-gray-200">
                   <div>
-                    <span className="text-lg sm:text-xl font-bold text-green-600">
+                    <span className="text-xl font-bold text-black">
                       {formatCurrency(lot.discounted_price)}
                     </span>
-                    <span className="text-xs sm:text-sm text-gray-500 line-through ml-1.5 sm:ml-2">
+                    <span className="text-sm text-gray-400 line-through ml-2">
                       {formatCurrency(lot.original_price)}
                     </span>
                   </div>
@@ -603,17 +603,17 @@ export const LotManagement = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEditModal(lot)}
-                    className="flex-1 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base font-medium"
+                    className="flex-1 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition flex items-center justify-center gap-2 font-medium"
                   >
-                    <Edit size={14} className="sm:w-4 sm:h-4" />
+                    <Edit size={16} strokeWidth={1.5} />
                     <span>Modifier</span>
                   </button>
                   <button
                     onClick={() => handleDelete(lot.id)}
-                    className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
+                    className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
                     aria-label="Supprimer le lot"
                   >
-                    <Trash2 size={14} className="sm:w-4 sm:h-4" />
+                    <Trash2 size={16} strokeWidth={1.5} />
                   </button>
                 </div>
               </div>
@@ -1235,21 +1235,21 @@ export const LotManagement = () => {
             </div>
 
             {/* Footer avec navigation */}
-            <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-0">
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-0">
               <div className="order-2 sm:order-1">
                 {currentStep > 1 && (
                   <button
                     type="button"
                     onClick={prevStep}
-                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 text-black bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
                   >
-                    <ChevronLeft size={16} className="sm:w-5 sm:h-5" />
+                    <ChevronLeft size={18} strokeWidth={1.5} />
                     <span>Précédent</span>
                   </button>
                 )}
               </div>
 
-              <div className="order-1 sm:order-2 flex gap-2 sm:gap-3">
+              <div className="order-1 sm:order-2 flex gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -1257,7 +1257,7 @@ export const LotManagement = () => {
                     setEditingLot(null);
                     resetForm();
                   }}
-                  className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
+                  className="flex-1 sm:flex-none px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
                 >
                   Annuler
                 </button>
@@ -1268,14 +1268,14 @@ export const LotManagement = () => {
                     onClick={nextStep}
                     disabled={!canProceedToNextStep()}
                     className={`
-                      flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg font-medium transition
+                      flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition
                       ${canProceedToNextStep()
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
+                        ? 'bg-black text-white hover:bg-gray-900'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'}
                     `}
                   >
                     <span>Suivant</span>
-                    <ChevronRight size={16} className="sm:w-5 sm:h-5" />
+                    <ChevronRight size={18} strokeWidth={1.5} />
                   </button>
                 ) : (
                 <button
@@ -1283,13 +1283,13 @@ export const LotManagement = () => {
                     onClick={handleSubmit}
                     disabled={!canProceedToNextStep()}
                     className={`
-                      flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg font-semibold transition
+                      flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-lg font-semibold transition
                       ${canProceedToNextStep()
-                        ? 'bg-gradient-to-r from-green-600 to-blue-600 text-white hover:from-green-700 hover:to-blue-700 shadow-lg'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
+                        ? 'bg-black text-white hover:bg-gray-900'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'}
                     `}
                   >
-                    <Check size={16} className="sm:w-5 sm:h-5" />
+                    <Check size={18} strokeWidth={1.5} />
                     <span className="truncate">{editingLot ? 'Mettre à jour' : 'Créer le lot'}</span>
                 </button>
                 )}

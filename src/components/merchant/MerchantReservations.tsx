@@ -122,20 +122,20 @@ export const MerchantReservations = () => {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
       </div>
     );
   }
 
   if (reservations.length === 0) {
     return (
-      <div className="text-center py-12 px-4">
-        <Package size={64} className="text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
-          Aucune réservation pour le moment
+      <div className="text-center py-16">
+        <Package size={64} className="text-gray-300 mx-auto mb-6" strokeWidth={1} />
+        <h3 className="text-xl font-bold text-black mb-2">
+          Aucune réservation
         </h3>
-        <p className="text-gray-600">
-          Les réservations de vos lots apparaîtront ici.
+        <p className="text-gray-600 font-light">
+          Les réservations de vos lots apparaîtront ici
         </p>
       </div>
     );
@@ -145,28 +145,28 @@ export const MerchantReservations = () => {
   return (
     <div className="space-y-6">
       {/* En-tête avec statistiques */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <h2 className="text-2xl font-bold text-black mb-6">
           Suivi des Réservations
         </h2>
         
         {/* Statistiques */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Total</p>
-            <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <p className="text-sm text-gray-600 font-light mb-1">Total</p>
+            <p className="text-2xl font-bold text-black">{stats.total}</p>
           </div>
-          <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
-            <p className="text-sm text-blue-600 mb-1">En attente</p>
-            <p className="text-2xl font-bold text-blue-700">{stats.pending}</p>
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <p className="text-sm text-gray-600 font-light mb-1">En attente</p>
+            <p className="text-2xl font-bold text-black">{stats.pending}</p>
           </div>
-          <div className="bg-green-50 rounded-lg p-4 border-2 border-green-200">
-            <p className="text-sm text-green-600 mb-1">Récupérés</p>
-            <p className="text-2xl font-bold text-green-700">{stats.completed}</p>
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <p className="text-sm text-gray-600 font-light mb-1">Récupérés</p>
+            <p className="text-2xl font-bold text-black">{stats.completed}</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-300">
-            <p className="text-sm text-gray-600 mb-1">Annulés</p>
-            <p className="text-2xl font-bold text-gray-700">{stats.cancelled}</p>
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <p className="text-sm text-gray-600 font-light mb-1">Annulés</p>
+            <p className="text-2xl font-bold text-black">{stats.cancelled}</p>
           </div>
         </div>
 
@@ -176,7 +176,7 @@ export const MerchantReservations = () => {
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg font-medium transition ${
               filter === 'all'
-                ? 'bg-primary-600 text-white'
+                ? 'bg-black text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -186,7 +186,7 @@ export const MerchantReservations = () => {
             onClick={() => setFilter('pending')}
             className={`px-4 py-2 rounded-lg font-medium transition ${
               filter === 'pending'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-black text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -196,7 +196,7 @@ export const MerchantReservations = () => {
             onClick={() => setFilter('completed')}
             className={`px-4 py-2 rounded-lg font-medium transition ${
               filter === 'completed'
-                ? 'bg-green-600 text-white'
+                ? 'bg-black text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -206,7 +206,7 @@ export const MerchantReservations = () => {
             onClick={() => setFilter('cancelled')}
             className={`px-4 py-2 rounded-lg font-medium transition ${
               filter === 'cancelled'
-                ? 'bg-gray-600 text-white'
+                ? 'bg-black text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -223,48 +223,48 @@ export const MerchantReservations = () => {
           return (
             <div
               key={reservation.id}
-              className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
+              className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition"
             >
-              <div className={`p-5 ${statusStyles.bg}`}>
+              <div className={`p-6 ${statusStyles.bg}`}>
                 {/* En-tête avec statut */}
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-bold text-gray-800 flex-1 pr-2">
+                  <h3 className="font-bold text-black flex-1 pr-2">
                     {reservation.lots.title}
                   </h3>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold border-2 ${statusStyles.badge} whitespace-nowrap`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles.badge}`}
                   >
                     {statusStyles.label}
                   </span>
                 </div>
 
                 {/* Informations client */}
-                <div className="space-y-2 text-sm text-gray-700 mb-4">
+                <div className="space-y-3 text-sm text-gray-700 font-light mb-4">
                   <div className="flex items-center gap-2">
-                    <User size={16} className="text-gray-500 flex-shrink-0" />
-                    <span className="font-medium">{reservation.profiles.full_name}</span>
+                    <User size={16} strokeWidth={1.5} />
+                    <span>{reservation.profiles.full_name}</span>
                   </div>
                   {reservation.profiles.phone && (
                     <div className="flex items-center gap-2">
-                      <MapPin size={16} className="text-gray-500 flex-shrink-0" />
+                      <MapPin size={16} strokeWidth={1.5} />
                       <span>{reservation.profiles.phone}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-gray-500 flex-shrink-0" />
+                    <Clock size={16} strokeWidth={1.5} />
                     <span>{formatDateTime(reservation.lots.pickup_start)}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <ShoppingCart size={16} className="text-gray-500 flex-shrink-0" />
+                    <ShoppingCart size={16} strokeWidth={1.5} />
                     <span>Quantité: {reservation.quantity}</span>
                   </div>
                 </div>
 
                 {/* Code PIN */}
-                <div className="mb-4 p-3 bg-white rounded-lg border-2 border-gray-200">
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 justify-center">
-                    <Key size={18} className="text-primary-600" />
-                    <span className="font-mono text-lg font-bold text-primary-700">
+                    <Key size={18} strokeWidth={1.5} />
+                    <span className="font-mono text-lg font-bold text-black">
                       PIN: {reservation.pickup_pin}
                     </span>
                   </div>
@@ -272,9 +272,9 @@ export const MerchantReservations = () => {
 
                 {/* Badge panier suspendu */}
                 {reservation.is_donation && (
-                  <div className="mb-4 p-2 bg-pink-100 rounded-lg border border-pink-200">
-                    <p className="text-xs text-pink-700 font-semibold text-center flex items-center justify-center gap-1">
-                      <AlertCircle size={14} />
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-xs text-black font-medium text-center flex items-center justify-center gap-1">
+                      <AlertCircle size={14} strokeWidth={1.5} />
                       Panier Suspendu (Don solidaire)
                     </p>
                   </div>
@@ -283,15 +283,15 @@ export const MerchantReservations = () => {
                 {/* Prix total */}
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total</span>
-                    <span className="text-lg font-bold text-gray-800">
+                    <span className="text-sm text-gray-600 font-light">Total</span>
+                    <span className="text-lg font-bold text-black">
                       {formatCurrency(reservation.total_price)}
                     </span>
                   </div>
                 </div>
 
                 {/* Date de réservation */}
-                <div className="mt-2 text-xs text-gray-500 text-center">
+                <div className="mt-2 text-xs text-gray-500 text-center font-light">
                   Réservé le {formatDateTime(reservation.created_at)}
                 </div>
               </div>
@@ -302,10 +302,10 @@ export const MerchantReservations = () => {
 
       {/* Message si aucun résultat après filtrage */}
       {filteredReservations.length === 0 && (
-        <div className="text-center py-12 px-4">
-          <Package size={48} className="text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">
-            Aucune réservation avec le filtre sélectionné.
+        <div className="text-center py-16">
+          <Package size={64} className="text-gray-300 mx-auto mb-6" strokeWidth={1} />
+          <p className="text-gray-600 font-light">
+            Aucune réservation avec le filtre sélectionné
           </p>
         </div>
       )}

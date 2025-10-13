@@ -68,39 +68,39 @@ export const ImpactDashboard = () => {
   return (
     <div>
       {/* Cartes d'impact */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {impactCards.map((card) => (
           <ImpactCard key={card.title} {...card} />
         ))}
       </div>
 
       {/* Section détaillée de l'impact */}
-      <div className="bg-white rounded-xl shadow-md p-5 sm:p-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">
+      <div className="bg-white rounded-2xl border border-gray-200 p-8">
+        <h2 className="text-2xl font-bold text-black mb-6">
           Votre Impact Environnemental
         </h2>
 
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-6">
           {/* Message de félicitations */}
-          <div className="p-4 sm:p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
-              Félicitations pour votre engagement!
+          <div className="p-6 bg-gray-50 rounded-xl">
+            <h3 className="text-lg font-bold text-black mb-2">
+              Félicitations pour votre engagement !
             </h3>
-            <p className="text-sm sm:text-base text-gray-600">
+            <p className="text-gray-700 font-light leading-relaxed">
               En sauvant {metrics.meals_saved.toFixed(0)} repas du gaspillage, vous
               avez contribué à réduire l'empreinte carbone de notre communauté. Chaque
-              geste compte!
+              geste compte !
             </p>
           </div>
 
           {/* Équivalences */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Équivalence environnementale */}
-            <div className="p-4 sm:p-6 border border-gray-200 rounded-lg">
-              <h4 className="text-sm sm:text-base font-semibold text-gray-800 mb-3">
+            <div className="p-6 border border-gray-200 rounded-xl">
+              <h4 className="text-base font-bold text-black mb-4">
                 Équivalence environnementale
               </h4>
-              <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
+              <ul className="space-y-3 text-sm text-gray-700 font-light">
                 <li className="flex items-start gap-2">
                   <span className="flex-shrink-0">🌳</span>
                   <span>
@@ -126,11 +126,11 @@ export const ImpactDashboard = () => {
             </div>
 
             {/* Impact social */}
-            <div className="p-4 sm:p-6 border border-gray-200 rounded-lg">
-              <h4 className="text-sm sm:text-base font-semibold text-gray-800 mb-3">
+            <div className="p-6 border border-gray-200 rounded-xl">
+              <h4 className="text-base font-bold text-black mb-4">
                 Impact social
               </h4>
-              <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
+              <ul className="space-y-3 text-sm text-gray-700 font-light">
                 <li className="flex items-start gap-2">
                   <span className="flex-shrink-0">❤️</span>
                   <span>{metrics.donations_made.toFixed(0)} personnes aidées</span>

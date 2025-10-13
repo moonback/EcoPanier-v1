@@ -190,63 +190,38 @@ export const HelpCenter = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+    <div className="min-h-screen bg-white">
       <Header />
 
       {/* Hero */}
-      <section className="py-16 text-center bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto px-4">
-          <HelpCircle size={64} className="mx-auto mb-6" />
-          <h1 className="text-4xl md:text-6xl font-black mb-6">
+      <section className="py-32 text-center bg-gray-50">
+        <div className="max-w-4xl mx-auto px-6">
+          <h1 className="text-5xl md:text-6xl font-bold text-black mb-6">
             Comment pouvons-nous vous aider ?
           </h1>
-          <p className="text-xl text-purple-100 mb-8">
+          <p className="text-xl text-gray-600 mb-8 font-light">
             Trouvez rapidement les réponses à vos questions
           </p>
           
           {/* Search bar */}
           <div className="max-w-2xl mx-auto">
             <div className="relative">
-              <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" strokeWidth={1.5} />
               <input
                 type="text"
-                placeholder="Rechercher une question..."
+                placeholder="Rechercher..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 rounded-full text-gray-900 text-lg focus:ring-4 focus:ring-purple-300 outline-none shadow-xl"
+                className="w-full pl-12 pr-4 py-4 rounded-lg text-black border-2 border-gray-300 focus:border-black focus:ring-2 focus:ring-gray-200 outline-none font-light"
               />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Quick stats */}
-      <section className="py-8 bg-white">
-        <div className="max-w-12xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
-              <div className="text-3xl font-black text-purple-600">500+</div>
-              <div className="text-sm text-gray-600">Questions répondues</div>
-            </div>
-            <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl">
-              <div className="text-3xl font-black text-pink-600">24h</div>
-              <div className="text-sm text-gray-600">Temps de réponse moyen</div>
-            </div>
-            <div className="text-center p-6 bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl">
-              <div className="text-3xl font-black text-purple-600">98%</div>
-              <div className="text-sm text-gray-600">Satisfaction client</div>
-            </div>
-            <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl">
-              <div className="text-3xl font-black text-blue-600">7j/7</div>
-              <div className="text-sm text-gray-600">Support disponible</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Categories */}
-      <section className="py-8">
-        <div className="max-w-12xl mx-auto px-4">
+      <section className="py-12 bg-white border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-wrap gap-3 justify-center">
             {categories.map((category) => {
               const Icon = category.icon;
@@ -254,13 +229,13 @@ export const HelpCenter = () => {
                 <button
                   key={category.id}
                   onClick={() => setActiveCategory(category.id)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all ${
+                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
                     activeCategory === category.id
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg scale-105'
-                      : 'bg-white text-gray-700 hover:shadow-md'
+                      ? 'bg-black text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  <Icon size={20} />
+                  <Icon size={18} strokeWidth={1.5} />
                   {category.name}
                 </button>
               );
@@ -270,22 +245,22 @@ export const HelpCenter = () => {
       </section>
 
       {/* FAQ */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-black text-gray-900 text-center mb-12">
+      <section className="py-32">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-4xl font-bold text-black text-center mb-16">
             Questions fréquentes
           </h2>
           
           {filteredFaqs.length === 0 ? (
-            <div className="text-center py-12">
-              <AlertCircle size={64} className="text-gray-400 mx-auto mb-4" />
-              <p className="text-xl text-gray-600">Aucune question trouvée</p>
+            <div className="text-center py-16">
+              <AlertCircle size={64} className="text-gray-300 mx-auto mb-6" strokeWidth={1} />
+              <p className="text-xl text-black font-semibold mb-2">Aucune question trouvée</p>
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setActiveCategory('all');
                 }}
-                className="mt-4 text-purple-600 font-semibold hover:underline"
+                className="mt-4 text-black font-medium hover:underline"
               >
                 Réinitialiser les filtres
               </button>
@@ -293,38 +268,32 @@ export const HelpCenter = () => {
           ) : (
             <div className="space-y-4">
               {filteredFaqs.map((faq, index) => {
-                const Icon = faq.icon;
                 const isExpanded = expandedFaq === index;
                 
                 return (
                   <div
                     key={index}
-                    className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden"
+                    className="border-b border-gray-200"
                   >
                     <button
                       onClick={() => setExpandedFaq(isExpanded ? null : index)}
-                      className="w-full p-6 flex items-center justify-between text-left hover:bg-gray-50 transition"
+                      className="w-full py-6 flex items-center justify-between text-left group"
                     >
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Icon size={24} className="text-purple-600" />
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-900">
-                          {faq.question}
-                        </h3>
-                      </div>
+                      <h3 className="text-lg font-semibold text-black pr-8 group-hover:text-gray-700 transition-colors">
+                        {faq.question}
+                      </h3>
                       {isExpanded ? (
-                        <ChevronUp size={24} className="text-gray-400 flex-shrink-0" />
+                        <ChevronUp size={20} className="text-black flex-shrink-0" strokeWidth={1.5} />
                       ) : (
-                        <ChevronDown size={24} className="text-gray-400 flex-shrink-0" />
+                        <ChevronDown size={20} className="text-black flex-shrink-0" strokeWidth={1.5} />
                       )}
                     </button>
                     
                     {isExpanded && (
-                      <div className="px-6 pb-6">
-                        <div className="pl-16 text-gray-700 leading-relaxed">
+                      <div className="pb-6">
+                        <p className="text-gray-700 leading-relaxed font-light">
                           {faq.answer}
-                        </div>
+                        </p>
                       </div>
                     )}
                   </div>
@@ -336,36 +305,36 @@ export const HelpCenter = () => {
       </section>
 
       {/* Contact methods */}
-      <section className="py-16 bg-gradient-to-r from-purple-50 to-pink-50">
-        <div className="max-w-12xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-black text-gray-900 mb-4">
-              Toujours besoin d'aide ?
+      <section className="py-32 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-black mb-4">
+              Besoin d'aide ?
             </h2>
-            <p className="text-xl text-gray-600">
-              Notre équipe est là pour vous accompagner
+            <p className="text-xl text-gray-600 font-light">
+              Notre équipe est là pour vous
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {contactMethods.map((method, index) => {
               const Icon = method.icon;
               return (
                 <button
                   key={index}
                   onClick={method.action}
-                  className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2 text-center"
+                  className="bg-white rounded-2xl p-8 text-center hover:shadow-lg transition-all border border-gray-200"
                 >
-                  <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Icon size={32} className="text-white" />
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Icon size={28} className="text-black" strokeWidth={1.5} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-black mb-2">
                     {method.title}
                   </h3>
-                  <p className="text-purple-600 font-semibold mb-2">
+                  <p className="text-black font-medium mb-2">
                     {method.value}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 font-light">
                     {method.description}
                   </p>
                 </button>
@@ -375,59 +344,20 @@ export const HelpCenter = () => {
         </div>
       </section>
 
-      {/* Guides section */}
-      <section className="py-16">
-        <div className="max-w-12xl mx-auto px-4">
-          <h2 className="text-3xl font-black text-gray-900 text-center mb-12">
-            Guides pratiques
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            <div
-              onClick={() => navigate('/how-it-works')}
-              className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-8 text-white cursor-pointer transform hover:scale-105 transition-transform shadow-xl"
-            >
-              <CheckCircle size={48} className="mb-4" />
-              <h3 className="text-2xl font-bold mb-3">Comment ça marche ?</h3>
-              <p className="text-blue-100 mb-4">
-                Guide complet étape par étape pour utiliser la plateforme
-              </p>
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                Voir le guide <ArrowLeft size={16} className="rotate-180" />
-              </div>
-            </div>
-            
-            <div
-              onClick={() => navigate('/pickup')}
-              className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl p-8 text-white cursor-pointer transform hover:scale-105 transition-transform shadow-xl"
-            >
-              <QrCode size={48} className="mb-4" />
-              <h3 className="text-2xl font-bold mb-3">Station de retrait</h3>
-              <p className="text-pink-100 mb-4">
-                Découvrez comment fonctionne le retrait avec QR code
-              </p>
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                Voir la station <ArrowLeft size={16} className="rotate-180" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
-      <section className="py-16 bg-gradient-to-r from-purple-600 to-pink-600">
-        <div className="max-w-4xl mx-auto px-4 text-center text-white">
-          <h2 className="text-4xl font-black mb-6">
+      <section className="py-32 bg-black text-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Vous n'avez pas trouvé votre réponse ?
           </h2>
-          <p className="text-xl text-purple-100 mb-8">
-            Contactez-nous directement, nous sommes là pour vous aider
+          <p className="text-xl text-white/70 mb-8 font-light">
+            Contactez-nous directement
           </p>
           <button
             onClick={() => window.location.href = 'mailto:support@EcoPanier.com'}
-            className="px-8 py-4 bg-white text-purple-600 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all inline-flex items-center gap-2"
+            className="px-8 py-4 bg-white text-black rounded-lg font-medium text-lg hover:bg-gray-100 transition-all inline-flex items-center gap-2"
           >
-            <Mail size={24} />
+            <Mail size={24} strokeWidth={1.5} />
             Nous contacter
           </button>
         </div>

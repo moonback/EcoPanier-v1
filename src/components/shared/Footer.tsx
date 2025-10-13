@@ -63,29 +63,28 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="bg-neutral-900 text-white">
+    <footer className="bg-black text-white">
       {/* Newsletter Section */}
-      <div className="bg-gradient-primary py-12">
-        <div className="max-w-12xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="bg-gray-900 py-16">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="text-center md:text-left">
-              <h3 className="text-2xl font-black mb-2 tracking-tight">
-                Restez informé de nos nouveautés
+              <h3 className="text-3xl font-bold mb-2">
+                Restez informé
               </h3>
-              <p className="text-primary-100 font-medium">
-                Recevez nos dernières offres et actualités solidaires
+              <p className="text-white/70 font-light">
+                Recevez nos dernières offres et actualités
               </p>
             </div>
             <div className="w-full md:w-auto">
-              <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+              <div className="flex gap-3 max-w-md">
                 <input
                   type="email"
-                  placeholder="Votre adresse email"
-                  className="flex-1 px-5 py-3 rounded-full text-neutral-900 placeholder-neutral-500 focus:ring-4 focus:ring-white/30 outline-none font-medium"
+                  placeholder="Votre email"
+                  className="flex-1 px-5 py-3 rounded-lg text-black placeholder-gray-500 focus:ring-2 focus:ring-white/30 outline-none font-light"
                 />
-                <button className="btn-secondary rounded-full whitespace-nowrap">
-                  <span>S'abonner</span>
-                  <ArrowRight size={20} />
+                <button className="px-6 py-3 bg-white text-black rounded-lg hover:bg-gray-100 transition-all font-medium whitespace-nowrap">
+                  S'abonner
                 </button>
               </div>
             </div>
@@ -94,45 +93,35 @@ export const Footer = () => {
       </div>
 
       {/* Main Footer Content */}
-      <div className="py-12">
-        <div className="max-w-12xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
+      <div className="py-16">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-12">
             {/* Brand Section */}
             <div className="lg:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                
-                <div>
-                  <img
-                    src="/logo.png"
-                    alt="Logo EcoPanier"
-                    className="w-120 h-12 rounded-xl object-cover shadow-soft-lg transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-glow-md"
-                  />
-                  
-                </div>
+              <div className="mb-4">
+                <img
+                  src="/logo.png"
+                  alt="Logo EcoPanier"
+                  className="h-10 rounded-lg object-cover"
+                />
               </div>
-              <p className="text-neutral-400 mb-6 leading-relaxed font-medium">
-                La plateforme qui connecte citoyens, commerçants et associations pour lutter contre le gaspillage alimentaire et la précarité.
+              <p className="text-white/60 mb-6 leading-relaxed font-light max-w-sm">
+                La plateforme qui connecte citoyens, commerçants et associations pour lutter contre le gaspillage alimentaire.
               </p>
               
               {/* Contact Info */}
               <div className="space-y-3">
-                <a href={`mailto:${settings.platformEmail}`} className="flex items-center gap-3 text-neutral-400 hover:text-white transition-all group hover-lift">
-                  <div className="w-8 h-8 bg-neutral-800 rounded-lg flex items-center justify-center group-hover:bg-primary-600 transition-all">
-                    <Mail size={16} />
-                  </div>
-                  <span className="text-sm font-medium">{settings.platformEmail}</span>
+                <a href={`mailto:${settings.platformEmail}`} className="flex items-center gap-3 text-white/60 hover:text-white transition-all font-light">
+                  <Mail size={16} strokeWidth={1.5} />
+                  <span className="text-sm">{settings.platformEmail}</span>
                 </a>
-                <a href={`tel:${settings.supportPhone.replace(/\s/g, '')}`} className="flex items-center gap-3 text-neutral-400 hover:text-white transition-all group hover-lift">
-                  <div className="w-8 h-8 bg-neutral-800 rounded-lg flex items-center justify-center group-hover:bg-primary-600 transition-all">
-                    <Phone size={16} />
-                  </div>
-                  <span className="text-sm font-medium">{settings.supportPhone}</span>
+                <a href={`tel:${settings.supportPhone.replace(/\s/g, '')}`} className="flex items-center gap-3 text-white/60 hover:text-white transition-all font-light">
+                  <Phone size={16} strokeWidth={1.5} />
+                  <span className="text-sm">{settings.supportPhone}</span>
                 </a>
-                <div className="flex items-center gap-3 text-neutral-400">
-                  <div className="w-8 h-8 bg-neutral-800 rounded-lg flex items-center justify-center">
-                    <MapPin size={16} />
-                  </div>
-                  <span className="text-sm font-medium">Paris, France</span>
+                <div className="flex items-center gap-3 text-white/60 font-light">
+                  <MapPin size={16} strokeWidth={1.5} />
+                  <span className="text-sm">Paris, France</span>
                 </div>
               </div>
             </div>
@@ -140,15 +129,14 @@ export const Footer = () => {
             {/* Footer Links */}
             {footerSections.map((section, index) => (
               <div key={index}>
-                <h4 className="text-white font-bold mb-4">{section.title}</h4>
+                <h4 className="text-white font-semibold mb-4 text-sm">{section.title}</h4>
                 <ul className="space-y-3">
                   {section.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
                       <button
                         onClick={() => navigate(link.path)}
-                        className="text-neutral-400 hover:text-white transition-all text-sm flex items-center gap-2 group font-medium"
+                        className="text-white/60 hover:text-white transition-all text-sm font-light"
                       >
-                        <span className="w-0 h-0.5 bg-primary-500 group-hover:w-4 transition-all" />
                         {link.name}
                       </button>
                     </li>
@@ -159,11 +147,10 @@ export const Footer = () => {
           </div>
 
           {/* Social Links & Bottom Bar */}
-          <div className="border-t border-neutral-800 pt-8">
+          <div className="border-t border-white/10 pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               {/* Social Media */}
               <div className="flex items-center gap-4">
-                <span className="text-neutral-400 text-sm font-semibold">Suivez-nous :</span>
                 {socialLinks.map((social) => {
                   const Icon = social.icon;
                   return (
@@ -172,10 +159,10 @@ export const Footer = () => {
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`w-10 h-10 bg-neutral-800 rounded-full flex items-center justify-center ${social.color} transition-all hover-lift`}
+                      className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
                       title={social.name}
                     >
-                      <Icon size={20} />
+                      <Icon size={20} strokeWidth={1.5} />
                     </a>
                   );
                 })}
@@ -183,45 +170,10 @@ export const Footer = () => {
 
               {/* Copyright */}
               <div className="text-center md:text-right">
-                <p className="text-neutral-400 text-sm font-medium">
+                <p className="text-white/60 text-sm font-light">
                   © 2025 {settings.platformName}. Tous droits réservés.
                 </p>
-                <p className="text-neutral-500 text-xs mt-1 font-medium">
-                  Fait avec <Heart size={12} className="inline text-accent-500" fill="currentColor" /> pour un monde meilleur
-                </p>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Trust Badges */}
-      <div className="bg-neutral-950 py-6">
-        <div className="max-w-12xl mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-center gap-8 text-neutral-600 text-xs font-semibold">
-            <div className="flex items-center gap-2 hover-lift">
-              <div className="w-6 h-6 bg-success-600 rounded-full flex items-center justify-center">
-                ✓
-              </div>
-              <span>Paiements sécurisés</span>
-            </div>
-            <div className="flex items-center gap-2 hover-lift">
-              <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
-                🔒
-              </div>
-              <span>Données protégées</span>
-            </div>
-            <div className="flex items-center gap-2 hover-lift">
-              <div className="w-6 h-6 bg-secondary-600 rounded-full flex items-center justify-center">
-                ♻️
-              </div>
-              <span>Impact environnemental</span>
-            </div>
-            <div className="flex items-center gap-2 hover-lift">
-              <div className="w-6 h-6 bg-accent-600 rounded-full flex items-center justify-center">
-                ❤️
-              </div>
-              <span>Solidarité garantie</span>
             </div>
           </div>
         </div>

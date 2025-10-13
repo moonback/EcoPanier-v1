@@ -191,31 +191,31 @@ export const ProfilePage = () => {
   const stats = getRoleStats();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-fade-in-up">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Success Message */}
       {success && (
-        <div className="p-4 bg-success-50 border-2 border-success-200 rounded-xl text-success-700 font-semibold animate-fade-in">
+        <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 font-light">
           {success}
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 bg-accent-50 border-2 border-accent-200 rounded-xl text-accent-700 font-semibold animate-fade-in">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 font-light">
           ⚠️ {error}
         </div>
       )}
 
       {/* Profile Header Card */}
-      <div className="card-gradient p-8">
+      <div className="bg-white rounded-2xl border border-gray-200 p-8">
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
           {/* Avatar */}
           <div className="relative group">
-            <div className="w-32 h-32 bg-gradient-primary rounded-2xl flex items-center justify-center text-white text-5xl font-black shadow-soft-xl group-hover:scale-105 transition-transform">
+            <div className="w-32 h-32 bg-black rounded-2xl flex items-center justify-center text-white text-5xl font-bold transition">
               {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
             </div>
-            <button className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-soft-lg hover-lift border-2 border-primary-100">
-              <Camera size={20} className="text-primary-600" />
+            <button className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-200">
+              <Camera size={20} strokeWidth={1.5} />
             </button>
           </div>
 
@@ -223,21 +223,21 @@ export const ProfilePage = () => {
           <div className="flex-1">
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
-                <h1 className="text-3xl font-black text-neutral-900 mb-2 tracking-tight">
+                <h1 className="text-3xl font-bold text-black mb-2">
                   {profile?.full_name || 'Utilisateur'}
                 </h1>
                 <div className="flex items-center gap-3 flex-wrap">
-                  <span className="badge-primary">
+                  <span className="px-3 py-1 bg-black text-white text-sm rounded-lg font-medium">
                     {getRoleLabel()}
                   </span>
                   {profile?.verified && (
-                    <span className="badge-success">
-                      <Shield size={14} />
+                    <span className="px-3 py-1 bg-gray-100 text-black text-sm rounded-lg font-medium flex items-center gap-1">
+                      <Shield size={14} strokeWidth={1.5} />
                       <span>Vérifié</span>
                     </span>
                   )}
-                  <span className="text-sm text-neutral-600 font-medium flex items-center gap-1">
-                    <Calendar size={14} />
+                  <span className="text-sm text-gray-600 font-light flex items-center gap-1">
+                    <Calendar size={14} strokeWidth={1.5} />
                     Membre depuis {new Date(profile?.created_at || '').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
                   </span>
                 </div>
@@ -246,9 +246,9 @@ export const ProfilePage = () => {
               {!isEditing && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="btn-outline rounded-xl"
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition flex items-center gap-2 font-medium"
                 >
-                  <Edit2 size={20} />
+                  <Edit2 size={20} strokeWidth={1.5} />
                   <span>Modifier</span>
                 </button>
               )}
@@ -261,28 +261,19 @@ export const ProfilePage = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
-          const colorMap: Record<string, { bg: string; text: string; border: string }> = {
-            primary: { bg: 'bg-primary-50', text: 'text-primary-600', border: 'border-primary-200' },
-            success: { bg: 'bg-success-50', text: 'text-success-600', border: 'border-success-200' },
-            accent: { bg: 'bg-accent-50', text: 'text-accent-600', border: 'border-accent-200' },
-            secondary: { bg: 'bg-secondary-50', text: 'text-secondary-600', border: 'border-secondary-200' },
-            warning: { bg: 'bg-warning-50', text: 'text-warning-600', border: 'border-warning-200' },
-          };
-          const colors = colorMap[stat.color];
           
           return (
             <div
               key={index}
-              className={`card p-6 hover-lift ${colors.border} border-2`}
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition"
             >
-              <div className={`w-12 h-12 ${colors.bg} rounded-large flex items-center justify-center mb-4`}>
-                <Icon size={24} className={colors.text} />
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                <Icon size={24} strokeWidth={1.5} />
               </div>
-              <div className="text-3xl font-black text-neutral-900 mb-1">
+              <div className="text-3xl font-bold text-black mb-1">
                 {stat.value}
               </div>
-              <div className="text-sm text-neutral-600 font-semibold">
+              <div className="text-sm text-gray-600 font-light">
                 {stat.label}
               </div>
             </div>
@@ -291,24 +282,24 @@ export const ProfilePage = () => {
       </div>
 
       {/* Profile Information */}
-      <div className="card p-8">
+      <div className="bg-white rounded-2xl border border-gray-200 p-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-neutral-900 tracking-tight">
+          <h2 className="text-2xl font-bold text-black">
             Informations personnelles
           </h2>
           {isEditing && (
             <div className="flex gap-2">
               <button
                 onClick={handleCancel}
-                className="btn-secondary rounded-xl"
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition flex items-center gap-2 font-medium"
                 disabled={loading}
               >
-                <X size={20} />
+                <X size={20} strokeWidth={1.5} />
                 <span>Annuler</span>
               </button>
               <button
                 onClick={handleSubmit}
-                className="btn-success rounded-xl"
+                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 transition flex items-center gap-2 font-medium"
                 disabled={loading}
               >
                 {loading ? (
@@ -318,7 +309,7 @@ export const ProfilePage = () => {
                   </>
                 ) : (
                   <>
-                    <Save size={20} />
+                    <Save size={20} strokeWidth={1.5} />
                     <span>Enregistrer</span>
                   </>
                 )}
@@ -331,16 +322,16 @@ export const ProfilePage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-black mb-2">
                 Nom complet *
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
                 <input
                   type="text"
                   value={formData.full_name}
                   onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="input-icon"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
                   placeholder="Jean Dupont"
                   required
                 />
@@ -349,35 +340,35 @@ export const ProfilePage = () => {
 
             {/* Email (read-only) */}
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-black mb-2">
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
                 <input
                   type="email"
                   value={user?.email || ''}
-                  className="input-icon bg-neutral-50"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50"
                   disabled
                 />
               </div>
-              <p className="text-xs text-neutral-500 mt-1 font-medium">
+              <p className="text-xs text-gray-500 mt-1 font-light">
                 L'email ne peut pas être modifié
               </p>
             </div>
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-black mb-2">
                 Téléphone
               </label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="input-icon"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
                   placeholder="06 12 34 56 78"
                 />
               </div>
@@ -385,16 +376,16 @@ export const ProfilePage = () => {
 
             {/* Address */}
             <div>
-              <label className="block text-sm font-semibold text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-black mb-2">
                 Adresse
               </label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
                 <input
                   type="text"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="input-icon"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
                   placeholder="12 rue de Paris, 75001 Paris"
                 />
               </div>
@@ -404,32 +395,32 @@ export const ProfilePage = () => {
             {profile?.role === 'merchant' && (
               <>
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-medium text-black mb-2">
                     Nom du commerce
                   </label>
                   <div className="relative">
-                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
+                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
                     <input
                       type="text"
                       value={formData.business_name}
                       onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                      className="input-icon"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
                       placeholder="Ma Boulangerie"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-medium text-black mb-2">
                     Adresse du commerce
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
                     <input
                       type="text"
                       value={formData.business_address}
                       onChange={(e) => setFormData({ ...formData, business_address: e.target.value })}
-                      className="input-icon"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
                       placeholder="15 avenue de la République"
                     />
                   </div>
@@ -442,42 +433,42 @@ export const ProfilePage = () => {
             {/* Display Mode */}
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <User size={20} className="text-primary-600" />
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <User size={20} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">
+                  <div className="text-xs font-medium text-gray-500 uppercase mb-1">
                     Nom complet
                   </div>
-                  <div className="text-base font-semibold text-neutral-900">
+                  <div className="text-base font-medium text-black">
                     {profile?.full_name || 'Non renseigné'}
                   </div>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Mail size={20} className="text-primary-600" />
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Mail size={20} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">
+                  <div className="text-xs font-medium text-gray-500 uppercase mb-1">
                     Email
                   </div>
-                  <div className="text-base font-semibold text-neutral-900">
+                  <div className="text-base font-medium text-black">
                     {user?.email || 'Non renseigné'}
                   </div>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Phone size={20} className="text-primary-600" />
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Phone size={20} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">
+                  <div className="text-xs font-medium text-gray-500 uppercase mb-1">
                     Téléphone
                   </div>
-                  <div className="text-base font-semibold text-neutral-900">
+                  <div className="text-base font-medium text-black">
                     {profile?.phone || 'Non renseigné'}
                   </div>
                 </div>
@@ -486,14 +477,14 @@ export const ProfilePage = () => {
 
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin size={20} className="text-primary-600" />
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <MapPin size={20} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">
+                  <div className="text-xs font-medium text-gray-500 uppercase mb-1">
                     Adresse
                   </div>
-                  <div className="text-base font-semibold text-neutral-900">
+                  <div className="text-base font-medium text-black">
                     {profile?.address || 'Non renseignée'}
                   </div>
                 </div>
@@ -502,28 +493,28 @@ export const ProfilePage = () => {
               {profile?.role === 'merchant' && (
                 <>
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Building size={20} className="text-primary-600" />
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Building size={20} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">
+                      <div className="text-xs font-medium text-gray-500 uppercase mb-1">
                         Nom du commerce
                       </div>
-                      <div className="text-base font-semibold text-neutral-900">
+                      <div className="text-base font-medium text-black">
                         {profile?.business_name || 'Non renseigné'}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <MapPin size={20} className="text-primary-600" />
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <MapPin size={20} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">
+                      <div className="text-xs font-medium text-gray-500 uppercase mb-1">
                         Adresse du commerce
                       </div>
-                      <div className="text-base font-semibold text-neutral-900">
+                      <div className="text-base font-medium text-black">
                         {profile?.business_address || 'Non renseignée'}
                       </div>
                     </div>
@@ -537,23 +528,23 @@ export const ProfilePage = () => {
 
       {/* Business Hours (Merchant only) */}
       {profile?.role === 'merchant' && (
-        <div className="card p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
-                <Clock size={20} className="text-primary-600" />
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Clock size={20} strokeWidth={1.5} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-neutral-900">Horaires d'ouverture</h2>
-                <p className="text-sm text-neutral-600">Informez vos clients de vos horaires</p>
+                <h2 className="text-xl font-bold text-black">Horaires d'ouverture</h2>
+                <p className="text-sm text-gray-600 font-light">Informez vos clients de vos horaires</p>
               </div>
             </div>
             {!isEditingHours && (
               <button
                 onClick={() => setIsEditingHours(true)}
-                className="btn-secondary rounded-lg flex items-center gap-2"
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition flex items-center gap-2 font-medium"
               >
-                <Edit2 size={18} />
+                <Edit2 size={18} strokeWidth={1.5} />
                 <span>{businessHours ? 'Modifier' : 'Définir'} les horaires</span>
               </button>
             )}
@@ -580,9 +571,9 @@ export const ProfilePage = () => {
                   sunday: 'Dim'
                 };
                 return (
-                  <div key={day} className="p-3 bg-neutral-50 rounded-lg text-center border border-neutral-200">
-                    <div className="text-xs font-bold text-neutral-700 mb-1">{dayNames[day]}</div>
-                    <div className={`text-xs ${hours.closed ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                  <div key={day} className="p-3 bg-gray-50 rounded-lg text-center border border-gray-200">
+                    <div className="text-xs font-bold text-black mb-1">{dayNames[day]}</div>
+                    <div className={`text-xs font-light ${hours.closed ? 'text-gray-400' : 'text-gray-600'}`}>
                       {hours.closed ? 'Fermé' : `${hours.open} - ${hours.close}`}
                     </div>
                   </div>
@@ -590,10 +581,10 @@ export const ProfilePage = () => {
               })}
             </div>
           ) : (
-            <div className="p-8 text-center bg-neutral-50 rounded-xl border-2 border-dashed border-neutral-300">
-              <Clock className="w-12 h-12 text-neutral-400 mx-auto mb-3" />
-              <p className="text-neutral-600 font-medium">Aucun horaire défini</p>
-              <p className="text-sm text-neutral-500 mt-1">Cliquez sur "Définir les horaires" pour ajouter vos horaires d'ouverture</p>
+            <div className="p-8 text-center bg-gray-50 rounded-lg border border-gray-200">
+              <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" strokeWidth={1} />
+              <p className="text-gray-700 font-medium">Aucun horaire défini</p>
+              <p className="text-sm text-gray-500 font-light mt-1">Cliquez sur "Définir les horaires" pour ajouter vos horaires d'ouverture</p>
             </div>
           )}
         </div>
@@ -601,7 +592,7 @@ export const ProfilePage = () => {
 
       {/* Business Logo (Merchant only) */}
       {profile?.role === 'merchant' && user && (
-        <div className="card p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <BusinessLogoUploader
             currentLogoUrl={profile?.business_logo_url}
             userId={user.id}
@@ -611,71 +602,71 @@ export const ProfilePage = () => {
       )}
 
       {/* Account Settings */}
-      <div className="card p-8">
-        <h2 className="text-2xl font-bold text-neutral-900 mb-6 tracking-tight">
+      <div className="bg-white rounded-2xl border border-gray-200 p-8">
+        <h2 className="text-2xl font-bold text-black mb-6">
           Paramètres du compte
         </h2>
         
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl border border-neutral-200">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div>
-              <div className="font-semibold text-neutral-900 mb-1">Notifications email</div>
-              <div className="text-sm text-neutral-600 font-medium">Recevoir les notifications par email</div>
+              <div className="font-medium text-black mb-1">Notifications email</div>
+              <div className="text-sm text-gray-600 font-light">Recevoir les notifications par email</div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" className="sr-only peer" defaultChecked />
-              <div className="w-11 h-6 bg-neutral-300 peer-focus:ring-4 peer-focus:ring-primary-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              <div className="w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-black rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl border border-neutral-200">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div>
-              <div className="font-semibold text-neutral-900 mb-1">Profil public</div>
-              <div className="text-sm text-neutral-600 font-medium">Rendre mon profil visible aux autres utilisateurs</div>
+              <div className="font-medium text-black mb-1">Profil public</div>
+              <div className="text-sm text-gray-600 font-light">Rendre mon profil visible aux autres utilisateurs</div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" className="sr-only peer" />
-              <div className="w-11 h-6 bg-neutral-300 peer-focus:ring-4 peer-focus:ring-primary-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              <div className="w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-black rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl border border-neutral-200">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div>
-              <div className="font-semibold text-neutral-900 mb-1">Newsletter</div>
-              <div className="text-sm text-neutral-600 font-medium">Recevoir les actualités et offres spéciales</div>
+              <div className="font-medium text-black mb-1">Newsletter</div>
+              <div className="text-sm text-gray-600 font-light">Recevoir les actualités et offres spéciales</div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" className="sr-only peer" defaultChecked />
-              <div className="w-11 h-6 bg-neutral-300 peer-focus:ring-4 peer-focus:ring-primary-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              <div className="w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-black rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
             </label>
           </div>
         </div>
       </div>
 
       {/* Danger Zone */}
-      <div className="card p-8 border-2 border-accent-200">
-        <h2 className="text-2xl font-bold text-accent-600 mb-6 tracking-tight flex items-center gap-2">
-          <Shield size={24} />
+      <div className="bg-white rounded-2xl border-2 border-red-200 p-8">
+        <h2 className="text-2xl font-bold text-red-600 mb-6 flex items-center gap-2">
+          <Shield size={24} strokeWidth={1.5} />
           Zone de danger
         </h2>
         
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-accent-50 rounded-xl border border-accent-200">
+          <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
             <div>
-              <div className="font-semibold text-neutral-900 mb-1">Changer le mot de passe</div>
-              <div className="text-sm text-neutral-600 font-medium">Modifier votre mot de passe de connexion</div>
+              <div className="font-medium text-black mb-1">Changer le mot de passe</div>
+              <div className="text-sm text-gray-600 font-light">Modifier votre mot de passe de connexion</div>
             </div>
-            <button className="btn-outline rounded-xl border-accent-500 text-accent-600 hover:bg-accent-500">
+            <button className="px-4 py-2 border border-red-500 text-red-600 rounded-lg hover:bg-red-500 hover:text-white transition font-medium">
               Modifier
             </button>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-accent-50 rounded-xl border border-accent-200">
+          <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
             <div>
-              <div className="font-semibold text-accent-600 mb-1">Supprimer le compte</div>
-              <div className="text-sm text-neutral-600 font-medium">Action irréversible - toutes vos données seront supprimées</div>
+              <div className="font-medium text-red-600 mb-1">Supprimer le compte</div>
+              <div className="text-sm text-gray-600 font-light">Action irréversible - toutes vos données seront supprimées</div>
             </div>
-            <button className="px-6 py-3 bg-accent-600 text-white rounded-xl font-semibold hover:bg-accent-700 transition-all">
+            <button className="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition">
               Supprimer
             </button>
           </div>
