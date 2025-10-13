@@ -1,0 +1,48 @@
+# Robots.txt pour EcoPanier
+# https://ecopanier.fr/robots.txt
+
+User-agent: *
+Allow: /
+
+# Pages importantes à indexer
+Allow: /
+Allow: /how-it-works
+Allow: /help
+Allow: /pickup
+
+# Bloquer les pages privées et API
+Disallow: /dashboard
+Disallow: /login
+Disallow: /api/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://ecopanier.fr/sitemap.xml
+
+# Crawl-delay pour éviter la surcharge
+Crawl-delay: 1
+
+# Directives spécifiques pour les moteurs de recherche
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+# Bloquer les bots malveillants
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

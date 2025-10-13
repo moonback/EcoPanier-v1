@@ -2,12 +2,99 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/fav.png" />
+    <link rel="icon" type="image/png" href="/fav.png" />
+    
+    <!-- Viewport et configuration mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>EcoPanier - Plateforme Solidaire Anti-gaspillage Alimentaire</title>
+    <meta name="theme-color" content="#22c55e" />
+    
+    <!-- SEO Meta Tags -->
+    <title>EcoPanier - Plateforme Solidaire Anti-gaspillage Alimentaire | Sauvez la Planète</title>
+    <meta name="description" content="EcoPanier connecte commerçants et consommateurs pour lutter contre le gaspillage alimentaire. Achetez des lots d'invendus à prix réduits, offrez des paniers suspendus et participez à la solidarité alimentaire." />
+    <meta name="keywords" content="anti-gaspillage, alimentaire, solidarité, panier suspendu, invendus, écologie, développement durable, commerce local, économie circulaire, France" />
+    <meta name="author" content="EcoPanier" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="fr" />
+    <meta name="revisit-after" content="7 days" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ecopanier.fr/" />
+    <meta property="og:title" content="EcoPanier - Plateforme Solidaire Anti-gaspillage Alimentaire" />
+    <meta property="og:description" content="Luttez contre le gaspillage alimentaire avec EcoPanier. Achetez des lots d'invendus, offrez des paniers suspendus et participez à la solidarité alimentaire." />
+    <meta property="og:image" content="https://ecopanier.fr/logo.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Logo EcoPanier - Plateforme anti-gaspillage alimentaire" />
+    <meta property="og:site_name" content="EcoPanier" />
+    <meta property="og:locale" content="fr_FR" />
+    
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://ecopanier.fr/" />
+    
+    <!-- Favicons et icônes -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/fav.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/fav.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/fav.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Preconnect pour optimiser les performances -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.supabase.co" />
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- Structured Data - JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "EcoPanier",
+      "description": "Plateforme solidaire anti-gaspillage alimentaire connectant commerçants, consommateurs et bénéficiaires pour lutter contre le gaspillage alimentaire",
+      "url": "https://ecopanier.fr",
+      "applicationCategory": "FoodApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "description": "Application gratuite pour lutter contre le gaspillage alimentaire"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "EcoPanier",
+        "url": "https://ecopanier.fr",
+        "logo": "https://ecopanier.fr/logo.png",
+        "description": "Plateforme solidaire anti-gaspillage alimentaire"
+      },
+      "keywords": "anti-gaspillage, alimentaire, solidarité, panier suspendu, écologie, développement durable",
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Consommateurs, commerçants, bénéficiaires, collecteurs"
+      }
+    }
+    </script>
+    
+    <!-- Géolocalisation et contexte local -->
+    <meta name="geo.region" content="FR" />
+    <meta name="geo.country" content="France" />
+    
+    <!-- Performance et Core Web Vitals -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    
+    <!-- Sécurité -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.supabase.co wss://api.supabase.co;" />
+    
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="public, max-age=31536000" />
   </head>
   <body>
     <div id="root"></div>

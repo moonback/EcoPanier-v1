@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../shared/Header';
 import { Footer } from '../shared/Footer';
+import { SEOHead } from '../shared/SEOHead';
 import { 
   ArrowLeft, 
   Search,
@@ -191,6 +192,12 @@ export const HelpCenter = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEOHead
+        title="Centre d'aide - EcoPanier | FAQ et Support Anti-gaspillage"
+        description="Trouvez toutes les réponses à vos questions sur EcoPanier : réservations, retraits, paniers suspendus, comptes et plus encore."
+        keywords="aide, support, FAQ, questions, EcoPanier, réservation, retrait, panier suspendu"
+        url="https://ecopanier.fr/help"
+      />
       <Header />
 
       {/* Hero */}

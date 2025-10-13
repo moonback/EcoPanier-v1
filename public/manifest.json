@@ -1,0 +1,72 @@
+{
+  "name": "EcoPanier - Plateforme Solidaire Anti-gaspillage Alimentaire",
+  "short_name": "EcoPanier",
+  "description": "Luttez contre le gaspillage alimentaire avec EcoPanier. Connectez commerçants, consommateurs et bénéficiaires pour créer un écosystème solidaire.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#22c55e",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "fr",
+  "dir": "ltr",
+  "categories": ["food", "lifestyle", "social", "utilities"],
+  "icons": [
+    {
+      "src": "/fav.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/fav.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/slide-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Page d'accueil EcoPanier"
+    },
+    {
+      "src": "/slide-2.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Interface mobile EcoPanier"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Rechercher des lots",
+      "short_name": "Recherche",
+      "description": "Trouvez des lots d'invendus près de chez vous",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/fav.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Station de retrait",
+      "short_name": "Retrait",
+      "description": "Accédez à la station de retrait QR",
+      "url": "/pickup",
+      "icons": [
+        {
+          "src": "/fav.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

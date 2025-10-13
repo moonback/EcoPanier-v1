@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, Heart } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, } from 'lucide-react';
 
 interface AuthFormProps {
   onSuccess?: () => void;
@@ -41,6 +41,8 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           address: address || null,
           business_name: role === 'merchant' ? businessName : null,
           business_address: role === 'merchant' ? businessAddress : null,
+          business_logo_url: null,
+          business_hours: null,
           latitude: null,
           longitude: null,
           beneficiary_id: null,
@@ -49,8 +51,9 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
         setSuccess('Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte avant de vous connecter.');
         setLoading(false);
       }
-    } catch (err: any) {
-      setError(err.message || 'Une erreur est survenue');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Une erreur est survenue';
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -69,16 +72,16 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
       </video>
       
       {/* Conteneur du formulaire */}
-      <div className="max-w-md w-full bg-white rounded-2xl p-8 relative z-10">
+      <div className="max-w-md w-full bg-white p-8 relative z-10 rounded-lg">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart size={32} className="text-white" strokeWidth={1.5} />
-          </div>
-          <h1 className="text-3xl font-bold text-black mb-2">
-            ÉcoPanier
-          </h1>
-          <p className="text-sm text-gray-600 font-light">
+          <img
+            src="/logo.png"
+            alt="Logo EcoPanier"
+            className="w-32 mx-auto mb-4 rounded-lg shadow-lg bg-white object-contain"
+            draggable={false}
+          />
+          <p className="text-sm text-gray-600 font-light text-center">
             {mode === 'signin' ? 'Connectez-vous à votre compte' : 'Créez votre compte'}
           </p>
         </div>

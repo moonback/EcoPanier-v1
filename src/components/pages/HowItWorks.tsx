@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../shared/Header';
 import { Footer } from '../shared/Footer';
+import { SEOHead } from '../shared/SEOHead';
 import { 
   Search, 
   ShoppingCart, 
@@ -212,6 +213,12 @@ export const HowItWorks = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEOHead
+        title="Comment ça marche - EcoPanier | Guide Anti-gaspillage Alimentaire"
+        description="Découvrez comment EcoPanier fonctionne : trouvez des lots d'invendus, réservez en ligne, retirez avec un QR code et participez à la solidarité alimentaire."
+        keywords="comment ça marche, anti-gaspillage, guide, réservation, QR code, retrait, solidarité alimentaire"
+        url="https://ecopanier.fr/how-it-works"
+      />
       <Header />
 
       {/* Hero */}
