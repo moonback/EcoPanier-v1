@@ -15,7 +15,6 @@ export const HeroSection = () => {
           loop 
           muted 
           playsInline
-          loading="lazy"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src="/ÉcoPanier.mp4" type="video/mp4" />
@@ -44,7 +43,7 @@ export const HeroSection = () => {
             <div className="glass inline-flex items-center gap-2 px-5 py-2.5 rounded-full shadow-soft-lg hover-lift backdrop-blur-md bg-white/20">
               <Sparkles size={20} className="text-warning-300" />
               <span className="text-sm font-bold text-white">
-                La solidarité alimentaire réinventée
+                Ensemble contre le gaspillage et la précarité
               </span>
             </div>
           </motion.div>
@@ -55,10 +54,10 @@ export const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Sauvez des repas,
+            Combattez le gaspillage,
             <br />
             <span className="bg-gradient-to-r from-primary-300 via-secondary-300 to-pink-300 bg-clip-text text-transparent">
-              Nourrissez l'espoir
+              Soutenez les plus fragiles
             </span>
           </motion.h1>
           
@@ -68,7 +67,11 @@ export const HeroSection = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.6 }}
           >
-            Sauvez un repas, soutenez un voisin et faites du bien à la planète 🌍
+            Chaque repas sauvé nourrit une personne dans le besoin et préserve notre planète.
+            <br />
+            <span className="text-lg md:text-xl text-white/90">
+              Ensemble, luttons contre le gaspillage alimentaire et la précarité 💚
+            </span>
           </motion.p>
 
           <motion.div 

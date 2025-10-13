@@ -56,8 +56,8 @@ export const HelpCenter = () => {
     },
     {
       category: 'customer',
-      question: 'Qu\'est-ce qu\'un panier suspendu ?',
-      answer: 'Inspiré du "caffè sospeso" italien, le panier suspendu vous permet d\'offrir un repas à une personne dans le besoin. Cochez simplement l\'option lors de votre réservation. Votre don sera distribué via nos associations partenaires.',
+      question: 'Quelle est la réduction maximale disponible ?',
+      answer: 'Les lots peuvent être proposés jusqu\'à -70% de réduction par rapport au prix initial. Les commerçants fixent librement leurs prix réduits pour valoriser leurs invendus tout en offrant des économies attractives.',
       icon: Heart,
     },
     {
@@ -97,6 +97,12 @@ export const HelpCenter = () => {
       icon: Settings,
     },
     {
+      category: 'merchant',
+      question: 'Comment créer des lots gratuits pour bénéficiaires ?',
+      answer: 'Lors de la création d\'un lot, sélectionnez l\'option "Lot gratuit pour bénéficiaires". Ces lots seront exclusivement accessibles aux personnes en situation de précarité, participant ainsi à la solidarité locale.',
+      icon: Heart,
+    },
+    {
       category: 'beneficiary',
       question: 'Comment devenir bénéficiaire ?',
       answer: 'Rapprochez-vous d\'une association partenaire qui évaluera votre situation et vous délivrera un identifiant bénéficiaire unique. Cet identifiant vous permettra d\'accéder aux lots gratuits.',
@@ -105,7 +111,7 @@ export const HelpCenter = () => {
     {
       category: 'beneficiary',
       question: 'Combien de réservations puis-je faire ?',
-      answer: 'Les bénéficiaires peuvent effectuer jusqu\'à 2 réservations gratuites par jour. Cette limite permet de garantir un accès équitable aux paniers suspendus pour tous.',
+      answer: 'Les bénéficiaires peuvent réserver jusqu\'à 2 lots gratuits par jour maximum. Cette limite permet de garantir un accès équitable aux lots gratuits créés par les commerçants pour tous.',
       icon: Package,
     },
     {

@@ -64,7 +64,7 @@ export const HowItWorks = () => {
       icon: CreditCard,
       details: [
         'Choisissez la quantité souhaitée',
-        'Option : Offrez un panier suspendu (solidaire)',
+        'Profitez de réductions jusqu\'à -70%',
         'Payez en ligne de manière sécurisée',
         'Recevez votre QR code de retrait',
       ],
@@ -105,7 +105,8 @@ export const HowItWorks = () => {
       details: [
         'Décrivez vos produits',
         'Ajoutez des photos',
-        'Définissez le prix réduit',
+        'Définissez le prix réduit (jusqu\'à -70%)',
+        'Option : Créez des lots gratuits pour bénéficiaires',
         'Indiquez la plage horaire de retrait',
         'Publiez votre lot',
       ],
@@ -153,23 +154,23 @@ export const HowItWorks = () => {
     {
       number: 2,
       title: 'Accédez aux lots gratuits',
-      description: 'Consultez les paniers suspendus disponibles',
+      description: 'Consultez les lots gratuits créés par les commerçants',
       icon: Gift,
       details: [
         'Connectez-vous à votre espace',
-        'Parcourez les lots gratuits offerts',
-        'Limite : 2 réservations par jour',
+        'Parcourez les lots gratuits exclusifs',
+        'Limite : 2 lots gratuits par jour maximum',
         'Choisissez selon vos besoins',
       ],
     },
     {
       number: 3,
-      title: 'Réservez votre panier',
+      title: 'Réservez votre lot gratuit',
       description: 'Sécurisez votre lot gratuitement',
       icon: Heart,
       details: [
-        'Sélectionnez votre panier',
-        'Réservez sans paiement',
+        'Sélectionnez votre lot gratuit',
+        'Réservez sans paiement (100% gratuit)',
         'Recevez votre QR code',
         'Notez votre code PIN',
       ],
@@ -177,7 +178,7 @@ export const HowItWorks = () => {
     {
       number: 4,
       title: 'Retirez en toute dignité',
-      description: 'Récupérez votre panier comme tous les clients',
+      description: 'Récupérez votre lot comme tous les clients',
       icon: Package,
       details: [
         'Rendez-vous au point de retrait',

@@ -62,35 +62,35 @@ export interface FAQItem {
 }
 
 export const stats: Stat[] = [
-  { value: '10k+', label: 'Repas sauvés', icon: Package, color: 'blue' },
-  { value: '5k+', label: 'Personnes aidées', icon: Users, color: 'pink' },
-  { value: '15T', label: 'CO₂ économisé', icon: Leaf, color: 'green' },
-  { value: '50k€', label: 'Dons solidaires', icon: Heart, color: 'red' },
+  { value: '-70%', label: 'Réduction max clients', icon: DollarSign, color: 'blue' },
+  { value: '2/jour', label: 'Lots gratuits bénéficiaires', icon: Heart, color: 'red' },
+  { value: '10k+', label: 'Repas sauvés', icon: Package, color: 'green' },
+  { value: '15T', label: 'CO₂ économisé', icon: Leaf, color: 'pink' },
 ];
 
 export const features: Feature[] = [
   {
     icon: ShoppingBag,
-    title: 'Combattez le gaspillage',
-    description: 'Achetez des invendus à prix réduits et donnez une seconde chance aux aliments.',
+    title: 'Économisez jusqu\'à -70%',
+    description: 'Achetez des invendus à prix réduits et donnez une seconde chance aux aliments de qualité.',
     color: 'blue',
   },
   {
     icon: HandHeart,
-    title: 'Paniers Suspendus',
-    description: 'Offrez des repas aux personnes en situation de précarité en toute dignité.',
+    title: 'Lots gratuits pour bénéficiaires',
+    description: 'Les commerçants offrent des lots gratuits exclusifs aux personnes en précarité (2 lots/jour max).',
     color: 'pink',
   },
   {
     icon: Leaf,
     title: 'Impact environnemental',
-    description: 'Réduisez votre empreinte carbone tout en économisant sur vos courses.',
+    description: 'Réduisez votre empreinte carbone : chaque repas sauvé évite 0.9kg de CO₂.',
     color: 'green',
   },
   {
     icon: Users,
     title: 'Solidarité locale',
-    description: 'Soutenez les commerçants de votre quartier et créez du lien social.',
+    description: 'Soutenez les commerçants engagés et aidez les personnes dans le besoin de votre quartier.',
     color: 'purple',
   },
 ];
@@ -117,7 +117,7 @@ export const howItWorks: HowItWorksStep[] = [
   {
     step: 4,
     title: 'Partagez la solidarité',
-    description: 'Offrez un panier suspendu à quelqu\'un dans le besoin',
+    description: 'Les commerçants créent des lots gratuits pour les bénéficiaires',
     icon: Heart,
   },
 ];
@@ -138,7 +138,7 @@ export const testimonials: Testimonial[] = [
   {
     name: 'Association Entraide',
     role: 'Bénéficiaire',
-    text: 'Les paniers suspendus permettent à nos bénéficiaires d\'accéder à des produits de qualité dans la dignité.',
+    text: 'Les lots gratuits permettent à nos bénéficiaires d\'accéder à 2 lots par jour de produits frais dans la dignité.',
     avatar: '🤝',
   },
 ];
@@ -150,10 +150,10 @@ export const userProfiles: UserProfile[] = [
     subtitle: 'Consommateurs responsables',
     description: 'Vous souhaitez réduire votre budget courses tout en agissant pour la planète',
     benefits: [
-      'Économisez jusqu\'à 50% sur vos courses',
+      'Économisez jusqu\'à 70% sur vos courses',
       'Produits frais et de qualité garantis',
       'Participez à la lutte anti-gaspillage',
-      'Offrez des paniers suspendus facilement',
+      'Récupération facile avec QR code',
       'Suivez votre impact environnemental'
     ],
     color: 'primary',
@@ -166,7 +166,7 @@ export const userProfiles: UserProfile[] = [
     description: 'Valorisez vos invendus au lieu de les jeter, tout en augmentant vos revenus',
     benefits: [
       'Réduisez vos pertes financières',
-      'Attirez une nouvelle clientèle',
+      'Créez des lots gratuits pour bénéficiaires',
       'Améliorez votre image de marque',
       'Gestion simple et rapide des lots',
       'Statistiques de vente détaillées'
@@ -180,9 +180,9 @@ export const userProfiles: UserProfile[] = [
     subtitle: 'Personnes en situation de précarité',
     description: 'Accédez à des produits frais gratuitement dans le respect et la dignité',
     benefits: [
-      'Accès gratuit aux lots disponibles',
-      'Paniers suspendus offerts par la communauté',
-      'Jusqu\'à 2 réservations par jour',
+      '2 lots gratuits par jour maximum',
+      'Lots gratuits exclusifs des commerçants',
+      'Produits frais et de qualité 100% gratuits',
       'Retrait simple avec QR code',
       'Accompagnement par les associations'
     ],
@@ -217,15 +217,15 @@ export const whyReasons: WhyReason[] = [
   {
     icon: Heart,
     title: 'Solidarité Sociale',
-    description: 'En France, 1 personne sur 10 a recours à l\'aide alimentaire. Les paniers suspendus offrent une aide digne et respectueuse.',
+    description: 'En France, 1 personne sur 10 a recours à l\'aide alimentaire. Les lots gratuits (2/jour max) offrent une aide digne et respectueuse.',
     stats: '5,000+ personnes aidées',
     color: 'accent'
   },
   {
     icon: DollarSign,
     title: 'Économies Réelles',
-    description: 'Les invendus sont proposés à -50% minimum. Un foyer moyen économise 50€/mois en utilisant notre plateforme.',
-    stats: '52,800€ économisés',
+    description: 'Les invendus sont proposés jusqu\'à -70%. Un foyer moyen économise jusqu\'à 100€/mois en utilisant notre plateforme.',
+    stats: '100,000€+ économisés',
     color: 'warning'
   },
   {
@@ -255,8 +255,8 @@ export const faqItems: FAQItem[] = [
     answer: 'Oui ! Vous pouvez filtrer les lots par commerçant, localisation, catégorie de produits et prix pour trouver exactement ce que vous cherchez.'
   },
   {
-    question: 'Les paniers suspendus, comment ça marche ?',
-    answer: 'Lors de votre achat, cochez simplement "Offrir un panier suspendu". Votre don est mis à disposition des associations partenaires qui le redistribuent dignement.'
+    question: 'Comment fonctionnent les lots gratuits pour bénéficiaires ?',
+    answer: 'Les commerçants créent des lots gratuits exclusifs pour les personnes en précarité. Les bénéficiaires peuvent réserver jusqu\'à 2 lots gratuits par jour et les récupérer avec leur QR code en toute dignité.'
   },
   {
     question: 'Comment devenir commerçant partenaire ?',

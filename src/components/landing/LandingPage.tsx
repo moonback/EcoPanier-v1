@@ -25,7 +25,7 @@ export const LandingPage = () => {
       {/* Hero Section avec animations */}
       <HeroSection />
       
-      {/* Section Mission Sociale - Paniers Suspendus */}
+      {/* Section Mission Sociale - Pour Tous */}
       <SuspendedBasketsSection />
       
       {/* Section Pour qui ? */}
