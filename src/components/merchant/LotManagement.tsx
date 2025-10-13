@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
-import { formatCurrency, categories, uploadImage } from '../../utils/helpers';
+import { formatCurrency, categories, uploadImage, deleteImages } from '../../utils/helpers';
 import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
 import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
@@ -88,6 +88,11 @@ export const LotManagement = () => {
         // Si cela fait plus de 24 heures qu'il a été mis à jour et qu'il n'a plus de stock
         if (updatedAt < oneDayAgo) {
           try {
+            // Supprimer les images avant de supprimer le lot
+            if (lot.image_urls && lot.image_urls.length > 0) {
+              await deleteImages(lot.image_urls);
+            }
+
             await supabase.from('lots').delete().eq('id', lot.id);
             console.log(`Lot ${lot.id} supprimé automatiquement (épuisé depuis > 24h)`);
           } catch (error) {
@@ -255,9 +260,25 @@ export const LotManagement = () => {
     if (!confirm('Voulez-vous vraiment supprimer ce lot ?')) return;
 
     try {
+      // 1. Récupérer le lot pour obtenir les URLs des images
+      const { data: lot, error: fetchError } = await supabase
+        .from('lots')
+        .select('image_urls')
+        .eq('id', id)
+        .single() as { data: { image_urls: string[] } | null; error: unknown };
+
+      if (fetchError) throw fetchError;
+
+      // 2. Supprimer les images du bucket Storage
+      if (lot?.image_urls && lot.image_urls.length > 0) {
+        await deleteImages(lot.image_urls);
+      }
+
+      // 3. Supprimer le lot de la base de données
       const { error } = await supabase.from('lots').delete().eq('id', id);
 
       if (error) throw error;
+      
       fetchLots();
     } catch (error) {
       console.error('Error deleting lot:', error);

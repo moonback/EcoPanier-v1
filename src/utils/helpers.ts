@@ -46,14 +46,94 @@ export const calculateDistance = (
   return R * c;
 };
 
+/**
+ * Upload une image vers Supabase Storage (bucket lot-images)
+ * @param file - Fichier image à uploader
+ * @returns URL publique de l'image uploadée
+ * @throws Error si l'upload échoue
+ */
 export const uploadImage = async (file: File): Promise<string> => {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  });
+  // Import dynamique pour éviter les imports circulaires
+  const { supabase } = await import('../lib/supabase');
+
+  try {
+    // Générer un nom de fichier unique avec timestamp et caractères aléatoires
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    // Upload vers Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('lot-images')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false, // Ne pas écraser si le fichier existe déjà
+      });
+
+    if (error) {
+      console.error('Erreur lors de l\'upload de l\'image:', error);
+      throw new Error(`Impossible d'uploader l'image: ${error.message}`);
+    }
+
+    // Récupérer l'URL publique de l'image
+    const { data: publicUrlData } = supabase.storage
+      .from('lot-images')
+      .getPublicUrl(data.path);
+
+    return publicUrlData.publicUrl;
+  } catch (error) {
+    console.error('Erreur lors de l\'upload de l\'image:', error);
+    
+    // En cas d'erreur, retourner une data URL comme fallback (mode dégradé)
+    // Cela permet de continuer à fonctionner même si Supabase Storage n'est pas configuré
+    console.warn('⚠️ Fallback: Utilisation de data URL au lieu de Supabase Storage');
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+};
+
+/**
+ * Supprime une ou plusieurs images de Supabase Storage
+ * @param imageUrls - URL(s) des images à supprimer
+ * @returns Promise<void>
+ */
+export const deleteImages = async (imageUrls: string[]): Promise<void> => {
+  const { supabase } = await import('../lib/supabase');
+
+  try {
+    // Extraire les chemins des fichiers depuis les URLs
+    const filePaths = imageUrls
+      .filter(url => url.includes('/lot-images/')) // Uniquement les images Supabase
+      .map(url => {
+        // Extraire le nom du fichier depuis l'URL
+        // Format: https://xxx.supabase.co/storage/v1/object/public/lot-images/filename.jpg
+        const parts = url.split('/lot-images/');
+        return parts.length > 1 ? parts[1] : null;
+      })
+      .filter((path): path is string => path !== null);
+
+    if (filePaths.length === 0) {
+      return; // Aucune image Supabase à supprimer
+    }
+
+    // Supprimer les fichiers du bucket
+    const { error } = await supabase.storage
+      .from('lot-images')
+      .remove(filePaths);
+
+    if (error) {
+      console.error('Erreur lors de la suppression des images:', error);
+      // Ne pas throw l'erreur pour ne pas bloquer la suppression du lot
+    }
+  } catch (error) {
+    console.error('Erreur lors de la suppression des images:', error);
+    // Mode dégradé : continuer sans supprimer les images
+  }
 };
 
 export const categories = [
