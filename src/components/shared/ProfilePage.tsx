@@ -3,6 +3,8 @@ import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
 import { BusinessHoursEditor } from './BusinessHoursEditor';
 import { BusinessLogoUploader } from '../merchant/BusinessLogoUploader';
+import { useProfileStats } from '../../hooks/useProfileStats';
+import type { LucideIcon } from 'lucide-react';
 import { 
   User, 
   Mail, 
@@ -23,15 +25,32 @@ import {
   Clock
 } from 'lucide-react';
 
+interface DayHours {
+  open: string;
+  close: string;
+  closed: boolean;
+}
+
+interface BusinessHours {
+  monday: DayHours;
+  tuesday: DayHours;
+  wednesday: DayHours;
+  thursday: DayHours;
+  friday: DayHours;
+  saturday: DayHours;
+  sunday: DayHours;
+}
+
 interface ProfileStats {
   label: string;
   value: string | number;
-  icon: any;
+  icon: LucideIcon;
   color: string;
 }
 
 export const ProfilePage = () => {
   const { profile, user, fetchProfile } = useAuthStore();
+  const { stats, loading: statsLoading } = useProfileStats(user?.id, profile?.role);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingHours, setIsEditingHours] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -48,45 +67,51 @@ export const ProfilePage = () => {
   });
 
   // Business hours state
-  const [businessHours, setBusinessHours] = useState(profile?.business_hours || null);
+  const [businessHours, setBusinessHours] = useState<BusinessHours | null>(
+    profile?.business_hours as BusinessHours | null || null
+  );
 
   // Role-specific stats
   const getRoleStats = (): ProfileStats[] => {
+    if (statsLoading) {
+      return [];
+    }
+
     switch (profile?.role) {
       case 'customer':
         return [
-          { label: 'Réservations', value: '24', icon: Package, color: 'primary' },
-          { label: 'Économisé', value: '156€', icon: TrendingUp, color: 'success' },
-          { label: 'Paniers offerts', value: '8', icon: Heart, color: 'accent' },
-          { label: 'Impact CO₂', value: '45kg', icon: Award, color: 'secondary' },
+          { label: 'Réservations', value: stats.totalReservations || 0, icon: Package, color: 'primary' },
+          { label: 'Économisé', value: `${stats.moneySaved?.toFixed(2) || 0}€`, icon: TrendingUp, color: 'success' },
+          { label: 'Paniers offerts', value: stats.donationsMade || 0, icon: Heart, color: 'accent' },
+          { label: 'Impact CO₂', value: `${stats.co2Impact?.toFixed(1) || 0}kg`, icon: Award, color: 'secondary' },
         ];
       case 'merchant':
         return [
-          { label: 'Lots vendus', value: '142', icon: Package, color: 'primary' },
-          { label: 'Revenus', value: '2,340€', icon: TrendingUp, color: 'success' },
-          { label: 'Note moyenne', value: '4.8', icon: Star, color: 'warning' },
-          { label: 'Gaspillage évité', value: '89kg', icon: Award, color: 'secondary' },
+          { label: 'Lots vendus', value: stats.lotsSold || 0, icon: Package, color: 'primary' },
+          { label: 'Revenus', value: `${stats.revenue?.toFixed(2) || 0}€`, icon: TrendingUp, color: 'success' },
+          { label: 'Note moyenne', value: stats.averageRating || '-', icon: Star, color: 'warning' },
+          { label: 'Gaspillage évité', value: `${stats.wasteAvoided?.toFixed(1) || 0}kg`, icon: Award, color: 'secondary' },
         ];
       case 'beneficiary':
         return [
-          { label: 'Paniers reçus', value: '18', icon: Package, color: 'primary' },
-          { label: 'Valeur totale', value: '234€', icon: Heart, color: 'accent' },
-          { label: 'Depuis', value: '3 mois', icon: Calendar, color: 'secondary' },
+          { label: 'Paniers reçus', value: stats.basketsReceived || 0, icon: Package, color: 'primary' },
+          { label: 'Valeur totale', value: `${stats.totalValue?.toFixed(2) || 0}€`, icon: Heart, color: 'accent' },
+          { label: 'Depuis', value: stats.memberSince || 'Nouveau', icon: Calendar, color: 'secondary' },
           { label: 'Impact social', value: 'Fort', icon: Award, color: 'success' },
         ];
       case 'collector':
         return [
-          { label: 'Missions', value: '67', icon: Package, color: 'primary' },
-          { label: 'Distance', value: '340km', icon: TrendingUp, color: 'secondary' },
-          { label: 'Note', value: '4.9', icon: Star, color: 'warning' },
-          { label: 'Fiabilité', value: '98%', icon: Award, color: 'success' },
+          { label: 'Missions', value: stats.missionsCompleted || 0, icon: Package, color: 'primary' },
+          { label: 'Distance', value: `${stats.totalDistance || 0}km`, icon: TrendingUp, color: 'secondary' },
+          { label: 'Note', value: stats.rating || '-', icon: Star, color: 'warning' },
+          { label: 'Fiabilité', value: `${stats.reliability || 100}%`, icon: Award, color: 'success' },
         ];
       case 'admin':
         return [
-          { label: 'Utilisateurs', value: '1,234', icon: User, color: 'primary' },
-          { label: 'Transactions', value: '5,678', icon: TrendingUp, color: 'success' },
-          { label: 'Lots actifs', value: '89', icon: Package, color: 'secondary' },
-          { label: 'Satisfaction', value: '96%', icon: Star, color: 'warning' },
+          { label: 'Utilisateurs', value: stats.totalUsers || 0, icon: User, color: 'primary' },
+          { label: 'Transactions', value: stats.totalTransactions || 0, icon: TrendingUp, color: 'success' },
+          { label: 'Lots actifs', value: stats.activeLots || 0, icon: Package, color: 'secondary' },
+          { label: 'Satisfaction', value: `${stats.satisfaction || 0}%`, icon: Star, color: 'warning' },
         ];
       default:
         return [];
@@ -106,6 +131,12 @@ export const ProfilePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user?.id) {
+      setError('Utilisateur non connecté');
+      return;
+    }
+    
     setLoading(true);
     setError('');
     setSuccess('');
@@ -113,6 +144,7 @@ export const ProfilePage = () => {
     try {
       const { error: updateError } = await supabase
         .from('profiles')
+        // @ts-expect-error Bug connu: Supabase 2.57.4 infère incorrectement les types comme 'never'
         .update({
           full_name: formData.full_name,
           phone: formData.phone || null,
@@ -120,7 +152,7 @@ export const ProfilePage = () => {
           business_name: formData.business_name || null,
           business_address: formData.business_address || null,
         })
-        .eq('id', user?.id);
+        .eq('id', user.id);
 
       if (updateError) throw updateError;
 
@@ -129,8 +161,10 @@ export const ProfilePage = () => {
       setIsEditing(false);
       
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la mise à jour');
+    } catch (err) {
+      const error = err as Error;
+      console.error('Erreur lors de la mise à jour du profil:', error);
+      setError(error.message || 'Erreur lors de la mise à jour');
     } finally {
       setLoading(false);
     }
@@ -149,6 +183,11 @@ export const ProfilePage = () => {
   };
 
   const handleSaveBusinessHours = async () => {
+    if (!user?.id) {
+      setError('Utilisateur non connecté');
+      return;
+    }
+    
     setLoading(true);
     setError('');
     setSuccess('');
@@ -156,10 +195,11 @@ export const ProfilePage = () => {
     try {
       const { error: updateError } = await supabase
         .from('profiles')
+        // @ts-expect-error Bug connu: Supabase 2.57.4 infère incorrectement les types comme 'never'
         .update({
-          business_hours: businessHours
+          business_hours: businessHours as Record<string, { open: string | null; close: string | null; closed: boolean }> | null
         })
-        .eq('id', user?.id);
+        .eq('id', user.id);
 
       if (updateError) throw updateError;
 
@@ -168,15 +208,17 @@ export const ProfilePage = () => {
       setIsEditingHours(false);
       
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de l\'enregistrement des horaires');
+    } catch (err) {
+      const error = err as Error;
+      console.error('Erreur lors de l\'enregistrement des horaires:', error);
+      setError(error.message || 'Erreur lors de l\'enregistrement des horaires');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancelBusinessHours = () => {
-    setBusinessHours(profile?.business_hours || null);
+    setBusinessHours((profile?.business_hours as BusinessHours | null) || null);
     setIsEditingHours(false);
     setError('');
   };
@@ -188,7 +230,7 @@ export const ProfilePage = () => {
     setTimeout(() => setSuccess(''), 3000);
   };
 
-  const stats = getRoleStats();
+  const roleStats = getRoleStats();
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -259,26 +301,40 @@ export const ProfilePage = () => {
 
       {/* Statistics Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          
-          return (
+        {statsLoading ? (
+          // Skeleton loading
+          Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition"
+              className="bg-white rounded-2xl border border-gray-200 p-6 animate-pulse"
             >
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                <Icon size={24} strokeWidth={1.5} />
-              </div>
-              <div className="text-3xl font-bold text-black mb-1">
-                {stat.value}
-              </div>
-              <div className="text-sm text-gray-600 font-light">
-                {stat.label}
-              </div>
+              <div className="w-12 h-12 bg-gray-200 rounded-lg mb-4" />
+              <div className="h-8 bg-gray-200 rounded mb-2 w-20" />
+              <div className="h-4 bg-gray-200 rounded w-24" />
             </div>
-          );
-        })}
+          ))
+        ) : (
+          roleStats.map((stat, index) => {
+            const Icon = stat.icon;
+            
+            return (
+              <div
+                key={index}
+                className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition"
+              >
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                  <Icon size={24} strokeWidth={1.5} />
+                </div>
+                <div className="text-3xl font-bold text-black mb-1">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-gray-600 font-light">
+                  {stat.label}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Profile Information */}
@@ -552,8 +608,8 @@ export const ProfilePage = () => {
 
           {isEditingHours ? (
             <BusinessHoursEditor
-              value={businessHours}
-              onChange={setBusinessHours}
+              value={businessHours as Record<string, DayHours> | null}
+              onChange={(hours) => setBusinessHours(hours as BusinessHours)}
               onSave={handleSaveBusinessHours}
               onCancel={handleCancelBusinessHours}
               saving={loading}
