@@ -1,490 +1,417 @@
-# 🗺️ Roadmap - EcoPanier
+# 🗺️ Roadmap EcoPanier
 
-> Feuille de route du développement de la plateforme EcoPanier
-
----
-
-## 📋 Vue d'ensemble
-
-Cette roadmap détaille les étapes de développement passées, présentes et futures d'EcoPanier. Elle est divisée en phases :
-
-- **✅ MVP** (Minimum Viable Product) - Complété
-- **🚧 V1.0** (Version 1.0) - En cours
-- **📅 V2.0** (Version 2.0) - Planifié
-- **🔮 V3.0+** (Futures versions) - Vision long terme
+> **Feuille de route produit** - Évolution et fonctionnalités futures de la plateforme
 
 ---
 
-## ✅ MVP (Phase 0) - COMPLÉTÉ
+## 📖 Légende
 
-> **Objectif** : Prouver le concept et lancer la plateforme
-
-### Fonctionnalités implémentées
-
-#### 🔐 Authentification
-- [x] Inscription/Connexion avec email/mot de passe
-- [x] Gestion des sessions avec Supabase Auth
-- [x] Système multi-rôles (5 types d'utilisateurs)
-- [x] Profils utilisateurs personnalisés
-- [x] Système de vérification pour bénéficiaires
-
-#### 👥 Gestion des utilisateurs
-- [x] Dashboard client (navigation lots, réservations, impact)
-- [x] Dashboard commerçant (création lots, stats ventes)
-- [x] Dashboard bénéficiaire (lots gratuits, paniers suspendus)
-- [x] Dashboard collecteur (missions disponibles, mes missions)
-- [x] Dashboard administrateur (stats globales, gestion utilisateurs)
-
-#### 📦 Gestion des lots
-- [x] Création de lots par les commerçants
-- [x] Liste et navigation des lots disponibles
-- [x] Filtrage par catégorie, prix, urgence
-- [x] Système de réservation avec code PIN
-- [x] Génération de QR codes pour retraits
-- [x] Gestion des quantités (total, réservé, vendu)
-- [x] Statuts des lots (disponible, réservé, vendu, expiré)
-
-#### 🎁 Paniers suspendus
-- [x] Don de paniers par les clients
-- [x] Sélection du commerçant bénéficiaire
-- [x] Liste des paniers disponibles pour bénéficiaires
-- [x] Système de récupération (claim)
-- [x] Historique des dons (donateurs)
-- [x] Historique des paniers reçus (bénéficiaires)
-
-#### 📱 Station de retrait
-- [x] Interface publique sans authentification
-- [x] Scanner QR code intégré
-- [x] Validation avec code PIN
-- [x] Confirmation de retrait
-- [x] Mise à jour automatique des stocks
-- [x] Interface responsive (tablette/mobile optimisée)
-
-#### 🚚 Système de missions
-- [x] Création de missions par commerçants
-- [x] Liste des missions disponibles (collecteurs)
-- [x] Acceptation et suivi de missions
-- [x] Géolocalisation (points pickup/delivery)
-- [x] Statuts de missions (disponible, accepté, en cours, terminé)
-- [x] Historique des missions complétées
-
-#### 👑 Fonctionnalités administrateur
-- [x] Dashboard avec statistiques globales
-- [x] Gestion des utilisateurs (liste, vérification, suspension)
-- [x] Analytics avancées (revenus, commandes, croissance)
-- [x] Journal d'activité (activity logs)
-- [x] Configuration de la plateforme (paramètres système)
-- [x] Gestion des paniers suspendus
-- [x] Historique des modifications de paramètres
-
-#### 📊 Impact & Métriques
-- [x] Suivi des repas sauvés
-- [x] Calcul du CO₂ économisé
-- [x] Suivi de l'argent économisé
-- [x] Compteur de dons effectués
-- [x] Dashboard d'impact personnel (clients)
-
-#### 🎨 UI/UX
-- [x] Design moderne avec Tailwind CSS
-- [x] Animations fluides
-- [x] Responsive design (mobile, tablette, desktop)
-- [x] Landing page attractive
-- [x] Pages informatives (Comment ça marche, Aide)
-- [x] Composants réutilisables (cards, buttons, badges)
-- [x] Thème de couleurs cohérent
-
-#### 🗄️ Base de données
-- [x] Schéma complet PostgreSQL
-- [x] 9 tables principales (profiles, lots, reservations, etc.)
-- [x] Relations et contraintes
-- [x] Indexes pour performance
-- [x] Row Level Security (RLS) sur tables sensibles
-- [x] Triggers et fonctions automatiques
-- [x] Vues enrichies pour analytics
+- ✅ **Terminé** : Fonctionnalité implémentée et déployée
+- 🚧 **En cours** : En développement actif
+- 📋 **Planifié** : Dans le backlog, prêt à démarrer
+- 💡 **Idée** : Concept à affiner et valider
+- ⏸️ **En pause** : Reporté à plus tard
 
 ---
 
-## 🚧 V1.0 (Phase 1) - EN COURS
+## 🎯 MVP - Version 0.1 (✅ TERMINÉ - Janvier 2025)
 
-> **Objectif** : Stabiliser, optimiser et préparer le lancement public
+### Objectif
+Valider le concept avec les fonctionnalités essentielles pour chaque type d'utilisateur.
 
-**Date estimée** : Q2 2025
+### Fonctionnalités Implémentées
 
-### 🔄 En développement
+#### 🔐 Authentification & Utilisateurs
+- ✅ Inscription/Connexion avec email + mot de passe
+- ✅ 5 rôles utilisateurs (Customer, Merchant, Beneficiary, Collector, Admin)
+- ✅ Profils utilisateurs avec informations spécifiques par rôle
+- ✅ ID unique pour bénéficiaires (format YYYY-BEN-XXXXX)
 
-#### 🔐 Authentification avancée
-- [ ] Authentification à deux facteurs (2FA)
-- [ ] Connexion avec Google/Facebook (OAuth)
-- [ ] Récupération de compte améliorée
-- [ ] Vérification d'email obligatoire
-- [ ] Limitation des tentatives de connexion (rate limiting)
-
-#### 💳 Système de paiement
-- [ ] Intégration Stripe pour paiements
-- [ ] Paiement des réservations en ligne
-- [ ] Paiement des dons de paniers suspendus
-- [ ] Gestion des remboursements
-- [ ] Historique de transactions
-- [ ] Factures automatiques (PDF)
-
-#### 📧 Notifications
-- [ ] Notifications email (création compte, réservation, etc.)
-- [ ] Notifications push (PWA)
-- [ ] Notifications SMS (urgences uniquement)
-- [ ] Centre de notifications in-app
-- [ ] Paramètres de préférences de notifications
-- [ ] Templates d'emails personnalisés
-
-#### 📸 Gestion des médias
-- [ ] Upload d'images de lots (Supabase Storage)
-- [ ] Compression et optimisation automatique
-- [ ] Photos de profil utilisateurs
-- [ ] Galerie d'images pour lots
-- [ ] Upload de preuves de livraison (collecteurs)
-- [ ] Modération automatique (détection contenu inapproprié)
-
-#### 🗺️ Géolocalisation
-- [ ] Intégration Google Maps / OpenStreetMap
-- [ ] Recherche de lots par proximité
-- [ ] Calcul d'itinéraires pour collecteurs
-- [ ] Visualisation des commerçants sur carte
-- [ ] Distance estimée pour retraits
-- [ ] Filtrage par rayon géographique
-
-#### 🔍 Recherche avancée
-- [ ] Full-text search (PostgreSQL)
-- [ ] Filtres combinés avancés
-- [ ] Sauvegarde de recherches favorites
-- [ ] Suggestions de recherche
-- [ ] Historique de recherche
-- [ ] Recherche vocale (Web Speech API)
-
-#### 📊 Analytics & Reporting
-- [ ] Graphiques interactifs (Recharts)
-- [ ] Export de rapports (PDF, Excel, CSV)
-- [ ] Rapports personnalisables
-- [ ] Dashboard temps réel (WebSockets)
-- [ ] Prévisions basées sur historique
-- [ ] Comparaison de périodes
-
-#### 🧪 Tests
-- [ ] Tests unitaires (Vitest)
-- [ ] Tests d'intégration
-- [ ] Tests end-to-end (Playwright)
-- [ ] Coverage > 80%
-- [ ] Tests de performance
-- [ ] Tests d'accessibilité (a11y)
-
-#### 📱 Progressive Web App (PWA)
-- [ ] Service Worker pour offline
-- [ ] Installation sur écran d'accueil
-- [ ] Notifications push natives
-- [ ] Cache intelligent
-- [ ] Synchronisation en arrière-plan
-- [ ] Mode offline partiel
-
-#### 🌐 Internationalisation (i18n)
-- [ ] Support multi-langues (FR, EN, ES)
-- [ ] Traductions complètes
-- [ ] Détection automatique de la langue
-- [ ] Sélecteur de langue
-- [ ] Formatage de dates/monnaies par locale
-- [ ] RTL support (arabe, hébreu)
-
----
-
-## 📅 V2.0 (Phase 2) - PLANIFIÉ
-
-> **Objectif** : Enrichir l'expérience et développer l'écosystème
-
-**Date estimée** : Q4 2025
-
-### 🎯 Fonctionnalités prévues
-
-#### 🤝 Réseau social & Communauté
-- [ ] Profils publics d'utilisateurs
-- [ ] Système de notation/avis (commerçants, collecteurs)
-- [ ] Commentaires sur lots
-- [ ] Partage de lots sur réseaux sociaux
-- [ ] Feed d'activité communautaire
-- [ ] Badges et gamification
-- [ ] Classements (top donateurs, top commerçants)
-
-#### 💬 Messagerie
-- [ ] Chat entre utilisateurs
-- [ ] Messages commerçant ↔ client
-- [ ] Messages collecteur ↔ commerçant
-- [ ] Notifications de nouveaux messages
-- [ ] Support chat (clients ↔ admin)
-- [ ] Messages groupés (associations)
-
-#### 📦 Abonnements & Paniers réguliers
-- [ ] Abonnement hebdomadaire/mensuel
-- [ ] Panier surprise automatique
-- [ ] Préférences alimentaires (végétarien, sans gluten, etc.)
-- [ ] Livraison programmée
-- [ ] Gestion d'abonnement (pause, résiliation)
-- [ ] Facturation récurrente
-
-#### 🏪 Marketplace avancé
-- [ ] Catégories détaillées (bio, local, vegan, etc.)
-- [ ] Filtres avancés multiples
-- [ ] Favoris et listes de souhaits
-- [ ] Alertes sur nouveaux lots (critères personnalisés)
-- [ ] Historique de consultation
-- [ ] Recommandations personnalisées (IA)
-
-#### 🎁 Programme de fidélité
-- [ ] Système de points (1€ = 10 points)
-- [ ] Récompenses (réductions, lots gratuits)
-- [ ] Niveaux de fidélité (Bronze, Argent, Or)
-- [ ] Parrainage (points bonus)
-- [ ] Événements exclusifs (membres premium)
-- [ ] Cashback sur achats
+#### 🏪 Gestion des Lots
+- ✅ Création de lots par les commerçants
+- ✅ **Lots gratuits exclusifs pour bénéficiaires**
+- ✅ **Réductions jusqu'à -70%** pour clients
+- ✅ Upload d'images de lots
+- ✅ Catégorisation des produits
+- ✅ Gestion des statuts (available, reserved, sold_out, expired)
 
 #### 🤖 Intelligence Artificielle
-- [ ] Recommandations de lots (machine learning)
-- [ ] Prédiction de la demande (commerçants)
-- [ ] Détection d'anomalies (fraudes)
-- [ ] Chatbot support automatisé
-- [ ] Analyse de sentiment (avis)
-- [ ] Optimisation des prix (dynamic pricing)
+- ✅ **Analyse IA avec Gemini 2.0 Flash**
+- ✅ Remplissage automatique des formulaires à partir d'images
+- ✅ Extraction : titre, description, catégorie, prix, quantité
+- ✅ Score de confiance affiché
 
-#### 🌍 Impact environnemental avancé
-- [ ] Calculateur d'empreinte carbone précis
-- [ ] Objectifs personnels (ex: sauver 50 repas/mois)
-- [ ] Comparaison avec moyenne communauté
-- [ ] Certificats d'impact (téléchargeables)
-- [ ] Intégration avec ONGs environnementales
-- [ ] Arbres plantés (partenariat)
+#### 🛍️ Réservations & Retraits
+- ✅ Système de réservation avec QR code + PIN à 6 chiffres
+- ✅ **Limite de 2 lots gratuits/jour** pour bénéficiaires
+- ✅ Station de retrait publique (scan QR + vérification PIN)
+- ✅ Historique des réservations
 
-#### 📱 Applications mobiles natives
-- [ ] Application iOS (React Native / Flutter)
-- [ ] Application Android
-- [ ] Synchronisation avec web
-- [ ] Notifications push natives
-- [ ] Scan QR natif optimisé
-- [ ] Géolocalisation en arrière-plan
+#### 🚚 Missions Collecteurs
+- ✅ Liste des missions disponibles
+- ✅ Acceptation et suivi de missions
+- ✅ Statuts de missions (available, accepted, in_progress, completed)
 
----
+#### 👑 Administration
+- ✅ Dashboard admin avec statistiques globales
+- ✅ Gestion des utilisateurs (liste, vérification, suspension)
+- ✅ Logs d'activité complets
+- ✅ Paramètres de plateforme (commission, limites)
+- ✅ Historique des modifications de settings
 
-## 🔮 V3.0+ (Phase 3+) - VISION LONG TERME
+#### 📊 Impact & Métriques
+- ✅ Calcul automatique de l'impact environnemental (CO₂)
+- ✅ Suivi des repas sauvés
+- ✅ Dashboard d'impact client
+- ✅ Statistiques de ventes commerçants
 
-> **Objectif** : Innovation et expansion internationale
-
-**Date estimée** : 2026+
-
-### 🚀 Grandes idées
-
-#### 🌐 Expansion internationale
-- [ ] Déploiement multi-pays
-- [ ] Conformité RGPD européen
-- [ ] Devises multiples
-- [ ] Partenariats internationaux (Too Good To Go, etc.)
-- [ ] Adaptation culturelle par région
-
-#### 🏢 Fonctionnalités B2B
-- [ ] API publique pour intégrations tierces
-- [ ] Webhooks pour événements
-- [ ] Intégration avec systèmes de caisse (POS)
-- [ ] Intégration ERP pour commerçants
-- [ ] White-label pour collectivités
-- [ ] SDK pour développeurs
-
-#### 🤝 Partenariats & Intégrations
-- [ ] Partenariat avec associations caritatives
-- [ ] Intégration avec banques alimentaires
-- [ ] Collaboration avec supermarchés (grandes chaînes)
-- [ ] Partenariats avec restaurants (anti-gaspi)
-- [ ] Intégration avec plateformes de livraison (Uber Eats, etc.)
-
-#### 🏪 Lockers automatiques (Smart Lockers)
-- [ ] Installation de lockers physiques
-- [ ] Système de déverrouillage automatique
-- [ ] Gestion de température (chaîne du froid)
-- [ ] Maintenance et monitoring IoT
-- [ ] Réseau de lockers urbains
-
-#### 🎓 Éducation & Sensibilisation
-- [ ] Contenus éducatifs (blog, vidéos)
-- [ ] Statistiques publiques de gaspillage
-- [ ] Campagnes de sensibilisation
-- [ ] Partenariats écoles/universités
-- [ ] Programme ambassadeurs
-
-#### 🔬 Blockchain & Traçabilité
-- [ ] Traçabilité alimentaire complète
-- [ ] Certificats NFT d'impact
-- [ ] Smart contracts pour dons
-- [ ] Transparence totale (chaîne d'approvisionnement)
-- [ ] Tokens de fidélité (crypto)
-
-#### 🤖 Automatisation avancée
-- [ ] Prédiction de gaspillage (IA)
-- [ ] Pricing dynamique automatique
-- [ ] Routage optimal de collecteurs (algorithme)
-- [ ] Gestion de stock prédictive
-- [ ] Automatisation complète des retraits (robots)
+#### 🎨 Interface Utilisateur
+- ✅ Landing page moderne avec animations (Framer Motion)
+- ✅ Design responsive (mobile, tablette, desktop)
+- ✅ Thème personnalisé avec Tailwind CSS
+- ✅ Pages d'aide (How It Works, Help Center)
 
 ---
 
-## 📊 Métriques de succès
+## 🚀 Version 1.0 - Production Ready (🚧 EN COURS - T1 2025)
 
-### KPIs Phase 1 (V1.0)
+### Objectif
+Préparer la plateforme pour le lancement public avec optimisations et fonctionnalités clés.
 
-| Métrique | Objectif Q2 2025 |
-|----------|------------------|
-| Utilisateurs actifs | 10,000+ |
-| Commerçants partenaires | 100+ |
-| Repas sauvés | 50,000+ |
-| CO₂ économisé | 45 tonnes+ |
-| Paniers suspendus offerts | 5,000+ |
-| Taux de satisfaction | > 4.5/5 |
-| Taux de conversion | > 15% |
+### Fonctionnalités en Développement
 
-### KPIs Phase 2 (V2.0)
+#### 🗺️ Carte Interactive
+- 🚧 **Carte Mapbox** des commerçants
+- 🚧 Géolocalisation utilisateur
+- 🚧 Filtres géographiques (rayon, ville)
+- 🚧 Clustering des commerçants proches
+- 🚧 Navigation vers points de retrait
+- 🚧 Prévisualisation info commerçant sur la carte
 
-| Métrique | Objectif Q4 2025 |
-|----------|------------------|
-| Utilisateurs actifs | 100,000+ |
-| Commerçants partenaires | 1,000+ |
-| Repas sauvés | 500,000+ |
-| CO₂ économisé | 450 tonnes+ |
-| Paniers suspendus offerts | 50,000+ |
-| Villes couvertes | 10+ |
-| Chiffre d'affaires mensuel | 50,000€+ |
+#### 🔍 Recherche & Filtres Avancés
+- 🚧 Recherche full-text dans les lots
+- 🚧 Filtres multiples combinables :
+  - Prix (min-max avec slider)
+  - Catégorie (multi-select)
+  - Distance (rayon géographique)
+  - Disponibilité (plages horaires)
+  - Type (lots payants vs gratuits)
+- 🚧 Tri avancé (pertinence, prix, distance, date)
+- 🚧 Sauvegarde des filtres favoris
+
+#### 🔔 Notifications en Temps Réel
+- 🚧 **Supabase Realtime** pour notifications push
+- 🚧 Notifications commerçant :
+  - Nouvelle réservation
+  - Retrait effectué
+  - Lot expirant bientôt
+- 🚧 Notifications client :
+  - Nouveaux lots près de chez vous
+  - Lot favori disponible
+  - Rappel retrait
+- 🚧 Notifications bénéficiaire :
+  - Nouveaux lots gratuits
+- 🚧 Préférences de notifications
+
+#### ⭐ Système de Notation & Avis
+- 📋 Notation commerçants (1-5 étoiles)
+- 📋 Avis textuels vérifiés
+- 📋 Réponses des commerçants
+- 📋 Badges de qualité (lot conforme, bon rapport qualité/prix)
+- 📋 Signalement d'abus
+
+#### 📊 Analytics & Rapports Avancés
+- 📋 Dashboard commerçant enrichi :
+  - Courbes de ventes
+  - Meilleurs produits
+  - Heures de pic
+  - Taux de retrait
+- 📋 Rapports PDF exportables
+- 📋 Comparaison période vs période
+- 📋 Prédictions IA (lots à risque d'expiration)
+
+#### 🎨 UX/UI Improvements
+- 📋 Mode sombre
+- 📋 Tutoriel interactif au premier lancement
+- 📋 Tooltips contextuels
+- 📋 Skeleton loaders pour meilleure perception de performance
+- 📋 Progressive Web App (PWA) - Installation sur mobile
 
 ---
 
-## 🛠️ Stack technique futur
+## 🌟 Version 1.1 - Expansion (📋 PLANIFIÉ - T2 2025)
 
-### Évolutions technologiques prévues
+### Objectif
+Étendre les fonctionnalités et préparer la croissance.
 
-```typescript
-// V1.0 → V2.0
-{
-  "frontend": {
-    "current": "React 18 + Vite",
-    "future": "Next.js 15 (SSR/SSG) ou continuer React + Vite",
-    "cache": "React Query / SWR",
-    "monitoring": "Sentry + LogRocket"
-  },
-  "backend": {
-    "current": "Supabase (BaaS)",
-    "future": "Supabase + Edge Functions",
-    "queue": "BullMQ / Inngest",
-    "cron": "Supabase Cron / Vercel Cron"
-  },
-  "mobile": {
-    "future": "React Native / Flutter"
-  },
-  "infrastructure": {
-    "cdn": "Cloudflare",
-    "storage": "Supabase Storage + Cloudinary",
-    "email": "SendGrid / Resend",
-    "sms": "Twilio"
-  },
-  "ai_ml": {
-    "recommendations": "TensorFlow.js",
-    "nlp": "OpenAI API",
-    "vision": "Google Cloud Vision"
-  }
-}
+### Fonctionnalités Planifiées
+
+#### 📱 Applications Mobiles Natives
+- 📋 **App iOS** (React Native)
+- 📋 **App Android** (React Native)
+- 📋 Notifications push natives
+- 📋 Géolocalisation optimisée
+- 📋 Caméra native pour QR codes
+- 📋 Mode hors-ligne partiel
+
+#### 💳 Paiements Intégrés
+- 📋 **Intégration Stripe/PayPal**
+- 📋 Paiement en ligne sécurisé
+- 📋 Portefeuille virtuel EcoPanier
+- 📋 Paiement fractionné (futur achat)
+- 📋 Factures automatiques
+
+#### 🎁 Programme de Fidélité
+- 📋 Points de fidélité par achat
+- 📋 Niveaux clients (Bronze, Argent, Or)
+- 📋 Récompenses exclusives
+- 📋 Bonus parrainage
+- 📋 Badges de réalisation (gamification)
+
+#### 🔗 API Publique
+- 📋 **API REST publique** pour partenaires
+- 📋 Documentation OpenAPI (Swagger)
+- 📋 Webhooks pour événements
+- 📋 Rate limiting
+- 📋 Clés API avec quotas
+
+#### 🌍 Multi-langue
+- 📋 Interface en **Français** (par défaut)
+- 📋 Interface en **Anglais**
+- 📋 Interface en **Espagnol**
+- 📋 Détection automatique de langue
+- 📋 Sélecteur de langue
+
+#### 📧 Communication Avancée
+- 📋 Emails transactionnels (SendGrid)
+- 📋 SMS de rappel (Twilio)
+- 📋 Chat en direct commerçant-client
+- 📋 Newsletter automatisée
+- 📋 Templates d'emails personnalisables
+
+---
+
+## 🚀 Version 2.0 - Marketplace & Expansion (💡 IDÉES - T3 2025)
+
+### Objectif
+Transformer EcoPanier en véritable marketplace solidaire.
+
+### Fonctionnalités Envisagées
+
+#### 🏪 Marketplace de Producteurs Locaux
+- 💡 **Vente de produits frais** (pas que invendus)
+- 💡 Profils producteurs (fermiers, artisans)
+- 💡 Abonnements paniers hebdomadaires
+- 💡 Livraison à domicile
+- 💡 Points de retrait mutualisés
+
+#### 🤝 Système de Parrainage
+- 💡 Code parrainage unique par utilisateur
+- 💡 Récompenses parrain + filleul
+- 💡 Tracking des parrainages
+- 💡 Bonus pour X parrainages
+
+#### 🎮 Gamification Avancée
+- 💡 **Challenges mensuels** (sauver X repas)
+- 💡 Classements communautaires
+- 💡 Badges rares à débloquer
+- 💡 Événements spéciaux
+- 💡 Récompenses surprise
+
+#### 🧾 Intégration Comptabilité
+- 💡 Export comptable pour commerçants
+- 💡 Déclarations fiscales automatiques
+- 💡 Factures conformes normes françaises
+- 💡 Suivi TVA
+
+#### 📈 Prédiction IA Avancée
+- 💡 **Prédiction des invendus** par commerçant
+- 💡 Suggestions de prix optimaux
+- 💡 Recommandations personnalisées clients
+- 💡 Détection de tendances
+- 💡 Analyse prédictive de la demande
+
+#### 🌍 Impact Social Élargi
+- 💡 **Dons aux associations** (redistribution surplus)
+- 💡 Partenariats ONG locales
+- 💡 Certificats d'impact carbone
+- 💡 Compensation carbone automatique
+- 💡 Rapports RSE pour entreprises
+
+---
+
+## 🔧 Améliorations Techniques Continues
+
+### Infrastructure
+- 📋 Migration vers serveur dédié si croissance
+- 📋 CDN pour assets statiques
+- 📋 Redis pour caching
+- 📋 ElasticSearch pour recherche full-text
+- 📋 Monitoring avancé (Datadog, New Relic)
+
+### Sécurité
+- 📋 Audit de sécurité externe
+- 📋 Pen-testing régulier
+- 📋 2FA (authentification à deux facteurs)
+- 📋 Encryption at rest
+- 📋 GDPR compliance review
+
+### Performance
+- 📋 Server-side rendering (SSR) pour SEO
+- 📋 Image optimization automatique (WebP, AVIF)
+- 📋 Lazy loading amélioré
+- 📋 Service Workers pour cache offline
+- 📋 Bundle size optimization
+
+### Tests & Qualité
+- 📋 Tests unitaires (Vitest) - Coverage > 80%
+- 📋 Tests e2e (Playwright)
+- 📋 Tests de charge (K6)
+- 📋 CI/CD avec GitHub Actions
+- 📋 Code quality gates (SonarQube)
+
+---
+
+## 📊 Métriques de Succès
+
+### MVP (Version 0.1)
+- ✅ Plateforme fonctionnelle
+- ✅ 5 rôles utilisateurs opérationnels
+- ✅ IA Gemini intégrée
+- ✅ Station de retrait validée
+
+### Version 1.0
+- 🎯 **100+ commerçants inscrits**
+- 🎯 **1000+ clients actifs**
+- 🎯 **50+ bénéficiaires aidés**
+- 🎯 **5000+ repas sauvés**
+- 🎯 **4.5/5 satisfaction utilisateurs**
+
+### Version 1.1
+- 🎯 **500+ commerçants**
+- 🎯 **10 000+ clients**
+- 🎯 **200+ bénéficiaires**
+- 🎯 **50 000+ repas sauvés**
+- 🎯 **Expansion à 5 villes**
+
+### Version 2.0
+- 🎯 **National : 1000+ commerçants**
+- 🎯 **100 000+ utilisateurs**
+- 🎯 **500 000+ repas sauvés**
+- 🎯 **450 tonnes CO₂ évitées**
+- 🎯 **Rentabilité atteinte**
+
+---
+
+## 🗓️ Timeline Estimée
+
+```
+2025 Q1  ████████████ Version 1.0 (Production Ready)
+         │
+         ├─ Carte interactive
+         ├─ Notifications temps réel
+         ├─ Filtres avancés
+         └─ Système de notation
+
+2025 Q2  ████████████ Version 1.1 (Expansion)
+         │
+         ├─ Apps mobiles (iOS + Android)
+         ├─ Paiements intégrés
+         ├─ Programme fidélité
+         └─ API publique
+
+2025 Q3  ████████████ Version 2.0 (Marketplace)
+         │
+         ├─ Marketplace producteurs
+         ├─ Gamification avancée
+         ├─ Prédiction IA
+         └─ Impact social élargi
+
+2025 Q4  ████████████ Consolidation & Optimisation
+         │
+         ├─ Performance tuning
+         ├─ Sécurité renforcée
+         ├─ Tests complets
+         └─ Préparation levée de fonds
 ```
 
 ---
 
-## 💡 Contribution & Suggestions
+## 🎯 Priorités par Trimestre
 
-Vous avez des idées pour améliorer EcoPanier ?
+### T1 2025 (🚧 EN COURS)
+1. 🥇 Carte interactive Mapbox
+2. 🥈 Notifications temps réel
+3. 🥉 Filtres avancés
 
-1. **Ouvrez une [Discussion GitHub](https://github.com/votre-username/ecopanier/discussions)**
-2. **Créez une [Feature Request](https://github.com/votre-username/ecopanier/issues/new?template=feature_request.md)**
-3. **Rejoignez notre [Discord/Slack](https://discord.gg/...)**
-4. **Contactez-nous** : roadmap@ecopanier.fr
+### T2 2025
+1. 🥇 Applications mobiles
+2. 🥈 Paiements Stripe
+3. 🥉 Programme fidélité
 
-### Vote pour les prochaines features
+### T3 2025
+1. 🥇 Marketplace producteurs
+2. 🥈 IA prédictive
+3. 🥉 Gamification
 
-Rendez-vous sur notre [Feature Voting Board](https://github.com/votre-username/ecopanier/discussions/categories/feature-requests) pour voter pour les fonctionnalités que vous souhaitez voir en priorité !
-
----
-
-## 📅 Calendrier de releases
-
-```
-2025
-├── Q1 (Jan-Mar)
-│   ├── MVP Finalisé ✅
-│   └── Premiers tests utilisateurs
-│
-├── Q2 (Apr-Jun)
-│   ├── V1.0 Release 🎯
-│   ├── Paiements Stripe
-│   ├── Notifications email/push
-│   └── PWA
-│
-├── Q3 (Jul-Sep)
-│   ├── V1.5 (intermédiaire)
-│   ├── Géolocalisation
-│   ├── Recherche avancée
-│   └── Analytics temps réel
-│
-└── Q4 (Oct-Dec)
-    ├── V2.0 Release 🚀
-    ├── Réseau social
-    ├── Messagerie
-    └── Abonnements
-
-2026
-├── Q1-Q2
-│   ├── Applications mobiles natives
-│   ├── IA & Recommandations
-│   └── Expansion 5 nouvelles villes
-│
-└── Q3-Q4
-    ├── V3.0 - International
-    ├── Smart Lockers (pilote)
-    └── API publique B2B
-```
+### T4 2025
+1. 🥇 Stabilité & Performance
+2. 🥈 Tests automatisés complets
+3. 🥉 Documentation complète
 
 ---
 
-## 🎯 Priorités actuelles (Top 5)
+## 💬 Feedback & Priorisation
 
-1. **Paiements Stripe** - Monétisation de la plateforme
-2. **Notifications email** - Engagement utilisateurs
-3. **PWA** - Installation sur mobile
-4. **Tests automatisés** - Stabilité et qualité
-5. **Performance** - Optimisation vitesse chargement
+### Comment suggérer une fonctionnalité ?
+
+1. **Créer une Issue GitHub** avec le label `feature-request`
+2. **Décrire le besoin** : Quel problème résout cette fonctionnalité ?
+3. **Cas d'usage** : Qui en bénéficie ? Comment l'utiliserait-on ?
+4. **Impact estimé** : Combien d'utilisateurs impactés ?
+
+### Processus de priorisation
+
+Les fonctionnalités sont priorisées selon :
+- 🎯 **Impact utilisateur** (40%)
+- 💰 **Valeur business** (30%)
+- 🔧 **Complexité technique** (20%)
+- ⏱️ **Urgence** (10%)
 
 ---
 
-## 📝 Notes de version
+## 📝 Notes & Décisions
 
-### v0.1.0-MVP (Janvier 2025) ✅
-- Lancement du MVP
-- Fonctionnalités core implémentées
-- Première version publique
+### Fonctionnalités reportées ou annulées
 
-### v1.0.0 (Juin 2025) 🎯
-- Plateforme complète et stable
-- Paiements intégrés
-- Notifications actives
-- PWA installable
+#### ⏸️ En pause
+- **Paniers suspendus** → Remplacés par lots gratuits commerçants (plus simple et digne)
+- **Blockchain pour traçabilité** → Trop complexe pour MVP
+- **Cryptomonnaie interne** → Pas prioritaire
 
-### v2.0.0 (Décembre 2025) 🚀
-- Réseau social communautaire
-- Messagerie intégrée
-- Système d'abonnements
-- IA pour recommandations
+#### ❌ Annulées
+- **Enchères inversées** → Pas adapté au modèle
+- **Livraison express** → Logistique trop complexe pour le moment
+
+---
+
+## 🤝 Contribution à la Roadmap
+
+La roadmap est **collaborative** ! Les utilisateurs, commerçants, bénéficiaires et contributeurs peuvent influencer les priorités.
+
+**Comment contribuer ?**
+- 💬 Participer aux [Discussions GitHub](https://github.com/ecopanier/discussions)
+- 📊 Répondre aux sondages utilisateurs
+- ⭐ Voter pour vos fonctionnalités préférées
+- 🐛 Signaler des bugs ou problèmes
 
 ---
 
 <div align="center">
 
-**Roadmap mise à jour régulièrement - Dernière mise à jour : Janvier 2025**
+**Roadmap EcoPanier** 🗺️  
+Mise à jour : Janvier 2025
 
-[⬅️ Retour au README](./README.md) • [📊 Voir les Issues](https://github.com/votre-username/ecopanier/issues) • [💬 Discussions](https://github.com/votre-username/ecopanier/discussions)
+[Voir les Issues](https://github.com/ecopanier/issues) • [Proposer une Fonctionnalité](https://github.com/ecopanier/issues/new?template=feature_request.md) • [Discussions](https://github.com/ecopanier/discussions)
 
 </div>
-

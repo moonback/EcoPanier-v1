@@ -16,13 +16,13 @@
 
 ## 📖 À propos du projet
 
-**EcoPanier** est une plateforme innovante de lutte contre le gaspillage alimentaire qui intègre un volet de solidarité sociale unique : **les paniers suspendus**. Inspirée du concept italien du "caffè sospeso", elle permet aux clients d'offrir des repas aux personnes en situation de précarité tout en sauvant des invendus alimentaires.
+**EcoPanier** est une plateforme innovante de lutte contre le gaspillage alimentaire qui intègre un volet de solidarité sociale unique : **les lots gratuits pour bénéficiaires**. Les commerçants valorisent leurs invendus en créant des lots à prix réduits (jusqu'à -70%) pour les clients, et des lots 100% gratuits exclusifs pour les personnes en situation de précarité.
 
 ### 🎯 Mission
 
 - **Réduire le gaspillage** : Sauver les invendus alimentaires avant qu'ils ne finissent à la poubelle
-- **Promouvoir la solidarité** : Permettre aux clients d'offrir des paniers suspendus aux bénéficiaires
-- **Soutenir les commerces locaux** : Valoriser les commerçants engagés dans la démarche
+- **Promouvoir la solidarité** : Les commerçants créent des lots gratuits exclusifs pour les bénéficiaires (2 lots/jour max)
+- **Soutenir les commerces locaux** : Valoriser les commerçants engagés dans la démarche anti-gaspillage
 - **Faciliter la logistique** : Coordonner les collecteurs pour les livraisons solidaires
 
 ---
@@ -34,11 +34,11 @@
 La plateforme gère **5 types d'utilisateurs** avec des fonctionnalités dédiées :
 
 #### 🛍️ **Client**
-- Navigation et recherche de lots à prix réduits
+- Navigation et recherche de lots à prix réduits (jusqu'à -70%)
 - Réservation de lots avec code PIN et QR code
-- Don de paniers suspendus aux bénéficiaires
-- Tableau de bord d'impact personnel (CO₂, repas sauvés)
-- Historique des réservations et dons
+- Carte interactive pour localiser les commerçants
+- Tableau de bord d'impact personnel (CO₂, repas sauvés, argent économisé)
+- Historique des réservations
 
 #### 🏪 **Commerçant**
 - Création et gestion des lots d'invendus
@@ -49,11 +49,11 @@ La plateforme gère **5 types d'utilisateurs** avec des fonctionnalités dédié
 - Gestion des retraits clients
 
 #### 🤝 **Bénéficiaire**
-- Accès aux lots gratuits et paniers suspendus
-- Limite de 2 réservations par jour
+- Accès exclusif aux lots gratuits créés par les commerçants
+- **Limite de 2 lots gratuits par jour maximum**
 - Système de vérification avec ID unique (YYYY-BEN-XXXXX)
-- Retrait avec QR code et PIN
-- Suivi de l'aide reçue
+- Retrait avec QR code et PIN en toute dignité
+- Suivi de l'aide reçue (repas sauvés, valeur)
 
 #### 🚚 **Collecteur**
 - Liste des missions de collecte disponibles
@@ -71,14 +71,15 @@ La plateforme gère **5 types d'utilisateurs** avec des fonctionnalités dédié
 - Gestion des paniers suspendus
 - Historique des paramètres système
 
-### 🎁 Paniers Suspendus
+### 🎁 Lots Gratuits pour Bénéficiaires
 
 Fonctionnalité phare de solidarité :
-- Les clients peuvent offrir un panier à un bénéficiaire
-- Montant libre (dès 2€)
-- Validation par le commerçant
-- Récupération par les bénéficiaires vérifiés
-- Suivi transparent des dons
+- Les commerçants créent des lots 100% gratuits exclusifs pour bénéficiaires
+- **2 lots gratuits maximum par jour** par bénéficiaire
+- Validation avec ID bénéficiaire unique (YYYY-BEN-XXXXX)
+- Récupération identique aux autres clients (QR code + PIN)
+- Aucune distinction visuelle pour préserver la dignité
+- Suivi transparent de l'aide distribuée
 
 ### 📱 Station de Retrait
 
@@ -291,7 +292,7 @@ npm run dev
 yarn dev
 ```
 
-L'application sera accessible sur **http://localhost:5173**
+L'application sera accessible sur **http://localhost:3000**
 
 ### Build pour production
 
@@ -429,13 +430,14 @@ ecopanier/
 | `VITE_SUPABASE_URL` | URL de votre projet Supabase | `https://xyz.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | Clé anonyme publique Supabase | `eyJhbGci...` |
 
-### Optionnelles (Futures)
+### Optionnelles
 
-| Variable | Description | Exemple |
-|----------|-------------|---------|
-| `VITE_GOOGLE_MAPS_KEY` | Clé API Google Maps | `AIzaSy...` |
-| `VITE_STRIPE_PUBLIC_KEY` | Clé publique Stripe (paiements) | `pk_test_...` |
-| `VITE_SENTRY_DSN` | DSN Sentry (monitoring erreurs) | `https://...` |
+| Variable | Description | Exemple | Statut |
+|----------|-------------|---------|--------|
+| `VITE_GEMINI_API_KEY` | Clé API Gemini AI (analyse d'images) | `AIzaSy...` | **Recommandé** |
+| `VITE_MAPBOX_TOKEN` | Token Mapbox (carte interactive) | `pk.eyJ1...` | Futur |
+| `VITE_STRIPE_PUBLIC_KEY` | Clé publique Stripe (paiements) | `pk_test_...` | Futur |
+| `VITE_SENTRY_DSN` | DSN Sentry (monitoring erreurs) | `https://...` | Futur |
 
 ---
 

@@ -1,394 +1,506 @@
 # 📡 Documentation API - EcoPanier
 
-> Référence complète de l'API Supabase utilisée par EcoPanier.
+> **Référence complète des API** - Guide complet des endpoints Supabase et Gemini AI
 
 ---
 
-## 📋 Table des matières
+## 📋 Table des Matières
 
-1. [Introduction](#introduction)
-2. [Authentification](#authentification)
-3. [Profiles](#profiles)
-4. [Lots](#lots)
-5. [Réservations](#réservations)
-6. [Paniers Suspendus](#paniers-suspendus)
-7. [Missions](#missions)
-8. [Impact Metrics](#impact-metrics)
-9. [Notifications](#notifications)
-10. [Paramètres Plateforme](#paramètres-plateforme)
-11. [Codes d'erreur](#codes-derreur)
+- [Introduction](#introduction)
+- [Authentification](#authentification)
+- [Profiles](#profiles)
+- [Lots](#lots)
+- [Reservations](#reservations)
+- [Missions](#missions)
+- [Platform Settings](#platform-settings)
+- [Activity Logs](#activity-logs)
+- [Storage](#storage)
+- [Gemini AI](#gemini-ai)
+- [Codes d'erreur](#codes-derreur)
 
 ---
 
-## 🎯 Introduction
+## Introduction
+
+EcoPanier utilise **Supabase** comme backend principal, qui expose une API REST auto-générée basée sur le schéma PostgreSQL.
 
 ### Base URL
 
 ```
-https://votre-projet.supabase.co/rest/v1
+https://votre-projet.supabase.co/rest/v1/
 ```
 
-### Client Supabase
+### Authentication
 
-```typescript
-import { supabase } from './lib/supabase';
+Toutes les requêtes (sauf publiques) nécessitent un header d'authentification :
 
-// Toutes les requêtes passent par le client Supabase
-const { data, error } = await supabase
-  .from('table_name')
-  .select();
+```http
+Authorization: Bearer <JWT_TOKEN>
+apikey: <SUPABASE_ANON_KEY>
 ```
 
-### Headers requis
+### Response Format
 
-```typescript
+```json
 {
-  "apikey": "votre-anon-key",
-  "Authorization": "Bearer {jwt-token}",
-  "Content-Type": "application/json"
+  "data": [...],
+  "error": null,
+  "count": 10,
+  "status": 200,
+  "statusText": "OK"
 }
 ```
 
-> **Note** : Le client Supabase gère automatiquement ces headers.
-
 ---
 
-## 🔐 Authentification
+## Authentification
 
 ### Sign Up (Inscription)
 
+Créer un nouveau compte utilisateur.
+
 **Endpoint** : `POST /auth/v1/signup`
 
-```typescript
-const { data, error } = await supabase.auth.signUp({
-  email: 'user@example.com',
-  password: 'password123'
-});
-```
-
-**Response**
+**Request Body** :
 ```json
 {
+  "email": "user@example.com",
+  "password": "SecurePass123!"
+}
+```
+
+**Response** :
+```json
+{
+  "access_token": "eyJhbGci...",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "refresh_token": "refreshToken...",
   "user": {
     "id": "uuid",
     "email": "user@example.com",
-    "created_at": "2025-01-01T00:00:00Z"
-  },
-  "session": {
-    "access_token": "jwt-token",
-    "refresh_token": "refresh-token",
-    "expires_in": 3600
+    "created_at": "2024-01-15T10:00:00Z"
   }
 }
 ```
 
+**Code Example** :
+```typescript
+const { data, error } = await supabase.auth.signUp({
+  email: 'user@example.com',
+  password: 'SecurePass123!'
+});
+```
+
+---
+
 ### Sign In (Connexion)
+
+Authentifier un utilisateur existant.
 
 **Endpoint** : `POST /auth/v1/token?grant_type=password`
 
-```typescript
-const { data, error } = await supabase.auth.signInWithPassword({
-  email: 'user@example.com',
-  password: 'password123'
-});
+**Request Body** :
+```json
+{
+  "email": "user@example.com",
+  "password": "SecurePass123!"
+}
 ```
 
 **Response** : Identique à Sign Up
 
+**Code Example** :
+```typescript
+const { data, error } = await supabase.auth.signInWithPassword({
+  email: 'user@example.com',
+  password: 'SecurePass123!'
+});
+```
+
+---
+
 ### Sign Out (Déconnexion)
 
+Invalider le token de session.
+
+**Code Example** :
 ```typescript
 const { error } = await supabase.auth.signOut();
 ```
 
-### Get Session
-
-```typescript
-const { data: { session } } = await supabase.auth.getSession();
-```
+---
 
 ### Reset Password
 
+Envoyer un email de réinitialisation.
+
+**Code Example** :
 ```typescript
-const { data, error } = await supabase.auth.resetPasswordForEmail(
+const { error } = await supabase.auth.resetPasswordForEmail(
   'user@example.com',
-  { redirectTo: 'https://votre-app.com/reset-password' }
+  { redirectTo: 'https://app.ecopanier.fr/reset-password' }
 );
 ```
 
 ---
 
-## 👤 Profiles
+## Profiles
 
-### Get Profile
+### Get All Profiles
 
-**Requête**
+Récupérer la liste des profils utilisateurs.
+
+**Endpoint** : `GET /profiles`
+
+**Query Parameters** :
+- `role` : Filtrer par rôle (customer, merchant, beneficiary, collector, admin)
+- `verified` : Filtrer par statut de vérification (true/false)
+- `limit` : Nombre de résultats (default: 10)
+- `offset` : Pagination
+
+**Code Example** :
 ```typescript
-const { data, error } = await supabase
-  .from('profiles')
-  .select('*')
-  .eq('id', userId)
-  .single();
-```
-
-**Response**
-```json
-{
-  "id": "uuid",
-  "role": "customer",
-  "full_name": "Jean Dupont",
-  "phone": "+33612345678",
-  "address": "123 Rue de Paris, 75001 Paris",
-  "business_name": null,
-  "business_address": null,
-  "latitude": 48.8566,
-  "longitude": 2.3522,
-  "beneficiary_id": null,
-  "verified": false,
-  "created_at": "2025-01-01T00:00:00Z",
-  "updated_at": "2025-01-01T00:00:00Z"
-}
-```
-
-### Create Profile
-
-```typescript
-const { data, error } = await supabase
-  .from('profiles')
-  .insert({
-    id: userId, // UUID from auth.users
-    role: 'customer',
-    full_name: 'Jean Dupont',
-    phone: '+33612345678',
-    address: '123 Rue de Paris, 75001 Paris',
-    verified: false
-  })
-  .select()
-  .single();
-```
-
-### Update Profile
-
-```typescript
-const { data, error } = await supabase
-  .from('profiles')
-  .update({
-    full_name: 'Jean Dupont',
-    phone: '+33612345678',
-    address: '123 Rue de Paris, 75001 Paris',
-    updated_at: new Date().toISOString()
-  })
-  .eq('id', userId)
-  .select()
-  .single();
-```
-
-### Get Users by Role
-
-```typescript
-// Obtenir tous les commerçants
 const { data, error } = await supabase
   .from('profiles')
   .select('*')
   .eq('role', 'merchant')
-  .order('created_at', { ascending: false });
+  .eq('verified', true)
+  .order('created_at', { ascending: false })
+  .limit(20);
 ```
 
-### Get Beneficiary by ID
+**Response** :
+```json
+[
+  {
+    "id": "uuid",
+    "role": "merchant",
+    "full_name": "Jean Dupont",
+    "email": "jean@boulangerie.fr",
+    "phone": "+33612345678",
+    "verified": true,
+    "business_name": "Boulangerie Dupont",
+    "business_hours": {
+      "monday": { "open": "07:00", "close": "19:00" },
+      "tuesday": { "open": "07:00", "close": "19:00" }
+    },
+    "business_logo_url": "https://storage.supabase.co/...",
+    "created_at": "2024-01-15T10:00:00Z"
+  }
+]
+```
 
+---
+
+### Get Profile by ID
+
+Récupérer un profil spécifique.
+
+**Endpoint** : `GET /profiles?id=eq.{id}`
+
+**Code Example** :
 ```typescript
 const { data, error } = await supabase
   .from('profiles')
   .select('*')
-  .eq('beneficiary_id', '2025-BEN-00001')
+  .eq('id', userId)
   .single();
 ```
 
 ---
 
-## 📦 Lots
+### Update Profile
 
-### List Lots
+Mettre à jour un profil utilisateur.
 
-**Tous les lots disponibles**
+**Endpoint** : `PATCH /profiles?id=eq.{id}`
+
+**Request Body** :
+```json
+{
+  "full_name": "Jean Dupont",
+  "phone": "+33612345678",
+  "business_name": "Boulangerie Dupont"
+}
+```
+
+**Code Example** :
 ```typescript
+const { data, error } = await supabase
+  .from('profiles')
+  .update({
+    full_name: 'Jean Dupont',
+    phone: '+33612345678'
+  })
+  .eq('id', userId);
+```
+
+---
+
+## Lots
+
+### Get All Lots
+
+Récupérer la liste des lots disponibles.
+
+**Endpoint** : `GET /lots`
+
+**Query Parameters** :
+- `status` : available, reserved, sold_out, expired
+- `category` : fruits_legumes, boulangerie, boucherie, etc.
+- `is_free` : true/false (lots gratuits bénéficiaires)
+- `merchant_id` : Filtrer par commerçant
+- `min_price`, `max_price` : Fourchette de prix
+
+**Code Example** :
+```typescript
+// Lots disponibles avec infos commerçant
 const { data, error } = await supabase
   .from('lots')
   .select(`
     *,
     merchant:profiles!merchant_id(
-      id,
       full_name,
       business_name,
-      business_address
+      business_logo_url,
+      phone
     )
   `)
   .eq('status', 'available')
+  .gte('discounted_price', 5)
+  .lte('discounted_price', 20)
   .order('created_at', { ascending: false });
 ```
 
-**Response**
+**Response** :
 ```json
 [
   {
     "id": "uuid",
     "merchant_id": "uuid",
-    "title": "Panier de légumes frais",
-    "description": "Légumes de saison à sauver",
-    "category": "Fruits & Légumes",
-    "original_price": 15.00,
-    "discounted_price": 5.00,
+    "title": "Panier de fruits et légumes",
+    "description": "5kg de fruits et légumes frais de saison",
+    "category": "fruits_legumes",
+    "original_price": 25.00,
+    "discounted_price": 10.00,
     "quantity_total": 10,
     "quantity_reserved": 3,
-    "quantity_sold": 2,
-    "pickup_start": "2025-01-15T17:00:00Z",
-    "pickup_end": "2025-01-15T20:00:00Z",
-    "requires_cold_chain": true,
-    "is_urgent": false,
+    "quantity_sold": 0,
+    "is_free": false,
     "status": "available",
-    "image_urls": ["url1", "url2"],
-    "created_at": "2025-01-01T00:00:00Z",
-    "updated_at": "2025-01-01T00:00:00Z",
+    "images": [
+      "https://storage.supabase.co/lot-images/..."
+    ],
+    "pickup_start": "2024-01-20T17:00:00Z",
+    "pickup_end": "2024-01-20T19:00:00Z",
+    "created_at": "2024-01-15T10:00:00Z",
     "merchant": {
-      "id": "uuid",
-      "full_name": "Marie Boulangerie",
-      "business_name": "La Boulangerie du Coin",
-      "business_address": "10 Avenue de la République"
+      "full_name": "Jean Dupont",
+      "business_name": "Boulangerie Dupont",
+      "business_logo_url": "https://...",
+      "phone": "+33612345678"
     }
   }
 ]
 ```
 
-### Get Lot by ID
+---
 
+### Get Free Lots (Bénéficiaires)
+
+Récupérer uniquement les lots gratuits.
+
+**Code Example** :
 ```typescript
 const { data, error } = await supabase
   .from('lots')
   .select(`
     *,
-    merchant:profiles!merchant_id(full_name, business_name, phone, business_address)
+    merchant:profiles!merchant_id(business_name, phone)
   `)
-  .eq('id', lotId)
-  .single();
-```
-
-### Create Lot (Commerçant)
-
-```typescript
-const { data, error } = await supabase
-  .from('lots')
-  .insert({
-    merchant_id: currentUser.id,
-    title: 'Panier de légumes frais',
-    description: 'Légumes de saison',
-    category: 'Fruits & Légumes',
-    original_price: 15.00,
-    discounted_price: 5.00,
-    quantity_total: 10,
-    pickup_start: '2025-01-15T17:00:00Z',
-    pickup_end: '2025-01-15T20:00:00Z',
-    requires_cold_chain: true,
-    is_urgent: false,
-    status: 'available',
-    image_urls: []
-  })
-  .select()
-  .single();
-```
-
-### Update Lot
-
-```typescript
-const { data, error } = await supabase
-  .from('lots')
-  .update({
-    title: 'Nouveau titre',
-    discounted_price: 4.00,
-    updated_at: new Date().toISOString()
-  })
-  .eq('id', lotId)
-  .eq('merchant_id', currentUser.id) // Sécurité: seul le commerçant peut modifier
-  .select()
-  .single();
-```
-
-### Delete Lot
-
-```typescript
-const { error } = await supabase
-  .from('lots')
-  .delete()
-  .eq('id', lotId)
-  .eq('merchant_id', currentUser.id);
-```
-
-### Update Lot Status
-
-```typescript
-// Marquer comme vendu
-const { data, error } = await supabase
-  .from('lots')
-  .update({ status: 'sold_out' })
-  .eq('id', lotId);
-```
-
-### Filter Lots
-
-```typescript
-// Par catégorie
-const { data } = await supabase
-  .from('lots')
-  .select('*')
-  .eq('category', 'Boulangerie-Pâtisserie')
-  .eq('status', 'available');
-
-// Urgents seulement
-const { data } = await supabase
-  .from('lots')
-  .select('*')
-  .eq('is_urgent', true)
-  .eq('status', 'available');
-
-// Prix max
-const { data } = await supabase
-  .from('lots')
-  .select('*')
-  .lte('discounted_price', 5.00);
-
-// Date de retrait
-const { data } = await supabase
-  .from('lots')
-  .select('*')
-  .gte('pickup_start', new Date().toISOString())
-  .eq('status', 'available');
+  .eq('is_free', true)
+  .eq('status', 'available')
+  .gt('quantity_total', 0);
 ```
 
 ---
 
-## 🎫 Réservations
+### Create Lot (Commerçant)
+
+Créer un nouveau lot d'invendus.
+
+**Endpoint** : `POST /lots`
+
+**Request Body** :
+```json
+{
+  "merchant_id": "uuid",
+  "title": "Pain invendu du jour",
+  "description": "10 baguettes + 5 croissants",
+  "category": "boulangerie",
+  "original_price": 30.00,
+  "discounted_price": 10.00,
+  "quantity_total": 3,
+  "is_free": false,
+  "images": ["https://..."],
+  "pickup_start": "2024-01-20T18:00:00Z",
+  "pickup_end": "2024-01-20T20:00:00Z"
+}
+```
+
+**Code Example** :
+```typescript
+const { data, error } = await supabase
+  .from('lots')
+  .insert({
+    merchant_id: merchantId,
+    title: 'Pain invendu du jour',
+    description: '10 baguettes + 5 croissants',
+    category: 'boulangerie',
+    original_price: 30.00,
+    discounted_price: 10.00,
+    quantity_total: 3,
+    is_free: false,
+    images: imageUrls,
+    pickup_start: '2024-01-20T18:00:00Z',
+    pickup_end: '2024-01-20T20:00:00Z'
+  })
+  .select()
+  .single();
+```
+
+---
+
+### Update Lot
+
+Modifier un lot existant.
+
+**Endpoint** : `PATCH /lots?id=eq.{id}`
+
+**Code Example** :
+```typescript
+const { data, error } = await supabase
+  .from('lots')
+  .update({
+    discounted_price: 8.00,
+    quantity_total: 5
+  })
+  .eq('id', lotId)
+  .eq('merchant_id', merchantId); // Sécurité : seul le merchant peut modifier
+```
+
+---
+
+### Delete Lot
+
+Supprimer un lot (soft delete via status).
+
+**Code Example** :
+```typescript
+const { data, error } = await supabase
+  .from('lots')
+  .update({ status: 'expired' })
+  .eq('id', lotId)
+  .eq('merchant_id', merchantId);
+```
+
+---
+
+## Reservations
+
+### Get User Reservations
+
+Récupérer les réservations d'un utilisateur.
+
+**Code Example** :
+```typescript
+const { data, error } = await supabase
+  .from('reservations')
+  .select(`
+    *,
+    lot:lots(
+      title,
+      description,
+      images,
+      pickup_start,
+      pickup_end,
+      merchant:profiles!merchant_id(
+        business_name,
+        phone,
+        business_logo_url
+      )
+    )
+  `)
+  .eq('user_id', userId)
+  .order('created_at', { ascending: false });
+```
+
+**Response** :
+```json
+[
+  {
+    "id": "uuid",
+    "user_id": "uuid",
+    "lot_id": "uuid",
+    "quantity": 1,
+    "total_price": 10.00,
+    "pickup_pin": "123456",
+    "status": "pending",
+    "completed_at": null,
+    "created_at": "2024-01-15T10:00:00Z",
+    "lot": {
+      "title": "Panier de fruits",
+      "description": "...",
+      "images": ["https://..."],
+      "pickup_start": "2024-01-20T17:00:00Z",
+      "pickup_end": "2024-01-20T19:00:00Z",
+      "merchant": {
+        "business_name": "Boulangerie Dupont",
+        "phone": "+33612345678",
+        "business_logo_url": "https://..."
+      }
+    }
+  }
+]
+```
+
+---
 
 ### Create Reservation
 
+Créer une nouvelle réservation.
+
+**Request Body** :
+```json
+{
+  "user_id": "uuid",
+  "lot_id": "uuid",
+  "quantity": 2,
+  "total_price": 20.00
+}
+```
+
+**Code Example** :
 ```typescript
-// Générer un PIN à 6 chiffres
-const pin = Math.floor(100000 + Math.random() * 900000).toString();
+// Génération du PIN à 6 chiffres
+const generatePIN = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 const { data, error } = await supabase
   .from('reservations')
   .insert({
+    user_id: userId,
     lot_id: lotId,
-    user_id: currentUser.id,
     quantity: 2,
-    total_price: lot.discounted_price * 2,
-    pickup_pin: pin,
-    status: 'pending',
-    is_donation: false
+    total_price: 20.00,
+    pickup_pin: generatePIN(),
+    status: 'pending'
   })
   .select()
   .single();
 
-// Mettre à jour la quantité réservée du lot
-const { error: updateError } = await supabase
+// Mettre à jour la quantité du lot
+await supabase
   .from('lots')
   .update({
     quantity_reserved: lot.quantity_reserved + 2
@@ -396,685 +508,598 @@ const { error: updateError } = await supabase
   .eq('id', lotId);
 ```
 
-### Get User Reservations
+---
 
+### Check Beneficiary Daily Limit
+
+Vérifier si un bénéficiaire a atteint sa limite de 2 lots/jour.
+
+**Code Example** :
 ```typescript
+const today = new Date().toISOString().split('T')[0];
+
 const { data, error } = await supabase
   .from('reservations')
-  .select(`
-    *,
-    lot:lots(
-      *,
-      merchant:profiles!merchant_id(full_name, business_name, phone, business_address)
-    )
-  `)
-  .eq('user_id', currentUser.id)
-  .order('created_at', { ascending: false });
+  .select('id')
+  .eq('user_id', beneficiaryId)
+  .gte('created_at', `${today}T00:00:00Z`)
+  .lte('created_at', `${today}T23:59:59Z`);
+
+const hasReachedLimit = data.length >= 2;
 ```
 
-**Response**
-```json
-[
-  {
-    "id": "uuid",
-    "lot_id": "uuid",
-    "user_id": "uuid",
-    "quantity": 2,
-    "total_price": 10.00,
-    "pickup_pin": "123456",
-    "status": "confirmed",
-    "is_donation": false,
-    "created_at": "2025-01-01T00:00:00Z",
-    "updated_at": "2025-01-01T00:00:00Z",
-    "completed_at": null,
-    "lot": {
-      "id": "uuid",
-      "title": "Panier de légumes",
-      "pickup_start": "2025-01-15T17:00:00Z",
-      "pickup_end": "2025-01-15T20:00:00Z",
-      "merchant": {
-        "full_name": "Marie Boulangerie",
-        "business_name": "La Boulangerie du Coin",
-        "phone": "+33612345678",
-        "business_address": "10 Avenue de la République"
-      }
-    }
-  }
-]
-```
+---
 
-### Get Reservation by ID
+### Complete Reservation (Station de retrait)
 
+Marquer une réservation comme complétée après scan QR + PIN.
+
+**Code Example** :
 ```typescript
-const { data, error } = await supabase
-  .from('reservations')
-  .select(`
-    *,
-    lot:lots(*),
-    user:profiles(full_name, phone)
-  `)
-  .eq('id', reservationId)
-  .single();
-```
-
-### Complete Reservation (Retrait)
-
-```typescript
-// 1. Valider le PIN
+// 1. Vérifier le PIN
 const { data: reservation, error } = await supabase
   .from('reservations')
   .select('*')
   .eq('id', reservationId)
+  .eq('pickup_pin', inputPin)
   .single();
 
-if (inputPin !== reservation.pickup_pin) {
-  throw new Error('PIN incorrect');
+if (!reservation) {
+  throw new Error('Code PIN incorrect');
 }
 
 // 2. Marquer comme complété
-const { data, error: updateError } = await supabase
+await supabase
   .from('reservations')
   .update({
     status: 'completed',
     completed_at: new Date().toISOString()
   })
-  .eq('id', reservationId)
-  .select()
-  .single();
+  .eq('id', reservationId);
 
 // 3. Mettre à jour le lot
-const { error: lotError } = await supabase
+await supabase
   .from('lots')
   .update({
-    quantity_reserved: lot.quantity_reserved - reservation.quantity,
-    quantity_sold: lot.quantity_sold + reservation.quantity
-  })
-  .eq('id', reservation.lot_id);
-```
-
-### Cancel Reservation
-
-```typescript
-const { data, error } = await supabase
-  .from('reservations')
-  .update({ status: 'cancelled' })
-  .eq('id', reservationId)
-  .eq('user_id', currentUser.id);
-
-// Libérer la quantité réservée
-const { error: lotError } = await supabase
-  .from('lots')
-  .update({
+    quantity_sold: lot.quantity_sold + reservation.quantity,
     quantity_reserved: lot.quantity_reserved - reservation.quantity
   })
   .eq('id', reservation.lot_id);
 ```
 
-### Get Merchant Reservations
+---
 
+### Cancel Reservation
+
+Annuler une réservation.
+
+**Code Example** :
 ```typescript
 const { data, error } = await supabase
   .from('reservations')
+  .update({ status: 'cancelled' })
+  .eq('id', reservationId)
+  .eq('user_id', userId); // Sécurité
+```
+
+---
+
+## Missions
+
+### Get Available Missions (Collecteurs)
+
+Récupérer les missions disponibles.
+
+**Code Example** :
+```typescript
+const { data, error } = await supabase
+  .from('missions')
   .select(`
     *,
-    lot:lots!inner(merchant_id),
-    user:profiles(full_name, phone)
+    merchant:profiles!merchant_id(
+      business_name,
+      phone,
+      address
+    )
   `)
-  .eq('lot.merchant_id', currentUser.id)
+  .eq('status', 'available')
   .order('created_at', { ascending: false });
 ```
 
 ---
 
-## 🎁 Paniers Suspendus
+### Accept Mission
 
-### Create Suspended Basket (Don)
+Accepter une mission de collecte.
 
+**Code Example** :
 ```typescript
 const { data, error } = await supabase
-  .from('suspended_baskets')
-  .insert({
-    donor_id: currentUser.id,
-    merchant_id: selectedMerchantId,
-    amount: 5.00,
-    status: 'available',
-    notes: 'Don pour aider les personnes en difficulté',
-    expires_at: null // Ou date d'expiration
-  })
-  .select()
-  .single();
-```
-
-### List Available Baskets (Bénéficiaire)
-
-```typescript
-const { data, error } = await supabase
-  .from('suspended_baskets')
-  .select(`
-    *,
-    donor:profiles!donor_id(full_name),
-    merchant:profiles!merchant_id(full_name, business_name, business_address)
-  `)
-  .eq('status', 'available')
-  .is('claimed_by', null)
-  .order('created_at', { ascending: false });
-```
-
-**Response**
-```json
-[
-  {
-    "id": "uuid",
-    "donor_id": "uuid",
-    "merchant_id": "uuid",
-    "reservation_id": null,
-    "amount": 5.00,
-    "claimed_by": null,
-    "claimed_at": null,
-    "status": "available",
-    "notes": "Don pour aider",
-    "expires_at": null,
-    "created_at": "2025-01-01T00:00:00Z",
-    "updated_at": "2025-01-01T00:00:00Z",
-    "donor": {
-      "full_name": "Jean Dupont"
-    },
-    "merchant": {
-      "full_name": "Marie Boulangerie",
-      "business_name": "La Boulangerie du Coin",
-      "business_address": "10 Avenue de la République"
-    }
-  }
-]
-```
-
-### Claim Basket (Récupérer)
-
-```typescript
-const { data, error } = await supabase
-  .from('suspended_baskets')
+  .from('missions')
   .update({
-    claimed_by: currentUser.id,
-    claimed_at: new Date().toISOString(),
-    status: 'claimed'
+    collector_id: collectorId,
+    status: 'accepted'
   })
-  .eq('id', basketId)
-  .eq('status', 'available') // Sécurité: seuls les paniers disponibles
-  .select()
-  .single();
-```
-
-### Get My Donations (Donateur)
-
-```typescript
-const { data, error } = await supabase
-  .from('suspended_baskets')
-  .select(`
-    *,
-    merchant:profiles!merchant_id(business_name),
-    beneficiary:profiles!claimed_by(full_name, beneficiary_id)
-  `)
-  .eq('donor_id', currentUser.id)
-  .order('created_at', { ascending: false });
-```
-
-### Get My Claimed Baskets (Bénéficiaire)
-
-```typescript
-const { data, error } = await supabase
-  .from('suspended_baskets')
-  .select(`
-    *,
-    donor:profiles!donor_id(full_name),
-    merchant:profiles!merchant_id(business_name, business_address)
-  `)
-  .eq('claimed_by', currentUser.id)
-  .order('claimed_at', { ascending: false });
-```
-
-### Mark Basket as Expired
-
-```typescript
-// Exécuter périodiquement (cron job ou edge function)
-const { data, error } = await supabase
-  .from('suspended_baskets')
-  .update({ status: 'expired' })
-  .eq('status', 'available')
-  .not('expires_at', 'is', null)
-  .lt('expires_at', new Date().toISOString());
+  .eq('id', missionId)
+  .is('collector_id', null); // Sécurité : mission non déjà prise
 ```
 
 ---
-
-## 🚚 Missions
-
-### List Available Missions
-
-```typescript
-const { data, error } = await supabase
-  .from('missions')
-  .select(`
-    *,
-    merchant:profiles!merchant_id(full_name, business_name, phone, business_address)
-  `)
-  .eq('status', 'available')
-  .order('created_at', { ascending: false });
-```
-
-### Create Mission (Commerçant)
-
-```typescript
-const { data, error } = await supabase
-  .from('missions')
-  .insert({
-    merchant_id: currentUser.id,
-    title: 'Livraison association',
-    description: 'Livrer 10 paniers à l\'association X',
-    pickup_address: '10 Rue du Commerce, Paris',
-    delivery_address: '50 Avenue de la Solidarité, Paris',
-    pickup_latitude: 48.8566,
-    pickup_longitude: 2.3522,
-    delivery_latitude: 48.8606,
-    delivery_longitude: 2.3376,
-    requires_cold_chain: true,
-    is_urgent: false,
-    payment_amount: 15.00,
-    status: 'available'
-  })
-  .select()
-  .single();
-```
-
-### Accept Mission (Collecteur)
-
-```typescript
-const { data, error } = await supabase
-  .from('missions')
-  .update({
-    collector_id: currentUser.id,
-    status: 'accepted',
-    accepted_at: new Date().toISOString()
-  })
-  .eq('id', missionId)
-  .eq('status', 'available') // Sécurité
-  .select()
-  .single();
-```
-
-### Start Mission
-
-```typescript
-const { data, error } = await supabase
-  .from('missions')
-  .update({ status: 'in_progress' })
-  .eq('id', missionId)
-  .eq('collector_id', currentUser.id);
-```
 
 ### Complete Mission
 
+Marquer une mission comme terminée.
+
+**Code Example** :
 ```typescript
 const { data, error } = await supabase
   .from('missions')
   .update({
     status: 'completed',
-    completed_at: new Date().toISOString(),
-    proof_urls: ['url-photo-1', 'url-signature']
+    completed_at: new Date().toISOString()
   })
   .eq('id', missionId)
-  .eq('collector_id', currentUser.id)
-  .select()
-  .single();
-```
-
-### Get My Missions (Collecteur)
-
-```typescript
-const { data, error } = await supabase
-  .from('missions')
-  .select(`
-    *,
-    merchant:profiles!merchant_id(full_name, business_name, phone)
-  `)
-  .eq('collector_id', currentUser.id)
-  .in('status', ['accepted', 'in_progress', 'completed'])
-  .order('accepted_at', { ascending: false });
+  .eq('collector_id', collectorId); // Sécurité
 ```
 
 ---
 
-## 📊 Impact Metrics
-
-### Record Impact
-
-```typescript
-const { data, error } = await supabase
-  .from('impact_metrics')
-  .insert({
-    user_id: currentUser.id,
-    metric_type: 'meals_saved', // 'co2_saved', 'money_saved', 'donations_made'
-    value: 2,
-    date: new Date().toISOString().split('T')[0] // Format: YYYY-MM-DD
-  })
-  .select()
-  .single();
-```
-
-### Get User Impact
-
-```typescript
-const { data, error } = await supabase
-  .from('impact_metrics')
-  .select('*')
-  .eq('user_id', currentUser.id)
-  .order('date', { ascending: false });
-```
-
-### Aggregate User Impact
-
-```typescript
-// Calculer l'impact total par type
-const { data, error } = await supabase
-  .from('impact_metrics')
-  .select('metric_type, value')
-  .eq('user_id', currentUser.id);
-
-// Agréger côté client
-const impact = data.reduce((acc, metric) => {
-  acc[metric.metric_type] = (acc[metric.metric_type] || 0) + metric.value;
-  return acc;
-}, {});
-
-// Résultat:
-// {
-//   meals_saved: 45,
-//   co2_saved: 40.5,
-//   money_saved: 135,
-//   donations_made: 20
-// }
-```
-
-### Get Platform-wide Impact
-
-```typescript
-const { data, error } = await supabase
-  .from('impact_metrics')
-  .select('metric_type, value');
-
-// Agréger tous les utilisateurs
-const globalImpact = data.reduce((acc, metric) => {
-  acc[metric.metric_type] = (acc[metric.metric_type] || 0) + metric.value;
-  return acc;
-}, {});
-```
-
----
-
-## 🔔 Notifications
-
-### Create Notification
-
-```typescript
-const { data, error } = await supabase
-  .from('notifications')
-  .insert({
-    user_id: targetUserId,
-    title: 'Nouvelle réservation',
-    message: 'Un client a réservé votre lot "Panier de légumes"',
-    type: 'info', // 'success', 'warning', 'error'
-    read: false
-  })
-  .select()
-  .single();
-```
-
-### Get User Notifications
-
-```typescript
-const { data, error } = await supabase
-  .from('notifications')
-  .select('*')
-  .eq('user_id', currentUser.id)
-  .order('created_at', { ascending: false })
-  .limit(20);
-```
-
-### Get Unread Count
-
-```typescript
-const { count, error } = await supabase
-  .from('notifications')
-  .select('*', { count: 'exact', head: true })
-  .eq('user_id', currentUser.id)
-  .eq('read', false);
-```
-
-### Mark as Read
-
-```typescript
-// Une notification
-const { data, error } = await supabase
-  .from('notifications')
-  .update({ read: true })
-  .eq('id', notificationId);
-
-// Toutes les notifications
-const { data, error } = await supabase
-  .from('notifications')
-  .update({ read: true })
-  .eq('user_id', currentUser.id)
-  .eq('read', false);
-```
-
-### Delete Notification
-
-```typescript
-const { error } = await supabase
-  .from('notifications')
-  .delete()
-  .eq('id', notificationId)
-  .eq('user_id', currentUser.id);
-```
-
----
-
-## ⚙️ Paramètres Plateforme
+## Platform Settings
 
 ### Get All Settings (Admin)
 
+Récupérer tous les paramètres de la plateforme.
+
+**Code Example** :
 ```typescript
 const { data, error } = await supabase
   .from('platform_settings')
   .select('*')
-  .order('category', { ascending: true });
+  .order('key');
 ```
 
-**Response**
+**Response** :
 ```json
 [
   {
     "id": "uuid",
-    "key": "platform_name",
-    "value": "EcoPanier",
-    "description": "Nom de la plateforme",
-    "category": "general",
-    "updated_at": "2025-01-01T00:00:00Z",
+    "key": "commission_rate",
+    "value": { "rate": 0.15, "description": "15% commission" },
     "updated_by": "admin-uuid",
-    "created_at": "2025-01-01T00:00:00Z"
+    "updated_at": "2024-01-15T10:00:00Z"
+  },
+  {
+    "id": "uuid",
+    "key": "max_beneficiary_lots_per_day",
+    "value": { "limit": 2 },
+    "updated_by": "admin-uuid",
+    "updated_at": "2024-01-15T10:00:00Z"
   }
 ]
 ```
 
-### Get Setting by Key
-
-```typescript
-const { data, error } = await supabase
-  .from('platform_settings')
-  .select('*')
-  .eq('key', 'min_lot_price')
-  .single();
-```
+---
 
 ### Update Setting (Admin)
 
+Modifier un paramètre système.
+
+**Code Example** :
 ```typescript
 const { data, error } = await supabase
   .from('platform_settings')
   .update({
-    value: 3, // Nouvelle valeur (JSONB)
-    updated_by: currentUser.id
+    value: { rate: 0.12 },
+    updated_by: adminId,
+    updated_at: new Date().toISOString()
   })
-  .eq('key', 'min_lot_price')
-  .select()
-  .single();
-```
+  .eq('key', 'commission_rate');
 
-### Get Settings History
-
-```typescript
-const { data, error } = await supabase
-  .from('platform_settings_history')
-  .select(`
-    *,
-    changed_by_profile:profiles!changed_by(full_name, role)
-  `)
-  .eq('setting_key', 'merchant_commission')
-  .order('changed_at', { ascending: false });
+// Log l'historique
+await supabase.from('settings_history').insert({
+  setting_key: 'commission_rate',
+  old_value: { rate: 0.15 },
+  new_value: { rate: 0.12 },
+  changed_by: adminId
+});
 ```
 
 ---
 
-## ⚠️ Codes d'erreur
+## Activity Logs
 
-### Erreurs d'authentification
+### Get Activity Logs (Admin)
 
-| Code | Message | Description |
-|------|---------|-------------|
-| `400` | Invalid login credentials | Email ou mot de passe incorrect |
-| `422` | User already registered | Email déjà utilisé |
-| `401` | Invalid token | Session expirée |
+Récupérer l'historique d'activité.
 
-### Erreurs de base de données
-
-| Code | Message | Description |
-|------|---------|-------------|
-| `23505` | duplicate key value violates unique constraint | Violation de contrainte unique |
-| `23503` | foreign key violation | Référence invalide |
-| `23514` | check constraint violation | Violation de contrainte de vérification |
-| `42P01` | relation does not exist | Table inexistante |
-
-### Gestion des erreurs
-
+**Code Example** :
 ```typescript
-try {
-  const { data, error } = await supabase
-    .from('lots')
-    .select();
-  
+const { data, error } = await supabase
+  .from('activity_logs')
+  .select(`
+    *,
+    user:profiles(full_name, email, role)
+  `)
+  .order('created_at', { ascending: false })
+  .limit(100);
+```
+
+**Response** :
+```json
+[
+  {
+    "id": "uuid",
+    "user_id": "uuid",
+    "action_type": "lot_created",
+    "details": {
+      "lot_id": "uuid",
+      "title": "Pain invendu",
+      "price": 10.00
+    },
+    "created_at": "2024-01-15T10:00:00Z",
+    "user": {
+      "full_name": "Jean Dupont",
+      "email": "jean@boulangerie.fr",
+      "role": "merchant"
+    }
+  }
+]
+```
+
+---
+
+### Create Activity Log
+
+Logger une action utilisateur.
+
+**Code Example** :
+```typescript
+await supabase.from('activity_logs').insert({
+  user_id: userId,
+  action_type: 'lot_created',
+  details: {
+    lot_id: newLot.id,
+    title: newLot.title,
+    price: newLot.discounted_price
+  }
+});
+```
+
+---
+
+## Storage
+
+### Upload Lot Image
+
+Uploader une image de lot.
+
+**Code Example** :
+```typescript
+const uploadLotImage = async (file: File) => {
+  // 1. Upload vers Storage
+  const fileName = `${Date.now()}-${file.name}`;
+  const { data, error } = await supabase.storage
+    .from('lot-images')
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
   if (error) throw error;
+
+  // 2. Récupérer l'URL publique
+  const { data: { publicUrl } } = supabase.storage
+    .from('lot-images')
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+};
+```
+
+---
+
+### Upload Business Logo
+
+Uploader un logo de commerce.
+
+**Code Example** :
+```typescript
+const uploadBusinessLogo = async (file: File, merchantId: string) => {
+  const fileName = `${merchantId}-logo.${file.name.split('.').pop()}`;
   
-  return data;
-} catch (error: any) {
-  console.error('Error:', error.message);
-  
-  if (error.code === '23505') {
-    throw new Error('Cet élément existe déjà');
+  // Remplacer l'ancien logo si existe
+  const { data, error } = await supabase.storage
+    .from('business-logos')
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: true // Écrase si existe
+    });
+
+  if (error) throw error;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('business-logos')
+    .getPublicUrl(fileName);
+
+  // Mettre à jour le profil
+  await supabase
+    .from('profiles')
+    .update({ business_logo_url: publicUrl })
+    .eq('id', merchantId);
+
+  return publicUrl;
+};
+```
+
+---
+
+### Delete Image
+
+Supprimer une image du Storage.
+
+**Code Example** :
+```typescript
+const deleteImage = async (imagePath: string) => {
+  const { error } = await supabase.storage
+    .from('lot-images')
+    .remove([imagePath]);
+
+  if (error) throw error;
+};
+```
+
+---
+
+## Gemini AI
+
+### Analyze Image with Gemini 2.0 Flash
+
+Analyser une image de produit alimentaire avec l'IA.
+
+**Function** : `analyzeImageWithGemini(imageFile: File)`
+
+**Input** :
+```typescript
+interface ImageFile extends File {
+  type: 'image/jpeg' | 'image/png' | 'image/webp';
+  size: number; // Max 5MB recommandé
+}
+```
+
+**Output** :
+```typescript
+interface AnalysisResult {
+  success: boolean;
+  data?: {
+    title: string;
+    description: string;
+    category: string;
+    originalPrice: number;
+    discountedPrice: number;
+    quantity: number;
+    requiresColdChain: boolean;
+    isUrgent: boolean;
+    confidence: number; // 0-1
+  };
+  error?: string;
+}
+```
+
+**Example Response** :
+```json
+{
+  "success": true,
+  "data": {
+    "title": "Lot de tomates fraîches",
+    "description": "Tomates rondes bien mûres, idéales pour salades et sauces. Calibre moyen. Origine France.",
+    "category": "fruits_legumes",
+    "originalPrice": 12.50,
+    "discountedPrice": 6.00,
+    "quantity": 2,
+    "requiresColdChain": true,
+    "isUrgent": false,
+    "confidence": 0.92
   }
-  
-  if (error.code === 'PGRST116') {
-    throw new Error('Aucun résultat trouvé');
+}
+```
+
+**Code Example** :
+```typescript
+import { analyzeImageWithGemini } from '@/utils/geminiService';
+
+const handleImageUpload = async (file: File) => {
+  try {
+    setLoading(true);
+    const result = await analyzeImageWithGemini(file);
+    
+    if (result.success && result.data) {
+      // Auto-fill form
+      setFormData({
+        title: result.data.title,
+        description: result.data.description,
+        category: result.data.category,
+        original_price: result.data.originalPrice,
+        discounted_price: result.data.discountedPrice,
+        quantity_total: result.data.quantity
+      });
+      
+      toast.success(`Analysé avec ${(result.data.confidence * 100).toFixed(0)}% de confiance`);
+    }
+  } catch (error) {
+    console.error('Erreur analyse IA:', error);
+    toast.error('Impossible d\'analyser l\'image');
+  } finally {
+    setLoading(false);
   }
-  
-  throw new Error('Une erreur est survenue');
+};
+```
+
+**Rate Limits** :
+- **Free tier** : 60 requêtes/minute
+- **Paid tier** : 1000 requêtes/minute
+
+**Error Handling** :
+```typescript
+if (!VITE_GEMINI_API_KEY) {
+  return {
+    success: false,
+    error: 'Clé API Gemini non configurée'
+  };
+}
+
+// Retry avec exponential backoff
+const MAX_RETRIES = 3;
+for (let i = 0; i < MAX_RETRIES; i++) {
+  try {
+    const result = await callGeminiAPI();
+    return result;
+  } catch (error) {
+    if (i === MAX_RETRIES - 1) throw error;
+    await sleep(Math.pow(2, i) * 1000);
+  }
 }
 ```
 
 ---
 
-## 🔍 Filtres et recherche avancée
+## Codes d'Erreur
 
-### Opérateurs disponibles
+### Supabase Error Codes
 
-```typescript
-// Égalité
-.eq('column', value)
+| Code | Description | Solution |
+|------|-------------|----------|
+| `PGRST116` | Row not found | Vérifier l'ID ou les filtres |
+| `23505` | Unique constraint violation | Valeur dupliquée (email, PIN, etc.) |
+| `23503` | Foreign key violation | L'entité référencée n'existe pas |
+| `42501` | Insufficient privilege | Problème RLS ou permissions |
+| `42P01` | Undefined table | Table n'existe pas (migration?) |
 
-// Non égalité
-.neq('column', value)
+### Gemini AI Error Codes
 
-// Plus grand que
-.gt('column', value)
-.gte('column', value)
+| Code | Description | Solution |
+|------|-------------|----------|
+| `403` | API key invalid | Vérifier VITE_GEMINI_API_KEY |
+| `429` | Rate limit exceeded | Attendre ou upgrader quota |
+| `400` | Invalid request | Vérifier format image |
+| `500` | Server error | Retry avec backoff |
 
-// Plus petit que
-.lt('column', value)
-.lte('column', value)
+---
 
-// LIKE (contient)
-.like('column', '%search%')
-.ilike('column', '%search%') // Case insensitive
+## Best Practices
 
-// IN (dans une liste)
-.in('column', [value1, value2])
-
-// IS NULL
-.is('column', null)
-
-// NOT NULL
-.not('column', 'is', null)
-
-// Plage
-.range(0, 9) // 10 premiers résultats
-
-// Limite
-.limit(10)
-
-// Tri
-.order('column', { ascending: false })
-```
-
-### Exemples de recherche
+### 1. Toujours gérer les erreurs
 
 ```typescript
-// Recherche de lots par titre
-const { data } = await supabase
-  .from('lots')
-  .select('*')
-  .ilike('title', '%légumes%')
-  .eq('status', 'available');
+// ✅ BON
+try {
+  const { data, error } = await supabase.from('lots').select();
+  if (error) throw error;
+  return data;
+} catch (error) {
+  console.error('Erreur:', error);
+  throw new Error('Message utilisateur-friendly');
+}
 
-// Lots dans une plage de prix
-const { data } = await supabase
-  .from('lots')
-  .select('*')
-  .gte('discounted_price', 2)
-  .lte('discounted_price', 10);
-
-// Réservations d'un utilisateur pour aujourd'hui
-const today = new Date().toISOString().split('T')[0];
-const { data } = await supabase
-  .from('reservations')
-  .select('*')
-  .eq('user_id', currentUser.id)
-  .gte('created_at', `${today}T00:00:00`)
-  .lte('created_at', `${today}T23:59:59`);
+// ❌ MAUVAIS
+const { data } = await supabase.from('lots').select();
+return data; // Ignore les erreurs !
 ```
 
 ---
 
-## 📚 Ressources
+### 2. Utiliser les relations (JOIN)
 
-- [Supabase JS Client Docs](https://supabase.com/docs/reference/javascript/introduction)
-- [PostgREST API](https://postgrest.org/en/stable/api.html)
-- [PostgreSQL Functions](https://www.postgresql.org/docs/current/functions.html)
+```typescript
+// ✅ BON - Une requête avec JOIN
+const { data } = await supabase
+  .from('reservations')
+  .select('*, lot:lots(*), user:profiles(*)');
+
+// ❌ MAUVAIS - N+1 queries
+const reservations = await supabase.from('reservations').select();
+for (const r of reservations) {
+  const lot = await supabase.from('lots').select().eq('id', r.lot_id);
+}
+```
+
+---
+
+### 3. Pagination pour grandes listes
+
+```typescript
+const PAGE_SIZE = 20;
+
+const { data, count } = await supabase
+  .from('lots')
+  .select('*', { count: 'exact' })
+  .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+```
+
+---
+
+### 4. Indexes pour performance
+
+Assurez-vous que les colonnes fréquemment filtrées ont des index :
+
+```sql
+CREATE INDEX idx_lots_status ON lots(status);
+CREATE INDEX idx_lots_merchant ON lots(merchant_id);
+CREATE INDEX idx_reservations_user ON reservations(user_id);
+```
+
+---
+
+## Exemples Complets
+
+### Workflow complet : Créer un lot avec IA
+
+```typescript
+const createLotWithAI = async (imageFile: File) => {
+  // 1. Analyser l'image avec Gemini
+  const analysis = await analyzeImageWithGemini(imageFile);
+  
+  if (!analysis.success) {
+    throw new Error('Analyse IA échouée');
+  }
+  
+  // 2. Upload l'image vers Storage
+  const imageUrl = await uploadLotImage(imageFile);
+  
+  // 3. Créer le lot avec données IA
+  const { data: lot, error } = await supabase
+    .from('lots')
+    .insert({
+      merchant_id: merchantId,
+      ...analysis.data,
+      images: [imageUrl],
+      status: 'available'
+    })
+    .select()
+    .single();
+  
+  if (error) throw error;
+  
+  // 4. Logger l'action
+  await supabase.from('activity_logs').insert({
+    user_id: merchantId,
+    action_type: 'lot_created',
+    details: {
+      lot_id: lot.id,
+      title: lot.title,
+      used_ai: true,
+      confidence: analysis.data.confidence
+    }
+  });
+  
+  return lot;
+};
+```
 
 ---
 
 <div align="center">
 
-**API conçue pour la simplicité, la performance et la sécurité**
-
-[⬅️ Retour au README](./README.md)
+**API Documentation - EcoPanier** 🚀  
+Version 1.0 - Dernière mise à jour : Janvier 2025
 
 </div>
-

@@ -1,948 +1,646 @@
 # 🗄️ Schéma de Base de Données - EcoPanier
 
-> Documentation complète du schéma PostgreSQL utilisé par EcoPanier via Supabase.
+> **Documentation du schéma PostgreSQL** - Structure complète de la base de données Supabase
 
 ---
 
-## 📋 Table des matières
+## 📊 Vue d'Ensemble
 
-1. [Vue d'ensemble](#vue-densemble)
-2. [Diagramme relationnel](#diagramme-relationnel)
-3. [Tables principales](#tables-principales)
-4. [Relations](#relations)
-5. [Indexes](#indexes)
-6. [Triggers & Functions](#triggers--functions)
-7. [Row Level Security](#row-level-security)
-8. [Vues](#vues)
-9. [Migrations](#migrations)
+EcoPanier utilise **PostgreSQL** via Supabase avec un schéma relationnel optimisé pour gérer :
+- 5 types d'utilisateurs avec permissions distinctes
+- Gestion complète des lots d'invendus
+- Système de réservations avec QR code + PIN
+- Missions pour collecteurs
+- Tracking d'impact environnemental et social
+- Logs d'activité et audit
 
 ---
 
-## 🎯 Vue d'ensemble
-
-La base de données EcoPanier est construite sur **PostgreSQL 15** et hébergée sur **Supabase**. Elle contient **11 tables principales** et plusieurs vues, triggers et fonctions pour automatiser les opérations.
-
-### Statistiques
-
-| Élément | Quantité |
-|---------|----------|
-| **Tables** | 11 |
-| **Vues** | 2 |
-| **Indexes** | 25+ |
-| **Triggers** | 3 |
-| **Functions** | 4 |
-| **RLS Policies** | 8 |
-
-### Principes de conception
-
-- ✅ **Normalisation** : 3ème forme normale (3NF)
-- ✅ **Intégrité référentielle** : Contraintes de clés étrangères
-- ✅ **Contraintes de validation** : CHECK constraints
-- ✅ **Timestamps** : Tous les enregistrements ont created_at/updated_at
-- ✅ **UUIDs** : Identifiants universels pour sécurité
-- ✅ **JSONB** : Flexibilité pour données semi-structurées
-
----
-
-## 📊 Diagramme relationnel
+## 🏗️ Diagramme ERD (Entity-Relationship)
 
 ```
-┌──────────────┐
-│ auth.users   │ (Supabase Auth)
-└──────┬───────┘
-       │ 1
-       │
-       │ 1
-┌──────▼───────────────────────────────────────────────────────┐
-│                    profiles (Users)                           │
-│ ─────────────────────────────────────────────────────────── │
-│ id (PK, FK → auth.users)                                     │
-│ role (customer|merchant|beneficiary|collector|admin)         │
-│ full_name, phone, address                                    │
-│ business_name, business_address (merchants)                  │
-│ latitude, longitude (géolocalisation)                        │
-│ beneficiary_id (format: YYYY-BEN-XXXXX)                      │
-│ verified (boolean)                                           │
-└──────┬───────────────────────────────────┬──────────────────┘
-       │ 1                                  │ 1
-       │                                    │
-       │ N                                  │ N
-┌──────▼──────────┐               ┌────────▼─────────────────┐
-│      lots       │               │     missions             │
-│ ────────────── │               │ ──────────────────────── │
-│ id (PK)         │               │ id (PK)                  │
-│ merchant_id (FK)│◄──────────────┤ merchant_id (FK)         │
-│ title           │               │ collector_id (FK)        │
-│ description     │               │ title, description       │
-│ category        │               │ pickup_address           │
-│ prices          │               │ delivery_address         │
-│ quantities      │               │ coordinates              │
-│ pickup times    │               │ payment_amount           │
-│ status          │               │ status                   │
-└──────┬──────────┘               │ proof_urls               │
-       │ 1                         └──────────────────────────┘
-       │
-       │ N
-┌──────▼────────────────────┐
-│    reservations           │
-│ ───────────────────────── │
-│ id (PK)                   │
-│ lot_id (FK → lots)        │
-│ user_id (FK → profiles)   │
-│ quantity                  │
-│ total_price               │
-│ pickup_pin (6 digits)     │
-│ status                    │
-│ is_donation               │
-└───────────────────────────┘
+                                   ┌─────────────────┐
+                                   │   auth.users    │
+                                   │   (Supabase)    │
+                                   └────────┬────────┘
+                                            │
+                                            │ 1:1
+                                            │
+                      ┌─────────────────────▼─────────────────────┐
+                      │             profiles                      │
+                      │  ─────────────────────────────────────   │
+                      │  id (PK) → auth.users.id                 │
+                      │  role (customer|merchant|beneficiary|    │
+                      │        collector|admin)                  │
+                      │  full_name, phone, address               │
+                      │  business_name, business_hours           │
+                      │  beneficiary_id (YYYY-BEN-XXXXX)        │
+                      │  verified, latitude, longitude           │
+                      └──┬────────────────┬────────────────┬─────┘
+                         │                │                │
+                         │                │                │
+                  1:N    │           1:N  │           1:N  │
+                         │                │                │
+        ┌────────────────▼──────┐  ┌──────▼─────────┐  ┌──▼────────────┐
+        │      lots             │  │  reservations  │  │   missions    │
+        │  ──────────────────  │  │  ────────────  │  │  ───────────  │
+        │  id (PK)             │  │  id (PK)       │  │  id (PK)      │
+        │  merchant_id (FK)    │  │  lot_id (FK)   │  │  merchant_id  │
+        │  title, description  │  │  user_id (FK)  │  │  collector_id │
+        │  category            │  │  quantity      │  │  pickup_addr  │
+        │  original_price      │  │  total_price   │  │  delivery_addr│
+        │  discounted_price    │  │  pickup_pin    │  │  status       │
+        │  quantity_*          │  │  status        │  │  payment_amt  │
+        │  is_free (BOOLEAN)   │  │  completed_at  │  │  proof_urls   │
+        │  status              │  └────────────────┘  └───────────────┘
+        │  images (TEXT[])     │
+        │  pickup_start        │
+        │  pickup_end          │
+        └──────────────────────┘
+                  │
+                  │ 1:N
+                  │
+        ┌─────────▼──────────────┐
+        │    reservations        │
+        └────────────────────────┘
 
-┌──────────────────────────────┐
-│    suspended_baskets         │
-│ ──────────────────────────── │
-│ id (PK)                      │
-│ donor_id (FK → profiles)     │
-│ merchant_id (FK → profiles)  │
-│ reservation_id (FK, opt)     │
-│ amount                       │
-│ claimed_by (FK, nullable)    │
-│ claimed_at                   │
-│ status                       │
-│ expires_at                   │
-└──────────────────────────────┘
-
-┌──────────────────────────────┐    ┌──────────────────────────┐
-│    impact_metrics            │    │    notifications         │
-│ ──────────────────────────── │    │ ──────────────────────── │
-│ id (PK)                      │    │ id (PK)                  │
-│ user_id (FK → profiles)      │    │ user_id (FK → profiles)  │
-│ metric_type                  │    │ title, message           │
-│ value                        │    │ type                     │
-│ date                         │    │ read                     │
-└──────────────────────────────┘    └──────────────────────────┘
-
-┌────────────────────────────────────────┐
-│    beneficiary_daily_limits            │
-│ ────────────────────────────────────── │
-│ id (PK)                                │
-│ beneficiary_id (FK → profiles)         │
-│ date                                   │
-│ reservation_count                      │
-└────────────────────────────────────────┘
-
-┌────────────────────────────────────────┐
-│    platform_settings                   │
-│ ────────────────────────────────────── │
-│ id (PK)                                │
-│ key (unique)                           │
-│ value (JSONB)                          │
-│ description, category                  │
-│ updated_by (FK → profiles)             │
-└────────────────────────────────────────┘
-
-┌────────────────────────────────────────┐
-│    platform_settings_history           │
-│ ────────────────────────────────────── │
-│ id (PK)                                │
-│ setting_key                            │
-│ old_value, new_value (JSONB)           │
-│ changed_by (FK → profiles)             │
-│ changed_at, ip_address, user_agent     │
-└────────────────────────────────────────┘
+        ┌─────────────────────────┐       ┌──────────────────────┐
+        │  platform_settings      │       │   activity_logs      │
+        │  ─────────────────────  │       │  ──────────────────  │
+        │  id (PK)                │       │  id (PK)             │
+        │  key (UNIQUE)           │       │  user_id (FK)        │
+        │  value (JSONB)          │       │  action_type         │
+        │  updated_by (FK)        │       │  details (JSONB)     │
+        │  [RLS ENABLED]          │       │  created_at          │
+        └─────────────────────────┘       └──────────────────────┘
 ```
 
 ---
 
-## 📚 Tables principales
+## 📋 Tables Détaillées
 
-### 1. `profiles` - Profils utilisateurs
+### 1. `profiles` - Profils Utilisateurs
 
-**Description** : Étend `auth.users` de Supabase avec des informations métier.
+Étend `auth.users` de Supabase avec des informations métier.
 
-```sql
-CREATE TABLE profiles (
-  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  role text NOT NULL CHECK (role IN ('customer', 'merchant', 'beneficiary', 'collector', 'admin')),
-  full_name text NOT NULL,
-  phone text,
-  address text,
-  business_name text,
-  business_address text,
-  latitude numeric,
-  longitude numeric,
-  beneficiary_id text UNIQUE,
-  verified boolean DEFAULT false,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-```
+**Structure** :
 
-**Colonnes** :
-
-| Colonne | Type | Description | Contraintes |
+| Colonne | Type | Contraintes | Description |
 |---------|------|-------------|-------------|
-| `id` | uuid | Identifiant unique | PK, FK → auth.users |
-| `role` | text | Rôle utilisateur | CHECK IN (5 rôles) |
-| `full_name` | text | Nom complet | NOT NULL |
-| `phone` | text | Téléphone | - |
-| `address` | text | Adresse postale | - |
-| `business_name` | text | Nom commerce (merchants) | - |
-| `business_address` | text | Adresse commerce | - |
-| `latitude` | numeric | Latitude (GPS) | - |
-| `longitude` | numeric | Longitude (GPS) | - |
-| `beneficiary_id` | text | ID bénéficiaire (format: YYYY-BEN-XXXXX) | UNIQUE |
-| `verified` | boolean | Statut de vérification | DEFAULT false |
-| `created_at` | timestamptz | Date de création | DEFAULT now() |
-| `updated_at` | timestamptz | Dernière mise à jour | DEFAULT now() |
+| `id` | UUID | PRIMARY KEY, FK → auth.users | ID utilisateur |
+| `role` | TEXT | NOT NULL | customer \| merchant \| beneficiary \| collector \| admin |
+| `full_name` | TEXT | NOT NULL | Nom complet |
+| `email` | TEXT | | Email (depuis auth.users) |
+| `phone` | TEXT | | Numéro de téléphone |
+| `address` | TEXT | | Adresse postale |
+| `business_name` | TEXT | | Nom du commerce (merchants) |
+| `business_address` | TEXT | | Adresse du commerce |
+| `business_hours` | JSONB | | Horaires d'ouverture (merchants) |
+| `business_logo_url` | TEXT | | URL du logo (Storage) |
+| `latitude` | NUMERIC(10,8) | | Latitude GPS |
+| `longitude` | NUMERIC(11,8) | | Longitude GPS |
+| `beneficiary_id` | TEXT | UNIQUE | Format: YYYY-BEN-XXXXX |
+| `verified` | BOOLEAN | DEFAULT false | Statut de vérification |
+| `created_at` | TIMESTAMPTZ | DEFAULT now() | Date de création |
+| `updated_at` | TIMESTAMPTZ | DEFAULT now() | Dernière modification |
 
 **Indexes** :
 ```sql
 CREATE INDEX idx_profiles_role ON profiles(role);
-CREATE INDEX idx_profiles_beneficiary_id ON profiles(beneficiary_id);
+CREATE INDEX idx_profiles_verified ON profiles(verified);
+CREATE INDEX idx_profiles_location ON profiles USING GIST(ll_to_earth(latitude, longitude));
 ```
 
-**Rôles possibles** :
-- `customer` : Client standard
-- `merchant` : Commerçant vendant des lots
-- `beneficiary` : Bénéficiaire d'aide alimentaire
-- `collector` : Collecteur/Livreur
-- `admin` : Administrateur plateforme
+**Relations** :
+- 1:N avec `lots` (un commerçant a plusieurs lots)
+- 1:N avec `reservations` (un utilisateur a plusieurs réservations)
+- 1:N avec `missions` (un collecteur/merchant a plusieurs missions)
+
+**Exemple de données** :
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "role": "merchant",
+  "full_name": "Jean Dupont",
+  "email": "jean@boulangerie.fr",
+  "phone": "+33612345678",
+  "business_name": "Boulangerie Dupont",
+  "business_hours": {
+    "monday": { "open": "07:00", "close": "19:00" },
+    "tuesday": { "open": "07:00", "close": "19:00" },
+    "wednesday": { "open": "07:00", "close": "19:00" }
+  },
+  "verified": true
+}
+```
 
 ---
 
-### 2. `lots` - Lots d'invendus
+### 2. `lots` - Lots d'Invendus
 
-**Description** : Lots d'aliments à prix réduits créés par les commerçants.
+Produits alimentaires créés par les commerçants.
+
+**Structure** :
+
+| Colonne | Type | Contraintes | Description |
+|---------|------|-------------|-------------|
+| `id` | UUID | PRIMARY KEY | ID du lot |
+| `merchant_id` | UUID | FK → profiles, NOT NULL | ID du commerçant |
+| `title` | TEXT | NOT NULL | Titre du lot |
+| `description` | TEXT | | Description détaillée |
+| `category` | TEXT | | Catégorie (fruits_legumes, boulangerie, etc.) |
+| `original_price` | NUMERIC(10,2) | NOT NULL | Prix original |
+| `discounted_price` | NUMERIC(10,2) | NOT NULL | Prix réduit (jusqu'à -70%) |
+| `quantity_total` | INTEGER | NOT NULL, DEFAULT 1 | Quantité totale |
+| `quantity_reserved` | INTEGER | DEFAULT 0 | Quantité réservée |
+| `quantity_sold` | INTEGER | DEFAULT 0 | Quantité vendue |
+| `is_free` | BOOLEAN | DEFAULT false | Lot gratuit pour bénéficiaires |
+| `status` | TEXT | DEFAULT 'available' | available \| reserved \| sold_out \| expired |
+| `images` | TEXT[] | | URLs des images (Storage) |
+| `pickup_start` | TIMESTAMPTZ | NOT NULL | Début de la plage de retrait |
+| `pickup_end` | TIMESTAMPTZ | NOT NULL | Fin de la plage de retrait |
+| `requires_cold_chain` | BOOLEAN | DEFAULT false | Nécessite chaîne du froid |
+| `is_urgent` | BOOLEAN | DEFAULT false | Lot urgent (DLC proche) |
+| `created_at` | TIMESTAMPTZ | DEFAULT now() | Date de création |
+| `updated_at` | TIMESTAMPTZ | DEFAULT now() | Dernière modification |
+
+**Enums** :
 
 ```sql
-CREATE TABLE lots (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  merchant_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  title text NOT NULL,
-  description text NOT NULL,
-  category text NOT NULL,
-  original_price numeric NOT NULL CHECK (original_price >= 0),
-  discounted_price numeric NOT NULL CHECK (discounted_price >= 0),
-  quantity_total integer NOT NULL CHECK (quantity_total >= 0),
-  quantity_reserved integer DEFAULT 0 CHECK (quantity_reserved >= 0),
-  quantity_sold integer DEFAULT 0 CHECK (quantity_sold >= 0),
-  pickup_start timestamptz NOT NULL,
-  pickup_end timestamptz NOT NULL,
-  requires_cold_chain boolean DEFAULT false,
-  is_urgent boolean DEFAULT false,
-  status text DEFAULT 'available' CHECK (status IN ('available', 'reserved', 'sold_out', 'expired')),
-  image_urls text[] DEFAULT ARRAY[]::text[],
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
+-- Categories
+CREATE TYPE lot_category AS ENUM (
+  'fruits_legumes',
+  'boulangerie',
+  'boucherie',
+  'poissonnerie',
+  'epicerie',
+  'produits_laitiers',
+  'plats_prepares',
+  'autres'
+);
+
+-- Status
+CREATE TYPE lot_status AS ENUM (
+  'available',
+  'reserved',
+  'sold_out',
+  'expired'
 );
 ```
 
-**Colonnes principales** :
-
-| Colonne | Type | Description |
-|---------|------|-------------|
-| `merchant_id` | uuid | Commerçant propriétaire du lot |
-| `title` | text | Titre du lot |
-| `category` | text | Catégorie (ex: Boulangerie, Fruits & Légumes) |
-| `original_price` | numeric | Prix original de détail |
-| `discounted_price` | numeric | Prix réduit proposé |
-| `quantity_total` | integer | Quantité totale disponible |
-| `quantity_reserved` | integer | Quantité actuellement réservée |
-| `quantity_sold` | integer | Quantité vendue/retirée |
-| `pickup_start` | timestamptz | Début fenêtre de retrait |
-| `pickup_end` | timestamptz | Fin fenêtre de retrait |
-| `requires_cold_chain` | boolean | Nécessite chaîne du froid |
-| `is_urgent` | boolean | Lot urgent (fin de journée) |
-| `status` | text | Statut du lot |
-| `image_urls` | text[] | URLs des images |
-
-**Statuts possibles** :
-- `available` : Disponible à la réservation
-- `reserved` : Partiellement réservé
-- `sold_out` : Épuisé
-- `expired` : Expiré (fenêtre de retrait passée)
-
 **Indexes** :
 ```sql
-CREATE INDEX idx_lots_merchant_id ON lots(merchant_id);
+CREATE INDEX idx_lots_merchant ON lots(merchant_id);
 CREATE INDEX idx_lots_status ON lots(status);
-CREATE INDEX idx_lots_created_at ON lots(created_at DESC);
+CREATE INDEX idx_lots_is_free ON lots(is_free);
+CREATE INDEX idx_lots_category ON lots(category);
+CREATE INDEX idx_lots_pickup ON lots(pickup_start, pickup_end);
 ```
 
-**Catégories courantes** :
-- Boulangerie-Pâtisserie
-- Fruits & Légumes
-- Viande & Poisson
-- Produits laitiers
-- Épicerie
-- Plats préparés
-- Boissons
-
----
-
-### 3. `reservations` - Réservations de lots
-
-**Description** : Réservations effectuées par clients ou bénéficiaires.
+**Triggers** :
 
 ```sql
-CREATE TABLE reservations (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  lot_id uuid NOT NULL REFERENCES lots(id) ON DELETE CASCADE,
-  user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  quantity integer NOT NULL CHECK (quantity > 0),
-  total_price numeric NOT NULL CHECK (total_price >= 0),
-  pickup_pin text NOT NULL,
-  status text DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
-  is_donation boolean DEFAULT false,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now(),
-  completed_at timestamptz
-);
-```
-
-**Colonnes principales** :
-
-| Colonne | Type | Description |
-|---------|------|-------------|
-| `lot_id` | uuid | Lot réservé |
-| `user_id` | uuid | Utilisateur réservant |
-| `quantity` | integer | Quantité réservée |
-| `total_price` | numeric | Prix total (quantité × prix unitaire) |
-| `pickup_pin` | text | Code PIN à 6 chiffres pour retrait |
-| `status` | text | Statut de la réservation |
-| `is_donation` | boolean | Si c'est un don (panier suspendu) |
-| `completed_at` | timestamptz | Date/heure de retrait effectif |
-
-**Statuts** :
-- `pending` : En attente de confirmation
-- `confirmed` : Confirmée
-- `completed` : Retirée
-- `cancelled` : Annulée
-
-**Indexes** :
-```sql
-CREATE INDEX idx_reservations_user_id ON reservations(user_id);
-CREATE INDEX idx_reservations_lot_id ON reservations(lot_id);
-```
-
----
-
-### 4. `suspended_baskets` - Paniers suspendus (Dons)
-
-**Description** : Système de solidarité permettant aux clients d'offrir des paniers aux bénéficiaires.
-
-```sql
-CREATE TABLE suspended_baskets (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  donor_id uuid NOT NULL REFERENCES profiles(id),
-  merchant_id uuid NOT NULL REFERENCES profiles(id),
-  reservation_id uuid REFERENCES reservations(id),
-  amount decimal(10, 2) NOT NULL CHECK (amount > 0),
-  claimed_by uuid REFERENCES profiles(id),
-  claimed_at timestamptz,
-  status text NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'reserved', 'claimed', 'expired')),
-  notes text,
-  expires_at timestamptz,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-```
-
-**Colonnes principales** :
-
-| Colonne | Type | Description |
-|---------|------|-------------|
-| `donor_id` | uuid | Client ayant fait le don |
-| `merchant_id` | uuid | Commerçant chez qui le panier peut être récupéré |
-| `reservation_id` | uuid | Réservation liée (optionnel) |
-| `amount` | decimal | Montant du don en euros |
-| `claimed_by` | uuid | Bénéficiaire ayant récupéré (nullable) |
-| `claimed_at` | timestamptz | Date de récupération |
-| `status` | text | Statut du panier suspendu |
-| `notes` | text | Message du donateur (optionnel) |
-| `expires_at` | timestamptz | Date d'expiration (optionnel) |
-
-**Statuts** :
-- `available` : Disponible pour bénéficiaires
-- `reserved` : Réservé (futur)
-- `claimed` : Récupéré
-- `expired` : Expiré
-
-**Indexes** :
-```sql
-CREATE INDEX idx_suspended_baskets_donor ON suspended_baskets(donor_id);
-CREATE INDEX idx_suspended_baskets_merchant ON suspended_baskets(merchant_id);
-CREATE INDEX idx_suspended_baskets_claimed_by ON suspended_baskets(claimed_by);
-CREATE INDEX idx_suspended_baskets_status ON suspended_baskets(status);
-```
-
----
-
-### 5. `missions` - Missions de collecte
-
-**Description** : Missions de livraison/collecte pour les collecteurs.
-
-```sql
-CREATE TABLE missions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  merchant_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  collector_id uuid REFERENCES profiles(id) ON DELETE SET NULL,
-  title text NOT NULL,
-  description text NOT NULL,
-  pickup_address text NOT NULL,
-  delivery_address text NOT NULL,
-  pickup_latitude numeric,
-  pickup_longitude numeric,
-  delivery_latitude numeric,
-  delivery_longitude numeric,
-  requires_cold_chain boolean DEFAULT false,
-  is_urgent boolean DEFAULT false,
-  payment_amount numeric NOT NULL CHECK (payment_amount >= 0),
-  status text DEFAULT 'available' CHECK (status IN ('available', 'accepted', 'in_progress', 'completed', 'cancelled')),
-  proof_urls text[] DEFAULT ARRAY[]::text[],
-  created_at timestamptz DEFAULT now(),
-  accepted_at timestamptz,
-  completed_at timestamptz
-);
-```
-
-**Colonnes principales** :
-
-| Colonne | Type | Description |
-|---------|------|-------------|
-| `merchant_id` | uuid | Commerçant créant la mission |
-| `collector_id` | uuid | Collecteur acceptant (nullable avant acceptation) |
-| `pickup_address` | text | Adresse de collecte |
-| `delivery_address` | text | Adresse de livraison |
-| `pickup_latitude/longitude` | numeric | Coordonnées GPS collecte |
-| `delivery_latitude/longitude` | numeric | Coordonnées GPS livraison |
-| `payment_amount` | numeric | Montant versé au collecteur |
-| `status` | text | Statut de la mission |
-| `proof_urls` | text[] | Photos/signatures de preuve |
-
-**Statuts** :
-- `available` : Disponible pour acceptation
-- `accepted` : Acceptée par un collecteur
-- `in_progress` : En cours d'exécution
-- `completed` : Terminée
-- `cancelled` : Annulée
-
----
-
-### 6. `impact_metrics` - Métriques d'impact
-
-**Description** : Suivi de l'impact environnemental et social.
-
-```sql
-CREATE TABLE impact_metrics (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  metric_type text NOT NULL CHECK (metric_type IN ('meals_saved', 'co2_saved', 'money_saved', 'donations_made')),
-  value numeric NOT NULL CHECK (value >= 0),
-  date date DEFAULT CURRENT_DATE,
-  created_at timestamptz DEFAULT now()
-);
-```
-
-**Types de métriques** :
-- `meals_saved` : Nombre de repas sauvés
-- `co2_saved` : CO₂ économisé en kg (0.9 kg par repas)
-- `money_saved` : Argent économisé en €
-- `donations_made` : Montant des dons en €
-
-**Index** :
-```sql
-CREATE INDEX idx_impact_metrics_user_date ON impact_metrics(user_id, date);
-```
-
----
-
-### 7. `notifications` - Notifications utilisateurs
-
-```sql
-CREATE TABLE notifications (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  title text NOT NULL,
-  message text NOT NULL,
-  type text DEFAULT 'info' CHECK (type IN ('info', 'success', 'warning', 'error')),
-  read boolean DEFAULT false,
-  created_at timestamptz DEFAULT now()
-);
-```
-
-**Types** :
-- `info` : Information générale
-- `success` : Action réussie
-- `warning` : Avertissement
-- `error` : Erreur
-
----
-
-### 8. `beneficiary_daily_limits` - Limites bénéficiaires
-
-**Description** : Suivi des réservations journalières des bénéficiaires (limite: 2/jour).
-
-```sql
-CREATE TABLE beneficiary_daily_limits (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  beneficiary_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  date date NOT NULL DEFAULT CURRENT_DATE,
-  reservation_count integer DEFAULT 0 CHECK (reservation_count >= 0),
-  created_at timestamptz DEFAULT now(),
-  UNIQUE(beneficiary_id, date)
-);
-```
-
----
-
-### 9. `platform_settings` - Paramètres système
-
-**Description** : Configuration centralisée de la plateforme.
-
-```sql
-CREATE TABLE platform_settings (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  key text UNIQUE NOT NULL,
-  value jsonb NOT NULL,
-  description text,
-  category text NOT NULL,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid REFERENCES profiles(id),
-  created_at timestamptz DEFAULT now()
-);
-```
-
-**Catégories** :
-- `general` : Paramètres généraux (nom, contact)
-- `lots` : Configuration des lots (prix min/max)
-- `commission` : Taux de commission
-- `beneficiary` : Paramètres bénéficiaires
-- `notification` : Configuration notifications
-- `security` : Paramètres de sécurité
-
-**Exemples de settings** :
-```sql
-INSERT INTO platform_settings (key, value, category) VALUES
-  ('platform_name', '"EcoPanier"', 'general'),
-  ('min_lot_price', '2', 'lots'),
-  ('merchant_commission', '15', 'commission'),
-  ('max_daily_beneficiary_reservations', '2', 'beneficiary');
-```
-
----
-
-### 10. `platform_settings_history` - Historique des paramètres
-
-**Description** : Log de toutes les modifications des paramètres système.
-
-```sql
-CREATE TABLE platform_settings_history (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  setting_key text NOT NULL,
-  old_value jsonb,
-  new_value jsonb NOT NULL,
-  changed_by uuid REFERENCES profiles(id),
-  changed_at timestamptz DEFAULT now(),
-  ip_address inet,
-  user_agent text
-);
-```
-
----
-
-## 🔗 Relations
-
-### Relations principales
-
-```
-profiles (1) ──────< (N) lots
-profiles (1) ──────< (N) reservations
-profiles (1) ──────< (N) missions (as merchant)
-profiles (1) ──────< (N) missions (as collector)
-profiles (1) ──────< (N) suspended_baskets (as donor)
-profiles (1) ──────< (N) suspended_baskets (as claimer)
-profiles (1) ──────< (N) impact_metrics
-profiles (1) ──────< (N) notifications
-
-lots (1) ──────< (N) reservations
-
-auth.users (1) ─── (1) profiles
-```
-
-### Clés étrangères avec CASCADE
-
-```sql
--- Suppression en cascade
-ON DELETE CASCADE:
-  - profiles.id → lots.merchant_id
-  - profiles.id → reservations.user_id
-  - lots.id → reservations.lot_id
-  - profiles.id → missions.merchant_id
-  - profiles.id → impact_metrics.user_id
-  - profiles.id → notifications.user_id
-
--- Set NULL sur suppression
-ON DELETE SET NULL:
-  - profiles.id → missions.collector_id
-```
-
----
-
-## 📇 Indexes
-
-### Indexes de performance
-
-```sql
--- Profiles
-CREATE INDEX idx_profiles_role ON profiles(role);
-CREATE INDEX idx_profiles_beneficiary_id ON profiles(beneficiary_id);
-
--- Lots
-CREATE INDEX idx_lots_merchant_id ON lots(merchant_id);
-CREATE INDEX idx_lots_status ON lots(status);
-CREATE INDEX idx_lots_created_at ON lots(created_at DESC);
-
--- Reservations
-CREATE INDEX idx_reservations_user_id ON reservations(user_id);
-CREATE INDEX idx_reservations_lot_id ON reservations(lot_id);
-
--- Missions
-CREATE INDEX idx_missions_collector_id ON missions(collector_id);
-CREATE INDEX idx_missions_merchant_id ON missions(merchant_id);
-CREATE INDEX idx_missions_status ON missions(status);
-
--- Suspended Baskets
-CREATE INDEX idx_suspended_baskets_donor ON suspended_baskets(donor_id);
-CREATE INDEX idx_suspended_baskets_merchant ON suspended_baskets(merchant_id);
-CREATE INDEX idx_suspended_baskets_claimed_by ON suspended_baskets(claimed_by);
-CREATE INDEX idx_suspended_baskets_status ON suspended_baskets(status);
-CREATE INDEX idx_suspended_baskets_created_at ON suspended_baskets(created_at DESC);
-
--- Beneficiary Limits
-CREATE INDEX idx_beneficiary_limits_date ON beneficiary_daily_limits(beneficiary_id, date);
-
--- Impact Metrics
-CREATE INDEX idx_impact_metrics_user_date ON impact_metrics(user_id, date);
-
--- Notifications
-CREATE INDEX idx_notifications_user_id ON notifications(user_id, created_at DESC);
-
--- Platform Settings
-CREATE INDEX idx_platform_settings_key ON platform_settings(key);
-CREATE INDEX idx_platform_settings_category ON platform_settings(category);
-
--- Settings History
-CREATE INDEX idx_settings_history_key ON platform_settings_history(setting_key);
-CREATE INDEX idx_settings_history_changed_at ON platform_settings_history(changed_at DESC);
-```
-
----
-
-## ⚙️ Triggers & Functions
-
-### 1. Auto-update `updated_at`
-
-```sql
--- Function
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+-- Mise à jour automatique du statut quand quantity_sold = quantity_total
+CREATE OR REPLACE FUNCTION update_lot_status()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Triggers (exemples)
-CREATE TRIGGER update_profiles_updated_at
-  BEFORE UPDATE ON profiles
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_lots_updated_at
-  BEFORE UPDATE ON lots
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-```
-
-### 2. Log platform_settings changes
-
-```sql
-CREATE OR REPLACE FUNCTION log_platform_settings_change()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF OLD.value IS DISTINCT FROM NEW.value THEN
-    INSERT INTO platform_settings_history (setting_key, old_value, new_value, changed_by)
-    VALUES (NEW.key, OLD.value, NEW.value, NEW.updated_by);
+  IF NEW.quantity_sold >= NEW.quantity_total THEN
+    NEW.status := 'sold_out';
+  ELSIF NEW.quantity_reserved > 0 THEN
+    NEW.status := 'reserved';
+  ELSE
+    NEW.status := 'available';
   END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_log_platform_settings_change
-  AFTER UPDATE ON platform_settings
+CREATE TRIGGER trigger_update_lot_status
+  BEFORE UPDATE ON lots
   FOR EACH ROW
-  EXECUTE FUNCTION log_platform_settings_change();
+  EXECUTE FUNCTION update_lot_status();
 ```
 
-### 3. Mark expired suspended baskets
+**Exemple de données** :
+```json
+{
+  "id": "lot-uuid-123",
+  "merchant_id": "merchant-uuid-456",
+  "title": "Panier de fruits et légumes",
+  "description": "5kg de fruits et légumes frais de saison",
+  "category": "fruits_legumes",
+  "original_price": 25.00,
+  "discounted_price": 10.00,
+  "quantity_total": 10,
+  "quantity_reserved": 3,
+  "quantity_sold": 0,
+  "is_free": false,
+  "status": "available",
+  "images": [
+    "https://storage.supabase.co/lot-images/123.jpg"
+  ],
+  "pickup_start": "2024-01-20T17:00:00Z",
+  "pickup_end": "2024-01-20T19:00:00Z",
+  "requires_cold_chain": true,
+  "is_urgent": false
+}
+```
+
+---
+
+### 3. `reservations` - Réservations
+
+Réservations de lots par clients ou bénéficiaires.
+
+**Structure** :
+
+| Colonne | Type | Contraintes | Description |
+|---------|------|-------------|-------------|
+| `id` | UUID | PRIMARY KEY | ID de la réservation |
+| `lot_id` | UUID | FK → lots, NOT NULL | ID du lot |
+| `user_id` | UUID | FK → profiles, NOT NULL | ID de l'utilisateur |
+| `quantity` | INTEGER | NOT NULL, DEFAULT 1 | Quantité réservée |
+| `total_price` | NUMERIC(10,2) | NOT NULL | Prix total (0 si is_free) |
+| `pickup_pin` | TEXT | NOT NULL, UNIQUE | Code PIN à 6 chiffres |
+| `status` | TEXT | DEFAULT 'pending' | pending \| confirmed \| completed \| cancelled |
+| `created_at` | TIMESTAMPTZ | DEFAULT now() | Date de réservation |
+| `updated_at` | TIMESTAMPTZ | DEFAULT now() | Dernière modification |
+| `completed_at` | TIMESTAMPTZ | | Date de retrait effectif |
+
+**Indexes** :
+```sql
+CREATE INDEX idx_reservations_user ON reservations(user_id);
+CREATE INDEX idx_reservations_lot ON reservations(lot_id);
+CREATE INDEX idx_reservations_pin ON reservations(pickup_pin);
+CREATE INDEX idx_reservations_status ON reservations(status);
+CREATE INDEX idx_reservations_created ON reservations(created_at);
+```
+
+**Contraintes** :
 
 ```sql
-CREATE OR REPLACE FUNCTION mark_expired_suspended_baskets()
-RETURNS void AS $$
+-- Vérifier que le PIN est un nombre à 6 chiffres
+ALTER TABLE reservations
+  ADD CONSTRAINT check_pin_format
+  CHECK (pickup_pin ~ '^\d{6}$');
+
+-- Assurer que total_price >= 0
+ALTER TABLE reservations
+  ADD CONSTRAINT check_positive_price
+  CHECK (total_price >= 0);
+```
+
+**Triggers** :
+
+```sql
+-- Générer un PIN unique à 6 chiffres
+CREATE OR REPLACE FUNCTION generate_pickup_pin()
+RETURNS TRIGGER AS $$
 BEGIN
-  UPDATE suspended_baskets
-  SET status = 'expired'
-  WHERE status = 'available'
-    AND expires_at IS NOT NULL
-    AND expires_at < NOW();
+  NEW.pickup_pin := LPAD(FLOOR(RANDOM() * 1000000)::TEXT, 6, '0');
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- À exécuter via un cron job
+CREATE TRIGGER trigger_generate_pin
+  BEFORE INSERT ON reservations
+  FOR EACH ROW
+  WHEN (NEW.pickup_pin IS NULL)
+  EXECUTE FUNCTION generate_pickup_pin();
+```
+
+**Exemple de données** :
+```json
+{
+  "id": "reservation-uuid-789",
+  "lot_id": "lot-uuid-123",
+  "user_id": "user-uuid-456",
+  "quantity": 2,
+  "total_price": 20.00,
+  "pickup_pin": "123456",
+  "status": "pending",
+  "created_at": "2024-01-15T10:00:00Z",
+  "completed_at": null
+}
 ```
 
 ---
 
-## 🔒 Row Level Security (RLS)
+### 4. `missions` - Missions Collecteurs
 
-### Tables avec RLS activé
+Missions de collecte et livraison.
 
-#### `platform_settings`
+**Structure** :
+
+| Colonne | Type | Contraintes | Description |
+|---------|------|-------------|-------------|
+| `id` | UUID | PRIMARY KEY | ID de la mission |
+| `merchant_id` | UUID | FK → profiles, NOT NULL | ID du commerçant |
+| `collector_id` | UUID | FK → profiles | ID du collecteur (null si non acceptée) |
+| `title` | TEXT | NOT NULL | Titre de la mission |
+| `description` | TEXT | | Description |
+| `pickup_address` | TEXT | NOT NULL | Adresse de retrait |
+| `delivery_address` | TEXT | NOT NULL | Adresse de livraison |
+| `pickup_latitude` | NUMERIC(10,8) | | Latitude retrait |
+| `pickup_longitude` | NUMERIC(11,8) | | Longitude retrait |
+| `delivery_latitude` | NUMERIC(10,8) | | Latitude livraison |
+| `delivery_longitude` | NUMERIC(11,8) | | Longitude livraison |
+| `requires_cold_chain` | BOOLEAN | DEFAULT false | Nécessite chaîne du froid |
+| `is_urgent` | BOOLEAN | DEFAULT false | Mission urgente |
+| `payment_amount` | NUMERIC(10,2) | NOT NULL | Rémunération collecteur |
+| `status` | TEXT | DEFAULT 'available' | available \| accepted \| in_progress \| completed \| cancelled |
+| `proof_urls` | TEXT[] | | Photos/signatures de preuve |
+| `created_at` | TIMESTAMPTZ | DEFAULT now() | Date de création |
+| `accepted_at` | TIMESTAMPTZ | | Date d'acceptation |
+| `completed_at` | TIMESTAMPTZ | | Date de complétion |
+
+**Indexes** :
+```sql
+CREATE INDEX idx_missions_merchant ON missions(merchant_id);
+CREATE INDEX idx_missions_collector ON missions(collector_id);
+CREATE INDEX idx_missions_status ON missions(status);
+CREATE INDEX idx_missions_created ON missions(created_at);
+```
+
+---
+
+### 5. `platform_settings` - Paramètres Système
+
+Configuration globale de la plateforme (RLS activé).
+
+**Structure** :
+
+| Colonne | Type | Contraintes | Description |
+|---------|------|-------------|-------------|
+| `id` | UUID | PRIMARY KEY | ID du paramètre |
+| `key` | TEXT | UNIQUE, NOT NULL | Clé du paramètre |
+| `value` | JSONB | NOT NULL | Valeur (format flexible) |
+| `updated_by` | UUID | FK → profiles | ID de l'admin qui a modifié |
+| `created_at` | TIMESTAMPTZ | DEFAULT now() | Date de création |
+| `updated_at` | TIMESTAMPTZ | DEFAULT now() | Dernière modification |
+
+**Row Level Security** :
 
 ```sql
--- Lecture : Admins uniquement
-CREATE POLICY "Admins can read settings"
+-- Seulement les admins peuvent lire/modifier
+CREATE POLICY "Admin only can read settings"
   ON platform_settings FOR SELECT
-  TO authenticated
   USING (
     EXISTS (
       SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
     )
   );
 
--- Modification : Admins uniquement
-CREATE POLICY "Admins can update settings"
+CREATE POLICY "Admin only can update settings"
   ON platform_settings FOR UPDATE
-  TO authenticated
-  USING (...) WITH CHECK (...);
-```
-
-#### `suspended_baskets`
-
-```sql
--- Lecture : Donateurs, bénéficiaires, commerçants concernés, admins
-CREATE POLICY "Users can view their suspended baskets"
-  ON suspended_baskets FOR SELECT
-  TO authenticated
   USING (
-    donor_id = auth.uid() 
-    OR claimed_by = auth.uid()
-    OR merchant_id = auth.uid()
-    OR EXISTS (
+    EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role IN ('admin', 'beneficiary')
+      AND profiles.role = 'admin'
     )
   );
+```
 
--- Création : Clients et admins
-CREATE POLICY "Authenticated users can create suspended baskets"
-  ON suspended_baskets FOR INSERT
-  TO authenticated
+**Paramètres communs** :
+
+```json
+[
+  {
+    "key": "commission_rate",
+    "value": { "rate": 0.15, "description": "Commission de 15% sur les ventes" }
+  },
+  {
+    "key": "max_beneficiary_lots_per_day",
+    "value": { "limit": 2, "description": "2 lots gratuits maximum par jour" }
+  },
+  {
+    "key": "min_discount_percentage",
+    "value": { "percentage": 0.30, "description": "Réduction minimale de 30%" }
+  },
+  {
+    "key": "max_discount_percentage",
+    "value": { "percentage": 0.70, "description": "Réduction maximale de 70%" }
+  }
+]
+```
+
+---
+
+### 6. `settings_history` - Historique des Modifications
+
+Trace les modifications de paramètres (audit).
+
+**Structure** :
+
+| Colonne | Type | Description |
+|---------|------|-------------|
+| `id` | UUID | PRIMARY KEY |
+| `setting_key` | TEXT | Clé du paramètre modifié |
+| `old_value` | JSONB | Ancienne valeur |
+| `new_value` | JSONB | Nouvelle valeur |
+| `changed_by` | UUID | FK → profiles (admin) |
+| `changed_at` | TIMESTAMPTZ | Date de modification |
+
+---
+
+### 7. `activity_logs` - Journaux d'Activité
+
+Logs de toutes les actions importantes.
+
+**Structure** :
+
+| Colonne | Type | Description |
+|---------|------|-------------|
+| `id` | UUID | PRIMARY KEY |
+| `user_id` | UUID | FK → profiles |
+| `action_type` | TEXT | Type d'action (lot_created, reservation_completed, etc.) |
+| `details` | JSONB | Détails de l'action (format flexible) |
+| `ip_address` | INET | Adresse IP |
+| `user_agent` | TEXT | User agent |
+| `created_at` | TIMESTAMPTZ | Date de l'action |
+
+**Types d'actions** :
+- `lot_created`, `lot_updated`, `lot_deleted`
+- `reservation_created`, `reservation_completed`, `reservation_cancelled`
+- `mission_accepted`, `mission_completed`
+- `setting_updated`
+- `user_verified`, `user_suspended`
+
+**Exemple** :
+```json
+{
+  "id": "log-uuid-123",
+  "user_id": "user-uuid-456",
+  "action_type": "lot_created",
+  "details": {
+    "lot_id": "lot-uuid-789",
+    "title": "Pain invendu",
+    "price": 10.00,
+    "used_ai": true,
+    "confidence": 0.92
+  },
+  "ip_address": "192.168.1.1",
+  "created_at": "2024-01-15T10:00:00Z"
+}
+```
+
+---
+
+## 💾 Storage Buckets
+
+### 1. `lot-images` - Images des Lots
+
+**Configuration** :
+- Public: `true`
+- Max file size: `5MB`
+- Allowed MIME types: `image/jpeg`, `image/png`, `image/webp`
+
+**Policies** :
+```sql
+-- Tout le monde peut lire
+CREATE POLICY "Public can read lot images"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'lot-images');
+
+-- Seuls les merchants peuvent upload
+CREATE POLICY "Merchants can upload lot images"
+  ON storage.objects FOR INSERT
   WITH CHECK (
-    donor_id = auth.uid()
+    bucket_id = 'lot-images'
     AND EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role IN ('customer', 'admin')
-    )
-  );
-
--- Récupération : Bénéficiaires et admins
-CREATE POLICY "Beneficiaries can claim baskets"
-  ON suspended_baskets FOR UPDATE
-  TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role IN ('beneficiary', 'admin')
+      AND profiles.role = 'merchant'
     )
   );
 ```
-
-### Tables sans RLS (Simplicité MVP)
-
-```sql
--- Désactivé pour simplicité dans le MVP
-ALTER TABLE profiles DISABLE ROW LEVEL SECURITY;
-ALTER TABLE lots DISABLE ROW LEVEL SECURITY;
-ALTER TABLE reservations DISABLE ROW LEVEL SECURITY;
-ALTER TABLE missions DISABLE ROW LEVEL SECURITY;
-ALTER TABLE impact_metrics DISABLE ROW LEVEL SECURITY;
-ALTER TABLE notifications DISABLE ROW LEVEL SECURITY;
-```
-
-> **Note** : En production, il est recommandé d'activer RLS sur toutes les tables sensibles.
 
 ---
 
-## 👁️ Vues
+### 2. `business-logos` - Logos des Commerces
 
-### 1. `platform_settings_view`
-
-Vue enrichie avec informations de l'utilisateur ayant modifié.
-
-```sql
-CREATE OR REPLACE VIEW platform_settings_view AS
-SELECT 
-  ps.key,
-  ps.value,
-  ps.description,
-  ps.category,
-  ps.updated_at,
-  ps.created_at,
-  p.full_name as updated_by_name,
-  p.role as updated_by_role
-FROM platform_settings ps
-LEFT JOIN profiles p ON ps.updated_by = p.id;
-```
-
-### 2. `suspended_baskets_view`
-
-Vue enrichie avec toutes les informations des utilisateurs liés.
-
-```sql
-CREATE OR REPLACE VIEW suspended_baskets_view AS
-SELECT 
-  sb.id,
-  sb.amount,
-  sb.status,
-  sb.created_at,
-  sb.claimed_at,
-  sb.expires_at,
-  sb.notes,
-  
-  donor.id as donor_id,
-  donor.full_name as donor_name,
-  donor.phone as donor_phone,
-  
-  merchant.id as merchant_id,
-  merchant.full_name as merchant_name,
-  merchant.business_name as merchant_business_name,
-  merchant.business_address as merchant_address,
-  
-  beneficiary.id as beneficiary_id,
-  beneficiary.full_name as beneficiary_name,
-  beneficiary.beneficiary_id as beneficiary_code
-  
-FROM suspended_baskets sb
-LEFT JOIN profiles donor ON sb.donor_id = donor.id
-LEFT JOIN profiles merchant ON sb.merchant_id = merchant.id
-LEFT JOIN profiles beneficiary ON sb.claimed_by = beneficiary.id;
-```
+**Configuration** :
+- Public: `true`
+- Max file size: `2MB`
+- Allowed MIME types: `image/jpeg`, `image/png`
 
 ---
 
 ## 🔄 Migrations
 
-### Ordre d'exécution
+Liste des migrations SQL appliquées :
 
-```
-1. 20251011204650_create_food_waste_platform_schema.sql
-   → Crée toutes les tables de base
+| Fichier | Date | Description |
+|---------|------|-------------|
+| `20251011204650_create_food_waste_platform_schema.sql` | 11/10/2024 | Schéma initial complet |
+| `20251012_platform_settings.sql` | 12/10/2024 | Ajout platform_settings + RLS |
+| `20251012_suspended_baskets.sql` | 12/10/2024 | Table suspended_baskets (déprécié) |
+| `20251012_suspended_baskets_sample_data.sql` | 12/10/2024 | Données de test |
+| `20250113_add_business_hours.sql` | 13/01/2025 | Ajout business_hours (JSONB) |
+| `20250114_add_lots_images_storage.sql` | 14/01/2025 | Bucket lot-images |
+| `20250115_add_business_logo_storage.sql` | 15/01/2025 | Bucket business-logos |
 
-2. 20251012_platform_settings.sql
-   → Ajoute les tables de paramètres système
+---
 
-3. 20251012_suspended_baskets.sql
-   → Ajoute la table des paniers suspendus
+## 🔒 Sécurité & RLS
 
-4. 20251012_suspended_baskets_sample_data.sql (optionnel)
-   → Données de test
-```
+### Tables avec RLS activé
 
-### Appliquer les migrations
+- ✅ `platform_settings` : Admins seulement
+- ⚠️ `profiles`, `lots`, `reservations`, `missions` : RLS désactivé pour le MVP (à activer en production)
 
-```bash
-# Via Supabase CLI
-supabase db push
+### Policies à implémenter (Production)
 
-# Ou via le dashboard Supabase
-# SQL Editor → Coller le contenu → Run
+```sql
+-- Users peuvent lire leur propre profil
+CREATE POLICY "Users can read own profile"
+  ON profiles FOR SELECT
+  USING (auth.uid() = id);
+
+-- Merchants peuvent lire/modifier leurs lots
+CREATE POLICY "Merchants can manage own lots"
+  ON lots FOR ALL
+  USING (merchant_id = auth.uid());
+
+-- Users peuvent lire/modifier leurs réservations
+CREATE POLICY "Users can manage own reservations"
+  ON reservations FOR ALL
+  USING (user_id = auth.uid());
 ```
 
 ---
 
-## 📊 Exemples de requêtes
+## 📊 Statistiques & Métriques
 
-### Requête complexe : Lots disponibles avec commerçant
+### Requêtes utiles
 
+#### Lots disponibles près d'une localisation
 ```sql
-SELECT 
-  l.*,
-  p.full_name AS merchant_name,
-  p.business_name,
-  p.business_address,
-  p.phone AS merchant_phone,
-  (l.quantity_total - l.quantity_reserved - l.quantity_sold) AS quantity_available
-FROM lots l
-INNER JOIN profiles p ON l.merchant_id = p.id
-WHERE l.status = 'available'
-  AND l.pickup_end > NOW()
-  AND (l.quantity_total - l.quantity_reserved - l.quantity_sold) > 0
-ORDER BY l.is_urgent DESC, l.created_at DESC;
-```
-
-### Requête : Impact total d'un utilisateur
-
-```sql
-SELECT 
-  metric_type,
-  SUM(value) AS total_value
-FROM impact_metrics
-WHERE user_id = 'user-uuid'
-GROUP BY metric_type;
-```
-
-### Requête : Paniers suspendus disponibles près d'un lieu
-
-```sql
-SELECT 
-  sb.*,
-  m.business_name,
-  m.business_address,
-  m.latitude,
-  m.longitude,
-  -- Calcul de distance (formule haversine simplifiée)
+SELECT l.*, p.business_name,
   earth_distance(
-    ll_to_earth(m.latitude, m.longitude),
-    ll_to_earth(48.8566, 2.3522) -- Coordonnées utilisateur
-  ) / 1000 AS distance_km
-FROM suspended_baskets sb
-INNER JOIN profiles m ON sb.merchant_id = m.id
-WHERE sb.status = 'available'
-  AND sb.claimed_by IS NULL
-ORDER BY distance_km ASC
+    ll_to_earth(p.latitude, p.longitude),
+    ll_to_earth(48.8566, 2.3522) -- Paris
+  ) AS distance_meters
+FROM lots l
+JOIN profiles p ON l.merchant_id = p.id
+WHERE l.status = 'available'
+ORDER BY distance_meters
 LIMIT 20;
 ```
 
+#### Bénéficiaire a-t-il atteint la limite de 2/jour ?
+```sql
+SELECT COUNT(*)
+FROM reservations r
+JOIN lots l ON r.lot_id = l.id
+WHERE r.user_id = $1
+  AND l.is_free = true
+  AND DATE(r.created_at) = CURRENT_DATE;
+```
+
+#### Impact environnemental total
+```sql
+SELECT
+  COUNT(*) AS total_reservations,
+  SUM(quantity) AS meals_saved,
+  SUM(quantity) * 0.9 AS kg_co2_saved
+FROM reservations
+WHERE status = 'completed';
+```
+
 ---
 
-## 📚 Ressources
+## 🛠️ Maintenance
 
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Supabase Database Guide](https://supabase.com/docs/guides/database)
-- [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security)
+### Tâches régulières
+
+#### Expirer les lots périmés (CRON)
+```sql
+UPDATE lots
+SET status = 'expired'
+WHERE status = 'available'
+  AND pickup_end < NOW();
+```
+
+#### Nettoyer les anciennes images (Storage)
+```sql
+-- Supprimer les images des lots supprimés (> 30 jours)
+DELETE FROM storage.objects
+WHERE bucket_id = 'lot-images'
+  AND created_at < NOW() - INTERVAL '30 days'
+  AND id NOT IN (
+    SELECT UNNEST(images) FROM lots
+  );
+```
 
 ---
 
 <div align="center">
 
-**Base de données conçue pour la performance, l'intégrité et la scalabilité**
-
-[⬅️ Retour au README](./README.md)
+**Database Schema - EcoPanier** 🗄️  
+PostgreSQL via Supabase - Version 1.0
 
 </div>
-

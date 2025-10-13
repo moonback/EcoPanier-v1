@@ -1,895 +1,693 @@
-# 🏗️ Architecture - EcoPanier
+# 🏗️ Architecture EcoPanier
 
-> Documentation technique de l'architecture système de la plateforme EcoPanier.
-
----
-
-## 📋 Table des matières
-
-1. [Vue d'ensemble](#vue-densemble)
-2. [Architecture Globale](#architecture-globale)
-3. [Frontend (Client)](#frontend-client)
-4. [Backend (Supabase)](#backend-supabase)
-5. [Base de données](#base-de-données)
-6. [Flux de données](#flux-de-données)
-7. [Sécurité](#sécurité)
-8. [Performance](#performance)
-9. [Scalabilité](#scalabilité)
+> **Document d'architecture système** - Structure technique détaillée de la plateforme anti-gaspillage alimentaire
 
 ---
 
-## 🎯 Vue d'ensemble
+## 📊 Vue d'ensemble
 
-EcoPanier est une **application web full-stack** construite selon une architecture moderne **JAMstack** :
-
-- **Frontend** : React SPA (Single Page Application)
-- **Backend** : Supabase (BaaS - Backend as a Service)
-- **Database** : PostgreSQL (hébergé par Supabase)
-- **Auth** : Supabase Auth
-- **Storage** : Supabase Storage (futur)
-- **Realtime** : Supabase Realtime (futur)
-
-### Philosophie architecturale
-
-- ✅ **Serverless** : Pas de serveur à gérer
-- ✅ **API-first** : Tout passe par des API REST/GraphQL
-- ✅ **Type-safe** : TypeScript de bout en bout
-- ✅ **Component-based** : Architecture en composants réutilisables
-- ✅ **State management** : Zustand pour l'état global, Context API pour l'état local
-- ✅ **Security-first** : RLS (Row Level Security) au niveau base de données
-
----
-
-## 🌐 Architecture Globale
+EcoPanier est une application web moderne construite sur une architecture **client-serveur** avec un backend managé (BaaS - Backend as a Service).
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         UTILISATEURS                              │
-│  (Clients, Commerçants, Bénéficiaires, Collecteurs, Admins)     │
-└────────────┬────────────────────────────────────────────────────┘
-             │
-             │ HTTPS
-             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     CDN / HOSTING                                 │
-│              (Netlify / Vercel / Firebase)                        │
-│                                                                   │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │               FRONTEND (React SPA)                       │   │
-│  │                                                           │   │
-│  │  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐  │   │
-│  │  │   React     │  │  TypeScript  │  │  Tailwind CSS │  │   │
-│  │  │   Router    │  │    Zustand   │  │   Lucide      │  │   │
-│  │  └─────────────┘  └──────────────┘  └───────────────┘  │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└────────────┬────────────────────────────────────────────────────┘
-             │
-             │ REST API / GraphQL
-             │ WebSocket (Realtime)
-             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     SUPABASE (BaaS)                               │
-│                                                                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   Auth       │  │   Database   │  │   Storage    │          │
-│  │   Service    │  │  (Postgres)  │  │   Service    │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-│                                                                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   Realtime   │  │     Edge     │  │     API      │          │
-│  │   Service    │  │  Functions   │  │   Gateway    │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-└─────────────────────────────────────────────────────────────────┘
-             │
-             │ SQL / RLS Policies
-             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   PostgreSQL DATABASE                             │
-│                                                                   │
-│  ┌─────────┐  ┌──────────┐  ┌─────────────┐  ┌──────────┐     │
-│  │ Profiles│  │   Lots   │  │ Reservations│  │ Missions │     │
-│  └─────────┘  └──────────┘  └─────────────┘  └──────────┘     │
-│                                                                   │
-│  ┌─────────────────┐  ┌─────────────┐  ┌──────────────┐       │
-│  │ Suspended       │  │   Impact    │  │  Platform    │       │
-│  │ Baskets         │  │   Metrics   │  │  Settings    │       │
-│  └─────────────────┘  └─────────────┘  └──────────────┘       │
-└─────────────────────────────────────────────────────────────────┘
+│                        CLIENT BROWSER                            │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │              React App (SPA)                               │ │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐ │ │
+│  │  │  Components  │  │    Stores    │  │    Contexts     │ │ │
+│  │  │   (React)    │  │   (Zustand)  │  │                 │ │ │
+│  │  └──────────────┘  └──────────────┘  └─────────────────┘ │ │
+│  │                                                            │ │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐ │ │
+│  │  │   Routing    │  │   Styling    │  │   Animations    │ │ │
+│  │  │ (React Router)│  │  (Tailwind)  │  │(Framer Motion) │ │ │
+│  │  └──────────────┘  └──────────────┘  └─────────────────┘ │ │
+│  └────────────────────────────────────────────────────────────┘ │
+└───────────────────────┬─────────────────────┬───────────────────┘
+                        │                     │
+                    HTTPS/WSS            HTTPS REST
+                        │                     │
+         ┌──────────────┴─────────┐   ┌──────┴─────────┐
+         │                        │   │                │
+         │   SUPABASE (BaaS)      │   │  GEMINI AI     │
+         │                        │   │  (Google)      │
+         │  ┌──────────────────┐  │   │                │
+         │  │   PostgreSQL     │  │   │  Image Analysis│
+         │  │   (Database)     │  │   │  + Extraction  │
+         │  └──────────────────┘  │   │                │
+         │  ┌──────────────────┐  │   └────────────────┘
+         │  │   Auth Service   │  │
+         │  └──────────────────┘  │
+         │  ┌──────────────────┐  │
+         │  │   Storage        │  │
+         │  │  (Images/Logos)  │  │
+         │  └──────────────────┘  │
+         │  ┌──────────────────┐  │
+         │  │   Realtime       │  │
+         │  │  (WebSockets)    │  │
+         │  └──────────────────┘  │
+         └─────────────────────────┘
 ```
 
 ---
 
-## 💻 Frontend (Client)
+## 🎨 Frontend Architecture
 
-### Stack technique
+### Technology Stack
+
+- **React 18.3.1** : Framework UI avec hooks et concurrent features
+- **TypeScript 5.5.3** : Typage statique strict (mode `strict` activé)
+- **Vite 5.4.2** : Build tool avec HMR ultra-rapide
+- **React Router DOM 7.9.4** : Routing déclaratif côté client
+
+### Design Pattern : Feature-Based Architecture
+
+Le projet utilise une **architecture feature-based** où les composants sont organisés par **domaine métier** plutôt que par type technique.
+
+```
+src/components/
+├── admin/           # Tout ce qui concerne l'administration
+├── auth/            # Authentification et autorisation
+├── beneficiary/     # Fonctionnalités bénéficiaires
+├── collector/       # Fonctionnalités collecteurs
+├── customer/        # Fonctionnalités clients
+├── merchant/        # Fonctionnalités commerçants
+├── landing/         # Page d'accueil publique
+├── pages/           # Pages transversales
+├── pickup/          # Station de retrait
+└── shared/          # Composants réutilisables
+```
+
+#### Avantages de cette architecture
+
+✅ **Scalabilité** : Facile d'ajouter de nouvelles fonctionnalités  
+✅ **Maintenabilité** : Code isolé par domaine métier  
+✅ **Collaboration** : Équipes peuvent travailler en parallèle  
+✅ **Réutilisabilité** : Composants `shared/` utilisables partout  
+
+### State Management
+
+#### 1. Zustand (Global State)
+
+Utilisé pour l'**état d'authentification** :
 
 ```typescript
-// Technologies principales
-{
-  "framework": "React 18.3.1",
-  "language": "TypeScript 5.5.3",
-  "bundler": "Vite 5.4.2",
-  "routing": "React Router DOM 7.9.4",
-  "styling": "Tailwind CSS 3.4.1",
-  "state": "Zustand 5.0.8",
-  "icons": "Lucide React",
-  "charts": "Recharts 3.2.1"
+// stores/authStore.ts
+interface AuthStore {
+  user: User | null;
+  profile: Profile | null;
+  signIn: (credentials) => Promise<void>;
+  signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 ```
 
-### Architecture des composants
+**Pourquoi Zustand ?**
+- ✅ Léger (1KB gzippé)
+- ✅ Pas de boilerplate
+- ✅ Performance optimale
+- ✅ TypeScript natif
 
-```
-src/
-├── components/              # Composants par feature
-│   ├── admin/              # Domain: Administration
-│   ├── auth/               # Domain: Authentification
-│   ├── beneficiary/        # Domain: Bénéficiaires
-│   ├── collector/          # Domain: Collecteurs
-│   ├── customer/           # Domain: Clients
-│   ├── merchant/           # Domain: Commerçants
-│   ├── landing/            # Domain: Pages publiques
-│   ├── pages/              # Domain: Pages génériques
-│   ├── pickup/             # Domain: Station de retrait
-│   └── shared/             # Composants partagés/réutilisables
-```
+#### 2. React Context (Settings)
 
-### Pattern : Feature-based architecture
-
-Chaque domaine métier a ses propres composants isolés :
-
-```
-customer/
-├── CustomerDashboard.tsx    # Page principale
-├── ImpactDashboard.tsx      # Feature: Impact personnel
-├── LotBrowser.tsx           # Feature: Navigation lots
-└── ReservationsList.tsx     # Feature: Liste réservations
-```
-
-### État global (State Management)
-
-#### Zustand Stores
+Utilisé pour les **paramètres de la plateforme** :
 
 ```typescript
-// authStore.ts - Authentification globale
-{
-  user: User | null,
-  profile: Profile | null,
-  loading: boolean,
-  signIn: (email, password) => Promise<void>,
-  signUp: (...) => Promise<void>,
-  signOut: () => Promise<void>
+// contexts/SettingsContext.tsx
+interface SettingsContext {
+  settings: PlatformSettings;
+  loading: boolean;
+  updateSetting: (key, value) => Promise<void>;
 }
 ```
 
-#### Context API
+#### 3. Local State (useState, useReducer)
+
+Pour l'état local des composants (formulaires, UI, etc.).
+
+### Routing Strategy
 
 ```typescript
-// SettingsContext.tsx - Paramètres plateforme
-{
-  settings: PlatformSettings,
-  loading: boolean,
-  error: string | null,
-  refreshSettings: () => Promise<void>
+// App.tsx - Routes principales
+/                        → Landing Page (public)
+/login                   → Authentification (public)
+/dashboard               → Redirection selon rôle (protected)
+/admin/*                 → Admin dashboard (protected, role: admin)
+/merchant/*              → Merchant dashboard (protected, role: merchant)
+/customer/*              → Customer dashboard (protected, role: customer)
+/beneficiary/*           → Beneficiary dashboard (protected, role: beneficiary)
+/collector/*             → Collector dashboard (protected, role: collector)
+/pickup                  → Pickup station (public)
+/how-it-works            → Guide d'utilisation (public)
+/help                    → Centre d'aide (public)
+```
+
+#### Protection des routes
+
+```typescript
+// Pattern de protection par rôle
+if (!user) return <Navigate to="/login" />;
+if (profile?.role !== 'admin') return <AccessDenied />;
+```
+
+### Styling Architecture
+
+#### Tailwind CSS 3.4.1 (Utility-First)
+
+Configuration personnalisée avec :
+
+```javascript
+// tailwind.config.js
+colors: {
+  primary: { 50-950 },    // Bleu (brand)
+  secondary: { 50-950 },  // Violet
+  accent: { 50-950 },     // Rouge
+  success: { 50-950 },    // Vert
+  warning: { 50-950 },    // Orange
 }
 ```
 
-### Routing
+**Classes custom disponibles** :
+- `.card` : Carte standard
+- `.btn-primary` : Bouton principal
+- `.btn-secondary` : Bouton secondaire
+- `.section-gradient` : Dégradé de section
+- `.hover-lift` : Effet de levée au hover
+- `.animate-fade-in-up` : Animation d'entrée
 
-```typescript
-// App.tsx
-Routes:
-  / → LandingPage (public)
-  /how-it-works → HowItWorks (public)
-  /help → HelpCenter (public)
-  /pickup → PickupStation (public)
-  /dashboard → DashboardRouter (protected)
-  /login → DashboardRouter (protected)
+#### Ordre des classes Tailwind (OBLIGATOIRE)
+
+```
+Layout → Spacing → Sizing → Colors → Typography → Effects
 ```
 
-#### Route Protection
+Exemple :
+```tsx
+<div className="flex items-center justify-between gap-4 p-6 w-full bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+```
+
+### Animations : Framer Motion
+
+Utilisé pour les animations fluides de la landing page :
 
 ```typescript
-// Protection basée sur le rôle
-function DashboardRouter() {
+<motion.div
+  initial={{ opacity: 0, y: 30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8 }}
+>
+```
+
+---
+
+## 🔧 Backend Architecture
+
+### Supabase (Backend as a Service)
+
+EcoPanier utilise **Supabase** comme backend managé complet.
+
+#### Services utilisés
+
+1. **PostgreSQL Database**
+   - Base de données relationnelle
+   - Triggers et fonctions SQL
+   - Full-text search
+
+2. **Supabase Auth**
+   - Authentification email/password
+   - Session management
+   - JWT tokens
+
+3. **Row Level Security (RLS)**
+   - Sécurité au niveau ligne
+   - Policies basées sur les rôles
+   - Activé sur tables sensibles : `platform_settings`, `suspended_baskets`
+
+4. **Storage**
+   - Stockage d'images de lots
+   - Stockage de logos commerçants
+   - Buckets : `lot-images`, `business-logos`
+
+5. **Realtime** (Futur)
+   - WebSockets pour notifications
+   - Mise à jour en temps réel
+
+### Database Schema
+
+#### Tables Principales
+
+```sql
+-- Profils utilisateurs (étend auth.users)
+profiles
+├── id (PK, FK → auth.users)
+├── role (ENUM: customer, merchant, beneficiary, collector, admin)
+├── full_name
+├── phone
+├── verified (BOOLEAN)
+├── beneficiary_id (TEXT, format: YYYY-BEN-XXXXX)
+├── business_name (TEXT, pour commerçants)
+├── business_hours (JSONB, horaires)
+├── business_logo_url (TEXT)
+└── timestamps
+
+-- Lots d'invendus
+lots
+├── id (PK)
+├── merchant_id (FK → profiles)
+├── title
+├── description
+├── category (ENUM)
+├── original_price
+├── discounted_price
+├── quantity_total
+├── quantity_reserved
+├── quantity_sold
+├── is_free (BOOLEAN, pour bénéficiaires)
+├── status (ENUM: available, reserved, sold_out, expired)
+├── images (TEXT[], URLs Storage)
+├── pickup_start (TIMESTAMP)
+├── pickup_end (TIMESTAMP)
+└── timestamps
+
+-- Réservations
+reservations
+├── id (PK)
+├── user_id (FK → profiles)
+├── lot_id (FK → lots)
+├── quantity
+├── total_price
+├── pickup_pin (TEXT, 6 chiffres)
+├── status (ENUM: pending, confirmed, completed, cancelled)
+├── completed_at (TIMESTAMP)
+└── timestamps
+
+-- Missions collecteurs
+missions
+├── id (PK)
+├── collector_id (FK → profiles)
+├── merchant_id (FK → profiles)
+├── pickup_location (POINT)
+├── delivery_location (POINT)
+├── status (ENUM)
+├── payment_amount
+└── timestamps
+
+-- Paramètres plateforme (RLS activé)
+platform_settings
+├── id (PK)
+├── key (UNIQUE)
+├── value (JSONB)
+├── updated_by (FK → profiles)
+└── timestamps
+
+-- Logs d'activité
+activity_logs
+├── id (PK)
+├── user_id (FK → profiles)
+├── action_type
+├── details (JSONB)
+└── created_at
+```
+
+#### Relations
+
+```
+profiles 1────N lots
+profiles 1────N reservations
+lots 1────N reservations
+profiles 1────N missions (as collector)
+profiles 1────N missions (as merchant)
+```
+
+### API Patterns
+
+#### Pattern de requête Supabase standard
+
+```typescript
+try {
+  const { data, error } = await supabase
+    .from('lots')
+    .select('*, merchant:profiles!merchant_id(full_name, business_name)')
+    .eq('status', 'available')
+    .order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  return data;
+} catch (error) {
+  console.error('Erreur lors du chargement des lots:', error);
+  throw new Error('Impossible de charger les lots');
+}
+```
+
+**Règles importantes** :
+- ✅ TOUJOURS vérifier `error`
+- ✅ Utiliser try/catch pour gestion d'erreurs
+- ✅ Messages utilisateur-friendly
+- ✅ Logger les erreurs en console
+
+#### Optimisation : Requêtes avec relations (JOIN)
+
+```typescript
+// ✅ BON - Une seule requête avec relations
+const { data } = await supabase
+  .from('reservations')
+  .select(`
+    *,
+    lot:lots(*),
+    user:profiles(full_name, phone)
+  `);
+
+// ❌ MAUVAIS - Multiples requêtes (N+1 problem)
+const reservations = await supabase.from('reservations').select();
+for (const res of reservations) {
+  const lot = await supabase.from('lots').select().eq('id', res.lot_id);
+}
+```
+
+---
+
+## 🤖 Intelligence Artificielle : Gemini 2.0 Flash
+
+### Architecture de l'analyse d'images
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Commerçant                                             │
+│  ┌────────────────────────────────────────────────┐    │
+│  │  1. Prend photo du produit                     │    │
+│  │  2. Upload image (File)                        │    │
+│  └────────────────────┬───────────────────────────┘    │
+│                       │                                 │
+└───────────────────────┼─────────────────────────────────┘
+                        │
+                        ▼
+          ┌─────────────────────────────┐
+          │   geminiService.ts          │
+          │                             │
+          │  analyzeImageWithGemini()   │
+          │                             │
+          │  1. Convert File → Base64   │
+          │  2. Send to Gemini API      │
+          │  3. Parse response          │
+          │  4. Validate data           │
+          └────────┬────────────────────┘
+                   │
+                   ▼
+          ┌─────────────────────────────┐
+          │   Gemini 2.0 Flash API      │
+          │   (Google AI)               │
+          │                             │
+          │  - Vision + Language Model  │
+          │  - Multi-modal analysis     │
+          │  - Fast inference (<3s)     │
+          └────────┬────────────────────┘
+                   │
+                   ▼
+          ┌─────────────────────────────┐
+          │   Extracted Data            │
+          │                             │
+          │  {                          │
+          │    title,                   │
+          │    description,             │
+          │    category,                │
+          │    originalPrice,           │
+          │    discountedPrice,         │
+          │    quantity,                │
+          │    requiresColdChain,       │
+          │    isUrgent,                │
+          │    confidence              │
+          │  }                          │
+          └────────┬────────────────────┘
+                   │
+                   ▼
+          ┌─────────────────────────────┐
+          │   Auto-fill Form            │
+          │                             │
+          │  - Pre-populate fields      │
+          │  - Merchant can adjust      │
+          │  - Save lot                 │
+          └─────────────────────────────┘
+```
+
+### Prompt Engineering
+
+Le système utilise un **prompt structuré et spécialisé** :
+
+```typescript
+const prompt = `
+Tu es un expert en analyse de produits alimentaires.
+Analyse cette image et extrais les informations suivantes...
+
+IMPORTANT:
+- Détecte le type exact de produit
+- Estime le prix original basé sur le marché français
+- Propose un prix anti-gaspi (30-70% de réduction)
+- Identifie si chaîne du froid nécessaire
+- Détecte l'urgence (DLC proche)
+`;
+```
+
+### Gestion des erreurs
+
+```typescript
+// Fallback si Gemini indisponible
+if (!GEMINI_API_KEY) {
+  return {
+    success: false,
+    error: 'Clé API Gemini non configurée'
+  };
+}
+
+// Retry logic avec exponential backoff
+const MAX_RETRIES = 3;
+```
+
+---
+
+## 🔐 Authentification & Autorisation
+
+### Flow d'authentification
+
+```
+1. User → Email + Password
+2. Supabase Auth → Vérification
+3. JWT Token généré
+4. Profile récupéré (role, infos)
+5. Zustand store mis à jour
+6. Redirection selon rôle
+```
+
+### Rôles et Permissions
+
+| Rôle | Permissions |
+|------|------------|
+| **Customer** | Browse lots, Reserve, View impact |
+| **Merchant** | Create lots, Manage reservations, View stats, Use IA |
+| **Beneficiary** | Access free lots (2/day max), Reserve |
+| **Collector** | View missions, Accept missions, Complete |
+| **Admin** | Full access, User management, Settings, Logs |
+
+### Protection des routes
+
+```typescript
+// HOC pour protection
+const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, profile } = useAuthStore();
   
-  if (!user) return <AuthForm />;
-  if (!profile) return <ProfileSetup />;
-  
-  switch (profile.role) {
-    case 'customer': return <CustomerDashboard />;
-    case 'merchant': return <MerchantDashboard />;
-    case 'beneficiary': return <BeneficiaryDashboard />;
-    case 'collector': return <CollectorDashboard />;
-    case 'admin': return <AdminDashboard />;
+  if (!user) return <Navigate to="/login" />;
+  if (requiredRole && profile?.role !== requiredRole) {
+    return <AccessDenied />;
   }
-}
-```
-
-### Patterns de composants
-
-#### Composant type
-
-```typescript
-// Pattern standard d'un composant
-interface ComponentProps {
-  // Props typées
-}
-
-export function Component({ prop1, prop2 }: ComponentProps) {
-  // 1. Hooks d'état
-  const [state, setState] = useState();
   
-  // 2. Hooks de contexte/store
-  const { data } = useStore();
+  return children;
+};
+```
+
+---
+
+## 📦 Storage Architecture
+
+### Buckets Supabase
+
+1. **lot-images**
+   - Images des lots créés par commerçants
+   - Public access : true
+   - Max size : 5MB par image
+   - Formats acceptés : jpg, png, webp
+
+2. **business-logos**
+   - Logos des commerces
+   - Public access : true
+   - Max size : 2MB
+   - Formats : jpg, png
+
+### Upload Pattern
+
+```typescript
+const uploadImage = async (file: File) => {
+  const fileName = `${Date.now()}-${file.name}`;
+  const { data, error } = await supabase.storage
+    .from('lot-images')
+    .upload(fileName, file);
   
-  // 3. Hooks d'effet
-  useEffect(() => {
-    // Side effects
-  }, [deps]);
+  if (error) throw error;
   
-  // 4. Handlers
-  const handleAction = () => {
-    // Logic
-  };
+  const { data: { publicUrl } } = supabase.storage
+    .from('lot-images')
+    .getPublicUrl(fileName);
   
-  // 5. Render
-  return (
-    <div>
-      {/* JSX */}
-    </div>
-  );
-}
+  return publicUrl;
+};
 ```
 
 ---
 
-## 🔧 Backend (Supabase)
+## 🚀 Performance & Optimisation
 
-### Services utilisés
-
-#### 1. **Supabase Auth**
-
-```typescript
-// Authentication flows
-- Email/Password signup
-- Email/Password login
-- Session management
-- Password reset
-- Email verification (optionnel)
-```
-
-**Implémentation** : `src/stores/authStore.ts`
-
-#### 2. **Supabase Database**
-
-```typescript
-// PostgreSQL via Supabase Client
-const { data, error } = await supabase
-  .from('table_name')
-  .select('*')
-  .eq('column', value);
-```
-
-**Client** : `src/lib/supabase.ts`
-
-#### 3. **Row Level Security (RLS)**
-
-Sécurité au niveau de la base de données :
-
-```sql
--- Exemple: Seuls les admins peuvent voir les paramètres
-CREATE POLICY "Admins can read settings"
-  ON platform_settings
-  FOR SELECT
-  TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
-```
-
-#### 4. **Supabase Storage** (Futur)
-
-Pour stocker :
-- Photos de profil
-- Images de lots
-- Preuves de livraison
-- Documents admin
-
-#### 5. **Supabase Realtime** (Futur)
-
-Notifications en temps réel :
-- Nouvelles réservations
-- Mises à jour de lots
-- Messages
-- Notifications
-
----
-
-## 🗄️ Base de données
-
-### Modèle relationnel
-
-```
-┌─────────────┐
-│   Profiles  │
-│ (Users)     │
-└──────┬──────┘
-       │ 1
-       │
-       │ N
-   ┌───┴────┬─────────┬──────────┬──────────┐
-   │        │         │          │          │
-   ▼        ▼         ▼          ▼          ▼
-┌──────┐ ┌────┐ ┌───────────┐ ┌────────┐ ┌──────────┐
-│ Lots │ │Msns│ │Reserva-   │ │Impact  │ │Suspended │
-│      │ │    │ │tions      │ │Metrics │ │Baskets   │
-└──────┘ └────┘ └───────────┘ └────────┘ └──────────┘
-```
-
-### Tables principales
-
-#### **profiles**
-```sql
-- id (uuid, PK, FK → auth.users)
-- role (enum: customer, merchant, beneficiary, collector, admin)
-- full_name (text)
-- phone (text)
-- address (text)
-- business_name (text) -- pour merchants
-- business_address (text)
-- latitude, longitude (numeric) -- géolocalisation
-- beneficiary_id (text) -- format: 2025-BEN-00001
-- verified (boolean)
-- created_at, updated_at (timestamptz)
-```
-
-#### **lots**
-```sql
-- id (uuid, PK)
-- merchant_id (uuid, FK → profiles)
-- title, description, category (text)
-- original_price, discounted_price (numeric)
-- quantity_total, quantity_reserved, quantity_sold (integer)
-- pickup_start, pickup_end (timestamptz)
-- requires_cold_chain, is_urgent (boolean)
-- status (enum: available, reserved, sold_out, expired)
-- image_urls (text[])
-- created_at, updated_at (timestamptz)
-```
-
-#### **reservations**
-```sql
-- id (uuid, PK)
-- lot_id (uuid, FK → lots)
-- user_id (uuid, FK → profiles)
-- quantity (integer)
-- total_price (numeric)
-- pickup_pin (text) -- code à 6 chiffres
-- status (enum: pending, confirmed, completed, cancelled)
-- is_donation (boolean) -- panier suspendu
-- created_at, updated_at, completed_at (timestamptz)
-```
-
-#### **suspended_baskets**
-```sql
-- id (uuid, PK)
-- donor_id (uuid, FK → profiles)
-- merchant_id (uuid, FK → profiles)
-- reservation_id (uuid, FK → reservations, nullable)
-- amount (decimal)
-- claimed_by (uuid, FK → profiles, nullable)
-- claimed_at (timestamptz, nullable)
-- status (enum: available, reserved, claimed, expired)
-- notes (text)
-- expires_at (timestamptz)
-- created_at, updated_at (timestamptz)
-```
-
-#### **missions**
-```sql
-- id (uuid, PK)
-- merchant_id (uuid, FK → profiles)
-- collector_id (uuid, FK → profiles, nullable)
-- title, description (text)
-- pickup_address, delivery_address (text)
-- pickup_latitude, pickup_longitude (numeric)
-- delivery_latitude, delivery_longitude (numeric)
-- requires_cold_chain, is_urgent (boolean)
-- payment_amount (numeric)
-- status (enum: available, accepted, in_progress, completed, cancelled)
-- proof_urls (text[])
-- created_at, accepted_at, completed_at (timestamptz)
-```
-
-#### **platform_settings**
-```sql
-- id (uuid, PK)
-- key (text, unique) -- ex: "min_lot_price"
-- value (jsonb) -- valeur dynamique
-- description (text)
-- category (text) -- general, lots, commission, beneficiary, etc.
-- updated_at (timestamptz)
-- updated_by (uuid, FK → profiles)
-- created_at (timestamptz)
-```
-
-#### **platform_settings_history**
-```sql
-- id (uuid, PK)
-- setting_key (text)
-- old_value (jsonb)
-- new_value (jsonb)
-- changed_by (uuid, FK → profiles)
-- changed_at (timestamptz)
-- ip_address (inet)
-- user_agent (text)
-```
-
-### Indexes
-
-```sql
--- Performance optimizations
-CREATE INDEX idx_profiles_role ON profiles(role);
-CREATE INDEX idx_profiles_beneficiary_id ON profiles(beneficiary_id);
-CREATE INDEX idx_lots_merchant_id ON lots(merchant_id);
-CREATE INDEX idx_lots_status ON lots(status);
-CREATE INDEX idx_lots_created_at ON lots(created_at DESC);
-CREATE INDEX idx_reservations_user_id ON reservations(user_id);
-CREATE INDEX idx_reservations_lot_id ON reservations(lot_id);
-CREATE INDEX idx_missions_collector_id ON missions(collector_id);
-CREATE INDEX idx_suspended_baskets_status ON suspended_baskets(status);
-```
-
----
-
-## 🔄 Flux de données
-
-### 1. Flux d'authentification
-
-```
-┌──────────┐
-│  Client  │
-└────┬─────┘
-     │
-     │ 1. signUp(email, password, profile)
-     ▼
-┌─────────────────┐
-│  authStore.ts   │
-└────┬────────────┘
-     │
-     │ 2. supabase.auth.signUp()
-     ▼
-┌─────────────────┐
-│  Supabase Auth  │
-└────┬────────────┘
-     │
-     │ 3. Create user in auth.users
-     ▼
-┌─────────────────┐
-│  PostgreSQL     │
-│  auth.users     │
-└────┬────────────┘
-     │
-     │ 4. Insert profile in public.profiles
-     ▼
-┌─────────────────┐
-│  public.        │
-│  profiles       │
-└────┬────────────┘
-     │
-     │ 5. Return session + profile
-     ▼
-┌─────────────────┐
-│  authStore      │
-│  (user, profile)│
-└────┬────────────┘
-     │
-     │ 6. Update UI
-     ▼
-┌──────────┐
-│  Client  │
-│  (logged)│
-└──────────┘
-```
-
-### 2. Flux de réservation
-
-```
-Client
-  │
-  │ 1. Browse lots (LotBrowser)
-  ▼
-supabase
-  .from('lots')
-  .select()
-  .eq('status', 'available')
-  │
-  │ 2. Select lot + quantity
-  ▼
-Create reservation
-  │
-  │ 3. Generate PIN (6 digits)
-  │ 4. Insert reservation
-  │ 5. Update lot.quantity_reserved
-  ▼
-supabase
-  .from('reservations')
-  .insert({
-    lot_id,
-    user_id,
-    quantity,
-    total_price,
-    pickup_pin
-  })
-  │
-  │ 6. Generate QR Code
-  ▼
-QRCodeDisplay
-  {
-    reservationId,
-    pin,
-    userId,
-    lotId,
-    timestamp
-  }
-```
-
-### 3. Flux de retrait (Pickup)
-
-```
-PickupStation (public)
-  │
-  │ 1. Scan QR Code
-  ▼
-QRScanner
-  │
-  │ 2. Parse QR data
-  ▼
-{
-  reservationId,
-  pin,
-  userId,
-  lotId
-}
-  │
-  │ 3. Fetch reservation
-  ▼
-supabase
-  .from('reservations')
-  .select('*, lot:lots(*), user:profiles(*)')
-  .eq('id', reservationId)
-  .single()
-  │
-  │ 4. Display info + ask PIN
-  ▼
-PIN Input
-  │
-  │ 5. Validate PIN
-  ▼
-if (inputPin === reservation.pickup_pin)
-  │
-  │ 6. Mark as completed
-  ▼
-supabase
-  .from('reservations')
-  .update({
-    status: 'completed',
-    completed_at: now()
-  })
-  │
-  │ 7. Update lot quantities
-  ▼
-supabase
-  .from('lots')
-  .update({
-    quantity_reserved: quantity_reserved - qty,
-    quantity_sold: quantity_sold + qty
-  })
-```
-
-### 4. Flux de don (Panier suspendu)
-
-```
-Client Dashboard
-  │
-  │ 1. Click "Offrir un panier"
-  ▼
-Modal: Select merchant + amount
-  │
-  │ 2. Submit donation
-  ▼
-supabase
-  .from('suspended_baskets')
-  .insert({
-    donor_id: currentUser.id,
-    merchant_id: selectedMerchant,
-    amount: donationAmount,
-    status: 'available'
-  })
-  │
-  │ 3. Update impact_metrics
-  ▼
-supabase
-  .from('impact_metrics')
-  .insert({
-    user_id: currentUser.id,
-    metric_type: 'donations_made',
-    value: donationAmount
-  })
-  │
-  │ 4. Notification
-  ▼
-Beneficiaries can claim
-```
-
----
-
-## 🔐 Sécurité
-
-### Authentification
-
-```typescript
-// Supabase Auth avec JWT
-- Session stockée dans localStorage (supabase-auth-token)
-- Auto-refresh du JWT
-- Gestion de l'expiration
-- Logout propre
-```
-
-### Autorisations (RLS)
-
-#### Stratégie de sécurité
-
-```sql
--- Désactivé pour tables de base (pour simplicité MVP)
-ALTER TABLE profiles DISABLE ROW LEVEL SECURITY;
-ALTER TABLE lots DISABLE ROW LEVEL SECURITY;
-ALTER TABLE reservations DISABLE ROW LEVEL SECURITY;
-ALTER TABLE missions DISABLE ROW LEVEL SECURITY;
-
--- Activé pour tables sensibles
-ALTER TABLE platform_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE suspended_baskets ENABLE ROW LEVEL SECURITY;
-```
-
-#### Policies actives
-
-**platform_settings** :
-```sql
--- Seuls les admins lisent
-CREATE POLICY "Admins can read settings"
-  ON platform_settings FOR SELECT
-  TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
-
--- Seuls les admins modifient
-CREATE POLICY "Admins can update settings"
-  ON platform_settings FOR UPDATE
-  TO authenticated
-  USING (...) WITH CHECK (...);
-```
-
-**suspended_baskets** :
-```sql
--- Clients créent des dons
-CREATE POLICY "Authenticated users can create suspended baskets"
-  ON suspended_baskets FOR INSERT
-  TO authenticated
-  WITH CHECK (
-    donor_id = auth.uid() AND
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE id = auth.uid() AND role IN ('customer', 'admin')
-    )
-  );
-
--- Bénéficiaires récupèrent
-CREATE POLICY "Beneficiaries can claim baskets"
-  ON suspended_baskets FOR UPDATE
-  TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE id = auth.uid() AND role IN ('beneficiary', 'admin')
-    )
-  );
-```
-
-### Protection Frontend
-
-```typescript
-// Route protection
-if (!user) return <Navigate to="/login" />;
-
-// Role-based rendering
-{profile.role === 'admin' && <AdminPanel />}
-
-// Function-level checks
-function canEditLot(lot: Lot, userId: string) {
-  return lot.merchant_id === userId;
-}
-```
-
-### Bonnes pratiques
-
-- ✅ **Jamais de secrets dans le frontend** (use env vars)
-- ✅ **Validation côté serveur** (via RLS policies)
-- ✅ **Sanitisation des entrées** (SQL injection prevention via Supabase)
-- ✅ **HTTPS obligatoire** (enforced by Supabase & hosting)
-- ✅ **CORS configuré** (Supabase settings)
-
----
-
-## ⚡ Performance
-
-### Frontend Optimizations
-
-#### 1. Code Splitting
+### Code Splitting
 
 ```typescript
 // Lazy loading des routes
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
-
-<Suspense fallback={<LoadingSpinner />}>
-  <AdminDashboard />
-</Suspense>
+const MerchantDashboard = lazy(() => import('./components/merchant/MerchantDashboard'));
 ```
 
-#### 2. Memoization
+### Optimisations React
 
-```typescript
-// Éviter les re-renders inutiles
-const MemoizedComponent = React.memo(ExpensiveComponent);
+- **React.memo** : Composants purs
+- **useMemo** : Calculs coûteux
+- **useCallback** : Fonctions stables
+- **Lazy loading** : Images et composants
 
-// Hooks de mémoisation
-const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
-const memoizedCallback = useCallback(() => doSomething(a, b), [a, b]);
-```
+### Caching Strategy
 
-#### 3. Optimistic UI
+- **Supabase** : Cache automatique des requêtes
+- **Browser** : LocalStorage pour settings
+- **Images** : CDN + lazy loading
 
-```typescript
-// Mise à jour optimiste avant confirmation serveur
-setState(newValue); // Update immédiate
-await supabase.update(...); // Confirmation async
-// Si erreur, rollback
-```
+---
 
-### Database Optimizations
+## 🛡️ Sécurité
 
-#### 1. Indexes stratégiques
+### Frontend Security
+
+- ✅ Variables d'environnement (pas de secrets en dur)
+- ✅ Validation des entrées utilisateur
+- ✅ XSS protection (React échappe automatiquement)
+- ✅ CSRF protection (Supabase)
+
+### Backend Security (Supabase)
+
+- ✅ Row Level Security (RLS) sur tables sensibles
+- ✅ Policies basées sur les rôles
+- ✅ JWT tokens avec expiration
+- ✅ HTTPS only
+
+### RLS Policies Examples
 
 ```sql
--- Index sur colonnes fréquemment requêtées
-CREATE INDEX idx_lots_status ON lots(status);
-CREATE INDEX idx_lots_created_at ON lots(created_at DESC);
+-- Exemple : Seuls les admins peuvent modifier les settings
+CREATE POLICY "Admin only can update settings"
+ON platform_settings FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.role = 'admin'
+  )
+);
 ```
 
-#### 2. Requêtes optimisées
+---
+
+## 📊 Monitoring & Logs
+
+### Activity Logs
+
+Toutes les actions importantes sont loggées :
 
 ```typescript
-// ❌ Bad: Multiple queries
-const lots = await supabase.from('lots').select();
-for (const lot of lots) {
-  const merchant = await supabase.from('profiles').select().eq('id', lot.merchant_id);
-}
-
-// ✅ Good: Single query with join
-const lots = await supabase
-  .from('lots')
-  .select('*, merchant:profiles(full_name, business_name)');
-```
-
-#### 3. Pagination
-
-```typescript
-// Limiter les résultats
-const { data } = await supabase
-  .from('lots')
-  .select()
-  .range(0, 19) // 20 premiers résultats
-  .order('created_at', { ascending: false });
-```
-
-### Bundle Optimization
-
-```typescript
-// vite.config.ts
-export default defineConfig({
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['lucide-react', 'recharts'],
-        }
-      }
-    }
+await supabase.from('activity_logs').insert({
+  user_id: user.id,
+  action_type: 'lot_created',
+  details: {
+    lot_id: newLot.id,
+    title: newLot.title,
+    price: newLot.discounted_price
   }
 });
 ```
 
----
+### Error Tracking (Futur)
 
-## 📈 Scalabilité
-
-### Stratégies de croissance
-
-#### 1. Database Scaling
-
-**Supabase** gère automatiquement :
-- Connection pooling
-- Read replicas (plans supérieurs)
-- Auto-scaling
-
-#### 2. Caching Strategy (Futur)
-
-```typescript
-// React Query pour cache client-side
-const { data } = useQuery('lots', fetchLots, {
-  staleTime: 5 * 60 * 1000, // 5 minutes
-  cacheTime: 10 * 60 * 1000, // 10 minutes
-});
-```
-
-#### 3. CDN pour assets
-
-- Images servies via CDN (Cloudinary, Supabase Storage)
-- Build statique sur CDN (Netlify, Vercel)
-
-#### 4. Monitoring (Futur)
-
-```typescript
-// Sentry pour error tracking
-import * as Sentry from "@sentry/react";
-
-Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
-  environment: import.meta.env.MODE,
-});
-```
+- Sentry pour tracking des erreurs
+- Source maps pour debugging
+- Alertes en temps réel
 
 ---
 
-## 🚀 Évolutions futures
+## 🔄 Deployment Architecture
 
-### Architecture V2
+### Build Process
+
+```bash
+npm run build
+  → TypeScript compilation
+  → Vite bundling
+  → Assets optimization
+  → dist/ folder ready
+```
+
+### Hosting (Netlify/Vercel)
 
 ```
-Frontend:
-- [ ] Migration vers Next.js (SSR/SSG)
-- [ ] React Query pour cache & sync
-- [ ] Service Worker pour offline
-- [ ] PWA support
+GitHub → Push → CI/CD → Build → Deploy → CDN
+```
 
-Backend:
-- [ ] Supabase Edge Functions (serverless)
-- [ ] Webhooks pour intégrations externes
-- [ ] Stripe pour paiements
-- [ ] SendGrid pour emails
+### Environment Variables
 
-Database:
-- [ ] Triggers pour automatisations
-- [ ] Vues matérialisées pour analytics
-- [ ] Partitioning pour historiques
-- [ ] Full-text search (pg_search)
+```
+Production:
+  VITE_SUPABASE_URL=https://prod.supabase.co
+  VITE_SUPABASE_ANON_KEY=prod-key
+  VITE_GEMINI_API_KEY=prod-gemini-key
 
-Monitoring:
-- [ ] Sentry (errors)
-- [ ] LogRocket (session replay)
-- [ ] Mixpanel (analytics)
-- [ ] Datadog (APM)
+Development:
+  VITE_SUPABASE_URL=https://dev.supabase.co
+  VITE_SUPABASE_ANON_KEY=dev-key
+  VITE_GEMINI_API_KEY=dev-gemini-key
+```
+
+---
+
+## 📈 Scalability
+
+### Current Architecture
+
+- ✅ Horizontal scaling via Netlify/Vercel
+- ✅ Supabase auto-scaling
+- ✅ CDN pour assets statiques
+
+### Future Improvements
+
+- 📋 Database read replicas
+- 📋 Redis caching layer
+- 📋 Background jobs avec Supabase Edge Functions
+- 📋 GraphQL pour requêtes complexes
+
+---
+
+## 🔧 Development Workflow
+
+```
+1. Feature branch → feature/nom
+2. Development local (Vite HMR)
+3. TypeScript typecheck
+4. ESLint validation
+5. Build test
+6. Pull Request
+7. Review & Merge
+8. Deploy automatique
 ```
 
 ---
@@ -900,15 +698,12 @@ Monitoring:
 - [React Docs](https://react.dev)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
-- [PostgreSQL Docs](https://www.postgresql.org/docs/)
+- [Gemini API](https://ai.google.dev/docs)
 
 ---
 
 <div align="center">
 
-**Architecture conçue pour la performance, la sécurité et la scalabilité**
-
-[⬅️ Retour au README](./README.md)
+**Architecture conçue pour la scalabilité, la performance et la maintenabilité** 🚀
 
 </div>
-
