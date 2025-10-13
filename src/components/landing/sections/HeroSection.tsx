@@ -17,7 +17,7 @@ export const HeroSection = () => {
       {/* Image Background */}
       <div className="absolute inset-0 overflow-hidden">
         <img 
-          src="/slide-7.png"
+          src="/slide-6.png"
           alt="EcoPanier - Lutte contre le gaspillage alimentaire"
           className="absolute inset-0 w-full h-full object-cover opacity-50"
         />
