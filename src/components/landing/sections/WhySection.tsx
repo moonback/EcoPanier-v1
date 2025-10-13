@@ -54,24 +54,34 @@ export const WhySection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-black rounded-3xl p-12 md:p-16 text-white"
+          className="relative bg-black rounded-3xl p-12 md:p-16 text-white overflow-hidden"
         >
-          <div className="text-center mb-12">
-            <h3 className="text-3xl md:text-4xl font-bold mb-4">Le gaspillage en France</h3>
-            <p className="text-white/60 text-lg font-light">L'urgence d'agir maintenant</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-6xl font-bold mb-3">10M</div>
-              <div className="text-white/70 font-light">Tonnes gaspillées par an</div>
+          {/* Image de fond illustrant l'urgence */}
+          <img
+            src="/slide-3.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover opacity-50 pointer-events-none select-none rounded-3xl"
+            draggable={false}
+          />
+          <div className="relative z-10">
+            <div className="text-center mb-12">
+              <h3 className="text-3xl md:text-4xl font-bold mb-4">Le gaspillage en France</h3>
+              <p className="text-white/60 text-lg font-light">L'urgence d'agir maintenant</p>
             </div>
-            <div className="text-center">
-              <div className="text-6xl font-bold mb-3">29kg</div>
-              <div className="text-white/70 font-light">Par personne et par an</div>
-            </div>
-            <div className="text-center">
-              <div className="text-6xl font-bold mb-3">16Mds€</div>
-              <div className="text-white/70 font-light">Valeur du gaspillage annuel</div>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="text-6xl font-bold mb-3">10M</div>
+                <div className="text-white/70 font-light">Tonnes gaspillées par an</div>
+              </div>
+              <div className="text-center">
+                <div className="text-6xl font-bold mb-3">29kg</div>
+                <div className="text-white/70 font-light">Par personne et par an</div>
+              </div>
+              <div className="text-center">
+                <div className="text-6xl font-bold mb-3">16Mds€</div>
+                <div className="text-white/70 font-light">Valeur du gaspillage annuel</div>
+              </div>
             </div>
           </div>
         </motion.div>
