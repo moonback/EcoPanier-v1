@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
 import { BusinessHoursEditor } from './BusinessHoursEditor';
+import { BusinessLogoUploader } from '../merchant/BusinessLogoUploader';
 import { 
   User, 
   Mail, 
@@ -178,6 +179,13 @@ export const ProfilePage = () => {
     setBusinessHours(profile?.business_hours || null);
     setIsEditingHours(false);
     setError('');
+  };
+
+  const handleLogoUpdated = async (logoUrl: string | null) => {
+    // Rafraîchir le profil pour afficher le nouveau logo
+    await fetchProfile();
+    setSuccess(`Logo ${logoUrl ? 'mis à jour' : 'supprimé'} avec succès ! ✅`);
+    setTimeout(() => setSuccess(''), 3000);
   };
 
   const stats = getRoleStats();
@@ -588,6 +596,17 @@ export const ProfilePage = () => {
               <p className="text-sm text-neutral-500 mt-1">Cliquez sur "Définir les horaires" pour ajouter vos horaires d'ouverture</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Business Logo (Merchant only) */}
+      {profile?.role === 'merchant' && user && (
+        <div className="card p-6">
+          <BusinessLogoUploader
+            currentLogoUrl={profile?.business_logo_url}
+            userId={user.id}
+            onLogoUpdated={handleLogoUpdated}
+          />
         </div>
       )}
 
