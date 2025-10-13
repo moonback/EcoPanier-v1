@@ -2,17 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { useSettings } from '../../contexts/SettingsContext';
+import { useMessaging } from '../../hooks/useMessaging';
 import { FreeLotsList } from './FreeLotsList';
 import { BeneficiaryReservations } from './BeneficiaryReservations';
 import { QRCodeDisplay } from '../shared/QRCodeDisplay';
 import { ProfilePage } from '../shared/ProfilePage';
-import { Heart, History, QrCode, LogOut, AlertCircle, User } from 'lucide-react';
+import { MessagingPage } from '../shared/messaging';
+import { Heart, History, QrCode, LogOut, AlertCircle, User, MessageCircle } from 'lucide-react';
 
 export const BeneficiaryDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'browse' | 'reservations' | 'qrcode' | 'profile'>('browse');
+  const [activeTab, setActiveTab] = useState<'browse' | 'reservations' | 'messages' | 'qrcode' | 'profile'>('browse');
   const [dailyCount, setDailyCount] = useState(0);
   const { profile, signOut } = useAuthStore();
   const { settings } = useSettings();
+  const { unreadCount } = useMessaging();
 
   const checkDailyLimit = useCallback(async () => {
     if (!profile) return;
@@ -45,6 +48,7 @@ export const BeneficiaryDashboard = () => {
   const tabs = [
     { id: 'browse', label: 'Dons Disponibles', icon: Heart },
     { id: 'reservations', label: 'Mes Réservations', icon: History },
+    { id: 'messages', label: 'Messages', icon: MessageCircle, badge: unreadCount },
     { id: 'qrcode', label: 'Mon QR Code', icon: QrCode },
     { id: 'profile', label: 'Mon profil', icon: User },
   ];
@@ -137,6 +141,7 @@ export const BeneficiaryDashboard = () => {
           <FreeLotsList dailyCount={dailyCount} onReservationMade={checkDailyLimit} />
         )}
         {activeTab === 'reservations' && <BeneficiaryReservations />}
+        {activeTab === 'messages' && <MessagingPage />}
         {activeTab === 'qrcode' && (
           <div className="flex justify-center">
             <div className="animate-fade-in-up w-full max-w-sm">
@@ -157,11 +162,12 @@ export const BeneficiaryDashboard = () => {
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const hasBadge = tab.badge && tab.badge > 0;
 
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'browse' | 'reservations' | 'qrcode' | 'profile')}
+                  onClick={() => setActiveTab(tab.id as 'browse' | 'reservations' | 'messages' | 'qrcode' | 'profile')}
                   className={`flex flex-col items-center justify-center gap-1 px-3 py-3 flex-1 transition-all ${
                     isActive
                       ? 'text-accent-600'
@@ -178,8 +184,13 @@ export const BeneficiaryDashboard = () => {
                       }`}
                       strokeWidth={isActive ? 2.5 : 2}
                     />
-                    {isActive && (
+                    {isActive && !hasBadge && (
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent-600 rounded-full animate-pulse"></div>
+                    )}
+                    {hasBadge && (
+                      <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-accent-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold px-1">
+                        {tab.badge}
+                      </div>
                     )}
                   </div>
                   <span

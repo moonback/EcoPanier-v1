@@ -1,16 +1,18 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, LogOut, Scan, User, ClipboardList } from 'lucide-react';
+import { Package, TrendingUp, LogOut, Scan, User, ClipboardList, MessageCircle } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
+import { useMessaging } from '../../hooks/useMessaging';
 import { LotManagement } from './LotManagement';
 import { MerchantReservations } from './MerchantReservations';
 import { SalesStats } from './SalesStats';
 import { ProfilePage } from '../shared/ProfilePage';
+import { MessagingPage } from '../shared/messaging';
 
 // Type pour les onglets
-type TabId = 'lots' | 'reservations' | 'stats' | 'profile';
+type TabId = 'lots' | 'reservations' | 'stats' | 'messages' | 'profile';
 
 /**
  * Dashboard principal pour les commerçants
@@ -23,12 +25,14 @@ export const MerchantDashboard = () => {
 
   // Hooks (stores, contexts, router)
   const { profile, signOut } = useAuthStore();
+  const { unreadCount } = useMessaging();
 
   // Configuration des onglets
   const tabs = [
     { id: 'lots' as TabId, label: 'Mes invendus', icon: Package },
     { id: 'reservations' as TabId, label: 'Réservations', icon: ClipboardList },
     { id: 'stats' as TabId, label: 'Statistiques', icon: TrendingUp },
+    { id: 'messages' as TabId, label: 'Messages', icon: MessageCircle, badge: unreadCount },
     { id: 'profile' as TabId, label: 'Mon profil', icon: User },
   ];
 
@@ -91,6 +95,7 @@ export const MerchantDashboard = () => {
         {activeTab === 'lots' && <LotManagement />}
         {activeTab === 'reservations' && <MerchantReservations />}
         {activeTab === 'stats' && <SalesStats />}
+        {activeTab === 'messages' && <MessagingPage />}
         {activeTab === 'profile' && <ProfilePage />}
       </main>
 
@@ -101,6 +106,7 @@ export const MerchantDashboard = () => {
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const hasBadge = tab.badge && tab.badge > 0;
 
               return (
                 <button
@@ -122,8 +128,13 @@ export const MerchantDashboard = () => {
                       }`}
                       strokeWidth={isActive ? 2.5 : 2}
                     />
-                    {isActive && (
+                    {isActive && !hasBadge && (
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
+                    )}
+                    {hasBadge && (
+                      <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-accent-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold px-1">
+                        {tab.badge}
+                      </div>
                     )}
                   </div>
                   <span

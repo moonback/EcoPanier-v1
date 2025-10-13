@@ -8,19 +8,22 @@ import {
   User,
   LogOut,
   MapPin,
+  MessageCircle,
 } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
+import { useMessaging } from '../../hooks/useMessaging';
 import { LotBrowser } from './LotBrowser';
 import { ReservationsList } from './ReservationsList';
 import { ImpactDashboard } from './ImpactDashboard';
 import { QRCodeDisplay } from '../shared/QRCodeDisplay';
 import { ProfilePage } from '../shared/ProfilePage';
 import { InteractiveMap } from './InteractiveMap';
+import { MessagingPage } from '../shared/messaging';
 
 // Type pour les onglets
-type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'qrcode' | 'profile';
+type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'messages' | 'qrcode' | 'profile';
 
 /**
  * Dashboard principal pour les clients
@@ -33,6 +36,7 @@ export const CustomerDashboard = () => {
 
   // Hooks (stores, contexts, router)
   const { profile, signOut } = useAuthStore();
+  const { unreadCount } = useMessaging();
 
   // Configuration des onglets
   const tabs = [
@@ -40,6 +44,7 @@ export const CustomerDashboard = () => {
     { id: 'map' as TabId, label: 'Carte', icon: MapPin },
     { id: 'reservations' as TabId, label: 'Mes réservations', icon: History },
     { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp },
+    { id: 'messages' as TabId, label: 'Messages', icon: MessageCircle, badge: unreadCount },
     { id: 'qrcode' as TabId, label: 'Mon QR Code', icon: QrCode },
     { id: 'profile' as TabId, label: 'Mon profil', icon: User },
   ];
@@ -83,6 +88,7 @@ export const CustomerDashboard = () => {
         {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}
         {activeTab === 'impact' && <ImpactDashboard />}
+        {activeTab === 'messages' && <MessagingPage />}
         {activeTab === 'qrcode' && (
           <div className="flex justify-center">
             <div className="animate-fade-in-up w-full max-w-sm">
@@ -103,6 +109,7 @@ export const CustomerDashboard = () => {
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const hasBadge = tab.badge && tab.badge > 0;
 
               return (
                 <button
@@ -124,8 +131,13 @@ export const CustomerDashboard = () => {
                       }`}
                       strokeWidth={isActive ? 2.5 : 2}
                     />
-                    {isActive && (
+                    {isActive && !hasBadge && (
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
+                    )}
+                    {hasBadge && (
+                      <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-accent-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold px-1">
+                        {tab.badge}
+                      </div>
                     )}
                   </div>
                   <span
