@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ChevronLeft, Store, MapPin, Navigation, Package, Euro, Clock, ShoppingCart, X } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronLeft, Store, MapPin, Navigation, Package, Euro, Clock, ShoppingCart, X, TrendingDown, Flame, Filter, SortAsc, Phone, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { formatDistance } from '../../../utils/geocodingService';
@@ -10,6 +10,9 @@ interface MerchantLotsViewProps {
   onBack: () => void;
   onReserveLot: (lot: LotBase) => void;
 }
+
+type SortOption = 'price-asc' | 'price-desc' | 'discount' | 'urgent' | 'quantity';
+type FilterOption = 'all' | 'urgent' | 'available';
 
 // Fonction helper pour formater les horaires
 const formatBusinessHours = (businessHours: Record<string, { open: string | null; close: string | null; closed: boolean }> | null) => {
@@ -44,100 +47,367 @@ const formatBusinessHours = (businessHours: Record<string, { open: string | null
 export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLotsViewProps) {
   const businessHours = formatBusinessHours(merchant.business_hours);
   const [showHoursModal, setShowHoursModal] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('urgent');
+  const [filterBy, setFilterBy] = useState<FilterOption>('all');
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Calculs de statistiques enrichies
+  const stats = useMemo(() => {
+    const totalUnits = merchant.lots.reduce((sum, l) => sum + (l.quantity_total - l.quantity_reserved - l.quantity_sold), 0);
+    const urgentLots = merchant.lots.filter(l => l.is_urgent).length;
+    const totalValue = merchant.lots.reduce((sum, l) => {
+      const available = l.quantity_total - l.quantity_reserved - l.quantity_sold;
+      return sum + (available * l.discounted_price);
+    }, 0);
+    const totalSavings = merchant.lots.reduce((sum, l) => {
+      const available = l.quantity_total - l.quantity_reserved - l.quantity_sold;
+      return sum + (available * (l.original_price - l.discounted_price));
+    }, 0);
+    
+    return { totalUnits, urgentLots, totalValue, totalSavings };
+  }, [merchant.lots]);
+
+  // Tri et filtrage des lots
+  const filteredAndSortedLots = useMemo(() => {
+    let lots = [...merchant.lots];
+
+    // Filtrage
+    if (filterBy === 'urgent') {
+      lots = lots.filter(l => l.is_urgent);
+    } else if (filterBy === 'available') {
+      lots = lots.filter(l => (l.quantity_total - l.quantity_reserved - l.quantity_sold) > 0);
+    }
+
+    // Tri
+    lots.sort((a, b) => {
+      switch (sortBy) {
+        case 'price-asc':
+          return a.discounted_price - b.discounted_price;
+        case 'price-desc':
+          return b.discounted_price - a.discounted_price;
+        case 'discount': {
+          const discountA = ((a.original_price - a.discounted_price) / a.original_price) * 100;
+          const discountB = ((b.original_price - b.discounted_price) / b.original_price) * 100;
+          return discountB - discountA;
+        }
+        case 'urgent':
+          return (b.is_urgent ? 1 : 0) - (a.is_urgent ? 1 : 0);
+        case 'quantity': {
+          const qtyA = a.quantity_total - a.quantity_reserved - a.quantity_sold;
+          const qtyB = b.quantity_total - b.quantity_reserved - b.quantity_sold;
+          return qtyB - qtyA;
+        }
+        default:
+          return 0;
+      }
+    });
+
+    return lots;
+  }, [merchant.lots, sortBy, filterBy]);
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      {/* Header avec retour - Compact */}
-      <div className="card p-4 relative">
-        {/* Bouton Retour flottant, accessible et visible en permanence */}
-        <button
-          onClick={onBack}
-          className="absolute top-2 left-2 z-20 btn-secondary flex items-center gap-2 px-3 py-2 rounded-lg shadow-md hover:bg-neutral-100 transition-all"
-          aria-label="Retour à la liste des commerçants"
-          type="button"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          <span className="font-semibold text-sm">Retour</span>
-        </button>
-
-        {/* Partie logo, infos et horaires organisés verticalement */}
-        <div className="flex flex-col items-center gap-4 pt-2">
-          {/* Logo commerçant avec effet visuel */}
-          <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-200 mb-2">
-            <Store className="w-7 h-7 text-white" />
+    <div className="space-y-4 animate-fade-in pb-6">
+      {/* Header avec retour - Amélioré */}
+      <div className="card p-0 overflow-hidden relative shadow-lg">
+        {/* Bandeau gradient supérieur avec pattern */}
+        <div className="relative h-32 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 overflow-hidden">
+          {/* Pattern décoratif */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-white rounded-full translate-x-1/2 translate-y-1/2" />
           </div>
 
-          {/* Identité du commerce */}
-          <div className="w-full text-center mb-1">
-            <h2 className="text-xl font-bold text-neutral-900 truncate mb-1">
-              {merchant.business_name || merchant.full_name}
-            </h2>
-            <div className="flex justify-center items-center flex-wrap gap-2 text-sm text-neutral-600">
-              <MapPin className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{merchant.business_address || merchant.address}</span>
-              {merchant.distance && (
-                <span className="flex items-center gap-1 text-primary-600 font-medium flex-shrink-0">
-                  <Navigation className="w-3 h-3" />
-                  {formatDistance(merchant.distance)}
-                </span>
-              )}
+          {/* Bouton Retour - Sur le bandeau */}
+          <button
+            onClick={onBack}
+            className="absolute top-3 left-3 z-20 bg-white/20 backdrop-blur-md text-white hover:bg-white/30 flex items-center gap-2 px-3 py-2 rounded-lg transition-all shadow-lg"
+            aria-label="Retour à la liste des commerçants"
+            type="button"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="font-semibold text-sm">Retour</span>
+          </button>
+
+          {/* Distance badge */}
+          {merchant.distance && (
+            <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-md text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
+              <Navigation className="w-3.5 h-3.5" />
+              <span className="text-sm font-bold">{formatDistance(merchant.distance)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Contenu principal */}
+        <div className="px-4 pb-4 -mt-12 relative z-10">
+          {/* Logo commerçant - Superposé sur le bandeau */}
+          <div className="flex justify-center mb-4">
+            <div className="w-24 h-24 bg-gradient-to-br from-primary-500 to-primary-600 rounded-3xl flex items-center justify-center shadow-2xl border-4 border-white hover:scale-105 transition-transform duration-300">
+              <Store className="w-12 h-12 text-white" />
             </div>
           </div>
 
-          {/* Bouton horaires affichant si ouvert/fermé aujourd'hui */}
-          {businessHours && (
-            <button
-              onClick={() => setShowHoursModal(true)}
-              className="btn-primary flex items-center gap-2 px-3 py-2 rounded-lg"
-              type="button"
-              aria-label="Afficher les horaires d'ouverture"
-            >
-              <Clock className="w-4 h-4" />
-              <span className="font-semibold text-sm hidden sm:inline">
-                Horaires
-              </span>
-              {/* Statut ouvert/fermé du jour */}
-              {(() => {
-                const today = businessHours.find((h) => h.isToday);
-                if (!today) return null;
-                return (
-                  <span
-                    className={`ml-2 text-xs font-medium ${
-                      today.isClosed ? 'text-accent-600' : 'text-success-600'
-                    } hidden xl:inline`}
-                  >
-                    {today.isClosed ? 'Fermé' : `Ouvert ${today.hours}`}
-                  </span>
-                );
-              })()}
-            </button>
-          )}
+          {/* Identité du commerce */}
+          <div className="text-center mb-4 space-y-2">
+            <h2 className="text-2xl font-bold text-neutral-900 px-2">
+              {merchant.business_name || merchant.full_name}
+            </h2>
+            <div className="flex justify-center items-center gap-2 text-sm text-neutral-600 px-2">
+              <MapPin className="w-4 h-4 flex-shrink-0 text-primary-500" />
+              <span className="line-clamp-1">{merchant.business_address || merchant.address}</span>
+            </div>
+            
+            {/* Téléphone si disponible */}
+            {merchant.phone && (
+              <a 
+                href={`tel:${merchant.phone}`}
+                className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+              >
+                <Phone className="w-4 h-4" />
+                {merchant.phone}
+              </a>
+            )}
+          </div>
+
+          {/* Boutons d'action */}
+          <div className="flex justify-center gap-3 mb-4">
+            {businessHours && (
+              <button
+                onClick={() => setShowHoursModal(true)}
+                className="btn-primary flex items-center gap-2 px-4 py-2.5 rounded-xl shadow-lg hover:shadow-xl transition-all"
+                type="button"
+                aria-label="Afficher les horaires d'ouverture"
+              >
+                <Clock className="w-4 h-4" />
+                <span className="font-semibold text-sm">
+                  Horaires
+                </span>
+                {/* Statut ouvert/fermé du jour */}
+                {(() => {
+                  const today = businessHours.find((h) => h.isToday);
+                  if (!today) return null;
+                  return (
+                    <span
+                      className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+                        today.isClosed 
+                          ? 'bg-red-100 text-red-700' 
+                          : 'bg-green-100 text-green-700'
+                      }`}
+                    >
+                      {today.isClosed ? 'Fermé' : 'Ouvert'}
+                    </span>
+                  );
+                })()}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Stats du commerçant - Compact */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="card p-3 text-center hover:shadow-md transition-shadow">
+      {/* Stats enrichies du commerçant */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Nombre de lots */}
+        <div className="card p-4 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
+          <div className="w-12 h-12 mx-auto mb-2 bg-primary-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Package className="w-6 h-6 text-primary-600" />
+          </div>
           <div className="text-2xl font-bold text-primary-600">{merchant.lots.length}</div>
           <div className="text-xs text-neutral-600 font-medium">Invendus</div>
         </div>
-        <div className="card p-3 text-center hover:shadow-md transition-shadow">
-          <div className="text-2xl font-bold text-success-600">
-            {merchant.lots.reduce((sum, l) => sum + (l.quantity_total - l.quantity_reserved - l.quantity_sold), 0)}
+
+        {/* Unités disponibles */}
+        <div className="card p-4 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
+          <div className="w-12 h-12 mx-auto mb-2 bg-success-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+            <ShoppingCart className="w-6 h-6 text-success-600" />
           </div>
-          <div className="text-xs text-neutral-600 font-medium">Unités</div>
+          <div className="text-2xl font-bold text-success-600">{stats.totalUnits}</div>
+          <div className="text-xs text-neutral-600 font-medium">Unités dispo</div>
         </div>
-        <div className="card p-3 text-center hover:shadow-md transition-shadow">
-          <div className="text-2xl font-bold text-accent-600">{merchant.lots.filter(l => l.is_urgent).length}</div>
+
+        {/* Lots urgents */}
+        <div className="card p-4 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
+          <div className="w-12 h-12 mx-auto mb-2 bg-accent-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Flame className="w-6 h-6 text-accent-600" />
+          </div>
+          <div className="text-2xl font-bold text-accent-600">{stats.urgentLots}</div>
           <div className="text-xs text-neutral-600 font-medium">Urgents</div>
+        </div>
+
+        {/* Économies potentielles */}
+        <div className="card p-4 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
+          <div className="w-12 h-12 mx-auto mb-2 bg-secondary-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+            <TrendingDown className="w-6 h-6 text-secondary-600" />
+          </div>
+          <div className="text-2xl font-bold text-secondary-600">{stats.totalSavings.toFixed(0)}€</div>
+          <div className="text-xs text-neutral-600 font-medium">Économies</div>
         </div>
       </div>
 
+      {/* Barre de filtres et tri */}
+      <div className="card p-4 space-y-3">
+        {/* Titre et toggle filtres */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold text-neutral-900 flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary-600" />
+            {filteredAndSortedLots.length} lot{filteredAndSortedLots.length > 1 ? 's' : ''} disponible{filteredAndSortedLots.length > 1 ? 's' : ''}
+          </h3>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`btn-secondary px-3 py-2 rounded-lg flex items-center gap-2 transition-all ${
+              showFilters ? 'bg-primary-50 text-primary-700 border-primary-200' : ''
+            }`}
+            type="button"
+          >
+            <Filter className="w-4 h-4" />
+            <span className="text-sm font-medium hidden sm:inline">Filtres</span>
+          </button>
+        </div>
+
+        {/* Panneau de filtres et tri (collapsible) */}
+        {showFilters && (
+          <div className="space-y-3 pt-3 border-t border-neutral-200 animate-fade-in">
+            {/* Filtres rapides */}
+            <div>
+              <label className="text-xs font-semibold text-neutral-700 mb-2 block">Filtrer par</label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setFilterBy('all')}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    filterBy === 'all'
+                      ? 'bg-primary-600 text-white shadow-md'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                  type="button"
+                >
+                  Tous ({merchant.lots.length})
+                </button>
+                <button
+                  onClick={() => setFilterBy('urgent')}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    filterBy === 'urgent'
+                      ? 'bg-accent-600 text-white shadow-md'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                  type="button"
+                >
+                  🔥 Urgents ({stats.urgentLots})
+                </button>
+                <button
+                  onClick={() => setFilterBy('available')}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    filterBy === 'available'
+                      ? 'bg-success-600 text-white shadow-md'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                  type="button"
+                >
+                  Disponibles ({merchant.lots.filter(l => (l.quantity_total - l.quantity_reserved - l.quantity_sold) > 0).length})
+                </button>
+              </div>
+            </div>
+
+            {/* Options de tri */}
+            <div>
+              <label className="text-xs font-semibold text-neutral-700 mb-2 block flex items-center gap-2">
+                <SortAsc className="w-4 h-4" />
+                Trier par
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                <button
+                  onClick={() => setSortBy('urgent')}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    sortBy === 'urgent'
+                      ? 'bg-primary-600 text-white shadow-md'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                  type="button"
+                >
+                  Urgence
+                </button>
+                <button
+                  onClick={() => setSortBy('price-asc')}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    sortBy === 'price-asc'
+                      ? 'bg-primary-600 text-white shadow-md'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                  type="button"
+                >
+                  Prix ↑
+                </button>
+                <button
+                  onClick={() => setSortBy('price-desc')}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    sortBy === 'price-desc'
+                      ? 'bg-primary-600 text-white shadow-md'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                  type="button"
+                >
+                  Prix ↓
+                </button>
+                <button
+                  onClick={() => setSortBy('discount')}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    sortBy === 'discount'
+                      ? 'bg-primary-600 text-white shadow-md'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                  type="button"
+                >
+                  Réduction
+                </button>
+                <button
+                  onClick={() => setSortBy('quantity')}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    sortBy === 'quantity'
+                      ? 'bg-primary-600 text-white shadow-md'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                  type="button"
+                >
+                  Quantité
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Grille des lots - Mobile: 1 colonne, Desktop: grille responsive */}
-      {merchant.lots.length === 0 ? (
-        <div className="card p-12 text-center">
-          <Package className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
-          <p className="text-neutral-600">Aucun invendu disponible pour le moment</p>
+      {filteredAndSortedLots.length === 0 ? (
+        <div className="card p-12 text-center space-y-4">
+          {filterBy !== 'all' || merchant.lots.length === 0 ? (
+            <>
+              <div className="w-20 h-20 mx-auto bg-neutral-100 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-10 h-10 text-neutral-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">
+                  {merchant.lots.length === 0 ? 'Aucun invendu disponible' : 'Aucun résultat'}
+                </h3>
+                <p className="text-neutral-600 text-sm">
+                  {merchant.lots.length === 0 
+                    ? 'Ce commerçant n\'a pas encore publié d\'invendus. Revenez plus tard !'
+                    : 'Essayez de modifier vos filtres pour voir plus de résultats.'
+                  }
+                </p>
+              </div>
+              {filterBy !== 'all' && (
+                <button
+                  onClick={() => setFilterBy('all')}
+                  className="btn-primary mx-auto"
+                  type="button"
+                >
+                  Voir tous les lots
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              <Package className="w-16 h-16 text-neutral-400 mx-auto" />
+              <p className="text-neutral-600">Aucun invendu disponible pour le moment</p>
+            </>
+          )}
         </div>
       ) : (
         <div className="grid gap-4
@@ -151,7 +421,7 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
           lg:grid-cols-4
           /* Large desktop : 5 colonnes */
           xl:grid-cols-5">
-          {merchant.lots.map((lot) => {
+          {filteredAndSortedLots.map((lot) => {
             const availableQuantity = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
             const discountPercent = Math.round(((lot.original_price - lot.discounted_price) / lot.original_price) * 100);
 
@@ -244,7 +514,6 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
                         <div className="text-right">
                           <div className="text-xs text-white/70">Prix réduit</div>
                           <div className="flex items-center gap-1">
-                            <Euro className="w-5 h-5" />
                             <span className="text-2xl font-black">{lot.discounted_price}€</span>
                           </div>
                         </div>

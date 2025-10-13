@@ -125,7 +125,6 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
               <div className="text-right">
                 <div className="text-xs text-white/70">Prix réduit</div>
                 <div className="flex items-center gap-1">
-                  <Euro className="w-5 h-5" />
                   <span className="text-2xl font-black">{lot.discounted_price}€</span>
                 </div>
               </div>
