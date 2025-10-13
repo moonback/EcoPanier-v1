@@ -14,17 +14,13 @@ export const HeroSection = () => {
 
   return (
     <section className="relative h-screen flex items-center overflow-hidden bg-black">
-      {/* Video Background */}
+      {/* Image Background */}
       <div className="absolute inset-0 overflow-hidden">
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline
+        <img 
+          src="/slide-7.png"
+          alt="EcoPanier - Lutte contre le gaspillage alimentaire"
           className="absolute inset-0 w-full h-full object-cover opacity-50"
-        >
-          <source src="/ÉcoPanier.mp4" type="video/mp4" />
-        </video>
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
       </div>
 
