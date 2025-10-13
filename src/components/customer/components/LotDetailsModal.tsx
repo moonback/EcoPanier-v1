@@ -1,7 +1,8 @@
 import { X, Package, MapPin, Clock, Euro, ShoppingCart, Heart } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import type { Database } from '../../../lib/database.types';
+import { ContactMerchantButton } from '@/components/shared/messaging';
+import type { Database } from '@/lib/database.types';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: {
@@ -225,27 +226,39 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
           )}
 
           {/* Actions */}
-          <div className="flex gap-3">
-            <button
-              onClick={onReserve}
-              disabled={availableQty === 0}
-              className={`flex-1 flex items-center justify-center gap-2.5 py-4 rounded-xl font-bold text-lg transition-all ${
-                availableQty === 0
-                  ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 hover:shadow-xl hover:scale-[1.02]'
-              }`}
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {availableQty === 0 ? 'Épuisé' : 'Réserver ce lot'}
-            </button>
-            <button
-              onClick={onDonate}
-              className="px-6 py-4 bg-accent-500 hover:bg-accent-600 text-white rounded-xl transition-all font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02]"
-              title="Offrir en panier suspendu"
-            >
-              <Heart className="w-5 h-5" />
-              <span className="hidden sm:inline">Offrir</span>
-            </button>
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              <button
+                onClick={onReserve}
+                disabled={availableQty === 0}
+                className={`flex-1 flex items-center justify-center gap-2.5 py-4 rounded-xl font-bold text-lg transition-all ${
+                  availableQty === 0
+                    ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 hover:shadow-xl hover:scale-[1.02]'
+                }`}
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {availableQty === 0 ? 'Épuisé' : 'Réserver ce lot'}
+              </button>
+              <button
+                onClick={onDonate}
+                className="px-6 py-4 bg-accent-500 hover:bg-accent-600 text-white rounded-xl transition-all font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                title="Offrir en panier suspendu"
+              >
+                <Heart className="w-5 h-5" />
+                <span className="hidden sm:inline">Offrir</span>
+              </button>
+            </div>
+            
+            {/* Bouton pour contacter le commerçant */}
+            <ContactMerchantButton
+              merchantId={lot.merchant_id}
+              merchantName={lot.profiles.business_name}
+              lotId={lot.id}
+              lotTitle={lot.title}
+              variant="secondary"
+              className="w-full"
+            />
           </div>
         </div>
       </div>

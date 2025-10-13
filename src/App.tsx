@@ -13,6 +13,7 @@ import { BeneficiaryDashboard } from './components/beneficiary/BeneficiaryDashbo
 import { CollectorDashboard } from './components/collector/CollectorDashboard';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { PickupStation } from './components/pickup/PickupStation';
+import { MessagingPage } from './components/shared/messaging';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
 
@@ -117,6 +118,9 @@ function App() {
           
           {/* Route publique pour la station de retrait */}
           <Route path="/pickup" element={<PickupStation />} />
+          
+          {/* Route pour la messagerie (authentification requise) */}
+          <Route path="/messages" element={<MessagingPage />} />
           
           {/* Route pour le dashboard avec authentification */}
           <Route path="/dashboard" element={<DashboardRouter />} />
