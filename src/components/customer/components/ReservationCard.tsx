@@ -87,37 +87,37 @@ export function ReservationCard({
     !isDonationCancellable;
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
-      <div className={`p-4 ${statusStyles.bg}`}>
+    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+      <div className={`p-6 ${statusStyles.bg}`}>
         {/* En-tête avec titre et statut */}
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-bold text-gray-800">{reservation.lots.title}</h3>
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="font-bold text-black">{reservation.lots.title}</h3>
           <span
-            className={`px-2 py-1 rounded-full text-xs font-semibold ${statusStyles.badge}`}
+            className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles.badge}`}
           >
             {statusStyles.label}
           </span>
         </div>
 
         {/* Informations de la réservation */}
-        <div className="space-y-2 text-sm text-gray-600">
+        <div className="space-y-3 text-sm text-gray-700 font-light">
           <div className="flex items-center gap-2">
-            <MapPin size={16} />
+            <MapPin size={16} strokeWidth={1.5} />
             <span>{reservation.lots.profiles.business_name}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Clock size={16} />
+            <Clock size={16} strokeWidth={1.5} />
             <span>{formatDateTime(reservation.lots.pickup_start)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Package size={16} />
+            <Package size={16} strokeWidth={1.5} />
             <span>Quantité: {reservation.quantity}</span>
           </div>
           {/* Ne pas afficher le PIN pour les dons (c'est le bénéficiaire qui l'utilisera) */}
           {!reservation.is_donation && (
             <div className="flex items-center gap-2">
-              <Key size={16} />
-              <span className="font-mono font-bold">
+              <Key size={16} strokeWidth={1.5} />
+              <span className="font-mono font-semibold">
                 PIN: {reservation.pickup_pin}
               </span>
             </div>
@@ -126,12 +126,12 @@ export function ReservationCard({
 
         {/* Badge panier suspendu */}
         {reservation.is_donation && (
-          <div className="mt-2 p-2 bg-pink-100 rounded-lg">
-            <p className="text-xs text-pink-700 font-semibold">
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-xs text-black font-medium">
               Panier Suspendu - Merci pour votre générosité!
             </p>
             {reservation.status === 'pending' && isDonationCancellable && (
-              <p className="text-xs text-pink-600 mt-1">
+              <p className="text-xs text-gray-600 mt-1 font-light">
                 Annulation possible pendant encore {30 - minutesSinceCreation} min
               </p>
             )}
@@ -140,9 +140,9 @@ export function ReservationCard({
         
         {/* Message si le don ne peut plus être annulé */}
         {isDonationExpired && (
-          <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-2">
-            <AlertCircle size={16} className="text-yellow-600 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-yellow-700">
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-start gap-2">
+            <AlertCircle size={16} className="text-gray-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+            <p className="text-xs text-gray-700 font-light">
               Le délai d'annulation (30 min) est dépassé. Votre don est maintenant confirmé.
             </p>
           </div>
@@ -150,8 +150,8 @@ export function ReservationCard({
 
         {/* Prix total (masqué pour les dons) */}
         {!reservation.is_donation && (
-          <div className="mt-4 pt-4 border-t">
-            <p className="text-lg font-bold text-gray-800">
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-lg font-bold text-black">
               {formatCurrency(reservation.total_price)}
             </p>
           </div>
@@ -162,7 +162,7 @@ export function ReservationCard({
           {canShowQRCode && (
             <button
               onClick={() => onShowQRCode(reservation)}
-              className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+              className="flex-1 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition text-sm font-medium"
             >
               Voir QR Code
             </button>
@@ -172,19 +172,19 @@ export function ReservationCard({
               onClick={() =>
                 onCancel(reservation.id, reservation.lot_id, reservation.quantity)
               }
-              className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
+              className="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
               aria-label="Annuler la réservation"
             >
-              <X size={20} />
+              <X size={20} strokeWidth={1.5} />
             </button>
           )}
           {reservation.status === 'completed' && (
-            <div className="flex-1 py-2 px-4 bg-green-100 text-green-700 rounded-lg text-sm font-medium text-center">
+            <div className="flex-1 py-3 px-4 bg-gray-100 text-black rounded-lg text-sm font-medium text-center">
               ✓ Lot récupéré
             </div>
           )}
           {reservation.status === 'cancelled' && (
-            <div className="flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
+            <div className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
               Réservation annulée
             </div>
           )}

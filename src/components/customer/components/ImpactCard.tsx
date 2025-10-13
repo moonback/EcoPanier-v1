@@ -20,19 +20,19 @@ export function ImpactCard({
   description,
 }: ImpactCardProps) {
   return (
-    <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition-all hover-lift">
-      <div className="flex items-center gap-3 sm:gap-4">
-        <div className={`${color} p-2.5 sm:p-3 rounded-lg flex-shrink-0`}>
-          <Icon size={20} className="sm:w-6 sm:h-6 text-white" />
+    <div className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all">
+      <div className="flex items-center gap-4 mb-3">
+        <div className={`${color} p-3 rounded-xl flex-shrink-0`}>
+          <Icon size={20} className="text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs sm:text-sm text-gray-600 truncate">{title}</p>
-          <p className="text-xl sm:text-2xl font-bold text-gray-800 truncate">
+          <p className="text-sm text-gray-600 font-light">{title}</p>
+          <p className="text-3xl font-bold text-black truncate">
             {value}
           </p>
         </div>
       </div>
-      <p className="text-xs text-gray-500 mt-2 sm:mt-3">{description}</p>
+      <p className="text-xs text-gray-600 font-light">{description}</p>
     </div>
   );
 }

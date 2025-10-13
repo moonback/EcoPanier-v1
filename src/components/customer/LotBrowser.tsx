@@ -132,16 +132,16 @@ export const LotBrowser = () => {
   // Render principal
   return (
     <div>
-      {/* Barre de filtres améliorée */}
+      {/* Barre de filtres */}
       <div className="mb-6 flex items-center justify-between gap-3">
         <button
           onClick={() => setShowFilterModal(true)}
-          className="flex items-center gap-2 px-4 py-3 bg-white text-neutral-700 rounded-xl shadow-md hover:shadow-lg transition-all border-2 border-neutral-200 hover:border-primary-300 font-semibold"
+          className="flex items-center gap-2 px-4 py-3 bg-white text-black rounded-lg border border-gray-300 hover:border-black transition-all font-medium"
         >
-          <Filter className="w-5 h-5 text-primary-600" />
-          <span>Filtres avancés</span>
+          <Filter className="w-5 h-5" />
+          <span>Filtres</span>
           {activeFiltersCount > 0 && (
-            <span className="ml-1 px-2.5 py-0.5 bg-primary-500 text-white rounded-full text-xs font-bold">
+            <span className="ml-1 px-2 py-0.5 bg-black text-white rounded-full text-xs font-bold">
               {activeFiltersCount}
             </span>
           )}
@@ -149,7 +149,7 @@ export const LotBrowser = () => {
 
         <div className="flex items-center gap-2">
           {/* Résultats */}
-          <div className="px-4 py-3 bg-primary-50 text-primary-700 rounded-xl border-2 border-primary-200 font-semibold text-sm">
+          <div className="px-4 py-3 bg-gray-100 text-black rounded-lg font-medium text-sm">
             {filteredLots.length} lot{filteredLots.length > 1 ? 's' : ''}
           </div>
 
@@ -157,7 +157,7 @@ export const LotBrowser = () => {
           {activeFiltersCount > 0 && (
             <button
               onClick={() => setFilters(DEFAULT_FILTERS)}
-              className="flex items-center gap-1.5 px-3 py-3 bg-neutral-100 text-neutral-700 rounded-xl hover:bg-neutral-200 transition-all text-sm font-semibold"
+              className="flex items-center gap-1.5 px-3 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all text-sm font-medium"
             >
               <X className="w-4 h-4" />
               <span className="hidden sm:inline">Réinitialiser</span>
@@ -170,48 +170,48 @@ export const LotBrowser = () => {
       {activeFiltersCount > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
           {filters.category && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-black rounded-full text-sm font-medium">
               <Package className="w-3 h-3" />
               {filters.category}
               <button
                 onClick={() => setFilters({ ...filters, category: '' })}
-                className="ml-1 hover:bg-primary-200 rounded-full p-0.5"
+                className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
               >
                 <X className="w-3 h-3" />
               </button>
             </span>
           )}
           {filters.onlyUrgent && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent-100 text-accent-700 rounded-full text-sm font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-black rounded-full text-sm font-medium">
               <Zap className="w-3 h-3" />
               Urgents uniquement
               <button
                 onClick={() => setFilters({ ...filters, onlyUrgent: false })}
-                className="ml-1 hover:bg-accent-200 rounded-full p-0.5"
+                className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
               >
                 <X className="w-3 h-3" />
               </button>
             </span>
           )}
           {(filters.minPrice > 0 || filters.maxPrice < 100) && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary-100 text-secondary-700 rounded-full text-sm font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-black rounded-full text-sm font-medium">
               <Euro className="w-3 h-3" />
               {filters.minPrice}€ - {filters.maxPrice}€
               <button
                 onClick={() => setFilters({ ...filters, minPrice: 0, maxPrice: 100 })}
-                className="ml-1 hover:bg-secondary-200 rounded-full p-0.5"
+                className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
               >
                 <X className="w-3 h-3" />
               </button>
             </span>
           )}
           {filters.minQuantity > 1 && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success-100 text-success-700 rounded-full text-sm font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-black rounded-full text-sm font-medium">
               <Package className="w-3 h-3" />
               Min. {filters.minQuantity} unités
               <button
                 onClick={() => setFilters({ ...filters, minQuantity: 1 })}
-                className="ml-1 hover:bg-success-200 rounded-full p-0.5"
+                className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
               >
                 <X className="w-3 h-3" />
               </button>
