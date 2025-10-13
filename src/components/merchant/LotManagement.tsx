@@ -182,9 +182,10 @@ export const LotManagement = () => {
 
       setAnalysisConfidence(analysis.confidence);
 
-      // Message de succès
-      const confidencePercent = Math.round(analysis.confidence * 100);
-      alert(`✅ Image analysée avec succès !\n\nConfiance de l'analyse : ${confidencePercent}%\n\nVérifiez et ajustez les champs si nécessaire.`);
+      // Passer automatiquement à l'étape suivante
+      setTimeout(() => {
+        nextStep();
+      }, 500); // Petit délai pour que l'utilisateur voie le résultat
     } catch (error) {
       console.error('Erreur lors de l\'analyse:', error);
       alert(error instanceof Error ? error.message : 'Erreur lors de l\'analyse de l\'image');
@@ -692,11 +693,9 @@ export const LotManagement = () => {
                 {!editingLot && currentStep === 1 && (
                   <div className="space-y-6 animate-fade-in">
                     <div className="text-center mb-8">
-                      <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full mb-4">
-                        <Sparkles size={40} className="text-white" />
-                      </div>
+                      
                       <h4 className="text-xl font-bold text-gray-800 mb-2">
-                        🤖 Analyse Intelligente par IA
+                        🤖 Analyse par IA
                       </h4>
                       <p className="text-gray-600 max-w-md mx-auto">
                         Gagnez du temps ! Uploadez une photo de votre produit et l'IA remplira automatiquement tous les champs.
