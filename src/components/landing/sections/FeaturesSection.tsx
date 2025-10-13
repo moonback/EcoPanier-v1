@@ -1,48 +1,52 @@
-import { AnimatedSection } from './AnimatedSection';
+import { motion } from 'framer-motion';
 import { features } from '../../../data/landingData';
 
 export const FeaturesSection = () => {
   return (
-    <AnimatedSection className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-neutral-900 mb-6 tracking-tight">
-            Une plateforme complète
+    <section className="py-32 bg-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-20"
+        >
+          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight max-w-3xl">
+            Tout ce dont vous avez besoin
           </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto font-medium">
-            Toutes les fonctionnalités pour agir efficacement contre le gaspillage
+          <p className="text-xl text-gray-600 max-w-2xl font-light">
+            Une plateforme simple et complète pour lutter contre le gaspillage alimentaire
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => {
             const Icon = feature.icon;
-            const colorMap: Record<string, { bg: string; text: string }> = {
-              blue: { bg: 'bg-primary-100', text: 'text-primary-600' },
-              pink: { bg: 'bg-secondary-100', text: 'text-secondary-600' },
-              green: { bg: 'bg-success-100', text: 'text-success-600' },
-              purple: { bg: 'bg-secondary-100', text: 'text-secondary-600' }
-            };
             return (
-              <div
+              <motion.div
                 key={index}
-                className="group card-gradient p-8 hover-lift"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group"
               >
-                <div className={`w-16 h-16 ${colorMap[feature.color].bg} rounded-large flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                  <Icon size={32} className={colorMap[feature.color].text} />
+                <div className="p-8 h-full">
+                  <Icon className="w-10 h-10 mb-6 text-black" strokeWidth={1.5} />
+                  <h3 className="text-xl font-semibold text-black mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600 font-light leading-relaxed">
+                    {feature.description}
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-neutral-900 mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-neutral-600 font-medium">
-                  {feature.description}
-                </p>
-              </div>
+              </motion.div>
             );
           })}
         </div>
       </div>
-    </AnimatedSection>
+    </section>
   );
 };
 

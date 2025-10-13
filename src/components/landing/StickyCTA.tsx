@@ -25,21 +25,16 @@ export const StickyCTA = () => {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed bottom-4 left-0 right-0 z-50 px-4"
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="fixed bottom-6 left-0 right-0 z-50 px-6"
         >
           <div className="max-w-md mx-auto">
             <button
               onClick={() => navigate('/dashboard')}
-              className="w-full btn-primary py-4 rounded-full text-lg shadow-2xl hover:shadow-glow-lg backdrop-blur-sm bg-gradient-to-r from-primary-600 to-primary-700 border-2 border-primary-400 group"
+              className="group w-full flex items-center justify-between bg-black text-white px-6 py-4 rounded-xl shadow-2xl hover:bg-gray-900 transition-all"
             >
-              <span className="flex items-center justify-center gap-2">
-                <span className="font-bold">🌍 Rejoindre le mouvement</span>
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </span>
-              <div className="text-xs mt-1 text-primary-100 font-semibold">
-                +10 000 repas déjà sauvés 🍽️
-              </div>
+              <span className="font-medium">Commencer maintenant</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         </motion.div>

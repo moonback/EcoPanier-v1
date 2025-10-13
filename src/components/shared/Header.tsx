@@ -31,11 +31,11 @@ export const Header = ({ transparent = false }: HeaderProps) => {
       <header 
         className={`sticky top-0 z-50 transition-all duration-300 ${
           transparent 
-            ? 'glass shadow-soft-lg' 
-            : 'bg-white shadow-soft-md border-b border-neutral-100'
+            ? 'bg-black/20 backdrop-blur-md' 
+            : 'bg-white border-b border-gray-200'
         }`}
       >
-        <div className="max-w-12xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <button
@@ -45,55 +45,64 @@ export const Header = ({ transparent = false }: HeaderProps) => {
               <img
                 src="/logo.png"
                 alt="Logo EcoPanier"
-                className="w-120 h-12 rounded-xl object-cover shadow-soft-lg transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-glow-md"
+                className="h-10 rounded-lg object-cover transition-opacity group-hover:opacity-80"
               />
-              
             </button>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link) => {
-                const Icon = link.icon;
-                return (
-                  <button
-                    key={link.path}
-                    onClick={() => navigate(link.path)}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-neutral-600 hover:bg-primary-50 hover:text-primary-600 transition-all font-medium group"
-                  >
-                    <Icon size={18} className="group-hover:scale-110 transition-transform" />
-                    <span>{link.name}</span>
-                  </button>
-                );
-              })}
+            <nav className="hidden lg:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <button
+                  key={link.path}
+                  onClick={() => navigate(link.path)}
+                  className={`text-sm font-medium transition-colors ${
+                    transparent 
+                      ? 'text-white/90 hover:text-white' 
+                      : 'text-gray-700 hover:text-black'
+                  }`}
+                >
+                  {link.name}
+                </button>
+              ))}
             </nav>
 
             {/* CTA Buttons Desktop */}
-            <div className="hidden lg:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-4">
               <button
                 onClick={() => navigate('/login')}
-                className="flex items-center gap-2 px-5 py-2.5 text-neutral-600 hover:text-primary-600 font-semibold transition-all hover-lift rounded-xl"
+                className={`text-sm font-medium transition-colors ${
+                  transparent 
+                    ? 'text-white/90 hover:text-white' 
+                    : 'text-gray-700 hover:text-black'
+                }`}
               >
-                <LogIn size={20} />
-                <span>Connexion</span>
+                Connexion
               </button>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="btn-primary rounded-full"
+                className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  transparent
+                    ? 'bg-white text-black hover:bg-gray-100'
+                    : 'bg-black text-white hover:bg-gray-900'
+                }`}
               >
-                <UserPlus size={20} />
-                <span>S'inscrire</span>
+                S'inscrire
               </button>
             </div>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl hover:bg-neutral-100 transition-all hover-lift"
+              className={`lg:hidden p-2 rounded-lg transition-colors ${
+                transparent 
+                  ? 'text-white hover:bg-white/10' 
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
             >
               {mobileMenuOpen ? (
-                <X size={28} className="text-neutral-700" />
+                <X size={24} />
               ) : (
-                <Menu size={28} className="text-neutral-700" />
+                <Menu size={24} />
               )}
             </button>
           </div>
@@ -105,81 +114,69 @@ export const Header = ({ transparent = false }: HeaderProps) => {
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
         />
       )}
 
       {/* Sidebar Mobile */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 lg:hidden transform transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white z-50 lg:hidden transform transition-transform duration-300 ease-out ${
           mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Header de la sidebar */}
-          <div className="flex items-center justify-between p-5 border-b border-neutral-200 bg-gradient-to-r from-primary-50 to-secondary-50">
-            <div className="flex items-center gap-3">
-              <img
-                src="/logo.png"
-                alt="Logo EcoPanier"
-                className="w-100 h-10 rounded-lg object-cover shadow-md"
-              />
-              
-            </div>
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <img
+              src="/logo.png"
+              alt="Logo EcoPanier"
+              className="h-8 rounded-lg object-cover"
+            />
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2 hover:bg-white rounded-lg transition-all"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-all"
             >
-              <X size={24} className="text-neutral-700" />
+              <X size={24} className="text-gray-700" />
             </button>
           </div>
 
           {/* Navigation Links */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider px-3 mb-3">
-              Navigation
-            </p>
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              return (
+          <div className="flex-1 overflow-y-auto p-6">
+            <nav className="space-y-1">
+              {navLinks.map((link) => (
                 <button
                   key={link.path}
                   onClick={() => {
                     navigate(link.path);
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-neutral-700 hover:bg-primary-50 hover:text-primary-600 transition-all font-medium group hover-lift"
+                  className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-all font-medium"
                 >
-                  <div className="w-10 h-10 flex items-center justify-center bg-neutral-100 group-hover:bg-primary-100 rounded-lg transition-all">
-                    <Icon size={20} className="group-hover:scale-110 transition-transform" />
-                  </div>
-                  <span className="flex-1 text-left">{link.name}</span>
+                  {link.name}
                 </button>
-              );
-            })}
+              ))}
+            </nav>
           </div>
 
           {/* CTA Buttons */}
-          <div className="p-4 border-t border-neutral-200 bg-neutral-50 space-y-3">
+          <div className="p-6 border-t border-gray-200 space-y-3">
             <button
               onClick={() => {
                 navigate('/login');
                 setMobileMenuOpen(false);
               }}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-white border-2 border-primary-500 text-primary-600 rounded-xl hover:bg-primary-50 transition-all font-semibold shadow-sm"
+              className="w-full px-5 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-all font-medium"
             >
-              <LogIn size={20} />
-              <span>Connexion</span>
+              Connexion
             </button>
             <button
               onClick={() => {
                 navigate('/dashboard');
                 setMobileMenuOpen(false);
               }}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-secondary-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold"
+              className="w-full px-5 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-all font-medium"
             >
-              <UserPlus size={20} />
-              <span>S'inscrire gratuitement</span>
+              S'inscrire
             </button>
           </div>
         </div>

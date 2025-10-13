@@ -59,75 +59,64 @@ export const PickupHelp = ({ onClose }: { onClose: () => void }) => {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 z-50">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-bold text-gray-800">Guide Station de Retrait</h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-black">Guide Station de Retrait</h2>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-gray-100 rounded-lg transition"
+            className="p-2 hover:bg-gray-100 rounded-lg transition"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b">
+        <div className="flex border-b border-gray-200">
           <button
             onClick={() => setActiveTab('steps')}
-            className={`flex-1 py-3 px-4 text-sm font-medium transition ${
+            className={`flex-1 py-4 px-6 text-sm font-medium transition ${
               activeTab === 'steps'
-                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : 'text-gray-600 hover:bg-gray-50'
+                ? 'text-black border-b-2 border-black'
+                : 'text-gray-600 hover:text-black'
             }`}
           >
-            <CheckCircle size={16} className="inline mr-2" />
             Étapes
           </button>
           <button
             onClick={() => setActiveTab('troubleshoot')}
-            className={`flex-1 py-3 px-4 text-sm font-medium transition ${
+            className={`flex-1 py-4 px-6 text-sm font-medium transition ${
               activeTab === 'troubleshoot'
-                ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50'
-                : 'text-gray-600 hover:bg-gray-50'
+                ? 'text-black border-b-2 border-black'
+                : 'text-gray-600 hover:text-black'
             }`}
           >
-            <AlertTriangle size={16} className="inline mr-2" />
             Dépannage
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-6">
           {activeTab === 'steps' && (
-            <div className="space-y-4">
-              {/* Étapes compactes */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {steps.map((step, index) => {
                   const Icon = step.icon;
-                  const colors = {
-                    blue: { bg: 'bg-blue-50', icon: 'bg-blue-100', text: 'text-blue-600', badge: 'bg-blue-600' },
-                    purple: { bg: 'bg-purple-50', icon: 'bg-purple-100', text: 'text-purple-600', badge: 'bg-purple-600' },
-                    orange: { bg: 'bg-orange-50', icon: 'bg-orange-100', text: 'text-orange-600', badge: 'bg-orange-600' },
-                    green: { bg: 'bg-green-50', icon: 'bg-green-100', text: 'text-green-600', badge: 'bg-green-600' },
-                  };
-                  const colorScheme = colors[step.color as keyof typeof colors];
-                  
                   return (
-                    <div key={index} className={`${colorScheme.bg} rounded-lg p-3`}>
+                    <div key={index} className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-start gap-3">
-                        <div className={`${colorScheme.icon} rounded-full p-2 flex-shrink-0`}>
-                          <Icon size={18} className={colorScheme.text} />
+                        <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+                          <Icon size={18} className="text-white" strokeWidth={2} />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={`${colorScheme.badge} text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold`}>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold">
                               {index + 1}
                             </span>
-                            <h4 className="font-bold text-gray-800 text-sm">{step.title}</h4>
+                            <h4 className="font-semibold text-black text-sm">{step.title}</h4>
                           </div>
-                          <p className="text-xs text-gray-600">{step.description}</p>
+                          <p className="text-xs text-gray-600 font-light">{step.description}</p>
                         </div>
                       </div>
                     </div>
@@ -135,13 +124,12 @@ export const PickupHelp = ({ onClose }: { onClose: () => void }) => {
                 })}
               </div>
 
-              {/* Conseils rapides */}
-              <div className="bg-blue-50 rounded-lg p-3 mt-4">
-                <h3 className="text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
+              <div className="bg-gray-50 rounded-xl p-4">
+                <h3 className="text-sm font-bold text-black mb-3 flex items-center gap-2">
                   <HelpCircle size={16} />
                   Conseils rapides
                 </h3>
-                <ul className="space-y-1 text-xs text-blue-700">
+                <ul className="space-y-2 text-sm text-gray-700 font-light">
                   <li>• Bon éclairage pour scanner</li>
                   <li>• Testez avec le mode démo</li>
                   <li>• Vérifiez l'identité si nécessaire</li>
@@ -151,17 +139,17 @@ export const PickupHelp = ({ onClose }: { onClose: () => void }) => {
           )}
 
           {activeTab === 'troubleshoot' && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {troubleshooting.map((item, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-3">
-                  <h4 className="font-bold text-gray-800 mb-2 text-sm flex items-center gap-2">
-                    <AlertTriangle size={16} className="text-orange-600" />
+                <div key={index} className="bg-gray-50 rounded-xl p-4">
+                  <h4 className="font-bold text-black mb-3 text-sm flex items-center gap-2">
+                    <AlertTriangle size={16} />
                     {item.problem}
                   </h4>
-                  <ul className="space-y-1.5 pl-6">
+                  <ul className="space-y-2">
                     {item.solutions.map((solution, sIndex) => (
-                      <li key={sIndex} className="text-xs text-gray-600 flex items-start gap-2">
-                        <span className="text-blue-600 font-bold">→</span>
+                      <li key={sIndex} className="text-sm text-gray-700 font-light flex items-start gap-2">
+                        <span className="text-black font-bold">→</span>
                         <span>{solution}</span>
                       </li>
                     ))}
@@ -169,13 +157,12 @@ export const PickupHelp = ({ onClose }: { onClose: () => void }) => {
                 </div>
               ))}
 
-              {/* Support */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 text-center mt-4">
-                <h3 className="text-sm font-bold text-gray-800 mb-1">Besoin d'aide ?</h3>
-                <p className="text-xs text-gray-600 mb-3">
+              <div className="bg-black rounded-xl p-6 text-center text-white">
+                <h3 className="text-sm font-bold mb-2">Besoin d'aide ?</h3>
+                <p className="text-sm text-white/70 mb-4 font-light">
                   Support technique disponible
                 </p>
-                <button className="px-4 py-2 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition font-medium">
+                <button className="px-6 py-3 bg-white text-black rounded-lg hover:bg-gray-100 transition font-medium text-sm">
                   Contacter le support
                 </button>
               </div>

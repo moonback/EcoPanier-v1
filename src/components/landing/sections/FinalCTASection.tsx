@@ -1,39 +1,44 @@
 import { useNavigate } from 'react-router-dom';
-import { Users, Globe } from 'lucide-react';
-import { AnimatedSection } from './AnimatedSection';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 
 export const FinalCTASection = () => {
   const navigate = useNavigate();
 
   return (
-    <AnimatedSection className="py-20 section-gradient">
-      <div className="max-w-4xl mx-auto px-4 text-center">
-        <div className="bg-gradient-primary rounded-3xl p-12 shadow-soft-xl text-white hover-lift border-2 border-primary-200">
-          <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
+    <section className="py-32 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="bg-black rounded-3xl p-12 md:p-20 text-center"
+        >
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight max-w-3xl mx-auto">
             Prêt à faire la différence ?
           </h2>
-          <p className="text-xl text-primary-100 mb-8 font-medium">
-            Rejoignez notre communauté et participez à la révolution alimentaire solidaire
+          <p className="text-xl text-white/70 mb-12 max-w-2xl mx-auto font-light">
+            Rejoignez des milliers d'utilisateurs qui agissent contre le gaspillage alimentaire
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate('/dashboard')}
-              className="px-8 py-4 bg-white text-primary-600 rounded-full font-bold text-lg shadow-soft-xl hover:shadow-glow-md transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-5 rounded-lg text-lg font-medium hover:bg-gray-100 transition-all"
             >
-              <Users size={24} />
-              <span>Créer mon compte</span>
+              <span>Commencer maintenant</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
-              onClick={() => navigate('/pickup')}
-              className="px-8 py-4 bg-secondary-700 hover:bg-secondary-800 text-white rounded-full font-bold text-lg shadow-soft-xl hover:shadow-glow-md transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+              onClick={() => navigate('/how-it-works')}
+              className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm text-white px-8 py-5 rounded-lg text-lg font-medium hover:bg-white/20 transition-all border border-white/20"
             >
-              <Globe size={24} />
-              <span>Découvrir la station de retrait</span>
+              En savoir plus
             </button>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </AnimatedSection>
+    </section>
   );
 };
 

@@ -1,70 +1,50 @@
-import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Package, Users, Leaf, DollarSign } from 'lucide-react';
 
 export const ImpactStatsSection = () => {
-  const [visibleStats, setVisibleStats] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleStats(true);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const statsElement = document.getElementById('impact-stats-section');
-    if (statsElement) {
-      observer.observe(statsElement);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   const stats = [
-    { icon: Package, value: '10,247', label: 'Repas sauvés', suffix: '' },
-    { icon: Users, value: '5,423', label: 'Personnes aidées', suffix: '' },
-    { icon: Leaf, value: '15.2', label: 'Tonnes CO₂ évitées', suffix: 'T' },
-    { icon: DollarSign, value: '52,800', label: 'Euros de dons', suffix: '€' },
+    { icon: Package, value: '10,247', label: 'Repas sauvés' },
+    { icon: Users, value: '5,423', label: 'Personnes aidées' },
+    { icon: Leaf, value: '15.2T', label: 'CO₂ évitées' },
+    { icon: DollarSign, value: '52,800€', label: 'De dons' },
   ];
 
   return (
-    <section 
-      id="impact-stats-section" 
-      className="py-20 section-gradient-dark text-white relative overflow-hidden"
-    >
-      <div className="absolute inset-0 bg-black opacity-10" />
-      <div className="relative z-10 max-w-7xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
-            Notre impact en chiffres
+    <section className="py-32 bg-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
+            Notre impact
           </h2>
-          <p className="text-xl text-primary-100 font-medium">
-            Ensemble, nous changeons le monde
+          <p className="text-xl text-gray-600 font-light">
+            Ensemble, nous créons un changement positif
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div
+              <motion.div
                 key={index}
-                className={`text-center transform transition-all duration-1000 glass-dark p-6 rounded-large hover-lift ${
-                  visibleStats ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-                }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="text-center"
               >
-                <Icon size={48} className="mx-auto mb-4" />
-                <div className="text-5xl font-black mb-2">
-                  {visibleStats ? stat.value : '0'}
-                  {stat.suffix}
+                <Icon className="w-10 h-10 mx-auto mb-4 text-gray-400" strokeWidth={1.5} />
+                <div className="text-4xl md:text-5xl font-bold text-black mb-2">
+                  {stat.value}
                 </div>
-                <div className="text-lg text-primary-100 font-semibold">{stat.label}</div>
-              </div>
+                <div className="text-gray-600 font-light">{stat.label}</div>
+              </motion.div>
             );
           })}
         </div>

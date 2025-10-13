@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HelpCircle, ChevronDown } from 'lucide-react';
-import { AnimatedSection } from './AnimatedSection';
+import { motion } from 'framer-motion';
+import { Plus } from 'lucide-react';
 import { faqItems } from '../../../data/landingData';
 
 export const FAQSection = () => {
@@ -9,73 +9,82 @@ export const FAQSection = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   return (
-    <AnimatedSection className="py-20 bg-white">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <div className="badge badge-secondary inline-flex items-center gap-2 mb-4">
-            <HelpCircle size={20} className="text-secondary-600" />
-            <span>Questions fréquentes</span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-black text-neutral-900 mb-6 tracking-tight">
-            Vous avez des questions ?
+    <section className="py-32 bg-white">
+      <div className="max-w-4xl mx-auto px-6 lg:px-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-20"
+        >
+          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
+            Questions fréquentes
           </h2>
-          <p className="text-xl text-neutral-600 font-medium">
-            Nous avons les réponses !
+          <p className="text-xl text-gray-600 font-light">
+            Tout ce que vous devez savoir
           </p>
-        </div>
+        </motion.div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 mb-16">
           {faqItems.map((item, index) => (
-            <div
+            <motion.div
               key={index}
-              className="card overflow-hidden hover-lift cursor-pointer"
-              onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+              className="border-b border-gray-200"
             >
-              <div className="p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-lg font-bold text-neutral-900 flex-1">
-                    {item.question}
-                  </h3>
-                  <ChevronDown 
-                    size={24} 
-                    className={`text-primary-600 flex-shrink-0 transition-transform duration-300 ${
-                      openFaqIndex === index ? 'rotate-180' : ''
-                    }`}
-                  />
-                </div>
-                
-                <div 
-                  className={`overflow-hidden transition-all duration-300 ${
-                    openFaqIndex === index ? 'max-h-96 mt-4' : 'max-h-0'
+              <button
+                onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                className="w-full py-6 flex items-center justify-between text-left group"
+              >
+                <h3 className="text-xl font-semibold text-black pr-8 group-hover:text-gray-700 transition-colors">
+                  {item.question}
+                </h3>
+                <Plus 
+                  className={`w-6 h-6 text-black flex-shrink-0 transition-transform duration-300 ${
+                    openFaqIndex === index ? 'rotate-45' : ''
                   }`}
-                >
-                  <p className="text-neutral-700 font-medium leading-relaxed">
-                    {item.answer}
-                  </p>
-                </div>
+                />
+              </button>
+              
+              <div 
+                className={`overflow-hidden transition-all duration-300 ${
+                  openFaqIndex === index ? 'max-h-96 pb-6' : 'max-h-0'
+                }`}
+              >
+                <p className="text-gray-700 font-light leading-relaxed text-lg">
+                  {item.answer}
+                </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <div className="card p-8 bg-gradient-to-br from-primary-50 to-secondary-50">
-            <h3 className="text-2xl font-bold text-neutral-900 mb-4">
-              Vous ne trouvez pas votre réponse ?
-            </h3>
-            <p className="text-neutral-700 font-medium mb-6">
-              Notre équipe est là pour vous aider ! Consultez notre centre d'aide complet ou contactez-nous directement.
-            </p>
-            <button
-              onClick={() => navigate('/help')}
-              className="btn-secondary rounded-full px-6 py-3"
-            >
-              Accéder au centre d'aide
-            </button>
-          </div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="bg-gray-50 rounded-2xl p-10 text-center"
+        >
+          <h3 className="text-2xl font-bold text-black mb-4">
+            Besoin d'aide supplémentaire ?
+          </h3>
+          <p className="text-gray-700 font-light mb-6 text-lg">
+            Notre équipe est là pour vous accompagner
+          </p>
+          <button
+            onClick={() => navigate('/help')}
+            className="inline-flex items-center justify-center bg-black text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-900 transition-all"
+          >
+            Centre d'aide
+          </button>
+        </motion.div>
       </div>
-    </AnimatedSection>
+    </section>
   );
 };
 
