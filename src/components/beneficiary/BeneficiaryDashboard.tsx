@@ -51,26 +51,27 @@ export const BeneficiaryDashboard = () => {
 
   if (!profile?.verified) {
     return (
-      <div className="min-h-screen section-gradient flex items-center justify-center p-4 sm:p-6">
-        <div className="max-w-md w-full card p-6 sm:p-8 animate-fade-in-up">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-gray-200 p-8">
           <div className="text-center">
-            <AlertCircle size={48} className="sm:w-16 sm:h-16 text-warning-500 mx-auto mb-4" />
-            <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-4">
-              Compte en attente de vérification
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle size={32} className="text-black" strokeWidth={1.5} />
+            </div>
+            <h1 className="text-2xl font-bold text-black mb-4">
+              Compte en attente
             </h1>
-            <p className="text-sm sm:text-base text-neutral-600 mb-6 font-medium leading-relaxed">
-              Votre compte bénéficiaire doit être vérifié par un administrateur avant de pouvoir
-              accéder aux dons gratuits.
+            <p className="text-gray-700 mb-6 font-light leading-relaxed">
+              Votre compte doit être vérifié par un administrateur avant d'accéder aux dons gratuits.
             </p>
-            <div className="p-4 sm:p-5 bg-primary-50 rounded-xl mb-6 border-2 border-primary-200">
-              <p className="text-xs sm:text-sm text-primary-800 font-semibold">
-                <strong className="block mb-2">Votre identifiant:</strong>
-                <span className="font-mono text-lg sm:text-xl font-bold">{profile?.beneficiary_id}</span>
+            <div className="p-4 bg-gray-50 rounded-lg mb-6 border border-gray-200">
+              <p className="text-sm text-gray-700 font-light mb-2">
+                Votre identifiant
               </p>
+              <p className="font-mono text-xl font-bold text-black">{profile?.beneficiary_id}</p>
             </div>
             <button
               onClick={signOut}
-              className="btn-secondary w-full rounded-xl py-3 text-sm sm:text-base font-medium"
+              className="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-all font-medium"
             >
               Déconnexion
             </button>
@@ -81,48 +82,40 @@ export const BeneficiaryDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <header className="glass sticky top-0 z-40 shadow-soft-md border-b border-neutral-100">
-        <div className="max-w-12xl mx-auto px-3 sm:px-6">
-          {/* Ligne principale compacte */}
-          <div className="flex items-center justify-between py-2.5 sm:py-3 gap-2">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-lg sm:text-2xl font-bold text-neutral-900 tracking-tight truncate">
+    <div className="min-h-screen bg-gray-50">
+      {/* En-tête */}
+      <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between py-4">
+            <div className="flex-1">
+              <h1 className="text-xl font-bold text-black">
                 Espace Bénéficiaire
               </h1>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5 text-xs text-neutral-600">
-                <span className="inline-block w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse flex-shrink-0"></span>
-                <span className="font-medium text-primary-600 truncate">
-                  {profile?.full_name}
-                </span>
-                <span className="badge-primary text-xs px-1.5 py-0.5 leading-tight font-mono whitespace-nowrap">
-                  {profile?.beneficiary_id}
-                </span>
-              </div>
+              <p className="text-sm text-gray-600 font-light mt-0.5">
+                {profile?.full_name} • {profile?.beneficiary_id}
+              </p>
             </div>
             
             <button
               onClick={signOut}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm text-neutral-600 hover:text-accent-600 hover:bg-accent-50 rounded-lg transition-all font-medium whitespace-nowrap flex-shrink-0"
+              className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-all font-medium"
             >
-              <LogOut size={16} className="sm:w-[18px] sm:h-[18px]" />
+              <LogOut size={18} className="inline mr-2" strokeWidth={1.5} />
               <span className="hidden sm:inline">Quitter</span>
             </button>
           </div>
 
-          {/* Compteur de réservations compact */}
-          <div className="pb-2.5 sm:pb-3">
-            <div className="flex items-center justify-between px-3 py-2 bg-primary-50 rounded-lg border border-primary-200">
+          {/* Compteur */}
+          <div className="pb-4">
+            <div className="flex items-center justify-between px-4 py-3 bg-gray-100 rounded-lg">
               <div className="flex items-center gap-2">
-                <Heart size={14} className="text-primary-600 flex-shrink-0" />
-                <span className="text-xs sm:text-sm text-primary-800 font-semibold">
-                  <span className="hidden sm:inline">Réservations aujourd'hui: </span>
-                  <span className="sm:hidden">Aujourd'hui: </span>
-                  <span className="font-bold text-primary-700">{dailyCount}/{settings.maxDailyBeneficiaryReservations}</span>
+                <Heart size={16} className="text-black" strokeWidth={1.5} />
+                <span className="text-sm text-black font-medium">
+                  Réservations aujourd'hui: {dailyCount}/{settings.maxDailyBeneficiaryReservations}
                 </span>
               </div>
               {dailyCount >= settings.maxDailyBeneficiaryReservations && (
-                <span className="badge-accent text-xs px-2 py-0.5 leading-tight flex-shrink-0">
+                <span className="text-xs px-2 py-1 bg-black text-white rounded-full font-medium">
                   Limite
                 </span>
               )}
@@ -131,15 +124,15 @@ export const BeneficiaryDashboard = () => {
         </div>
       </header>
 
-      {/* Contenu principal avec padding bottom pour la navigation */}
-      <main className="max-w-12xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-24">
+      {/* Contenu principal */}
+      <main className="max-w-7xl mx-auto px-6 py-6 pb-24">
         {activeTab === 'browse' && (
           <FreeLotsList dailyCount={dailyCount} onReservationMade={checkDailyLimit} />
         )}
         {activeTab === 'reservations' && <BeneficiaryReservations />}
         {activeTab === 'qrcode' && (
           <div className="flex justify-center">
-            <div className="animate-fade-in-up w-full max-w-sm">
+            <div className="w-full max-w-sm">
               <QRCodeDisplay
                 value={profile?.id || ''}
                 title="Votre QR Code de Bénéficiaire"
@@ -151,8 +144,8 @@ export const BeneficiaryDashboard = () => {
       </main>
 
       {/* Barre de navigation fixe en bas */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 shadow-2xl z-50">
-        <div className="max-w-12xl mx-auto px-2">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -162,29 +155,21 @@ export const BeneficiaryDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as 'browse' | 'reservations' | 'qrcode' | 'profile')}
-                  className={`flex flex-col items-center justify-center gap-1 px-3 py-3 flex-1 transition-all ${
+                  className={`flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
                     isActive
-                      ? 'text-accent-600'
-                      : 'text-neutral-500 hover:text-accent-500'
+                      ? 'text-black'
+                      : 'text-gray-500 hover:text-black'
                   }`}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <div className="relative">
-                    <Icon
-                      size={22}
-                      className={`transition-transform ${
-                        isActive ? 'scale-110' : ''
-                      }`}
-                      strokeWidth={isActive ? 2.5 : 2}
-                    />
-                    {isActive && (
-                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent-600 rounded-full animate-pulse"></div>
-                    )}
-                  </div>
+                  <Icon
+                    size={20}
+                    strokeWidth={isActive ? 2 : 1.5}
+                  />
                   <span
-                    className={`text-[10px] font-medium transition-all ${
-                      isActive ? 'font-bold' : ''
+                    className={`text-[10px] transition-all ${
+                      isActive ? 'font-semibold' : 'font-light'
                     }`}
                   >
                     {tab.label.replace('Mes ', '').replace('Mon ', '').replace('Dons ', '')}

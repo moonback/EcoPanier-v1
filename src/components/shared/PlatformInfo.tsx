@@ -9,22 +9,22 @@ export const PlatformInfo = () => {
 
   if (loading) {
     return (
-      <div className="card p-6 animate-pulse">
-        <div className="h-4 bg-neutral-200 rounded w-3/4 mb-2"></div>
-        <div className="h-4 bg-neutral-200 rounded w-1/2"></div>
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
       </div>
     );
   }
 
   return (
-    <div className="card p-6">
+    <div className="bg-white rounded-2xl border border-gray-200 p-6">
       <div className="flex items-start gap-3 mb-4">
-        <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-          <Info size={20} className="text-primary-600" />
+        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <Info size={20} className="text-black" strokeWidth={1.5} />
         </div>
         <div>
-          <h3 className="font-bold text-neutral-900 mb-1">Besoin d'aide ?</h3>
-          <p className="text-sm text-neutral-600 font-medium">
+          <h3 className="font-bold text-black mb-1">Besoin d'aide ?</h3>
+          <p className="text-sm text-gray-600 font-light">
             Notre équipe est là pour vous aider
           </p>
         </div>
@@ -33,22 +33,22 @@ export const PlatformInfo = () => {
       <div className="space-y-3">
         <a 
           href={`mailto:${settings.platformEmail}`}
-          className="flex items-center gap-3 text-neutral-700 hover:text-primary-600 transition-all group"
+          className="flex items-center gap-3 text-gray-700 hover:text-black transition group"
         >
-          <div className="w-8 h-8 bg-neutral-100 group-hover:bg-primary-100 rounded-lg flex items-center justify-center transition-colors">
-            <Mail size={16} className="text-neutral-600 group-hover:text-primary-600" />
+          <div className="w-8 h-8 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center transition">
+            <Mail size={16} strokeWidth={1.5} />
           </div>
-          <span className="text-sm font-medium">{settings.platformEmail}</span>
+          <span className="text-sm font-light">{settings.platformEmail}</span>
         </a>
 
         <a 
           href={`tel:${settings.supportPhone.replace(/\s/g, '')}`}
-          className="flex items-center gap-3 text-neutral-700 hover:text-primary-600 transition-all group"
+          className="flex items-center gap-3 text-gray-700 hover:text-black transition group"
         >
-          <div className="w-8 h-8 bg-neutral-100 group-hover:bg-primary-100 rounded-lg flex items-center justify-center transition-colors">
-            <Phone size={16} className="text-neutral-600 group-hover:text-primary-600" />
+          <div className="w-8 h-8 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center transition">
+            <Phone size={16} strokeWidth={1.5} />
           </div>
-          <span className="text-sm font-medium">{settings.supportPhone}</span>
+          <span className="text-sm font-light">{settings.supportPhone}</span>
         </a>
       </div>
     </div>

@@ -43,52 +43,52 @@ export function MerchantSidebar({
     <div className={`absolute top-0 bottom-0 right-0 transition-all duration-300 ${
       isOpen ? 'w-full max-w-md lg:w-[420px]' : 'w-0'
     } z-10`}>
-      <div className={`h-full bg-white/95 backdrop-blur-md shadow-2xl border-l border-neutral-200 transition-opacity duration-300 flex flex-col ${
+      <div className={`h-full bg-white shadow-xl border-l border-gray-200 transition-opacity duration-300 flex flex-col ${
         isOpen ? 'opacity-100' : 'opacity-0'
       }`}>
         {/* Header sidebar */}
-        <div className="p-4 border-b border-neutral-200 bg-white flex-shrink-0">
+        <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Store className="w-5 h-5 text-primary-600" />
-              <h2 className="font-bold text-lg text-neutral-900">Commerçants proches</h2>
+              <Store className="w-5 h-5 text-black" strokeWidth={1.5} />
+              <h2 className="font-bold text-lg text-black">Commerçants proches</h2>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition"
               title="Fermer la liste"
             >
-              <ChevronRight className="w-5 h-5 text-neutral-600" />
+              <ChevronRight className="w-5 h-5 text-gray-700" strokeWidth={1.5} />
             </button>
           </div>
 
           {/* Stats mini */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="text-center p-2 bg-primary-50 rounded-lg">
-              <div className="text-lg font-bold text-primary-600">{merchants.length}</div>
-              <div className="text-xs text-neutral-600">Commerces</div>
+            <div className="text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-lg font-bold text-black">{merchants.length}</div>
+              <div className="text-xs text-gray-600 font-light">Commerces</div>
             </div>
-            <div className="text-center p-2 bg-success-50 rounded-lg">
-              <div className="text-lg font-bold text-success-600">{totalLots}</div>
-              <div className="text-xs text-neutral-600">Invendus</div>
+            <div className="text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-lg font-bold text-black">{totalLots}</div>
+              <div className="text-xs text-gray-600 font-light">Invendus</div>
             </div>
-            <div className="text-center p-2 bg-accent-50 rounded-lg">
-              <div className="text-lg font-bold text-accent-600">{urgentLots}</div>
-              <div className="text-xs text-neutral-600">Urgents</div>
+            <div className="text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-lg font-bold text-black">{urgentLots}</div>
+              <div className="text-xs text-gray-600 font-light">Urgents</div>
             </div>
           </div>
 
           {/* Bouton filtres */}
           <button
             onClick={onToggleFilters}
-            className={`mt-3 w-full btn-secondary rounded-lg flex items-center justify-center gap-2 transition-all ${
-              showFilters ? 'bg-primary-100 border-primary-300' : ''
+            className={`mt-3 w-full px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition border font-medium ${
+              showFilters ? 'bg-black text-white border-black' : 'bg-gray-100 text-black border-gray-200 hover:bg-gray-200'
             }`}
           >
-            <Filter className="w-4 h-4" />
+            <Filter className="w-4 h-4" strokeWidth={1.5} />
             Filtres
             {activeFiltersCount > 0 && (
-              <span className="bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="bg-white text-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                 {activeFiltersCount}
               </span>
             )}
@@ -109,14 +109,14 @@ export function MerchantSidebar({
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="p-8 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto" />
-              <p className="text-neutral-600 mt-4 text-sm">Chargement...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto" />
+              <p className="text-gray-600 font-light mt-4 text-sm">Chargement...</p>
             </div>
           ) : merchants.length === 0 ? (
             <div className="p-6 text-center">
-              <MapPin className="w-12 h-12 text-neutral-400 mx-auto mb-3" />
-              <h3 className="font-semibold text-neutral-900 mb-2">Aucun résultat</h3>
-              <p className="text-sm text-neutral-600">Élargissez votre zone de recherche</p>
+              <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" strokeWidth={1} />
+              <h3 className="font-bold text-black mb-2">Aucun résultat</h3>
+              <p className="text-sm text-gray-600 font-light">Élargissez votre zone de recherche</p>
             </div>
           ) : (
             <div className="p-4 space-y-3">
