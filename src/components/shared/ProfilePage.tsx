@@ -5,17 +5,15 @@ import { BusinessHoursEditor } from './BusinessHoursEditor';
 import { BusinessLogoUploader } from '../merchant/BusinessLogoUploader';
 import { useProfileStats } from '../../hooks/useProfileStats';
 import type { LucideIcon } from 'lucide-react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Building, 
-  Calendar,
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Building,
   Shield,
   Edit2,
   Save,
-  X,
   Award,
   TrendingUp,
   Heart,
@@ -228,496 +226,438 @@ export const ProfilePage = () => {
   const roleStats = getRoleStats();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto">
       {/* Success Message */}
       {success && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 font-light">
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
           {success}
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 font-light">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
           ⚠️ {error}
         </div>
       )}
 
-      {/* Profile Header Card */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-8">
-        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-          {/* Avatar */}
-          <div className="relative group">
-            <div className="w-32 h-32 bg-black rounded-2xl flex items-center justify-center text-white text-5xl font-bold transition">
-              {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
-            </div>
-            
+      {/* Header Section - Minimalist */}
+      <div className="mb-8">
+        <div className="flex items-center gap-6 mb-6">
+          <div className="w-20 h-20 bg-gradient-to-br from-gray-900 to-black rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+            {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
           </div>
-
-          {/* User Info */}
           <div className="flex-1">
-            <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div>
-                <h1 className="text-3xl font-bold text-black mb-2">
-                  {profile?.full_name || 'Utilisateur'}
-                </h1>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className="px-3 py-1 bg-black text-white text-sm rounded-lg font-medium">
-                    {getRoleLabel()}
-                  </span>
-                  {profile?.verified && (
-                    <span className="px-3 py-1 bg-gray-100 text-black text-sm rounded-lg font-medium flex items-center gap-1">
-                      <Shield size={14} strokeWidth={1.5} />
-                      <span>Vérifié</span>
-                    </span>
-                  )}
-                  <span className="text-sm text-gray-600 font-light flex items-center gap-1">
-                    <Calendar size={14} strokeWidth={1.5} />
-                    Membre depuis {new Date(profile?.created_at || '').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
-                  </span>
-                </div>
-              </div>
-
-              {!isEditing && (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition flex items-center gap-2 font-medium"
-                >
-                  <Edit2 size={20} strokeWidth={1.5} />
-                  <span>Modifier</span>
-                </button>
+            <h1 className="text-3xl font-bold text-gray-900 mb-1">
+              {profile?.full_name || 'Utilisateur'}
+            </h1>
+            <div className="flex items-center gap-3">
+              <span className="px-3 py-1 bg-gray-900 text-white text-sm rounded-full font-medium">
+                {getRoleLabel()}
+              </span>
+              {profile?.verified && (
+                <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full font-medium flex items-center gap-1">
+                  <Shield size={12} />
+                  Vérifié
+                </span>
               )}
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Statistics Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsLoading ? (
-          // Skeleton loading
-          Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-2xl border border-gray-200 p-6 animate-pulse"
+          {!isEditing && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
-              <div className="w-12 h-12 bg-gray-200 rounded-lg mb-4" />
-              <div className="h-8 bg-gray-200 rounded mb-2 w-20" />
-              <div className="h-4 bg-gray-200 rounded w-24" />
-            </div>
-          ))
-        ) : (
-          roleStats.map((stat, index) => {
-            const Icon = stat.icon;
-            
-            return (
-              <div
-                key={index}
-                className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition"
-              >
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                  <Icon size={24} strokeWidth={1.5} />
-                </div>
-                <div className="text-3xl font-bold text-black mb-1">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-gray-600 font-light">
-                  {stat.label}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* Profile Information */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-black">
-            Informations personnelles
-          </h2>
-          {isEditing && (
-            <div className="flex gap-2">
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition flex items-center gap-2 font-medium"
-                disabled={loading}
-              >
-                <X size={20} strokeWidth={1.5} />
-                <span>Annuler</span>
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 transition flex items-center gap-2 font-medium"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-                    <span>Enregistrement...</span>
-                  </>
-                ) : (
-                  <>
-                    <Save size={20} strokeWidth={1.5} />
-                    <span>Enregistrer</span>
-                  </>
-                )}
-              </button>
-            </div>
+              <Edit2 size={20} strokeWidth={1.5} />
+            </button>
           )}
         </div>
 
-        {isEditing ? (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Full Name */}
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Nom complet *
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
+        {/* Key Stats - Essential only */}
+        {!statsLoading && roleStats.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {roleStats.slice(0, 4).map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <div key={index} className="bg-white p-4 rounded-xl border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Icon size={16} strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-gray-900">
+                        {stat.value}
+                      </div>
+                      <div className="text-xs text-gray-600 font-light">
+                        {stat.label}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Main Content Card */}
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        {/* Header */}
+        <div className="px-8 py-6 border-b border-gray-100">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-900">
+              Informations personnelles
+            </h2>
+            {isEditing && (
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                  disabled={loading}
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                      <span>Enregistrement...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save size={16} />
+                      <span>Enregistrer</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-8">
+
+          {isEditing ? (
+            <div className="space-y-6">
+              {/* Full Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nom complet
+                </label>
                 <input
                   type="text"
                   value={formData.full_name}
                   onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                   placeholder="Jean Dupont"
                   required
                 />
               </div>
-            </div>
 
-            {/* Email (read-only) */}
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
                 <input
                   type="email"
                   value={user?.email || ''}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50"
+                  className="w-full px-4 py-3 border border-gray-100 rounded-lg bg-gray-50 text-gray-500"
                   disabled
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1 font-light">
-                L'email ne peut pas être modifié
-              </p>
-            </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Téléphone
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
-                  placeholder="06 12 34 56 78"
-                />
-              </div>
-            </div>
-
-            {/* Address */}
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Adresse
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
-                <input
-                  type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
-                  placeholder="12 rue de Paris, 75001 Paris"
-                />
-              </div>
-            </div>
-
-            {/* Merchant-specific fields */}
-            {profile?.role === 'merchant' && (
-              <>
+              {/* Phone & Address Row */}
+              <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Nom du commerce
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Téléphone
                   </label>
-                  <div className="relative">
-                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    placeholder="06 12 34 56 78"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Adresse
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    placeholder="12 rue de Paris, 75001 Paris"
+                  />
+                </div>
+              </div>
+
+              {/* Merchant-specific fields */}
+              {profile?.role === 'merchant' && (
+                <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nom du commerce
+                    </label>
                     <input
                       type="text"
                       value={formData.business_name}
                       onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                       placeholder="Ma Boulangerie"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Adresse du commerce
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} strokeWidth={1.5} />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Adresse du commerce
+                    </label>
                     <input
                       type="text"
                       value={formData.business_address}
                       onChange={(e) => setFormData({ ...formData, business_address: e.target.value })}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                       placeholder="15 avenue de la République"
                     />
                   </div>
                 </div>
-              </>
-            )}
-          </form>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Display Mode */}
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <User size={20} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Nom complet
-                  </div>
-                  <div className="text-base font-medium text-black">
-                    {profile?.full_name || 'Non renseigné'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Mail size={20} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Email
-                  </div>
-                  <div className="text-base font-medium text-black">
-                    {user?.email || 'Non renseigné'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Phone size={20} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Téléphone
-                  </div>
-                  <div className="text-base font-medium text-black">
-                    {profile?.phone || 'Non renseigné'}
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
-
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin size={20} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-500 uppercase mb-1">
-                    Adresse
-                  </div>
-                  <div className="text-base font-medium text-black">
-                    {profile?.address || 'Non renseignée'}
-                  </div>
-                </div>
-              </div>
-
-              {profile?.role === 'merchant' && (
-                <>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Building size={20} strokeWidth={1.5} />
+          ) : (
+            <div className="space-y-6">
+              {/* Contact Information */}
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                      <User size={20} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <div className="text-xs font-medium text-gray-500 uppercase mb-1">
-                        Nom du commerce
-                      </div>
-                      <div className="text-base font-medium text-black">
-                        {profile?.business_name || 'Non renseigné'}
+                      <div className="text-sm font-medium text-gray-500">Nom complet</div>
+                      <div className="text-base font-semibold text-gray-900">
+                        {profile?.full_name || 'Non renseigné'}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                      <Mail size={20} strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">Email</div>
+                      <div className="text-base font-semibold text-gray-900">
+                        {user?.email || 'Non renseigné'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                      <Phone size={20} strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500">Téléphone</div>
+                      <div className="text-base font-semibold text-gray-900">
+                        {profile?.phone || 'Non renseigné'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
                       <MapPin size={20} strokeWidth={1.5} />
                     </div>
                     <div>
-                      <div className="text-xs font-medium text-gray-500 uppercase mb-1">
-                        Adresse du commerce
-                      </div>
-                      <div className="text-base font-medium text-black">
-                        {profile?.business_address || 'Non renseignée'}
+                      <div className="text-sm font-medium text-gray-500">Adresse</div>
+                      <div className="text-base font-semibold text-gray-900">
+                        {profile?.address || 'Non renseignée'}
                       </div>
                     </div>
                   </div>
-                </>
+                </div>
+              </div>
+
+              {/* Merchant-specific information */}
+              {profile?.role === 'merchant' && (
+                <div className="pt-6 border-t border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Informations du commerce
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <Building size={20} strokeWidth={1.5} />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-500">Nom du commerce</div>
+                        <div className="text-base font-semibold text-gray-900">
+                          {profile?.business_name || 'Non renseigné'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <MapPin size={20} strokeWidth={1.5} />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-500">Adresse du commerce</div>
+                        <div className="text-base font-semibold text-gray-900">
+                          {profile?.business_address || 'Non renseignée'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Business Hours (Merchant only) */}
-      {profile?.role === 'merchant' && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Clock size={20} strokeWidth={1.5} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-black">Horaires d'ouverture</h2>
-                <p className="text-sm text-gray-600 font-light">Informez vos clients de vos horaires</p>
-              </div>
-            </div>
-            {!isEditingHours && (
-              <button
-                onClick={() => setIsEditingHours(true)}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition flex items-center gap-2 font-medium"
-              >
-                <Edit2 size={18} strokeWidth={1.5} />
-                <span>{businessHours ? 'Modifier' : 'Définir'} les horaires</span>
-              </button>
-            )}
-          </div>
-
-          {isEditingHours ? (
-            <BusinessHoursEditor
-              value={businessHours as Record<string, DayHours> | null}
-              onChange={(hours) => setBusinessHours(hours as BusinessHours)}
-              onSave={handleSaveBusinessHours}
-              onCancel={handleCancelBusinessHours}
-              saving={loading}
-            />
-          ) : businessHours ? (
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mt-4">
-              {Object.entries(businessHours).map(([day, hours]) => {
-                const dayNames: Record<string, string> = {
-                  monday: 'Lun',
-                  tuesday: 'Mar',
-                  wednesday: 'Mer',
-                  thursday: 'Jeu',
-                  friday: 'Ven',
-                  saturday: 'Sam',
-                  sunday: 'Dim'
-                };
-                return (
-                  <div key={day} className="p-3 bg-gray-50 rounded-lg text-center border border-gray-200">
-                    <div className="text-xs font-bold text-black mb-1">{dayNames[day]}</div>
-                    <div className={`text-xs font-light ${hours.closed ? 'text-gray-400' : 'text-gray-600'}`}>
-                      {hours.closed ? 'Fermé' : `${hours.open} - ${hours.close}`}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="p-8 text-center bg-gray-50 rounded-lg border border-gray-200">
-              <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" strokeWidth={1} />
-              <p className="text-gray-700 font-medium">Aucun horaire défini</p>
-              <p className="text-sm text-gray-500 font-light mt-1">Cliquez sur "Définir les horaires" pour ajouter vos horaires d'ouverture</p>
             </div>
           )}
         </div>
-      )}
-
-      {/* Business Logo (Merchant only) */}
-      {profile?.role === 'merchant' && user && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <BusinessLogoUploader
-            currentLogoUrl={profile?.business_logo_url}
-            userId={user.id}
-            onLogoUpdated={handleLogoUpdated}
-          />
-        </div>
-      )}
-
-      {/* Account Settings */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-8">
-        <h2 className="text-2xl font-bold text-black mb-6">
-          Paramètres du compte
-        </h2>
-        
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div>
-              <div className="font-medium text-black mb-1">Notifications email</div>
-              <div className="text-sm text-gray-600 font-light">Recevoir les notifications par email</div>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" defaultChecked />
-              <div className="w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-black rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-            </label>
-          </div>
-
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div>
-              <div className="font-medium text-black mb-1">Profil public</div>
-              <div className="text-sm text-gray-600 font-light">Rendre mon profil visible aux autres utilisateurs</div>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" />
-              <div className="w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-black rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-            </label>
-          </div>
-
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div>
-              <div className="font-medium text-black mb-1">Newsletter</div>
-              <div className="text-sm text-gray-600 font-light">Recevoir les actualités et offres spéciales</div>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" defaultChecked />
-              <div className="w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-black rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-            </label>
-          </div>
-        </div>
       </div>
 
-      {/* Danger Zone */}
-      <div className="bg-white rounded-2xl border-2 border-red-200 p-8">
-        <h2 className="text-2xl font-bold text-red-600 mb-6 flex items-center gap-2">
-          <Shield size={24} strokeWidth={1.5} />
-          Zone de danger
-        </h2>
-        
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
-            <div>
-              <div className="font-medium text-black mb-1">Changer le mot de passe</div>
-              <div className="text-sm text-gray-600 font-light">Modifier votre mot de passe de connexion</div>
+      {/* Business Hours & Logo (Merchant only) */}
+      {profile?.role === 'merchant' && (
+        <>
+          {/* Business Hours */}
+          <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Clock size={20} strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Horaires d'ouverture</h2>
+                  <p className="text-sm text-gray-600">Gérez vos horaires d'ouverture</p>
+                </div>
+              </div>
+              {!isEditingHours && (
+                <button
+                  onClick={() => setIsEditingHours(true)}
+                  className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                >
+                  <Edit2 size={16} />
+                  <span>{businessHours ? 'Modifier' : 'Définir'} les horaires</span>
+                </button>
+              )}
             </div>
-            <button className="px-4 py-2 border border-red-500 text-red-600 rounded-lg hover:bg-red-500 hover:text-white transition font-medium">
-              Modifier
-            </button>
+
+            {isEditingHours ? (
+              <BusinessHoursEditor
+                value={businessHours as Record<string, DayHours> | null}
+                onChange={(hours) => setBusinessHours(hours as BusinessHours)}
+                onSave={handleSaveBusinessHours}
+                onCancel={handleCancelBusinessHours}
+                saving={loading}
+              />
+            ) : businessHours ? (
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                {Object.entries(businessHours).map(([day, hours]) => {
+                  const dayNames: Record<string, string> = {
+                    monday: 'Lun', tuesday: 'Mar', wednesday: 'Mer',
+                    thursday: 'Jeu', friday: 'Ven', saturday: 'Sam', sunday: 'Dim'
+                  };
+                  return (
+                    <div key={day} className="p-3 bg-gray-50 rounded-lg text-center">
+                      <div className="text-xs font-bold text-gray-900 mb-1">{dayNames[day]}</div>
+                      <div className={`text-xs ${hours.closed ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {hours.closed ? 'Fermé' : `${hours.open} - ${hours.close}`}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-600 mb-1">Aucun horaire défini</p>
+                <p className="text-sm text-gray-500">Ajoutez vos horaires d'ouverture</p>
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
-            <div>
-              <div className="font-medium text-red-600 mb-1">Supprimer le compte</div>
-              <div className="text-sm text-gray-600 font-light">Action irréversible - toutes vos données seront supprimées</div>
+          {/* Business Logo */}
+          {user && (
+            <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-8">
+              <BusinessLogoUploader
+                currentLogoUrl={profile?.business_logo_url}
+                userId={user.id}
+                onLogoUpdated={handleLogoUpdated}
+              />
             </div>
-            <button className="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition">
-              Supprimer
-            </button>
+          )}
+        </>
+      )}
+
+      {/* Settings & Danger Zone */}
+      <div className="mt-8 space-y-8">
+        {/* Account Settings */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">
+            Préférences
+          </h2>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <div>
+                <div className="font-medium text-gray-900">Notifications email</div>
+                <div className="text-sm text-gray-600">Recevoir les notifications</div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" defaultChecked />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-gray-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
+              </label>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <div>
+                <div className="font-medium text-gray-900">Newsletter</div>
+                <div className="text-sm text-gray-600">Recevoir les actualités</div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" defaultChecked />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-gray-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Danger Zone */}
+        <div className="bg-white rounded-2xl border-2 border-red-200 p-8">
+          <h2 className="text-xl font-bold text-red-600 mb-6 flex items-center gap-2">
+            <Shield size={20} />
+            Zone de danger
+          </h2>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-200">
+              <div>
+                <div className="font-medium text-gray-900">Changer le mot de passe</div>
+                <div className="text-sm text-gray-600">Modifier votre mot de passe</div>
+              </div>
+              <button className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                Modifier
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-200">
+              <div>
+                <div className="font-medium text-red-600">Supprimer le compte</div>
+                <div className="text-sm text-gray-600">Action irréversible</div>
+              </div>
+              <button className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                Supprimer
+              </button>
+            </div>
           </div>
         </div>
       </div>
