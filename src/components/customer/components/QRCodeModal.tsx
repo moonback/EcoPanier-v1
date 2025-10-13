@@ -35,17 +35,17 @@ export function QRCodeModal({
   });
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-xl max-w-md w-full p-6 animate-fade-in-up">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50">
+      <div className="bg-white rounded-2xl max-w-md w-full p-8">
         {/* En-tête */}
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">Code de retrait</h3>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-bold text-black">Code de retrait</h3>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition"
             aria-label="Fermer"
           >
-            <X size={24} />
+            <X size={24} strokeWidth={1.5} />
           </button>
         </div>
 
@@ -53,12 +53,12 @@ export function QRCodeModal({
         <QRCodeDisplay value={qrData} title={reservation.lots.title} />
 
         {/* Affichage du PIN */}
-        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-600 text-center">
-            Code PIN:{' '}
-            <span className="font-mono font-bold text-lg">
-              {reservation.pickup_pin}
-            </span>
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-700 text-center font-light">
+            Code PIN
+          </p>
+          <p className="font-mono font-bold text-3xl text-black text-center mt-2">
+            {reservation.pickup_pin}
           </p>
         </div>
       </div>

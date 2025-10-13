@@ -26,21 +26,21 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-slide-in-up"
+        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white border-b border-neutral-200 p-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-neutral-900">Détails du lot</h2>
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-black">Détails du lot</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <X className="w-6 h-6 text-neutral-600" />
+            <X className="w-6 h-6" strokeWidth={1.5} />
           </button>
         </div>
 
@@ -48,7 +48,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
           {/* Grille principale : Image + Infos */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             {/* Image principale */}
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-neutral-100 to-neutral-200">
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100">
               {lot.image_urls && lot.image_urls.length > 0 ? (
                 <img
                   src={lot.image_urls[0]}
@@ -57,18 +57,18 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <Package className="w-24 h-24 text-neutral-400" />
+                  <Package className="w-24 h-24 text-gray-300" strokeWidth={1} />
                 </div>
               )}
 
               {/* Badges sur l'image */}
               <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
                 {lot.is_urgent && (
-                  <span className="inline-flex items-center gap-1.5 bg-accent-500 text-white text-sm px-3 py-1.5 rounded-full font-bold shadow-xl animate-pulse border-2 border-white">
+                  <span className="inline-flex items-center gap-1.5 bg-black text-white text-sm px-3 py-1.5 rounded-full font-medium">
                     🔥 Urgent
                   </span>
                 )}
-                <span className="ml-auto bg-success-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-xl border-2 border-white">
+                <span className="ml-auto bg-black text-white px-3 py-1.5 rounded-full text-sm font-medium">
                   -{discount}%
                 </span>
               </div>
@@ -78,58 +78,57 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
             <div className="space-y-4">
               {/* Titre */}
               <div>
-                <h3 className="text-3xl font-black text-neutral-900 mb-2">
+                <h3 className="text-3xl font-bold text-black mb-2">
                   {lot.title}
                 </h3>
-                <span className="inline-flex items-center gap-1.5 bg-neutral-100 text-neutral-700 text-sm px-3 py-1.5 rounded-full font-semibold">
-                  <Package className="w-4 h-4" />
+                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-black text-sm px-3 py-1.5 rounded-full font-medium">
+                  <Package className="w-4 h-4" strokeWidth={1.5} />
                   {lot.category}
                 </span>
               </div>
 
               {/* Description */}
-              <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200">
-                <h4 className="text-sm font-bold text-neutral-700 mb-2">Description</h4>
-                <p className="text-neutral-600 leading-relaxed">
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <h4 className="text-sm font-bold text-black mb-2">Description</h4>
+                <p className="text-gray-700 leading-relaxed font-light">
                   {lot.description}
                 </p>
               </div>
 
               {/* Prix */}
-              <div className="p-4 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-xl border-2 border-primary-200">
-                <h4 className="text-sm font-bold text-neutral-700 mb-3">Prix</h4>
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <h4 className="text-sm font-bold text-black mb-3">Prix</h4>
                 <div className="flex items-end justify-between">
                   <div>
-                    <div className="text-xs text-neutral-500 font-medium mb-1">Prix initial</div>
-                    <div className="text-neutral-400 line-through text-xl font-bold">
+                    <div className="text-xs text-gray-600 font-light mb-1">Prix initial</div>
+                    <div className="text-gray-400 line-through text-xl font-bold">
                       {lot.original_price}€
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-neutral-500 font-medium mb-1">Prix réduit</div>
+                    <div className="text-xs text-gray-600 font-light mb-1">Prix réduit</div>
                     <div className="flex items-center gap-1">
-                      <Euro className="w-7 h-7 text-primary-600" />
-                      <span className="text-4xl font-black bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+                      <span className="text-4xl font-bold text-black">
                         {lot.discounted_price}€
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="mt-3 text-center">
-                  <span className="inline-block bg-success-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                  <span className="inline-block bg-black text-white px-4 py-2 rounded-full text-sm font-medium">
                     Économisez {(lot.original_price - lot.discounted_price).toFixed(2)}€ ({discount}%)
                   </span>
                 </div>
               </div>
 
               {/* Commerçant avec logo */}
-              <div className="p-4 bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-xl border-2 border-neutral-200 hover:border-primary-300 transition-all duration-300 hover:shadow-md">
-                <h4 className="text-sm font-bold text-neutral-700 mb-3 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-primary-600" />
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <h4 className="text-sm font-bold text-black mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4" strokeWidth={1.5} />
                   Commerçant
                 </h4>
                 <div className="flex items-center gap-3">
-                  <div className="w-14 h-14  flex items-center justify-center overflow-hidden flex-shrink-0 shadow-lg hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gray-200">
                     {lot.profiles.business_logo_url ? (
                       <img
                         src={lot.profiles.business_logo_url}
@@ -141,12 +140,12 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
                         }}
                       />
                     ) : null}
-                    <MapPin className={`w-7 h-7 text-white ${lot.profiles.business_logo_url ? 'hidden' : ''}`} />
+                    <MapPin className={`w-6 h-6 text-gray-400 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-neutral-900 text-lg mb-0.5 truncate">{lot.profiles.business_name}</div>
-                    <div className="text-sm text-neutral-600 flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-neutral-400" />
+                    <div className="font-bold text-black text-base mb-0.5 truncate">{lot.profiles.business_name}</div>
+                    <div className="text-sm text-gray-600 font-light flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
                       <span className="truncate">{lot.profiles.business_address}</span>
                     </div>
                   </div>
@@ -158,66 +157,55 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
           {/* Informations complémentaires */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             {/* Disponibilité */}
-            <div className="card p-4 border-2 border-success-100">
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-success-500 rounded-lg flex items-center justify-center">
-                  <Package className="w-5 h-5 text-white" />
-                </div>
+                <Package className="w-5 h-5 text-black" strokeWidth={1.5} />
                 <div>
-                  <div className="text-xs text-neutral-600 font-medium">Disponibilité</div>
-                  <div className="text-2xl font-black text-success-600">{availableQty}</div>
+                  <div className="text-xs text-gray-600 font-light">Disponibilité</div>
+                  <div className="text-2xl font-bold text-black">{availableQty}</div>
                 </div>
               </div>
-              <div className="text-xs text-neutral-600">
-                Sur <span className="font-bold">{lot.quantity_total}</span> au total
+              <div className="text-xs text-gray-600 font-light">
+                Sur {lot.quantity_total} au total
               </div>
             </div>
 
             {/* Horaire de retrait */}
-            <div className="card p-4 border-2 border-primary-100">
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-white" />
-                </div>
+                <Clock className="w-5 h-5 text-black" strokeWidth={1.5} />
                 <div>
-                  <div className="text-xs text-neutral-600 font-medium">Retrait</div>
-                  <div className="text-sm font-bold text-primary-700">
-                    {format(new Date(lot.pickup_start), 'EEEE dd MMMM', { locale: fr })}
+                  <div className="text-xs text-gray-600 font-light">Retrait</div>
+                  <div className="text-sm font-bold text-black">
+                    {format(new Date(lot.pickup_start), 'dd MMM', { locale: fr })}
                   </div>
                 </div>
               </div>
-              <div className="text-xs text-neutral-600">
-                De {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} à {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+              <div className="text-xs text-gray-600 font-light">
+                {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} - {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
               </div>
             </div>
 
             {/* Impact environnemental */}
-            <div className="card p-4 border-2 border-secondary-100">
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-secondary-500 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
+                <span className="text-xl">🌱</span>
                 <div>
-                  <div className="text-xs text-neutral-600 font-medium">Impact CO₂</div>
-                  <div className="text-sm font-bold text-secondary-700">{(availableQty * 0.9).toFixed(1)} kg</div>
+                  <div className="text-xs text-gray-600 font-light">Impact CO₂</div>
+                  <div className="text-sm font-bold text-black">{(availableQty * 0.9).toFixed(1)} kg</div>
                 </div>
               </div>
-              <div className="text-xs text-neutral-600">
-                CO₂ évités potentiel
+              <div className="text-xs text-gray-600 font-light">
+                Évités potentiel
               </div>
             </div>
           </div>
 
           {/* Caractéristiques */}
           {lot.requires_cold_chain && (
-            <div className="mb-6 p-4 bg-primary-50 rounded-xl border border-primary-200">
+            <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
-                </svg>
-                <span className="font-semibold text-primary-700">
+                <span className="text-sm font-medium text-black">
                   ❄️ Produit nécessitant une chaîne du froid
                 </span>
               </div>
@@ -229,21 +217,21 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
             <button
               onClick={onReserve}
               disabled={availableQty === 0}
-              className={`flex-1 flex items-center justify-center gap-2.5 py-4 rounded-xl font-bold text-lg transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2.5 py-4 rounded-xl font-medium text-lg transition-all ${
                 availableQty === 0
-                  ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 hover:shadow-xl hover:scale-[1.02]'
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-black text-white hover:bg-gray-900'
               }`}
             >
-              <ShoppingCart className="w-5 h-5" />
-              {availableQty === 0 ? 'Épuisé' : 'Réserver ce lot'}
+              <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
+              {availableQty === 0 ? 'Épuisé' : 'Réserver'}
             </button>
             <button
               onClick={onDonate}
-              className="px-6 py-4 bg-accent-500 hover:bg-accent-600 text-white rounded-xl transition-all font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02]"
+              className="px-6 py-4 bg-gray-100 hover:bg-gray-200 text-black rounded-xl transition-all font-medium flex items-center justify-center gap-2"
               title="Offrir en panier suspendu"
             >
-              <Heart className="w-5 h-5" />
+              <Heart className="w-5 h-5" strokeWidth={1.5} />
               <span className="hidden sm:inline">Offrir</span>
             </button>
           </div>
