@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText, FileCheck, Briefcase } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText, FileCheck, Briefcase, ArrowLeft } from 'lucide-react';
 
 // Types de commerces disponibles
 const BUSINESS_TYPES = [
@@ -45,6 +46,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
   const { signIn, signUp } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,6 +101,15 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
       >
         <source src="/ÉcoPanier.mp4" type="video/mp4" />
       </video>
+      
+      {/* Bouton retour accueil */}
+      <button
+        onClick={() => navigate('/')}
+        className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-black rounded-xl hover:bg-white transition-all font-medium shadow-lg hover:shadow-xl group"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+        <span className="hidden sm:inline">Retour accueil</span>
+      </button>
       
       {/* Conteneur du formulaire */}
       <div className="max-w-md w-full bg-white p-8 relative z-10 rounded-lg">
@@ -600,12 +611,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
 
         {/* Info sécurité et avantages */}
         <div className="mt-6 space-y-3">
-          <div className="p-3 bg-primary-50 rounded-xl border border-primary-100">
-            <p className="text-xs text-center text-primary-700 font-medium flex items-center justify-center gap-2">
-              <span>🔒</span>
-              <span>Données 100% sécurisées et cryptées</span>
-            </p>
-          </div>
+          
           {mode === 'signup' && (
             <div className="grid grid-cols-3 gap-2 text-center">
               <div className="p-2 bg-gray-50 rounded-lg">
