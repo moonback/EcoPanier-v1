@@ -6,7 +6,8 @@ import {
   HandHeart,
   Package,
   MapPin,
-  DollarSign
+  DollarSign,
+  FileText
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -188,6 +189,21 @@ export const userProfiles: UserProfile[] = [
     ],
     color: 'accent',
     emoji: '🤝'
+  },
+  {
+    icon: FileText,
+    title: 'Associations',
+    subtitle: 'Organisations solidaires',
+    description: 'Facilitez l\'accès à l\'aide alimentaire pour vos bénéficiaires grâce à une plateforme de gestion complète et intuitive.',
+    benefits: [
+      '📋 Enregistrement simplifié de vos bénéficiaires en quelques clics',
+      '📊 Tableaux de bord avec statistiques en temps réel',
+      '📈 Suivi détaillé de l\'activité de chaque bénéficiaire',
+      '📥 Export de données pour vos rapports (CSV/JSON)',
+      '🤝 Interface dédiée pour gérer votre programme d\'aide'
+    ],
+    color: 'purple',
+    emoji: '🏛️'
   },
   {
     icon: MapPin,

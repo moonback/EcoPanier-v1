@@ -20,7 +20,7 @@ export const UserProfilesSection = () => {
             Pour tous
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl font-light">
-            Consommateurs, commerçants, bénéficiaires et collecteurs unis contre le gaspillage
+            Consommateurs, commerçants, bénéficiaires, associations et collecteurs unis contre le gaspillage
           </p>
         </motion.div>
 

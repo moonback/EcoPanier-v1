@@ -33,6 +33,7 @@ export const HelpCenter = () => {
     { id: 'customer', name: 'Clients', icon: ShoppingCart },
     { id: 'merchant', name: 'Commerçants', icon: Store },
     { id: 'beneficiary', name: 'Bénéficiaires', icon: Users },
+    { id: 'association', name: 'Associations', icon: Heart },
     { id: 'payment', name: 'Paiements', icon: CreditCard },
     { id: 'technical', name: 'Technique', icon: Settings },
   ];
@@ -115,6 +116,42 @@ export const HelpCenter = () => {
       question: 'Le retrait est-il différent pour les bénéficiaires ?',
       answer: 'Non ! Le processus de retrait est identique pour tous : vous présentez votre QR code et votre code PIN. Aucune distinction n\'est faite, dans le respect de la dignité de chacun.',
       icon: Heart,
+    },
+    {
+      category: 'association',
+      question: 'Comment devenir association partenaire ?',
+      answer: 'Créez un compte en sélectionnant le rôle "Association" lors de l\'inscription. Renseignez les informations de votre organisation (nom, adresse, responsable). Une fois validé, vous accédez immédiatement à votre espace de gestion.',
+      icon: Users,
+    },
+    {
+      category: 'association',
+      question: 'Comment enregistrer un bénéficiaire ?',
+      answer: 'Dans votre espace association, allez dans l\'onglet "Enregistrer". Remplissez le formulaire avec les informations du bénéficiaire. Un ID unique sera automatiquement généré et un email de confirmation sera envoyé au bénéficiaire.',
+      icon: Users,
+    },
+    {
+      category: 'association',
+      question: 'Puis-je suivre l\'activité de mes bénéficiaires ?',
+      answer: 'Oui ! L\'onglet "Activité" vous permet de visualiser l\'historique complet des réservations de chaque bénéficiaire. Vous pouvez voir le nombre de lots récupérés, les dates et les commerces visités.',
+      icon: Package,
+    },
+    {
+      category: 'association',
+      question: 'Comment exporter les données de mes bénéficiaires ?',
+      answer: 'L\'onglet "Export" vous permet de télécharger toutes les données de vos bénéficiaires au format CSV ou JSON. Cela inclut les informations personnelles, les statistiques d\'activité et les dates d\'enregistrement. Utile pour vos rapports et conformité RGPD.',
+      icon: Settings,
+    },
+    {
+      category: 'association',
+      question: 'Que signifie "bénéficiaire vérifié" ?',
+      answer: 'Le statut "vérifié" indique que vous avez validé l\'identité et l\'éligibilité du bénéficiaire selon vos critères internes. Vous pouvez basculer ce statut à tout moment depuis la liste de vos bénéficiaires.',
+      icon: Shield,
+    },
+    {
+      category: 'association',
+      question: 'Combien de bénéficiaires puis-je enregistrer ?',
+      answer: 'Il n\'y a pas de limite au nombre de bénéficiaires que vous pouvez enregistrer. Votre espace association s\'adapte à la taille de votre organisation, que vous gériez 10 ou 1000 bénéficiaires.',
+      icon: Users,
     },
     {
       category: 'payment',

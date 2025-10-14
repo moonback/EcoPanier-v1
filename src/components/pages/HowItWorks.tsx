@@ -24,12 +24,13 @@ import {
 
 export const HowItWorks = () => {
   const navigate = useNavigate();
-  const [activeRole, setActiveRole] = useState<'customer' | 'merchant' | 'beneficiary'>('customer');
+  const [activeRole, setActiveRole] = useState<'customer' | 'merchant' | 'beneficiary' | 'association'>('customer');
 
   const roles = [
     { id: 'customer', name: 'Je suis Client', icon: ShoppingCart },
     { id: 'merchant', name: 'Je suis Commerçant', icon: Store },
     { id: 'beneficiary', name: 'Je suis Bénéficiaire', icon: Users },
+    { id: 'association', name: 'Je suis Association', icon: Heart },
   ];
 
   const customerSteps = [
@@ -185,12 +186,65 @@ export const HowItWorks = () => {
     },
   ];
 
+  const associationSteps = [
+    {
+      number: 1,
+      title: 'Créez votre compte association',
+      description: 'Inscription gratuite pour votre organisation solidaire',
+      icon: UserPlus,
+      details: [
+        '🏛️ Inscrivez votre association en quelques minutes',
+        '📋 Renseignez vos informations (nom, adresse, responsable)',
+        '✅ Validation instantanée de votre compte',
+        '🎯 Accédez à votre espace de gestion dédié',
+      ],
+    },
+    {
+      number: 2,
+      title: 'Enregistrez vos bénéficiaires',
+      description: 'Formulaire simple pour créer des comptes en quelques clics',
+      icon: Users,
+      details: [
+        '📝 Remplissez le formulaire d\'enregistrement',
+        '🎫 ID unique auto-généré (YYYY-BEN-XXXXX)',
+        '📧 Email de confirmation envoyé automatiquement',
+        '✨ Le bénéficiaire peut utiliser la plateforme immédiatement',
+      ],
+    },
+    {
+      number: 3,
+      title: 'Suivez l\'activité en temps réel',
+      description: 'Tableaux de bord et statistiques complètes',
+      icon: Smartphone,
+      details: [
+        '📊 Visualisez les statistiques de vos bénéficiaires',
+        '📈 Graphiques d\'évolution sur 6 mois',
+        '👥 Consultez l\'historique des réservations',
+        '🔍 Suivi détaillé de chaque bénéficiaire',
+      ],
+    },
+    {
+      number: 4,
+      title: 'Exportez vos données',
+      description: 'Rapports CSV/JSON pour votre conformité RGPD',
+      icon: CheckCircle,
+      details: [
+        '📥 Export en un clic (CSV ou JSON)',
+        '📄 Données complètes pour vos rapports',
+        '🔒 Conformité RGPD garantie',
+        '📊 Statistiques d\'activité incluses',
+      ],
+    },
+  ];
+
   const getSteps = () => {
     switch (activeRole) {
       case 'merchant':
         return merchantSteps;
       case 'beneficiary':
         return beneficiarySteps;
+      case 'association':
+        return associationSteps;
       default:
         return customerSteps;
     }
@@ -258,13 +312,13 @@ export const HowItWorks = () => {
           <h2 className="text-3xl font-bold text-center text-black mb-8">
             Choisissez votre profil
           </h2>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {roles.map((role) => {
               const Icon = role.icon;
               return (
                 <button
                   key={role.id}
-                  onClick={() => setActiveRole(role.id as 'customer' | 'merchant' | 'beneficiary')}
+                  onClick={() => setActiveRole(role.id as 'customer' | 'merchant' | 'beneficiary' | 'association')}
                   className={`p-8 rounded-2xl font-medium text-lg transition-all shadow-sm hover:shadow-lg ${
                     activeRole === role.id
                       ? 'bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-xl scale-105'
