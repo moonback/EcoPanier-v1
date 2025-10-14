@@ -51,9 +51,23 @@ export const BeneficiaryReservations = () => {
 
   if (reservations.length === 0) {
     return (
-      <div className="text-center py-8 sm:py-12 px-4">
-        <Package size={48} className="sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-        <p className="text-sm sm:text-base text-gray-600">Aucune réservation pour le moment</p>
+      <div className="text-center py-16">
+        <div className="inline-flex p-6 bg-gradient-to-br from-accent-50 to-pink-50 rounded-full mb-6">
+          <Package size={64} className="text-accent-400" strokeWidth={1} />
+        </div>
+        <h3 className="text-2xl font-bold text-black mb-3">
+          Vos paniers solidaires vous attendent ! 🎁
+        </h3>
+        <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed font-light">
+          Vous n'avez pas encore de réservation. Explorez les paniers gratuits 
+          disponibles et profitez du programme solidaire ! ❤️
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl font-semibold hover:from-accent-700 hover:to-accent-800 transition-all shadow-lg"
+        >
+          Découvrir les paniers gratuits
+        </button>
       </div>
     );
   }
@@ -64,35 +78,35 @@ export const BeneficiaryReservations = () => {
         {reservations.map((reservation) => (
           <div
             key={reservation.id}
-            className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all"
+            className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all border-2 border-gray-100 hover:border-gray-200"
           >
             <div
-              className={`p-3 sm:p-4 ${
+              className={`p-4 ${
                 reservation.status === 'pending'
-                  ? 'bg-pink-50'
+                  ? 'bg-gradient-to-br from-accent-50 to-pink-50'
                   : reservation.status === 'completed'
-                  ? 'bg-green-50'
-                  : 'bg-gray-50'
+                  ? 'bg-gradient-to-br from-success-50 to-white'
+                  : 'bg-gradient-to-br from-gray-50 to-white'
               }`}
             >
               <div className="flex justify-between items-start gap-2 mb-3">
-                <h3 className="font-bold text-sm sm:text-base text-gray-800 line-clamp-2 flex-1">
+                <h3 className="font-bold text-base text-black line-clamp-2 flex-1 group-hover:text-accent-600 transition-colors">
                   {reservation.lots.title}
                 </h3>
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 ${
+                  className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 border-2 shadow-sm ${
                     reservation.status === 'pending'
-                      ? 'bg-pink-100 text-pink-700'
+                      ? 'bg-gradient-to-r from-warning-100 to-warning-200 text-warning-700 border-warning-300'
                       : reservation.status === 'completed'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-100 text-gray-700'
+                      ? 'bg-gradient-to-r from-success-100 to-success-200 text-success-700 border-success-300'
+                      : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-gray-300'
                   }`}
                 >
                   {reservation.status === 'pending'
-                    ? 'En attente'
+                    ? '⏳ En attente'
                     : reservation.status === 'completed'
-                    ? 'Récupéré'
-                    : 'Annulé'}
+                    ? '✅ Récupéré'
+                    : '❌ Annulé'}
                 </span>
               </div>
 
@@ -117,11 +131,11 @@ export const BeneficiaryReservations = () => {
                 </div>
               </div>
 
-              <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-pink-100 rounded-lg border border-pink-200">
-                <div className="flex items-center justify-center gap-1.5">
-                  <Heart size={14} className="text-pink-600" />
-                  <p className="text-xs font-semibold text-pink-700">
-                    AIDE SOLIDAIRE
+              <div className="mt-4 p-3 bg-gradient-to-r from-accent-100 to-pink-100 rounded-xl border-2 border-accent-200 shadow-sm">
+                <div className="flex items-center justify-center gap-2">
+                  <Heart size={16} className="text-accent-600" strokeWidth={2} />
+                  <p className="text-xs font-bold text-accent-700">
+                    ❤️ PANIER SOLIDAIRE GRATUIT
                   </p>
                 </div>
               </div>
@@ -129,9 +143,9 @@ export const BeneficiaryReservations = () => {
               {reservation.status === 'pending' && (
                 <button
                   onClick={() => setSelectedReservation(reservation)}
-                  className="w-full mt-3 sm:mt-4 py-2 sm:py-2.5 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-all text-xs sm:text-sm font-medium shadow-md hover:shadow-lg"
+                  className="w-full mt-4 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl hover:from-accent-700 hover:to-accent-800 transition-all font-semibold shadow-lg hover:shadow-xl"
                 >
-                  Voir QR Code
+                  📱 Voir mon QR Code
                 </button>
               )}
             </div>
@@ -157,14 +171,16 @@ export const BeneficiaryReservations = () => {
               />
             </div>
             
-            <div className="mb-4 p-3 sm:p-4 bg-pink-50 rounded-lg border-2 border-pink-200">
+            <div className="mb-4 p-5 bg-gradient-to-r from-accent-50 to-pink-50 rounded-xl border-2 border-accent-200 shadow-sm">
               <div className="text-center">
-                <p className="text-xs sm:text-sm text-pink-800 font-semibold mb-2">
-                  Code PIN de retrait
+                <p className="text-sm text-accent-800 font-bold mb-3 flex items-center justify-center gap-2">
+                  <span>🔑</span>
+                  <span>Votre Code PIN</span>
                 </p>
-                <p className="font-mono font-bold text-2xl sm:text-3xl text-pink-700 tracking-wider">
+                <p className="font-mono font-bold text-4xl text-accent-700 tracking-wider">
                   {selectedReservation.pickup_pin}
                 </p>
+                <p className="text-xs text-accent-600 mt-2">À communiquer au commerçant</p>
               </div>
             </div>
             
