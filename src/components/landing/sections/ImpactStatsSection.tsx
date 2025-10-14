@@ -12,13 +12,13 @@ export const ImpactStatsSection = () => {
   return (
     <section className="relative py-32 bg-white overflow-hidden rounded-none">
       {/* Image de fond slide-4.png */}
-      <img
+      {/* <img
         src="/slide-4.png"
         alt=""
         aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none select-none"
         draggable={false}
-      />
+      /> */}
       <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

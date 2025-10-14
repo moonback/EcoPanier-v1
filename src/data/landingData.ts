@@ -7,6 +7,14 @@ import {
   Package,
   MapPin,
   DollarSign,
+  Store,
+  Building2,
+  Truck,
+  Sparkles,
+  QrCode,
+  TrendingUp,
+  FileText,
+  Recycle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -59,6 +67,29 @@ export interface WhyReason {
 export interface FAQItem {
   question: string;
   answer: string;
+}
+
+export interface ActorRole {
+  icon: LucideIcon;
+  title: string;
+  role: string;
+  description: string;
+  color: string;
+  emoji: string;
+}
+
+export interface WhyPillar {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  color: string;
+}
+
+export interface KeyFeature {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  color: string;
 }
 
 export const stats: Stat[] = [
@@ -241,6 +272,116 @@ export const faqItems: FAQItem[] = [
   {
     question: 'Puis-je annuler ma réservation ?',
     answer: 'Les annulations doivent être effectuées au moins 2h avant l\'heure de retrait prévue. Au-delà, le panier étant préparé, l\'annulation n\'est plus possible. Pensez à vérifier vos disponibilités avant de réserver !'
+  }
+];
+
+// ========================================
+// NOUVELLE STRUCTURE DE LANDING PAGE
+// ========================================
+
+// Les 5 acteurs de l'écosystème EcoPanier
+export const actorRoles: ActorRole[] = [
+  {
+    icon: Store,
+    title: 'Commerçant',
+    role: 'Commerce engagé',
+    description: 'Crée des lots d\'invendus à prix réduits ou gratuits pour les bénéficiaires. Valorise ses produits et réduit son gaspillage.',
+    color: 'secondary',
+    emoji: '🏪'
+  },
+  {
+    icon: ShoppingBag,
+    title: 'Client',
+    role: 'Consommateur responsable',
+    description: 'Réserve des paniers solidaires à petit prix et agit concrètement pour la planète tout en économisant.',
+    color: 'primary',
+    emoji: '🛒'
+  },
+  {
+    icon: Heart,
+    title: 'Bénéficiaire',
+    role: 'Accès aide alimentaire',
+    description: 'Accède à 2 lots gratuits par jour en toute dignité, sans marquage spécial ni jugement.',
+    color: 'accent',
+    emoji: '❤️'
+  },
+  {
+    icon: Building2,
+    title: 'Association',
+    role: 'Organisation solidaire',
+    description: 'Gère ses bénéficiaires et suit leur activité en temps réel via un tableau de bord complet.',
+    color: 'purple',
+    emoji: '🏛️'
+  },
+  {
+    icon: Truck,
+    title: 'Collecteur',
+    role: 'Livreur solidaire',
+    description: 'Livre les paniers solidaires entre commerces et associations. Rémunération immédiate pour chaque mission.',
+    color: 'success',
+    emoji: '🚚'
+  }
+];
+
+// Les 3 piliers d'EcoPanier
+export const whyPillars: WhyPillar[] = [
+  {
+    icon: Recycle,
+    title: 'Réduction du gaspillage',
+    description: 'Sauvez des repas avant qu\'ils ne soient jetés. Chaque panier récupéré évite 0.9kg de CO₂ dans l\'atmosphère.',
+    color: 'success'
+  },
+  {
+    icon: HandHeart,
+    title: 'Solidarité intégrée',
+    description: 'Offrez des lots gratuits aux bénéficiaires ou achetez des paniers suspendus. La solidarité est au cœur du système.',
+    color: 'accent'
+  },
+  {
+    icon: TrendingUp,
+    title: 'Suivi transparent',
+    description: 'Mesurez votre impact réel : repas sauvés, CO₂ évité, dons effectués. Tableaux de bord pour tous les acteurs.',
+    color: 'primary'
+  }
+];
+
+// Fonctionnalités clés de la plateforme
+export const keyFeatures: KeyFeature[] = [
+  {
+    icon: Sparkles,
+    title: 'Création automatique avec IA',
+    description: 'Gemini 2.0 Flash analyse vos photos de produits et remplit automatiquement le formulaire de création de lot.',
+    color: 'primary'
+  },
+  {
+    icon: MapPin,
+    title: 'Carte interactive',
+    description: 'Visualisez tous les commerçants engagés près de chez vous sur une carte en temps réel.',
+    color: 'success'
+  },
+  {
+    icon: QrCode,
+    title: 'Retrait sécurisé QR + PIN',
+    description: 'Système de retrait ultra-sécurisé avec QR code et code PIN à 6 chiffres pour chaque réservation.',
+    color: 'secondary'
+  },
+  {
+    icon: TrendingUp,
+    title: 'Tableaux de bord complets',
+    description: 'Statistiques en temps réel pour commerçants et associations : ventes, impact, activité des bénéficiaires.',
+    color: 'warning'
+  },
+  {
+    icon: FileText,
+    title: 'Export RGPD',
+    description: 'Exportez toutes vos données au format CSV ou JSON en un clic. Conformité RGPD totale.',
+    color: 'purple'
+  },
+  {
+    icon: Users,
+    title: 'Multi-rôles & centralisé',
+    description: 'Une seule plateforme pour gérer 5 types d\'acteurs différents avec des interfaces dédiées.',
+    color: 'accent'
   }
 ];
 

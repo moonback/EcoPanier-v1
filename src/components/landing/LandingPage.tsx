@@ -7,18 +7,11 @@ import { SEOHead } from '../shared/SEOHead';
 import { StickyCTA } from './StickyCTA';
 import {
   HeroSection,
-  SuspendedBasketsSection,
-  UserProfilesSection,
-  WhySection,
-  BasketJourneySection,
-  MerchantHeroesSection,
-  FeaturesSection,
-  HowItWorksSection,
-  ImpactCalculatorSection,
-  TestimonialsSection,
+  HowItWorksRolesSection,
+  WhyEcoPanierSection,
+  SolidarityModelSection,
   ImpactStatsSection,
-  FAQSection,
-  JoinUsSection,
+  TestimonialsSection,
   FinalCTASection
 } from './sections';
 
@@ -36,9 +29,9 @@ export const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white overflow-hidden">
       <SEOHead
-        title="ÉcoPanier - Mangez Mieux, Dépensez Moins, Sauvez la Planète | Anti-Gaspillage Alimentaire"
-        description="Découvrez des paniers surprises de vos commerçants locaux jusqu'à -70%. Économisez sur vos courses, réduisez le gaspillage et aidez les personnes en difficulté. Rejoignez le mouvement anti-gaspi !"
-        keywords="anti-gaspillage alimentaire, économies courses, invendus pas cher, commerce local, solidarité alimentaire, paniers suspendus, réduction gaspillage, produits frais, développement durable, économie circulaire France"
+        title="ÉcoPanier - Combattez le gaspillage alimentaire, nourrissez l'espoir | Plateforme solidaire"
+        description="Plateforme qui connecte commerçants, clients, bénéficiaires, associations et collecteurs pour sauver des invendus et renforcer la solidarité locale. Économisez jusqu'à -70% et agissez concrètement."
+        keywords="anti-gaspillage alimentaire, solidarité alimentaire, commerce local, invendus, paniers suspendus, aide alimentaire, commerçants engagés, économie circulaire, impact social, plateforme solidaire France"
         url="https://ecopanier.fr"
       />
       <Header transparent />
@@ -46,46 +39,29 @@ export const LandingPage = () => {
       {/* Sticky CTA flottant */}
       <StickyCTA />
       
-      {/* Hero Section avec animations */}
+      {/* ========================================
+          NOUVELLE STRUCTURE SIMPLIFIÉE (7 sections)
+          ======================================== */}
+      
+      {/* 1. Hero Section - Accroche forte */}
       <HeroSection />
       
-      {/* Section Mission Sociale - Pour Tous */}
-      <SuspendedBasketsSection />
+      {/* 2. Comment ça marche - 5 acteurs expliqués */}
+      <HowItWorksRolesSection />
       
-      {/* Section Pour qui ? */}
-      <UserProfilesSection />
+      {/* 3. Pourquoi EcoPanier - 3 piliers + stats globales */}
+      <WhyEcoPanierSection />
       
-      {/* Section Pourquoi ? - Triple impact */}
-      <WhySection />
+      {/* 4. Modèle de solidarité - Lots gratuits */}
+      <SolidarityModelSection />
       
-      {/* Section Histoire d'un panier sauvé - Storytelling */}
-      <BasketJourneySection />
-      
-      {/* Section Nos Commerçants Héros */}
-      <MerchantHeroesSection />
-      
-      {/* Section Features */}
-      <FeaturesSection />
-      
-      {/* Section Comment ça marche ? */}
-      <HowItWorksSection />
-      
-      {/* Section Calculateur d'impact */}
-      <ImpactCalculatorSection />
-      
-      {/* Section Témoignages */}
-      <TestimonialsSection />
-      
-      {/* Section Impact en chiffres */}
+      {/* 5. Impact chiffré - Graphiques dynamiques */}
       <ImpactStatsSection />
       
-      {/* Section FAQ */}
-      <FAQSection />
+      {/* 6. Témoignages - Voix humaines */}
+      <TestimonialsSection />
       
-      {/* Section Rejoignez-nous */}
-      <JoinUsSection />
-      
-      {/* Section CTA Final */}
+      {/* 7. CTA Final - Appel à l'action */}
       <FinalCTASection />
       
       <Footer />

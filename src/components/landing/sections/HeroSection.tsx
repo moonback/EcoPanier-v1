@@ -31,32 +31,55 @@ export const HeroSection = () => {
           transition={{ duration: 1, ease: "easeOut" }}
           className="max-w-4xl"
         >
-          <h1 className="text-6xl md:text-7xl lg:text-7xl font-bold text-white mb-8 leading-[1.1] tracking-tight">
-            Mangez mieux,
-            <br />
-            dépensez moins.
-            <br />
-            <span className="text-primary-400">La planète vous dit merci.</span>
+          <h1 className="text-5xl md:text-7xl lg:text-7xl font-extrabold text-white mb-8 leading-tight tracking-tight">
+            <span className="block">
+              Sauvez des paniers, 
+            </span>
+            <span className="text-primary-400 block">
+              soutenez votre quartier
+            </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl font-light">
-            Découvrez chaque jour des paniers surprises près de chez vous à prix mini. Des économies gourmandes qui font du bien à tous.
+          <p className="text-lg md:text-2xl text-white/90 mb-10 max-w-2xl font-light">
+            EcoPanier connecte commerçants engagés, voisins solidaires, associations et collecteurs pour sauver des invendus, proposer des paniers suspendus et lutter ensemble contre le gaspillage alimentaire.
           </p>
+
+          {/* Badges d'impact */}
+          <div className="flex flex-wrap gap-3 mb-12">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow hover-lift transition-all">
+              <span className="text-lg">♻️</span>
+              <span>Anti-gaspillage</span>
+            </div>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow hover-lift transition-all">
+              <span className="text-lg">🙏</span>
+              <span>Solidarité locale</span>
+            </div>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow hover-lift transition-all">
+              <span className="text-lg">🌱</span>
+              <span>Impact CO₂</span>
+            </div>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow hover-lift transition-all">
+              <span className="text-lg">💶</span>
+              <span>Petits prix</span>
+            </div>
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => navigate('/dashboard')}
-              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-5 rounded-lg text-lg font-medium hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
+              className="btn-primary text-lg px-8 py-5 rounded-lg shadow-xl hover:shadow-2xl transition-all group flex items-center gap-3 justify-center"
+              type="button"
             >
-              <span>Trouver mon premier panier</span>
+              <span>Je découvre EcoPanier</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             
             <button
-              onClick={() => navigate('/how-it-works')}
-              className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm text-white px-8 py-5 rounded-lg text-lg font-medium hover:bg-white/20 transition-all border border-white/20"
+              onClick={() => navigate('/commercants')}
+              className="btn-secondary text-lg px-8 py-5 rounded-lg flex items-center justify-center border border-white/20"
+              type="button"
             >
-              Découvrir notre mission
+              Devenir partenaire
             </button>
           </div>
         </motion.div>
