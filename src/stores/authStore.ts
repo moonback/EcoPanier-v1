@@ -115,22 +115,35 @@ export const useAuthStore = create<AuthState>()(
   signUp: async (email: string, password: string, profileData) => {
     set({ loading: true });
     try {
+      // Générer le beneficiary_id si c'est un bénéficiaire
+      let beneficiaryId = null;
+      if (profileData.role === 'beneficiary') {
+        const year = new Date().getFullYear();
+        const count = Math.floor(Math.random() * 100000);
+        beneficiaryId = `${year}-BEN-${String(count).padStart(5, '0')}`;
+      }
+
+      // Inscription avec métadonnées utilisateur
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            role: profileData.role,
+            full_name: profileData.full_name,
+            business_name: profileData.business_name,
+            business_address: profileData.business_address,
+            phone: profileData.phone,
+            address: profileData.address,
+            beneficiary_id: beneficiaryId,
+          }
+        }
       });
 
       if (error) throw error;
 
       if (data.user) {
-        let beneficiaryId = null;
-
-        if (profileData.role === 'beneficiary') {
-          const year = new Date().getFullYear();
-          const count = Math.floor(Math.random() * 100000);
-          beneficiaryId = `${year}-BEN-${String(count).padStart(5, '0')}`;
-        }
-
+        // Créer le profil dans la table profiles
         const { error: profileError } = await supabase.from('profiles').insert({
           id: data.user.id,
           ...profileData,
@@ -140,7 +153,10 @@ export const useAuthStore = create<AuthState>()(
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          throw profileError;
+          // Ne pas lancer d'erreur si le profil existe déjà (possiblement créé par un trigger)
+          if (!profileError.message.includes('duplicate key')) {
+            throw profileError;
+          }
         }
 
         // Don't auto-login after signup, user needs to verify email first
