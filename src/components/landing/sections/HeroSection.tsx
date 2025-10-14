@@ -40,7 +40,7 @@ export const HeroSection = () => {
           </h1>
           
           <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl font-light">
-            Rejoignez le mouvement anti-gaspi. Découvrez chaque jour des paniers surprises de vos commerçants préférés à prix mini.
+            Découvrez chaque jour des paniers surprises près de chez vous à prix mini. Des économies gourmandes qui font du bien à tous.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">

@@ -28,10 +28,10 @@ export const ImpactStatsSection = () => {
           className="text-center mb-20"
         >
           <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Notre impact
+            Ensemble, on change la donne
           </h2>
           <p className="text-xl text-gray-600 font-light">
-            Ensemble, nous créons un changement positif
+            Rejoignez des milliers de personnes qui agissent concrètement pour un monde meilleur
           </p>
         </motion.div>
 
