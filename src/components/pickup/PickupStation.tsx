@@ -80,31 +80,30 @@ export const PickupStation = () => {
 
     try {
       // Update reservation status to completed
-      const { error: updateError } = await (supabase
-        .from('reservations') as unknown as {
-          update: (data: { status: string; completed_at: string }) => {
-            eq: (col: string, val: string) => Promise<{ error: Error | null }>;
-          };
-        })
+      // NOTE: Using 'as unknown' to bypass Supabase v2 TypeScript bug with .update()
+      // Justification: Bug connu de @supabase/supabase-js v2.57.4 où les types Update
+      // sont résolus à 'never'. Workaround temporaire en attendant un fix officiel.
+      const { error: updateError } = await supabase
+        .from('reservations')
         .update({
           status: 'completed',
           completed_at: new Date().toISOString(),
-        })
+        } as unknown as never)
         .eq('id', reservation.id);
 
       if (updateError) throw updateError;
 
       // Update lot quantities
-      const { error: lotError } = await (supabase
-        .from('lots') as unknown as {
-          update: (data: { quantity_sold: number; quantity_reserved: number }) => {
-            eq: (col: string, val: string) => Promise<{ error: Error | null }>;
-          };
-        })
+      const newQuantitySold = reservation.lots.quantity_sold + reservation.quantity;
+      const newQuantityReserved = reservation.lots.quantity_reserved - reservation.quantity;
+
+      // NOTE: Using 'as unknown' to bypass Supabase v2 TypeScript bug with .update()
+      const { error: lotError } = await supabase
+        .from('lots')
         .update({
-          quantity_sold: reservation.lots.quantity_sold + reservation.quantity,
-          quantity_reserved: reservation.lots.quantity_reserved - reservation.quantity,
-        })
+          quantity_sold: newQuantitySold,
+          quantity_reserved: newQuantityReserved,
+        } as unknown as never)
         .eq('id', reservation.lot_id);
 
       if (lotError) throw lotError;
