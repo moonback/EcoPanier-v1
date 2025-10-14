@@ -222,12 +222,13 @@ export const HowItWorks = () => {
       <Header />
 
       {/* Hero */}
-      <section className="py-32 text-center bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-black mb-6">
+      <section className="py-32 text-center bg-gray-50 bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/slide-7.png)' }}>
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="max-w-4xl mx-auto px-6 relative z-10">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             Comment ça marche
           </h1>
-          <p className="text-xl text-gray-600 font-light">
+          <p className="text-xl text-white font-light">
             Découvrez comment utiliser notre plateforme
           </p>
         </div>

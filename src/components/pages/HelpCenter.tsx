@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Header } from '../shared/Header';
 import { Footer } from '../shared/Footer';
 import { SEOHead } from '../shared/SEOHead';
 import { 
-  ArrowLeft, 
   Search,
   HelpCircle,
   MessageCircle,
@@ -19,16 +17,13 @@ import {
   Package,
   QrCode,
   Clock,
-  MapPin,
   AlertCircle,
-  CheckCircle,
   Heart,
   Settings,
   Shield
 } from 'lucide-react';
 
 export const HelpCenter = () => {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
@@ -201,12 +196,13 @@ export const HelpCenter = () => {
       <Header />
 
       {/* Hero */}
-      <section className="py-32 text-center bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6">
-          <h1 className="text-5xl md:text-6xl font-bold text-black mb-6">
+      <section className="py-32 text-center bg-gray-50 bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/slide-3.png)' }}>
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="max-w-4xl mx-auto px-6 relative z-10">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             Comment pouvons-nous vous aider ?
           </h1>
-          <p className="text-xl text-gray-600 mb-8 font-light">
+          <p className="text-xl text-white mb-8 font-light">
             Trouvez rapidement les réponses à vos questions
           </p>
           
