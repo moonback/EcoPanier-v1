@@ -4,6 +4,7 @@ import { MapPin } from 'lucide-react';
 import { useAuthStore } from '../../../stores/authStore';
 import { useLots } from '../../../hooks/useLots';
 import { ReservationModal } from '../components/ReservationModal';
+import { LotDetailsModal } from '../components/LotDetailsModal';
 import { FilterPanel } from './FilterPanel';
 import { MapView } from './MapView';
 import { MerchantSidebar } from './MerchantSidebar';
@@ -33,6 +34,7 @@ export function InteractiveMap() {
   const [selectedMerchant, setSelectedMerchant] = useState<MerchantWithLots | null>(null);
   const [selectedMerchantForModal, setSelectedMerchantForModal] = useState<MerchantWithLots | null>(null);
   const [selectedLotForReservation, setSelectedLotForReservation] = useState<LotWithMerchant | null>(null);
+  const [selectedLotForDetails, setSelectedLotForDetails] = useState<LotWithMerchant | null>(null);
 
   // État de l'UI
   const [showFilters, setShowFilters] = useState(false);
@@ -91,6 +93,26 @@ export function InteractiveMap() {
     }
   };
 
+  // Gérer l'affichage des détails d'un lot
+  const handleViewLotDetails = (lot: LotBase) => {
+    const merchantForLot = selectedMerchantForModal;
+    
+    if (!merchantForLot) return;
+
+    // Créer un lot avec les infos du merchant
+    const lotWithMerchant: LotWithMerchant = {
+      ...lot,
+      profiles: {
+        business_name: merchantForLot.business_name || '',
+        business_address: merchantForLot.business_address || '',
+        business_logo_url: merchantForLot.business_logo_url || null
+      }
+    };
+
+    // Ouvrir la modal de détails
+    setSelectedLotForDetails(lotWithMerchant);
+  };
+
   // Gérer la réservation d'un lot
   const handleReserveLot = (lot: LotBase) => {
     const merchantForLot = selectedMerchantForModal;
@@ -102,7 +124,8 @@ export function InteractiveMap() {
       ...lot,
       profiles: {
         business_name: merchantForLot.business_name || '',
-        business_address: merchantForLot.business_address || ''
+        business_address: merchantForLot.business_address || '',
+        business_logo_url: merchantForLot.business_logo_url || null
       }
     };
 
@@ -179,7 +202,24 @@ export function InteractiveMap() {
           merchant={selectedMerchantForModal}
           onBack={() => setSelectedMerchantForModal(null)}
           onReserveLot={handleReserveLot}
+          onViewDetails={handleViewLotDetails}
         />
+
+        {/* Modal de détails */}
+        {selectedLotForDetails && (
+          <LotDetailsModal
+            lot={selectedLotForDetails}
+            onClose={() => setSelectedLotForDetails(null)}
+            onReserve={() => {
+              setSelectedLotForReservation(selectedLotForDetails);
+              setSelectedLotForDetails(null);
+            }}
+            onDonate={() => {
+              // TODO: Implémenter la donation
+              setSelectedLotForDetails(null);
+            }}
+          />
+        )}
 
         {/* Modal de réservation */}
         {selectedLotForReservation && (

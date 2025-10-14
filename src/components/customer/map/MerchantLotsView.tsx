@@ -9,6 +9,7 @@ interface MerchantLotsViewProps {
   merchant: MerchantWithLots;
   onBack: () => void;
   onReserveLot: (lot: LotBase) => void;
+  onViewDetails?: (lot: LotBase) => void;
 }
 
 type SortOption = 'price-asc' | 'price-desc' | 'discount' | 'urgent' | 'quantity';
@@ -44,7 +45,7 @@ const formatBusinessHours = (businessHours: Record<string, { open: string | null
   });
 };
 
-export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLotsViewProps) {
+export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails }: MerchantLotsViewProps) {
   const businessHours = formatBusinessHours(merchant.business_hours);
   const [showHoursModal, setShowHoursModal] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('urgent');
@@ -441,7 +442,7 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot }: MerchantLot
                   transition-all duration-500 ease-out
                   /* Animation d'apparition */
                   animate-fade-in-up"
-                onClick={() => onReserveLot(lot)}
+                onClick={() => onViewDetails ? onViewDetails(lot) : onReserveLot(lot)}
               >
                 {/* Image - Responsive aspect ratio compact */}
                 <div className="relative w-full overflow-hidden bg-gradient-to-br from-neutral-100 to-neutral-200

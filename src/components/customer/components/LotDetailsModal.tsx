@@ -1,4 +1,5 @@
-import { X, Package, MapPin, Clock, Euro, ShoppingCart, Heart } from 'lucide-react';
+import { useState } from 'react';
+import { X, Package, MapPin, Clock, ShoppingCart, Heart, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database } from '../../../lib/database.types';
@@ -16,13 +17,31 @@ interface LotDetailsModalProps {
   onClose: () => void;
   onReserve: () => void;
   onDonate: () => void;
+  onMerchantClick?: () => void;
 }
 
-export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetailsModalProps) {
+export function LotDetailsModal({ lot, onClose, onReserve, onDonate, onMerchantClick }: LotDetailsModalProps) {
+  const [showImageZoom, setShowImageZoom] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
   const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
   const discount = Math.round(
     ((lot.original_price - lot.discounted_price) / lot.original_price) * 100
   );
+
+  const hasMultipleImages = lot.image_urls && lot.image_urls.length > 1;
+
+  const nextImage = () => {
+    if (lot.image_urls && currentImageIndex < lot.image_urls.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
 
   return (
     <div
@@ -47,14 +66,62 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
         <div className="p-6">
           {/* Grille principale : Image + Infos */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
-            {/* Image principale */}
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100">
+            {/* Image principale avec zoom */}
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100 group">
               {lot.image_urls && lot.image_urls.length > 0 ? (
-                <img
-                  src={lot.image_urls[0]}
-                  alt={lot.title}
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  <img
+                    src={lot.image_urls[currentImageIndex]}
+                    alt={lot.title}
+                    className="w-full h-full object-cover cursor-zoom-in transition-transform duration-300 group-hover:scale-105"
+                    onClick={() => setShowImageZoom(true)}
+                  />
+                  
+                  {/* Bouton zoom */}
+                  <button
+                    onClick={() => setShowImageZoom(true)}
+                    className="absolute bottom-3 right-3 bg-black/70 hover:bg-black text-white p-2 rounded-lg backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
+                    aria-label="Zoomer sur l'image"
+                  >
+                    <ZoomIn className="w-5 h-5" strokeWidth={1.5} />
+                  </button>
+
+                  {/* Navigation images si plusieurs */}
+                  {hasMultipleImages && (
+                    <>
+                      {currentImageIndex > 0 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            prevImage();
+                          }}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black text-white p-2 rounded-full backdrop-blur-sm transition-all"
+                          aria-label="Image précédente"
+                        >
+                          <ChevronLeft className="w-5 h-5" strokeWidth={2} />
+                        </button>
+                      )}
+                      
+                      {currentImageIndex < lot.image_urls.length - 1 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            nextImage();
+                          }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black text-white p-2 rounded-full backdrop-blur-sm transition-all"
+                          aria-label="Image suivante"
+                        >
+                          <ChevronRight className="w-5 h-5" strokeWidth={2} />
+                        </button>
+                      )}
+
+                      {/* Indicateur de position */}
+                      <div className="absolute bottom-3 left-3 bg-black/70 text-white text-xs px-2 py-1 rounded-md backdrop-blur-sm">
+                        {currentImageIndex + 1} / {lot.image_urls.length}
+                      </div>
+                    </>
+                  )}
+                </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <Package className="w-24 h-24 text-gray-300" strokeWidth={1} />
@@ -64,11 +131,11 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
               {/* Badges sur l'image */}
               <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
                 {lot.is_urgent && (
-                  <span className="inline-flex items-center gap-1.5 bg-black text-white text-sm px-3 py-1.5 rounded-full font-medium">
+                  <span className="inline-flex items-center gap-1.5 bg-black/90 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full font-medium">
                     🔥 Urgent
                   </span>
                 )}
-                <span className="ml-auto bg-black text-white px-3 py-1.5 rounded-full text-sm font-medium">
+                <span className="ml-auto bg-black/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium">
                   -{discount}%
                 </span>
               </div>
@@ -121,11 +188,23 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
                 </div>
               </div>
 
-              {/* Commerçant avec logo */}
-              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+              {/* Commerçant avec logo - Cliquable */}
+              <div 
+                className={`p-4 bg-gray-50 rounded-xl border border-gray-200 transition-all ${
+                  onMerchantClick 
+                    ? 'cursor-pointer hover:bg-primary-50 hover:border-primary-300' 
+                    : ''
+                }`}
+                onClick={onMerchantClick}
+              >
                 <h4 className="text-sm font-bold text-black mb-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4" strokeWidth={1.5} />
                   Commerçant
+                  {onMerchantClick && (
+                    <span className="ml-auto text-xs text-primary-600 font-medium">
+                      Voir tous ses produits →
+                    </span>
+                  )}
                 </h4>
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gray-200">
@@ -237,6 +316,95 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate }: LotDetail
           </div>
         </div>
       </div>
+
+      {/* Modal Zoom Image Plein Écran */}
+      {showImageZoom && lot.image_urls && lot.image_urls.length > 0 && (
+        <div 
+          className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setShowImageZoom(false)}
+        >
+          {/* Bouton fermer */}
+          <button
+            onClick={() => setShowImageZoom(false)}
+            className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full backdrop-blur-sm transition-all z-10"
+            aria-label="Fermer le zoom"
+          >
+            <X className="w-6 h-6" strokeWidth={2} />
+          </button>
+
+          {/* Image zoomée */}
+          <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
+            <img
+              src={lot.image_urls[currentImageIndex]}
+              alt={lot.title}
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Navigation si plusieurs images */}
+            {hasMultipleImages && (
+              <>
+                {currentImageIndex > 0 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevImage();
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-4 rounded-full backdrop-blur-sm transition-all"
+                    aria-label="Image précédente"
+                  >
+                    <ChevronLeft className="w-8 h-8" strokeWidth={2} />
+                  </button>
+                )}
+                
+                {currentImageIndex < lot.image_urls.length - 1 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextImage();
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-4 rounded-full backdrop-blur-sm transition-all"
+                    aria-label="Image suivante"
+                  >
+                    <ChevronRight className="w-8 h-8" strokeWidth={2} />
+                  </button>
+                )}
+
+                {/* Compteur d'images */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full backdrop-blur-sm text-sm font-medium">
+                  {currentImageIndex + 1} / {lot.image_urls.length}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Miniatures si plusieurs images */}
+          {hasMultipleImages && (
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
+              {lot.image_urls.map((url, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentImageIndex(index);
+                  }}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    index === currentImageIndex 
+                      ? 'border-white scale-110' 
+                      : 'border-transparent opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img
+                    src={url}
+                    alt={`${lot.title} - ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

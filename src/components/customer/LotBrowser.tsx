@@ -11,6 +11,7 @@ import {
   ReservationModal,
   DonationModal,
   LotDetailsModal,
+  MerchantLotsModal,
   AdvancedFilterModal,
   EmptyState,
   InlineSpinner,
@@ -24,6 +25,7 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: {
     business_name: string;
     business_address: string;
+    business_logo_url?: string | null;
   };
 };
 
@@ -46,6 +48,8 @@ export const LotBrowser = () => {
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
   const [reservationMode, setReservationMode] = useState<'reserve' | 'donate' | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showMerchantLotsModal, setShowMerchantLotsModal] = useState(false);
+  const [selectedMerchantId, setSelectedMerchantId] = useState<string | null>(null);
   const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_FILTERS);
 
   // Hooks (stores, contexts, router)
@@ -109,6 +113,19 @@ export const LotBrowser = () => {
   const handleCloseDetailsModal = () => {
     setShowDetailsModal(false);
     setSelectedLot(null);
+  };
+
+  const handleMerchantClick = () => {
+    if (selectedLot) {
+      setSelectedMerchantId(selectedLot.merchant_id);
+      setShowDetailsModal(false);
+      setShowMerchantLotsModal(true);
+    }
+  };
+
+  const handleCloseMerchantModal = () => {
+    setShowMerchantLotsModal(false);
+    setSelectedMerchantId(null);
   };
 
   // Early returns (conditions de sortie)
@@ -241,7 +258,7 @@ export const LotBrowser = () => {
           </button>
         </div>
       ) : (
-        <div className="grid gap-4
+        <div className="grid gap-3
           /* Mobile : 1 lot par ligne (pleine largeur) */
           grid-cols-1
           /* Petits écrans : 2 colonnes */
@@ -251,7 +268,9 @@ export const LotBrowser = () => {
           /* Desktop : 4 colonnes */
           lg:grid-cols-4
           /* Large desktop : 5 colonnes */
-          xl:grid-cols-5">
+          xl:grid-cols-5
+          /* Extra large : 6 colonnes */
+          2xl:grid-cols-6">
           {filteredLots.map((lot) => (
             <LotCard
               key={lot.id}
@@ -279,6 +298,20 @@ export const LotBrowser = () => {
           onClose={handleCloseDetailsModal}
           onReserve={handleReserveFromDetails}
           onDonate={handleDonateFromDetails}
+          onMerchantClick={handleMerchantClick}
+        />
+      )}
+
+      {showMerchantLotsModal && selectedLot && (
+        <MerchantLotsModal
+          merchantId={selectedLot.merchant_id}
+          merchantName={selectedLot.profiles.business_name}
+          merchantAddress={selectedLot.profiles.business_address}
+          merchantLogoUrl={selectedLot.profiles.business_logo_url}
+          onClose={handleCloseMerchantModal}
+          onLotSelect={handleViewDetails}
+          onReserve={handleReserveLot}
+          onDonate={handleDonateLot}
         />
       )}
 
