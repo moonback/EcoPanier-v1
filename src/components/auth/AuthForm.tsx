@@ -111,7 +111,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
             draggable={false}
           />
           <h2 className="text-2xl font-bold text-black mb-2">
-            {mode === 'signin' ? 'Bon retour parmi nous ! 👋' : 'Rejoignez l\'aventure ! 🌍'}
+            {mode === 'signin' ? 'Bon retour parmi nous !' : 'Rejoignez l\'aventure ! 🌍'}
           </h2>
           <p className="text-sm text-gray-600 font-light">
             {mode === 'signin' 

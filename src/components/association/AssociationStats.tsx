@@ -112,7 +112,7 @@ export function AssociationStats() {
       {/* En-tête */}
       <div className="card p-6">
         <h1 className="text-2xl font-bold text-neutral-900 mb-2">
-          Bienvenue, {profile?.business_name || profile?.full_name} ! 👋
+          Bienvenue, {profile?.business_name || profile?.full_name} !
         </h1>
         <p className="text-neutral-600">
           Voici un aperçu de vos bénéficiaires enregistrés sur la plateforme EcoPanier.
