@@ -12,6 +12,7 @@ import { MerchantDashboard } from './components/merchant/MerchantDashboard';
 import { BeneficiaryDashboard } from './components/beneficiary/BeneficiaryDashboard';
 import { CollectorDashboard } from './components/collector/CollectorDashboard';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { AssociationDashboard } from './components/association/AssociationDashboard';
 import { PickupStation } from './components/pickup/PickupStation';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
@@ -88,6 +89,8 @@ function DashboardRouter() {
         return <CollectorDashboard />;
       case 'admin':
         return <AdminDashboard />;
+      case 'association':
+        return <AssociationDashboard />;
       default:
         return (
           <div className="min-h-screen flex items-center justify-center section-gradient">

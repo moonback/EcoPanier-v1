@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText } from 'lucide-react';
 
 interface AuthFormProps {
   onSuccess?: () => void;
@@ -39,8 +39,8 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           full_name: fullName,
           phone: phone || null,
           address: address || null,
-          business_name: role === 'merchant' ? businessName : null,
-          business_address: role === 'merchant' ? businessAddress : null,
+          business_name: (role === 'merchant' || role === 'association') ? businessName : null,
+          business_address: (role === 'merchant' || role === 'association') ? businessAddress : null,
           business_logo_url: null,
           business_hours: null,
           latitude: null,
@@ -131,7 +131,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               <label className="block text-sm font-medium text-black mb-3">
                 Quel est votre profil ? 🎯
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                 {/* Client */}
                 <button
                   type="button"
@@ -210,6 +210,26 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     Revenus flexibles
                   </div>
                   {role === 'collector' && <span className="absolute top-2 right-2 text-xs">✓</span>}
+                </button>
+
+                {/* Association */}
+                <button
+                  type="button"
+                  onClick={() => setRole('association')}
+                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
+                    role === 'association'
+                      ? 'border-purple-600 bg-gradient-to-br from-purple-600 to-purple-700 text-white shadow-lg'
+                      : 'border-gray-200 bg-white text-black hover:border-purple-300 hover:shadow-md'
+                  }`}
+                >
+                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'association' ? 'bg-white/20' : 'bg-purple-50'}`}>
+                    <FileText size={20} strokeWidth={2} className={role === 'association' ? 'text-white' : 'text-purple-600'} />
+                  </div>
+                  <div className="font-semibold text-sm">🏛️ Association</div>
+                  <div className={`text-xs mt-1 ${role === 'association' ? 'text-white/80' : 'text-gray-500'}`}>
+                    Enregistrer bénéficiaires
+                  </div>
+                  {role === 'association' && <span className="absolute top-2 right-2 text-xs">✓</span>}
                 </button>
               </div>
             </div>
@@ -301,19 +321,23 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 </div>
               </div>
 
-              {role === 'merchant' && (
+              {(role === 'merchant' || role === 'association') && (
                 <div className="space-y-4 pt-4 border-t border-gray-200">
                   <div className="p-3 bg-gradient-to-r from-secondary-50 to-primary-50 rounded-xl border border-secondary-100">
                     <p className="text-sm text-black font-semibold flex items-center gap-2">
-                      <span>🏪</span>
-                      <span>Informations de votre commerce</span>
+                      <span>{role === 'merchant' ? '🏪' : '🏛️'}</span>
+                      <span>Informations de {role === 'merchant' ? 'votre commerce' : 'votre association'}</span>
                     </p>
-                    <p className="text-xs text-gray-600 mt-1">Pour créer vos premiers lots d'invendus</p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {role === 'merchant' 
+                        ? 'Pour créer vos premiers lots d\'invendus' 
+                        : 'Pour enregistrer vos bénéficiaires'}
+                    </p>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-black mb-2">
-                      Nom du commerce
+                      Nom {role === 'merchant' ? 'du commerce' : 'de l\'association'}
                     </label>
                     <div className="relative">
                       <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
@@ -322,7 +346,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
-                        placeholder="Ma Boulangerie"
+                        placeholder={role === 'merchant' ? 'Ma Boulangerie' : 'Restos du Cœur'}
                         required
                       />
                     </div>
@@ -330,7 +354,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
 
                   <div>
                     <label className="block text-sm font-medium text-black mb-2">
-                      Adresse du commerce
+                      Adresse {role === 'merchant' ? 'du commerce' : 'de l\'association'}
                     </label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
