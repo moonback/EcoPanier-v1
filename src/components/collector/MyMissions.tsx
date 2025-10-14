@@ -100,9 +100,23 @@ export const MyMissions = () => {
 
   if (missions.length === 0) {
     return (
-      <div className="text-center py-12">
-        <CheckCircle size={64} className="text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-600">Aucune mission en cours</p>
+      <div className="text-center py-16">
+        <div className="inline-flex p-6 bg-gradient-to-br from-success-50 to-primary-50 rounded-full mb-6">
+          <CheckCircle size={64} className="text-success-400" strokeWidth={1} />
+        </div>
+        <h3 className="text-2xl font-bold text-black mb-3">
+          Aucune mission en cours 📦
+        </h3>
+        <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed font-light">
+          Acceptez vos premières missions solidaires et commencez à gagner 
+          un revenu flexible tout en aidant votre quartier ! 💚
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 bg-gradient-to-r from-success-600 to-success-700 text-white rounded-xl font-semibold hover:from-success-700 hover:to-success-800 transition-all shadow-lg"
+        >
+          Voir les missions disponibles
+        </button>
       </div>
     );
   }
@@ -111,28 +125,28 @@ export const MyMissions = () => {
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {missions.map((mission) => (
-          <div key={mission.id} className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div key={mission.id} className="group bg-white rounded-2xl shadow-md overflow-hidden border-2 border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all">
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-800">{mission.title}</h3>
+                <h3 className="text-lg font-bold text-black group-hover:text-success-600 transition-colors">{mission.title}</h3>
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border-2 shadow-sm ${
                     mission.status === 'accepted'
-                      ? 'bg-yellow-100 text-yellow-700'
+                      ? 'bg-gradient-to-r from-warning-100 to-warning-200 text-warning-700 border-warning-300'
                       : mission.status === 'in_progress'
-                      ? 'bg-blue-100 text-blue-700'
+                      ? 'bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 border-primary-300'
                       : mission.status === 'completed'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-100 text-gray-700'
+                      ? 'bg-gradient-to-r from-success-100 to-success-200 text-success-700 border-success-300'
+                      : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-gray-300'
                   }`}
                 >
                   {mission.status === 'accepted'
-                    ? 'Acceptée'
+                    ? '📋 Acceptée'
                     : mission.status === 'in_progress'
-                    ? 'En cours'
+                    ? '🚚 En cours'
                     : mission.status === 'completed'
-                    ? 'Terminée'
-                    : 'Annulée'}
+                    ? '✅ Terminée'
+                    : '❌ Annulée'}
                 </span>
               </div>
 
@@ -154,10 +168,13 @@ export const MyMissions = () => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t">
+              <div className="pt-4 border-t-2 border-gray-100">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-gray-600">Rémunération</span>
-                  <span className="text-xl font-bold text-green-600">
+                  <span className="text-sm text-gray-600 font-semibold flex items-center gap-1">
+                    <span>💰</span>
+                    <span>Vous gagnez</span>
+                  </span>
+                  <span className="text-2xl font-bold text-success-600">
                     {formatCurrency(mission.payment_amount)}
                   </span>
                 </div>
@@ -165,9 +182,9 @@ export const MyMissions = () => {
                 {mission.status === 'accepted' && (
                   <button
                     onClick={() => updateStatus(mission.id, 'in_progress')}
-                    className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                    className="w-full py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all font-semibold shadow-lg"
                   >
-                    Démarrer la mission
+                    🚀 Démarrer la mission
                   </button>
                 )}
 
@@ -177,9 +194,9 @@ export const MyMissions = () => {
                       setSelectedMission(mission);
                       setProofImages([]);
                     }}
-                    className="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
+                    className="w-full py-3 bg-gradient-to-r from-success-600 to-success-700 text-white rounded-xl hover:from-success-700 hover:to-success-800 transition-all font-semibold shadow-lg"
                   >
-                    Terminer la mission
+                    ✅ Terminer la mission
                   </button>
                 )}
 
@@ -205,53 +222,70 @@ export const MyMissions = () => {
       </div>
 
       {selectedMission && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold mb-4">Terminer la mission</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Ajoutez des photos de preuve (livraison, signature, etc.)
-            </p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-2 border-gray-100">
+            <div className="text-center mb-6">
+              <div className="inline-flex p-4 bg-gradient-to-br from-success-100 to-success-200 rounded-full mb-4">
+                <CheckCircle size={32} className="text-success-600" strokeWidth={2} />
+              </div>
+              <h3 className="text-2xl font-bold text-black mb-2">
+                Finaliser votre Mission
+              </h3>
+              <p className="text-sm text-gray-600">Ajoutez vos photos de preuve de livraison</p>
+            </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Photos de preuve
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <span>📸</span>
+                <span>Photos de Preuve</span>
               </label>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-              />
+              <label className="block cursor-pointer">
+                <div className="p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-success-400 hover:bg-success-50 transition-all text-center">
+                  <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
+                  <p className="text-sm font-medium text-gray-700">Cliquez pour ajouter des photos</p>
+                  <p className="text-xs text-gray-500 mt-1">Livraison, signature, etc.</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </div>
+              </label>
               {proofImages.length > 0 && (
-                <div className="mt-2 grid grid-cols-3 gap-2">
-                  {proofImages.map((url, i) => (
-                    <img
-                      key={i}
-                      src={url}
-                      alt={`Preview ${i}`}
-                      className="w-full h-20 object-cover rounded-lg"
-                    />
-                  ))}
+                <div className="mt-4">
+                  <p className="text-xs font-semibold text-gray-600 mb-2">✅ {proofImages.length} photo{proofImages.length > 1 ? 's' : ''} ajoutée{proofImages.length > 1 ? 's' : ''}</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {proofImages.map((url, i) => (
+                      <img
+                        key={i}
+                        src={url}
+                        alt={`Preview ${i + 1}`}
+                        className="w-full h-20 object-cover rounded-xl border-2 border-gray-200"
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={() => {
                   setSelectedMission(null);
                   setProofImages([]);
                 }}
-                className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 border-2 border-gray-200 transition-all font-semibold"
               >
                 Annuler
               </button>
               <button
                 onClick={() => handleComplete(selectedMission.id)}
-                className="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                disabled={proofImages.length === 0}
+                className="flex-1 py-3 bg-gradient-to-r from-success-600 to-success-700 text-white rounded-xl hover:from-success-700 hover:to-success-800 transition-all font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirmer
+                ✅ Valider
               </button>
             </div>
           </div>

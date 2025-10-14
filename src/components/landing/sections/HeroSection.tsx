@@ -31,7 +31,7 @@ export const HeroSection = () => {
           transition={{ duration: 1, ease: "easeOut" }}
           className="max-w-4xl"
         >
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-[1.1] tracking-tight">
+          <h1 className="text-6xl md:text-7xl lg:text-7xl font-bold text-white mb-8 leading-[1.1] tracking-tight">
             Mangez mieux,
             <br />
             dépensez moins.

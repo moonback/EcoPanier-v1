@@ -10,9 +10,9 @@ export const CollectorDashboard = () => {
   const { profile, signOut } = useAuthStore();
 
   const tabs = [
-    { id: 'available', label: 'Missions Disponibles', icon: Truck },
-    { id: 'my-missions', label: 'Mes Missions', icon: History },
-    { id: 'profile', label: 'Mon profil', icon: User },
+    { id: 'available', label: 'Missions Dispo', icon: Truck, emoji: '🚚' },
+    { id: 'my-missions', label: 'Mes Missions', icon: History, emoji: '📦' },
+    { id: 'profile', label: 'Profil', icon: User, emoji: '👤' },
   ];
 
   return (
@@ -23,10 +23,10 @@ export const CollectorDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <h1 className="text-xl font-bold text-black">
-                Espace Collecteur
+                🚴 Bonjour {profile?.full_name?.split(' ')[0] || 'Collecteur'} !
               </h1>
               <p className="text-sm text-gray-600 font-light mt-0.5">
-                {profile?.full_name}
+                Des missions solidaires vous attendent ! 💰
               </p>
             </div>
             
@@ -60,24 +60,29 @@ export const CollectorDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as 'available' | 'my-missions' | 'profile')}
-                  className={`flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
+                  className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
                     isActive
-                      ? 'text-black'
-                      : 'text-gray-500 hover:text-black'
+                      ? 'text-success-600'
+                      : 'text-gray-500 hover:text-gray-700'
                   }`}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon
-                    size={20}
-                    strokeWidth={isActive ? 2 : 1.5}
-                  />
+                  {isActive && (
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-success-500 to-success-600 rounded-b-full" />
+                  )}
+                  <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
+                    <Icon
+                      size={20}
+                      strokeWidth={isActive ? 2.5 : 1.5}
+                    />
+                  </div>
                   <span
                     className={`text-[10px] transition-all ${
-                      isActive ? 'font-semibold' : 'font-light'
+                      isActive ? 'font-bold' : 'font-light'
                     }`}
                   >
-                    {tab.label.replace('Mes ', '').replace('Mon ', '').replace('Missions ', '')}
+                    {tab.label}
                   </span>
                 </button>
               );
