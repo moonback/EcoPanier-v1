@@ -226,7 +226,7 @@ export const ProfilePage = () => {
   const roleStats = getRoleStats();
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-12xl mx-auto">
       {/* Success Message */}
       {success && (
         <div className="mb-6 p-4 bg-success-50 border-2 border-success-200 rounded-xl">
@@ -548,9 +548,20 @@ export const ProfilePage = () => {
 
       {/* Business Hours & Logo (Merchant only) */}
       {profile?.role === 'merchant' && (
-        <>
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Business Logo */}
+          {user && (
+            <div className="bg-white rounded-2xl border-2 border-gray-100 p-8 shadow-lg">
+              <BusinessLogoUploader
+                currentLogoUrl={profile?.business_logo_url}
+                userId={user.id}
+                onLogoUpdated={handleLogoUpdated}
+              />
+            </div>
+          )}
+
           {/* Business Hours */}
-          <div className="mt-8 bg-white rounded-2xl border-2 border-gray-100 p-8 shadow-lg">
+          <div className="bg-white rounded-2xl border-2 border-gray-100 p-8 shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
@@ -605,18 +616,7 @@ export const ProfilePage = () => {
               </div>
             )}
           </div>
-
-          {/* Business Logo */}
-          {user && (
-            <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-8">
-              <BusinessLogoUploader
-                currentLogoUrl={profile?.business_logo_url}
-                userId={user.id}
-                onLogoUpdated={handleLogoUpdated}
-              />
-            </div>
-          )}
-        </>
+        </div>
       )}
 
       {/* Settings & Danger Zone */}
