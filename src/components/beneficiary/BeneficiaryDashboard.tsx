@@ -91,7 +91,7 @@ export const BeneficiaryDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       {/* En-tête */}
       <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-12xl mx-auto px-6">
           <div className="flex items-center justify-between py-3">
             <h1 className="text-xl font-bold text-black whitespace-nowrap overflow-hidden text-ellipsis flex-1">
               ❤️ Bienvenue {profile?.full_name?.split(' ')[0] || 'Bénéficiaire'} !
@@ -131,7 +131,7 @@ export const BeneficiaryDashboard = () => {
       </header>
 
       {/* Contenu principal */}
-      <main className="max-w-7xl mx-auto px-6 py-6 pb-24">
+      <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
         {activeTab === 'browse' && (
           <FreeLotsList dailyCount={dailyCount} onReservationMade={checkDailyLimit} />
         )}
@@ -151,7 +151,7 @@ export const BeneficiaryDashboard = () => {
 
       {/* Barre de navigation fixe en bas */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-12xl mx-auto">
           <div className="flex items-center justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;

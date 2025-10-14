@@ -49,7 +49,7 @@ export const CustomerDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       {/* En-tête */}
       <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-12xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <h1 className="text-xl font-bold text-black">
@@ -73,7 +73,7 @@ export const CustomerDashboard = () => {
       </header>
 
       {/* Contenu principal */}
-      <main className="max-w-7xl mx-auto px-6 py-6 pb-24">
+      <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
         {activeTab === 'browse' && <LotBrowser />}
         {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}
@@ -93,7 +93,7 @@ export const CustomerDashboard = () => {
 
       {/* Barre de navigation fixe en bas */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-12xl mx-auto">
           <div className="flex items-center justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;

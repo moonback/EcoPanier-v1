@@ -37,17 +37,16 @@ export function AssociationDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       {/* Header */}
       <header className="bg-white border-b border-neutral-200 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <img 
                   src="/logo.png" 
                   alt="EcoPanier" 
-                  className="h-10 w-10 rounded-lg object-contain"
+                  className="h-10 w-100 rounded-lg object-contain"
                   draggable={false}
                 />
-                <span className="text-xl font-bold text-neutral-900">EcoPanier</span>
               </div>
               <div className="h-8 w-px bg-neutral-200" />
               <div className="flex items-center gap-2">
@@ -74,7 +73,7 @@ export function AssociationDashboard() {
 
       {/* Navigation par onglets */}
       <div className="bg-white border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex gap-6">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -98,7 +97,7 @@ export function AssociationDashboard() {
       </div>
 
       {/* Contenu principal */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'stats' && <AssociationStats />}
         {activeTab === 'advanced' && <AdvancedStats />}
         {activeTab === 'info' && <AssociationInfo />}
