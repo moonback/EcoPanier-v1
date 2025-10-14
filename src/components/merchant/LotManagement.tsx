@@ -495,15 +495,21 @@ export const LotManagement = () => {
   return (
     <div>
       {/* Header avec boutons d'action */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-        <h2 className="text-2xl font-bold text-black">Gestion des invendus</h2>
+      <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-black flex items-center gap-3">
+            <span>📦</span>
+            <span>Mes Paniers Anti-Gaspi</span>
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">Créez et gérez vos lots d'invendus en quelques clics</p>
+        </div>
         <div className="flex gap-2">
           <button
             onClick={generateFictionalLots}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:border-secondary-300 hover:bg-secondary-50 transition-all font-medium"
             title="Créer 25 produits de test"
           >
-            <Package size={18} strokeWidth={1.5} />
+            <Package size={18} strokeWidth={2} />
             <span className="hidden sm:inline">Générer test</span>
             <span className="sm:hidden">Test</span>
           </button>
@@ -513,10 +519,10 @@ export const LotManagement = () => {
               setEditingLot(null);
               setShowModal(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 transition font-medium"
+            className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl hover:from-secondary-700 hover:to-secondary-800 transition-all font-semibold shadow-md hover:shadow-lg"
           >
-            <Plus size={18} strokeWidth={1.5} />
-            <span>Nouvel invendu</span>
+            <Plus size={18} strokeWidth={2} />
+            <span>Créer un panier</span>
           </button>
         </div>
       </div>
@@ -530,8 +536,8 @@ export const LotManagement = () => {
           return (
             <div 
               key={lot.id} 
-              className={`bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition ${
-                isOutOfStock ? 'opacity-50 grayscale' : ''
+              className={`group bg-white rounded-2xl border-2 border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-xl transition-all ${
+                isOutOfStock ? 'opacity-60 grayscale' : ''
               }`}
             >
               <div className="relative h-48 bg-gray-100">
@@ -603,17 +609,17 @@ export const LotManagement = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEditModal(lot)}
-                    className="flex-1 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition flex items-center justify-center gap-2 font-medium"
+                    className="flex-1 py-2.5 bg-gradient-to-r from-secondary-50 to-primary-50 text-secondary-700 rounded-xl hover:from-secondary-100 hover:to-primary-100 border border-secondary-200 transition-all flex items-center justify-center gap-2 font-semibold"
                   >
-                    <Edit size={16} strokeWidth={1.5} />
+                    <Edit size={16} strokeWidth={2} />
                     <span>Modifier</span>
                   </button>
                   <button
                     onClick={() => handleDelete(lot.id)}
-                    className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                    className="px-3 py-2.5 bg-gray-50 text-gray-600 rounded-xl hover:bg-red-50 hover:text-red-600 border border-gray-200 hover:border-red-200 transition-all"
                     aria-label="Supprimer le lot"
                   >
-                    <Trash2 size={16} strokeWidth={1.5} />
+                    <Trash2 size={16} strokeWidth={2} />
                   </button>
                 </div>
               </div>
