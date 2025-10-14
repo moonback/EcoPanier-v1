@@ -33,19 +33,23 @@ export const StickyCTA = () => {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="fixed bottom-6 left-0 right-0 z-50 px-6"
         >
-          <div className="max-w-md mx-auto">
+          <div className="max-w-2xl mx-auto">
             <button
               onClick={() => navigate('/dashboard')}
-              className="group w-full flex items-center justify-between bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-4 rounded-2xl shadow-2xl hover:shadow-3xl hover:from-primary-700 hover:to-primary-800 transition-all"
+              className="group w-full flex items-center justify-between bg-gradient-to-r from-primary-600 via-primary-700 to-primary-600 text-white px-6 py-5 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-[1.02]"
             >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🌍</span>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                  <span className="text-2xl">🛒</span>
+                </div>
                 <div className="text-left">
-                  <div className="font-semibold">Trouvez votre premier panier</div>
-                  <div className="text-xs text-white/80">Économisez jusqu'à -70%</div>
+                  <div className="font-bold text-lg">Trouvez votre premier panier</div>
+                  <div className="text-sm text-white/90 font-light">
+                    Économisez jusqu'à -70% • Repas à partir de 2€
+                  </div>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform flex-shrink-0" />
             </button>
           </div>
         </motion.div>

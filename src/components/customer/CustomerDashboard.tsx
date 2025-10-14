@@ -53,7 +53,7 @@ export const CustomerDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <h1 className="text-xl font-bold text-black">
-                👋 Bonjour {profile?.full_name?.split(' ')[0] || 'Client'} !
+                Bonjour {profile?.full_name?.split('  ')[0] || 'Client'} !
               </h1>
               <p className="text-sm text-gray-600 font-light mt-0.5">
                 Prêt à sauver des paniers aujourd'hui ?
@@ -73,7 +73,7 @@ export const CustomerDashboard = () => {
       </header>
 
       {/* Contenu principal */}
-      <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
+      <main className={`${activeTab === 'browse' ? 'pb-24' : 'max-w-12xl mx-auto px-6 py-6 pb-24'}`}>
         {activeTab === 'browse' && <LotBrowser />}
         {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}

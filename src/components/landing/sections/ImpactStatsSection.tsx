@@ -12,13 +12,13 @@ export const ImpactStatsSection = () => {
   return (
     <section className="relative py-32 bg-white overflow-hidden rounded-none">
       {/* Image de fond slide-4.png */}
-      <img
+      {/* <img
         src="/slide-4.png"
         alt=""
         aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none select-none"
         draggable={false}
-      />
+      /> */}
       <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -28,10 +28,10 @@ export const ImpactStatsSection = () => {
           className="text-center mb-20"
         >
           <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Notre impact
+            Ensemble, on change la donne
           </h2>
           <p className="text-xl text-gray-600 font-light">
-            Ensemble, nous créons un changement positif
+            Rejoignez des milliers de personnes qui agissent concrètement pour un monde meilleur
           </p>
         </motion.div>
 

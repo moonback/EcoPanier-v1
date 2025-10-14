@@ -222,7 +222,7 @@ export const PickupStation = () => {
           <div className="w-full max-w-7xl">
             <div className="text-center mb-4">
               <h2 className="text-3xl font-bold text-black mb-2">
-                Bienvenue ! 👋
+                Bienvenue ! 
               </h2>
               <p className="text-lg text-gray-600 font-light">
                 Prêt à valider un retrait de panier ?

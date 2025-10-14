@@ -137,12 +137,33 @@ export const deleteImages = async (imageUrls: string[]): Promise<void> => {
 };
 
 export const categories = [
-  'Fruits & Légumes',
-  'Boulangerie',
-  'Viandes & Poissons',
-  'Produits Laitiers',
-  'Épicerie',
-  'Plats Préparés',
-  'Surgelés',
-  'Autres',
+  'fruits_legumes',
+  'boulangerie',
+  'boucherie',
+  'poissonnerie',
+  'produits_laitiers',
+  'epicerie',
+  'plats_prepares',
+  'autres',
 ];
+
+/**
+ * Mappe les catégories de la base de données vers des noms affichables
+ */
+export const categoryLabels: Record<string, string> = {
+  'fruits_legumes': 'Fruits & Légumes',
+  'boulangerie': 'Boulangerie',
+  'boucherie': 'Boucherie',
+  'poissonnerie': 'Poissonnerie',
+  'produits_laitiers': 'Produits Laitiers',
+  'epicerie': 'Épicerie',
+  'plats_prepares': 'Plats Préparés',
+  'autres': 'Autres',
+};
+
+/**
+ * Convertit une catégorie de la base de données en nom affichable
+ */
+export const getCategoryLabel = (category: string): string => {
+  return categoryLabels[category] || category;
+};

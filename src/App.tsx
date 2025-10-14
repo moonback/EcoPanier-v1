@@ -4,6 +4,9 @@ import { useAuthStore } from './stores/authStore';
 import { supabase } from './lib/supabase';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { LandingPage } from './components/landing/LandingPage';
+import { MerchantLanding } from './components/merchant/landing/MerchantLanding';
+import { AssociationLanding } from './components/association/landing/AssociationLanding';
+import { RestaurantLanding } from './components/restaurant/landing';
 import { HowItWorks } from './components/pages/HowItWorks';
 import { HelpCenter } from './components/pages/HelpCenter';
 import { AuthForm } from './components/auth/AuthForm';
@@ -113,6 +116,11 @@ function App() {
         <Routes>
           {/* Page d'accueil publique */}
           <Route path="/" element={<LandingPage />} />
+          
+          {/* Pages landing par rôle */}
+          <Route path="/commercants" element={<MerchantLanding />} />
+          <Route path="/associations" element={<AssociationLanding />} />
+          <Route path="/restaurateurs" element={<RestaurantLanding />} />
           
           {/* Pages informatives publiques */}
           <Route path="/how-it-works" element={<HowItWorks />} />

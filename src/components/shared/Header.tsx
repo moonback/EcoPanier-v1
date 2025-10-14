@@ -1,29 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Menu, 
-  X, 
-  HelpCircle, 
-  Layers,
-  // QrCode,
-  LogIn,
-  UserPlus,
-  Home
-} from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
-interface HeaderProps {
-  transparent?: boolean;
-}
-
-export const Header = ({ transparent = false }: HeaderProps) => {
+export const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Accueil', path: '/', icon: Home },
-    { name: 'Comment ça marche', path: '/how-it-works', icon: Layers },
-    // { name: 'Station de retrait', path: '/pickup', icon: QrCode },
-    { name: 'Centre d\'aide', path: '/help', icon: HelpCircle },
+    { name: 'Accueil', path: '/' },
+    { name: 'Comment ça marche', path: '/how-it-works' },
+    { name: 'Commerçants', path: '/commercants' },
+    { name: 'Restaurateurs', path: '/restaurateurs' },
+    { name: 'Associations', path: '/associations' },
+    { name: 'Aide', path: '/help' },
   ];
 
   return (
@@ -44,12 +33,12 @@ export const Header = ({ transparent = false }: HeaderProps) => {
             </button>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-6">
               {navLinks.map((link) => (
                 <button
                   key={link.path}
                   onClick={() => navigate(link.path)}
-                  className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
+                  className="text-sm font-medium text-gray-700 hover:text-black transition-colors whitespace-nowrap"
                 >
                   {link.name}
                 </button>
@@ -120,7 +109,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
 
           {/* Navigation Links */}
           <div className="flex-1 overflow-y-auto p-6">
-            <nav className="space-y-1">
+            <nav className="space-y-2">
               {navLinks.map((link) => (
                 <button
                   key={link.path}

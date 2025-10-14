@@ -3,19 +3,19 @@ import { motion } from 'framer-motion';
 export const SuspendedBasketsSection = () => {
   const features = [
     {
-      title: 'Commerçants',
-      description: 'Réduisez le gaspillage et valorisez vos invendus',
-      stats: 'Jusqu\'à 70% de réduction de déchets'
+      title: 'Pour Vous',
+      description: 'Économisez jusqu\'à 70% sur des produits de qualité de tous types de commerces près de chez vous',
+      stats: 'Jusqu\'à -70% d\'économies'
     },
     {
-      title: 'Clients',
-      description: 'Économisez sur des produits de qualité',
-      stats: '-50% à -70% de réduction'
+      title: 'Pour la Planète',
+      description: 'Chaque panier sauvé évite 0.9kg de CO₂ et combat le gaspillage alimentaire',
+      stats: '0.9kg de CO₂ évité / panier'
     },
     {
-      title: 'Bénéficiaires',
-      description: 'Accédez au programme d\'aide alimentaire solidaire',
-      stats: '2 lots d\'aide par jour'
+      title: 'Pour les Autres',
+      description: 'Accès gratuit à 2 paniers alimentaires par jour pour les personnes en situation de précarité',
+      stats: '2 paniers gratuits / jour'
     }
   ];
 
@@ -39,12 +39,12 @@ export const SuspendedBasketsSection = () => {
           className="mb-20"
         >
           <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight max-w-4xl">
-            Une plateforme.
+            Un geste simple.
             <br />
-            <span className="text-gray-600">Trois missions.</span>
+            <span className="text-primary-600">Un triple impact.</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl font-light">
-            Lutter contre le gaspillage, aider les personnes en difficulté, soutenir le commerce local
+            En récupérant un panier, vous agissez pour votre porte-monnaie, pour la planète et pour votre quartier
           </p>
         </motion.div>
 
@@ -79,10 +79,10 @@ export const SuspendedBasketsSection = () => {
           className="bg-black rounded-3xl p-12 md:p-16 text-white text-center"
         >
           <h3 className="text-3xl md:text-4xl font-bold mb-4">
-            Un impact triple
+            Votre impact, multiplié par trois
           </h3>
           <p className="text-lg text-white/70 font-light max-w-2xl mx-auto">
-            Chaque action sur la plateforme crée un cercle vertueux pour l'environnement, les personnes et l'économie locale
+            Chaque panier que vous récupérez crée un effet domino positif : vous économisez, la planète respire, et votre quartier se solidarise
           </p>
         </motion.div>
       </div>

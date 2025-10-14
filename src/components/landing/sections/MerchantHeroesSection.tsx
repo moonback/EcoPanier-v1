@@ -69,11 +69,11 @@ export const MerchantHeroesSection = () => {
             <span>Commerçants du mois</span>
           </div>
           <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Nos Commerçants Héros
+            Découvrez nos commerçants engagés
           </h2>
           <p className="text-xl text-gray-600 font-light max-w-3xl mx-auto">
-            Chaque mois, nous mettons en lumière les commerçants qui font une différence 
-            dans leur quartier en luttant contre le gaspillage.
+            Rencontrez les artisans et commerçants passionnés de votre quartier qui luttent 
+            contre le gaspillage. Soutenez-les en récupérant leurs paniers surprises !
           </p>
         </motion.div>
 
@@ -162,17 +162,17 @@ export const MerchantHeroesSection = () => {
         >
           <div className="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-3xl p-12">
             <h3 className="text-3xl font-bold text-black mb-4">
-              Vous aussi, devenez un héros anti-gaspi !
+              Vous êtes commerçant ? Rejoignez le mouvement !
             </h3>
             <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Rejoignez notre réseau de commerçants engagés et valorisez vos invendus 
-              tout en renforçant votre image locale.
+              Transformez vos invendus en revenus et en impact positif. 
+              Rejoignez +200 commerçants engagés dans la lutte contre le gaspillage.
             </p>
             <button
-              onClick={() => window.location.href = '/dashboard'}
+              onClick={() => window.location.href = '/commercants'}
               className="inline-flex items-center gap-2 bg-black text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all"
             >
-              <span>Devenir commerçant partenaire</span>
+              <span>Découvrir l'offre commerçants</span>
             </button>
           </div>
         </motion.div>
