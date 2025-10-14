@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
-import { Users, UserPlus, FileText, LogOut, BarChart3 } from 'lucide-react';
+import { Users, UserPlus, FileText, LogOut, BarChart3, Building2 } from 'lucide-react';
 import { BeneficiaryRegistration } from './BeneficiaryRegistration';
 import { RegisteredBeneficiaries } from './RegisteredBeneficiaries';
 import { AssociationStats } from './AssociationStats';
+import { AssociationInfo } from './AssociationInfo';
 
-type TabType = 'stats' | 'register' | 'list';
+type TabType = 'stats' | 'register' | 'list' | 'info';
 
 export function AssociationDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('stats');
@@ -21,6 +22,7 @@ export function AssociationDashboard() {
 
   const tabs = [
     { id: 'stats' as TabType, label: 'Statistiques', icon: BarChart3 },
+    { id: 'info' as TabType, label: 'Informations', icon: Building2 },
     { id: 'register' as TabType, label: 'Enregistrer un bénéficiaire', icon: UserPlus },
     { id: 'list' as TabType, label: 'Mes bénéficiaires', icon: Users },
   ];
@@ -92,6 +94,7 @@ export function AssociationDashboard() {
       {/* Contenu principal */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'stats' && <AssociationStats />}
+        {activeTab === 'info' && <AssociationInfo />}
         {activeTab === 'register' && <BeneficiaryRegistration />}
         {activeTab === 'list' && <RegisteredBeneficiaries />}
       </main>

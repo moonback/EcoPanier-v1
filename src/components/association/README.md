@@ -8,7 +8,7 @@ L'espace association permet aux associations partenaires d'EcoPanier d'enregistr
 
 ### 1. Dashboard (`AssociationDashboard.tsx`)
 - Interface principale avec navigation par onglets
-- Accès aux statistiques, enregistrement et liste des bénéficiaires
+- Accès aux statistiques, informations, enregistrement et liste des bénéficiaires
 - Design cohérent avec le reste de l'application
 
 ### 2. Statistiques (`AssociationStats.tsx`)
@@ -17,7 +17,24 @@ L'espace association permet aux associations partenaires d'EcoPanier d'enregistr
 - **En attente de vérification** : Bénéficiaires non encore vérifiés
 - **Inscriptions ce mois** : Nombre d'enregistrements du mois en cours
 
-### 3. Enregistrement de bénéficiaires (`BeneficiaryRegistration.tsx`)
+### 3. Informations de l'association (`AssociationInfo.tsx`)
+Gestion complète des informations de l'association :
+- **Informations de l'association** :
+  - Nom de l'association (obligatoire)
+  - Adresse de l'association (obligatoire)
+  - Téléphone (optionnel)
+- **Informations du responsable** :
+  - Nom complet du responsable (obligatoire)
+  - Email (lecture seule, géré par l'authentification)
+  - Adresse personnelle du responsable (optionnel)
+- **Fonctionnalités** :
+  - Formulaire de modification en temps réel
+  - Messages de confirmation et d'erreur
+  - Bouton de réinitialisation
+  - Validation côté client et serveur
+  - Mise à jour automatique du profil dans le store
+
+### 4. Enregistrement de bénéficiaires (`BeneficiaryRegistration.tsx`)
 Formulaire complet pour créer un nouveau compte bénéficiaire :
 - **Informations personnelles** :
   - Nom complet (obligatoire)
@@ -36,7 +53,7 @@ Formulaire complet pour créer un nouveau compte bénéficiaire :
 4. Enregistrement de la liaison association-bénéficiaire
 5. Email de confirmation envoyé au bénéficiaire
 
-### 4. Gestion des bénéficiaires (`RegisteredBeneficiaries.tsx`)
+### 5. Gestion des bénéficiaires (`RegisteredBeneficiaries.tsx`)
 Liste complète des bénéficiaires enregistrés avec :
 - **Affichage** :
   - Carte pour chaque bénéficiaire
@@ -105,10 +122,16 @@ L'association peut créer des comptes bénéficiaires qui :
 
 ### Icônes
 - Association : `FileText` (🏛️)
+- Informations : `Building2` (🏢)
 - Utilisateur : `User`
 - Statistiques : `BarChart3`
 - Enregistrement : `UserPlus`
 - Liste : `Users`
+- Téléphone : `Phone`
+- Adresse : `MapPin`
+- Email : `Mail`
+- Sauvegarder : `Save`
+- Alerte : `AlertCircle`
 
 ## Sécurité
 
