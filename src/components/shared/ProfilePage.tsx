@@ -229,36 +229,42 @@ export const ProfilePage = () => {
     <div className="max-w-4xl mx-auto">
       {/* Success Message */}
       {success && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
-          {success}
+        <div className="mb-6 p-4 bg-success-50 border-2 border-success-200 rounded-xl">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">✅</span>
+            <p className="text-success-800 font-semibold flex-1">{success}</p>
+          </div>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
-          ⚠️ {error}
+        <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">⚠️</span>
+            <p className="text-red-700 font-semibold flex-1">{error}</p>
+          </div>
         </div>
       )}
 
       {/* Header Section - Minimalist */}
       <div className="mb-8">
         <div className="flex items-center gap-6 mb-6">
-          <div className="w-20 h-20 bg-gradient-to-br from-gray-900 to-black rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+          <div className="w-24 h-24 bg-gradient-to-br from-primary-600 via-secondary-600 to-accent-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-xl">
             {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {profile?.full_name || 'Utilisateur'}
             </h1>
-            <div className="flex items-center gap-3">
-              <span className="px-3 py-1 bg-gray-900 text-white text-sm rounded-full font-medium">
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="px-4 py-1.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white text-sm rounded-full font-semibold shadow-md">
                 {getRoleLabel()}
               </span>
               {profile?.verified && (
-                <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full font-medium flex items-center gap-1">
-                  <Shield size={12} />
-                  Vérifié
+                <span className="px-3 py-1.5 bg-success-50 text-success-700 text-sm rounded-full font-semibold flex items-center gap-1.5 border-2 border-success-200">
+                  <Shield size={14} strokeWidth={2} />
+                  <span>✓ Vérifié</span>
                 </span>
               )}
             </div>
@@ -266,9 +272,9 @@ export const ProfilePage = () => {
           {!isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+              className="p-3 border-2 border-gray-200 rounded-xl hover:bg-primary-50 hover:border-primary-300 transition-all group"
             >
-              <Edit2 size={20} strokeWidth={1.5} />
+              <Edit2 size={20} strokeWidth={2} className="group-hover:text-primary-600 transition-colors" />
             </button>
           )}
         </div>
@@ -278,17 +284,24 @@ export const ProfilePage = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {roleStats.slice(0, 4).map((stat, index) => {
               const Icon = stat.icon;
+              const colors = {
+                primary: 'from-primary-500 to-primary-600',
+                success: 'from-success-500 to-success-600',
+                accent: 'from-accent-500 to-accent-600',
+                secondary: 'from-secondary-500 to-secondary-600',
+                warning: 'from-warning-500 to-warning-600',
+              };
               return (
-                <div key={index} className="bg-white p-4 rounded-xl border border-gray-100">
+                <div key={index} className="group bg-white p-5 rounded-2xl border-2 border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Icon size={16} strokeWidth={1.5} />
+                    <div className={`w-10 h-10 bg-gradient-to-br ${colors[stat.color as keyof typeof colors]} rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+                      <Icon size={18} strokeWidth={2} className="text-white" />
                     </div>
-                    <div>
-                      <div className="text-lg font-bold text-gray-900">
+                    <div className="flex-1">
+                      <div className="text-2xl font-bold text-gray-900">
                         {stat.value}
                       </div>
-                      <div className="text-xs text-gray-600 font-light">
+                      <div className="text-xs text-gray-600 font-semibold">
                         {stat.label}
                       </div>
                     </div>
@@ -301,25 +314,33 @@ export const ProfilePage = () => {
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border-2 border-gray-100 overflow-hidden shadow-lg">
         {/* Header */}
-        <div className="px-8 py-6 border-b border-gray-100">
+        <div className="px-8 py-6 border-b-2 border-gray-100 bg-gradient-to-r from-white to-primary-50">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">
-              Informations personnelles
-            </h2>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl">
+                <User size={20} className="text-white" strokeWidth={2} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Informations personnelles
+                </h2>
+                <p className="text-xs text-gray-600">Gérez vos informations</p>
+              </div>
+            </div>
             {isEditing && (
               <div className="flex gap-3">
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                  className="px-5 py-2 text-gray-700 hover:bg-white border-2 border-gray-200 rounded-xl transition-all font-semibold"
                   disabled={loading}
                 >
                   Annuler
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  className="px-6 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all flex items-center gap-2 font-semibold shadow-lg"
                   disabled={loading}
                 >
                   {loading ? (
@@ -329,7 +350,7 @@ export const ProfilePage = () => {
                     </>
                   ) : (
                     <>
-                      <Save size={16} />
+                      <Save size={16} strokeWidth={2} />
                       <span>Enregistrer</span>
                     </>
                   )}
@@ -353,7 +374,7 @@ export const ProfilePage = () => {
                   type="text"
                   value={formData.full_name}
                   onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
                   placeholder="Jean Dupont"
                   required
                 />
@@ -382,7 +403,7 @@ export const ProfilePage = () => {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
                     placeholder="06 12 34 56 78"
                   />
                 </div>
@@ -394,7 +415,7 @@ export const ProfilePage = () => {
                     type="text"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
                     placeholder="12 rue de Paris, 75001 Paris"
                   />
                 </div>
@@ -411,7 +432,7 @@ export const ProfilePage = () => {
                       type="text"
                       value={formData.business_name}
                       onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
                       placeholder="Ma Boulangerie"
                     />
                   </div>
@@ -423,7 +444,7 @@ export const ProfilePage = () => {
                       type="text"
                       value={formData.business_address}
                       onChange={(e) => setFormData({ ...formData, business_address: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
                       placeholder="15 avenue de la République"
                     />
                   </div>
@@ -433,27 +454,27 @@ export const ProfilePage = () => {
           ) : (
             <div className="space-y-6">
               {/* Contact Information */}
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <User size={20} strokeWidth={1.5} />
+                  <div className="flex items-center gap-4 p-5 bg-gradient-to-br from-primary-50 to-white rounded-xl border-2 border-primary-100">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-md">
+                      <User size={20} strokeWidth={2} className="text-white" />
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-500">Nom complet</div>
-                      <div className="text-base font-semibold text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-gray-500 mb-1">Nom complet</div>
+                      <div className="text-base font-bold text-gray-900 truncate">
                         {profile?.full_name || 'Non renseigné'}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <Mail size={20} strokeWidth={1.5} />
+                  <div className="flex items-center gap-4 p-5 bg-gradient-to-br from-secondary-50 to-white rounded-xl border-2 border-secondary-100">
+                    <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
+                      <Mail size={20} strokeWidth={2} className="text-white" />
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-500">Email</div>
-                      <div className="text-base font-semibold text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-gray-500 mb-1">Email</div>
+                      <div className="text-base font-bold text-gray-900 truncate">
                         {user?.email || 'Non renseigné'}
                       </div>
                     </div>
@@ -461,25 +482,25 @@ export const ProfilePage = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <Phone size={20} strokeWidth={1.5} />
+                  <div className="flex items-center gap-4 p-5 bg-gradient-to-br from-success-50 to-white rounded-xl border-2 border-success-100">
+                    <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-success-600 rounded-xl flex items-center justify-center shadow-md">
+                      <Phone size={20} strokeWidth={2} className="text-white" />
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-500">Téléphone</div>
-                      <div className="text-base font-semibold text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-gray-500 mb-1">Téléphone</div>
+                      <div className="text-base font-bold text-gray-900 truncate">
                         {profile?.phone || 'Non renseigné'}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <MapPin size={20} strokeWidth={1.5} />
+                  <div className="flex items-center gap-4 p-5 bg-gradient-to-br from-warning-50 to-white rounded-xl border-2 border-warning-100">
+                    <div className="w-12 h-12 bg-gradient-to-br from-warning-500 to-warning-600 rounded-xl flex items-center justify-center shadow-md">
+                      <MapPin size={20} strokeWidth={2} className="text-white" />
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-500">Adresse</div>
-                      <div className="text-base font-semibold text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-gray-500 mb-1">Adresse</div>
+                      <div className="text-base font-bold text-gray-900 truncate">
                         {profile?.address || 'Non renseignée'}
                       </div>
                     </div>
@@ -529,24 +550,24 @@ export const ProfilePage = () => {
       {profile?.role === 'merchant' && (
         <>
           {/* Business Hours */}
-          <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-8">
+          <div className="mt-8 bg-white rounded-2xl border-2 border-gray-100 p-8 shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Clock size={20} strokeWidth={1.5} />
+                <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
+                  <Clock size={20} strokeWidth={2} className="text-white" />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Horaires d'ouverture</h2>
-                  <p className="text-sm text-gray-600">Gérez vos horaires d'ouverture</p>
+                  <p className="text-sm text-gray-600">Informez vos clients de vos horaires</p>
                 </div>
               </div>
               {!isEditingHours && (
                 <button
                   onClick={() => setIsEditingHours(true)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  className="px-5 py-2 border-2 border-gray-200 rounded-xl hover:bg-secondary-50 hover:border-secondary-300 transition-all flex items-center gap-2 font-semibold group"
                 >
-                  <Edit2 size={16} />
-                  <span>{businessHours ? 'Modifier' : 'Définir'} les horaires</span>
+                  <Edit2 size={16} strokeWidth={2} className="group-hover:text-secondary-600 transition-colors" />
+                  <span className="group-hover:text-secondary-600 transition-colors">{businessHours ? 'Modifier' : 'Définir'}</span>
                 </button>
               )}
             </div>
@@ -632,29 +653,42 @@ export const ProfilePage = () => {
         </div>
 
         {/* Danger Zone */}
-        <div className="bg-white rounded-2xl border-2 border-red-200 p-8">
-          <h2 className="text-xl font-bold text-red-600 mb-6 flex items-center gap-2">
-            <Shield size={20} />
-            Zone de danger
-          </h2>
+        <div className="bg-white rounded-2xl border-2 border-red-200 p-8 shadow-lg">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-red-100 rounded-xl">
+              <Shield size={20} strokeWidth={2} className="text-red-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-red-600">
+                Zone de danger
+              </h2>
+              <p className="text-sm text-gray-600">Actions sensibles sur votre compte</p>
+            </div>
+          </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-200">
-              <div>
-                <div className="font-medium text-gray-900">Changer le mot de passe</div>
-                <div className="text-sm text-gray-600">Modifier votre mot de passe</div>
+            <div className="flex items-center justify-between p-5 bg-gradient-to-br from-warning-50 to-white rounded-xl border-2 border-warning-200">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🔑</span>
+                <div>
+                  <div className="font-semibold text-gray-900">Changer le mot de passe</div>
+                  <div className="text-sm text-gray-600">Modifier votre mot de passe</div>
+                </div>
               </div>
-              <button className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+              <button className="px-5 py-2 border-2 border-warning-300 text-warning-700 rounded-xl hover:bg-warning-50 transition-all font-semibold">
                 Modifier
               </button>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-200">
-              <div>
-                <div className="font-medium text-red-600">Supprimer le compte</div>
-                <div className="text-sm text-gray-600">Action irréversible</div>
+            <div className="flex items-center justify-between p-5 bg-gradient-to-br from-red-50 to-white rounded-xl border-2 border-red-300">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <div className="font-semibold text-red-600">Supprimer le compte</div>
+                  <div className="text-sm text-gray-600">Action irréversible</div>
+                </div>
               </div>
-              <button className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+              <button className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-semibold shadow-lg">
                 Supprimer
               </button>
             </div>
