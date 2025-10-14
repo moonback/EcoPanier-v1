@@ -48,7 +48,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           beneficiary_id: null,
           verified: false,
         });
-        setSuccess('Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte avant de vous connecter.');
+        setSuccess('🎉 Félicitations ! Votre compte a été créé avec succès. Vérifiez votre email pour activer votre compte et commencer à sauver des paniers !');
         setLoading(false);
       }
     } catch (err) {
@@ -81,8 +81,13 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
             className="w-32 mx-auto mb-4 rounded-lg shadow-lg bg-white object-contain"
             draggable={false}
           />
-          <p className="text-sm text-gray-600 font-light text-center">
-            {mode === 'signin' ? 'Connectez-vous à votre compte' : 'Créez votre compte'}
+          <h2 className="text-2xl font-bold text-black mb-2">
+            {mode === 'signin' ? 'Bon retour parmi nous ! 👋' : 'Rejoignez l\'aventure ! 🌍'}
+          </h2>
+          <p className="text-sm text-gray-600 font-light">
+            {mode === 'signin' 
+              ? 'Connectez-vous pour continuer à sauver des paniers' 
+              : 'Créez votre compte en 2 minutes et faites la différence'}
           </p>
         </div>
 
@@ -124,75 +129,87 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           {mode === 'signup' && (
             <div>
               <label className="block text-sm font-medium text-black mb-3">
-                Type de compte
+                Quel est votre profil ? 🎯
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {/* Client */}
                 <button
                   type="button"
                   onClick={() => setRole('customer')}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
                     role === 'customer'
-                      ? 'border-black bg-black text-white'
-                      : 'border-gray-300 bg-white text-black hover:border-gray-400'
+                      ? 'border-primary-600 bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-lg'
+                      : 'border-gray-200 bg-white text-black hover:border-primary-300 hover:shadow-md'
                   }`}
                 >
-                  <ShoppingCart className="mb-2" size={24} strokeWidth={1.5} />
-                  <div className="font-medium text-sm">Client</div>
-                  <div className={`text-xs mt-1 ${role === 'customer' ? 'text-gray-300' : 'text-gray-500'}`}>
-                    Acheter des lots
+                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'customer' ? 'bg-white/20' : 'bg-primary-50'}`}>
+                    <ShoppingCart size={20} strokeWidth={2} className={role === 'customer' ? 'text-white' : 'text-primary-600'} />
                   </div>
+                  <div className="font-semibold text-sm">🛒 Client</div>
+                  <div className={`text-xs mt-1 ${role === 'customer' ? 'text-white/80' : 'text-gray-500'}`}>
+                    Économiser -70%
+                  </div>
+                  {role === 'customer' && <span className="absolute top-2 right-2 text-xs">✓</span>}
                 </button>
 
                 {/* Commerçant */}
                 <button
                   type="button"
                   onClick={() => setRole('merchant')}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
                     role === 'merchant'
-                      ? 'border-black bg-black text-white'
-                      : 'border-gray-300 bg-white text-black hover:border-gray-400'
+                      ? 'border-secondary-600 bg-gradient-to-br from-secondary-600 to-secondary-700 text-white shadow-lg'
+                      : 'border-gray-200 bg-white text-black hover:border-secondary-300 hover:shadow-md'
                   }`}
                 >
-                  <Store className="mb-2" size={24} strokeWidth={1.5} />
-                  <div className="font-medium text-sm">Commerçant</div>
-                  <div className={`text-xs mt-1 ${role === 'merchant' ? 'text-gray-300' : 'text-gray-500'}`}>
-                    Vendre invendus
+                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'merchant' ? 'bg-white/20' : 'bg-secondary-50'}`}>
+                    <Store size={20} strokeWidth={2} className={role === 'merchant' ? 'text-white' : 'text-secondary-600'} />
                   </div>
+                  <div className="font-semibold text-sm">🏪 Commerçant</div>
+                  <div className={`text-xs mt-1 ${role === 'merchant' ? 'text-white/80' : 'text-gray-500'}`}>
+                    Valoriser invendus
+                  </div>
+                  {role === 'merchant' && <span className="absolute top-2 right-2 text-xs">✓</span>}
                 </button>
 
                 {/* Bénéficiaire */}
                 <button
                   type="button"
                   onClick={() => setRole('beneficiary')}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
                     role === 'beneficiary'
-                      ? 'border-black bg-black text-white'
-                      : 'border-gray-300 bg-white text-black hover:border-gray-400'
+                      ? 'border-accent-600 bg-gradient-to-br from-accent-600 to-accent-700 text-white shadow-lg'
+                      : 'border-gray-200 bg-white text-black hover:border-accent-300 hover:shadow-md'
                   }`}
                 >
-                  <Heart className="mb-2" size={24} strokeWidth={1.5} />
-                  <div className="font-medium text-sm">Bénéficiaire</div>
-                  <div className={`text-xs mt-1 ${role === 'beneficiary' ? 'text-gray-300' : 'text-gray-500'}`}>
-                    Aide alimentaire
+                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'beneficiary' ? 'bg-white/20' : 'bg-accent-50'}`}>
+                    <Heart size={20} strokeWidth={2} className={role === 'beneficiary' ? 'text-white' : 'text-accent-600'} />
                   </div>
+                  <div className="font-semibold text-sm">🤝 Bénéficiaire</div>
+                  <div className={`text-xs mt-1 ${role === 'beneficiary' ? 'text-white/80' : 'text-gray-500'}`}>
+                    Aide gratuite
+                  </div>
+                  {role === 'beneficiary' && <span className="absolute top-2 right-2 text-xs">✓</span>}
                 </button>
 
                 {/* Collecteur */}
                 <button
                   type="button"
                   onClick={() => setRole('collector')}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
+                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
                     role === 'collector'
-                      ? 'border-black bg-black text-white'
-                      : 'border-gray-300 bg-white text-black hover:border-gray-400'
+                      ? 'border-success-600 bg-gradient-to-br from-success-600 to-success-700 text-white shadow-lg'
+                      : 'border-gray-200 bg-white text-black hover:border-success-300 hover:shadow-md'
                   }`}
                 >
-                  <Truck className="mb-2" size={24} strokeWidth={1.5} />
-                  <div className="font-medium text-sm">Collecteur</div>
-                  <div className={`text-xs mt-1 ${role === 'collector' ? 'text-gray-300' : 'text-gray-500'}`}>
-                    Livraisons
+                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'collector' ? 'bg-white/20' : 'bg-success-50'}`}>
+                    <Truck size={20} strokeWidth={2} className={role === 'collector' ? 'text-white' : 'text-success-600'} />
                   </div>
+                  <div className="font-semibold text-sm">🚴 Collecteur</div>
+                  <div className={`text-xs mt-1 ${role === 'collector' ? 'text-white/80' : 'text-gray-500'}`}>
+                    Revenus flexibles
+                  </div>
+                  {role === 'collector' && <span className="absolute top-2 right-2 text-xs">✓</span>}
                 </button>
               </div>
             </div>
@@ -208,8 +225,8 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-black focus:ring-2 focus:ring-gray-200 transition-all outline-none font-light"
-                placeholder="votre@email.fr"
+                className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                placeholder="votre@email.com"
                 required
               />
             </div>
@@ -225,8 +242,8 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-black focus:ring-2 focus:ring-gray-200 transition-all outline-none font-light"
-                placeholder="Minimum 6 caractères"
+                className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                placeholder="••••••••"
                 required
                 minLength={6}
               />
@@ -245,7 +262,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-black focus:ring-2 focus:ring-gray-200 transition-all outline-none font-light"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
                     placeholder="Jean Dupont"
                     required
                   />
@@ -262,7 +279,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-black focus:ring-2 focus:ring-gray-200 transition-all outline-none font-light"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
                     placeholder="06 12 34 56 78"
                   />
                 </div>
@@ -278,7 +295,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     type="text"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-black focus:ring-2 focus:ring-gray-200 transition-all outline-none font-light"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
                     placeholder="12 rue de Paris, 75001"
                   />
                 </div>
@@ -286,10 +303,12 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
 
               {role === 'merchant' && (
                 <div className="space-y-4 pt-4 border-t border-gray-200">
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-black font-medium">
-                      Informations du commerce
+                  <div className="p-3 bg-gradient-to-r from-secondary-50 to-primary-50 rounded-xl border border-secondary-100">
+                    <p className="text-sm text-black font-semibold flex items-center gap-2">
+                      <span>🏪</span>
+                      <span>Informations de votre commerce</span>
                     </p>
+                    <p className="text-xs text-gray-600 mt-1">Pour créer vos premiers lots d'invendus</p>
                   </div>
                   
                   <div>
@@ -302,7 +321,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         type="text"
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-black focus:ring-2 focus:ring-gray-200 transition-all outline-none font-light"
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
                         placeholder="Ma Boulangerie"
                         required
                       />
@@ -319,7 +338,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         type="text"
                         value={businessAddress}
                         onChange={(e) => setBusinessAddress(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-black focus:ring-2 focus:ring-gray-200 transition-all outline-none font-light"
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
                         placeholder="15 avenue de la République"
                         required
                       />
@@ -331,21 +350,27 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           )}
 
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800 font-light">{error}</p>
+            <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+              <div className="flex items-start gap-3">
+                <span className="text-lg">⚠️</span>
+                <p className="text-sm text-red-800 font-light flex-1">{error}</p>
+              </div>
             </div>
           )}
 
           {success && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800 font-light">{success}</p>
+            <div className="p-4 bg-success-50 border-2 border-success-200 rounded-xl">
+              <div className="flex items-start gap-3">
+                <span className="text-lg">✅</span>
+                <p className="text-sm text-success-800 font-light flex-1">{success}</p>
+              </div>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-lg font-medium text-base transition-all focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed bg-black text-white hover:bg-gray-900 focus:ring-gray-200 mt-2"
+            className="w-full py-4 rounded-xl font-semibold text-base transition-all focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 focus:ring-primary-100 mt-2 shadow-lg hover:shadow-xl"
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
@@ -353,9 +378,15 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 <span>Chargement...</span>
               </div>
             ) : mode === 'signin' ? (
-              'Se connecter'
+              <span className="flex items-center justify-center gap-2">
+                <span>Se connecter</span>
+                <span>→</span>
+              </span>
             ) : (
-              'S\'inscrire'
+              <span className="flex items-center justify-center gap-2">
+                <span>Créer mon compte gratuitement</span>
+                <span>🚀</span>
+              </span>
             )}
           </button>
         </form>
@@ -375,11 +406,30 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           </button>
         </div>
 
-        {/* Info sécurité */}
-        <div className="mt-6 p-3 bg-gray-50 rounded-lg">
-          <p className="text-xs text-center text-gray-600 font-light">
-            Vos données sont sécurisées
-          </p>
+        {/* Info sécurité et avantages */}
+        <div className="mt-6 space-y-3">
+          <div className="p-3 bg-primary-50 rounded-xl border border-primary-100">
+            <p className="text-xs text-center text-primary-700 font-medium flex items-center justify-center gap-2">
+              <span>🔒</span>
+              <span>Données 100% sécurisées et cryptées</span>
+            </p>
+          </div>
+          {mode === 'signup' && (
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <div className="text-xs font-semibold text-primary-600">Gratuit</div>
+                <div className="text-[10px] text-gray-500">0€ / mois</div>
+              </div>
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <div className="text-xs font-semibold text-success-600">2 min</div>
+                <div className="text-[10px] text-gray-500">Inscription</div>
+              </div>
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <div className="text-xs font-semibold text-secondary-600">10k+</div>
+                <div className="text-[10px] text-gray-500">Utilisateurs</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

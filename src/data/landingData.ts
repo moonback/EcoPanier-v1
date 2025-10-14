@@ -124,21 +124,21 @@ export const howItWorks: HowItWorksStep[] = [
 
 export const testimonials: Testimonial[] = [
   {
-    name: 'Marie L.',
-    role: 'Cliente',
-    text: 'Grâce à cette plateforme, j\'économise 50€ par mois tout en aidant mon quartier. Une initiative magnifique !',
+    name: 'Marie Laurent',
+    role: 'Cliente depuis 6 mois • Nantes',
+    text: 'Chaque semaine, je récupère 2-3 paniers surprises de ma boulangerie préférée. J\'ai économisé plus de 300€ en 6 mois et je mange mieux ! En plus, je sais que j\'aide des familles du quartier. C\'est devenu un réflexe pour moi.',
     avatar: '/testimonial/testimonials-1.png',
   },
   {
-    name: 'Pierre D.',
-    role: 'Commerçant',
-    text: 'Fini le gaspillage ! Je valorise mes invendus et je participe à une action solidaire. Bravo !',
+    name: 'Pierre Dubois',
+    role: 'Boulanger-Pâtissier • Lyon',
+    text: 'Avant, je jetais 10-15kg de pain et viennoiseries par jour. Ça me brisait le cœur. Aujourd\'hui, tout est valorisé via ÉcoPanier. Mes clients adorent l\'initiative et je touche un nouveau public. C\'est gagnant-gagnant !',
     avatar: '/testimonial/testimonials-2.png',
   },
   {
-    name: 'Association Entraide',
-    role: 'Bénéficiaire',
-    text: 'Le programme d\'aide alimentaire solidaire permet à nos bénéficiaires d\'accéder à 2 lots par jour de produits frais dans la dignité.',
+    name: 'Sophie Martin',
+    role: 'Coordinatrice • Association Entraide Paris 18',
+    text: 'Le programme solidaire d\'ÉcoPanier a changé la donne pour nos bénéficiaires. Ils accèdent à des produits frais de qualité, pas à des restes. Le système de QR code préserve leur dignité. C\'est de l\'aide alimentaire réinventée.',
     avatar: '/testimonial/testimonials-3.png',
   },
 ];
@@ -148,13 +148,13 @@ export const userProfiles: UserProfile[] = [
     icon: ShoppingBag,
     title: 'Clients',
     subtitle: 'Consommateurs responsables',
-    description: 'Vous souhaitez réduire votre budget courses tout en agissant pour la planète',
+    description: 'Faites vos courses autrement : des produits frais de qualité jusqu\'à -70%, tout en sauvant la planète, un panier à la fois.',
     benefits: [
-      'Économisez jusqu\'à 70% sur vos courses',
-      'Produits frais et de qualité garantis',
-      'Participez à la lutte anti-gaspillage',
-      'Récupération facile avec QR code',
-      'Suivez votre impact environnemental'
+      '💰 Jusqu\'à 70% d\'économies sur vos courses quotidiennes',
+      '✨ Produits frais et de qualité, sélectionnés par vos commerçants',
+      '🌍 Réduisez votre empreinte carbone : 0.9kg CO₂ évité par repas',
+      '📱 Récupération ultra-simple avec votre QR code',
+      '📊 Suivez votre impact réel sur l\'environnement'
     ],
     color: 'primary',
     emoji: '🛒'
@@ -163,13 +163,13 @@ export const userProfiles: UserProfile[] = [
     icon: Package,
     title: 'Commerçants',
     subtitle: 'Artisans & Commerces locaux',
-    description: 'Valorisez vos invendus au lieu de les jeter, tout en augmentant vos revenus',
+    description: 'Transformez vos invendus en revenus et en fierté. Valorisez votre engagement local tout en réduisant vos pertes.',
     benefits: [
-      'Réduisez vos pertes financières',
-      'Participez au programme d\'aide alimentaire',
-      'Améliorez votre image de marque',
-      'Gestion simple et rapide des lots',
-      'Statistiques de vente détaillées'
+      '💵 Récupérez jusqu\'à 30% du prix initial de vos invendus',
+      '🤝 Renforcez votre ancrage local et votre image responsable',
+      '⚡ Gestion simplifiée : créez un lot en 2 minutes',
+      '📈 Tableau de bord avec statistiques en temps réel',
+      '❤️ Participez au programme solidaire de votre quartier'
     ],
     color: 'secondary',
     emoji: '🏪'
@@ -178,13 +178,13 @@ export const userProfiles: UserProfile[] = [
     icon: Heart,
     title: 'Bénéficiaires',
     subtitle: 'Personnes en situation de précarité',
-    description: 'Accédez au programme d\'aide alimentaire solidaire dans le respect et la dignité',
+    description: 'Accédez à de bons produits frais chaque jour, gratuitement et en toute dignité, grâce à la solidarité de votre quartier.',
     benefits: [
-      '2 lots d\'aide alimentaire par jour maximum',
-      'Programme solidaire financé par les commerçants',
-      'Produits frais et de qualité garantie',
-      'Retrait simple avec QR code',
-      'Accompagnement par les associations'
+      '🎁 Jusqu\'à 2 paniers gratuits par jour de produits frais',
+      '🏪 Soutenus par les commerçants de votre quartier',
+      '✨ Produits de qualité, même fraîcheur que pour tous',
+      '📱 Retrait simple et discret avec votre QR code',
+      '🤗 Accompagnement bienveillant par les associations'
     ],
     color: 'accent',
     emoji: '🤝'
@@ -193,13 +193,13 @@ export const userProfiles: UserProfile[] = [
     icon: MapPin,
     title: 'Collecteurs',
     subtitle: 'Livreurs solidaires',
-    description: 'Gagnez un revenu complémentaire en effectuant des livraisons solidaires',
+    description: 'Gagnez un complément de revenu flexible tout en participant à une mission solidaire qui a du sens.',
     benefits: [
-      'Missions flexibles près de chez vous',
-      'Rémunération immédiate',
-      'Participez à une action solidaire',
-      'Planning adaptable',
-      'Suivi de vos missions en temps réel'
+      '💸 Rémunération immédiate après chaque mission',
+      '📍 Missions proches de chez vous, choisissez votre zone',
+      '⏰ Planning 100% flexible, vous décidez quand',
+      '🌱 Agissez concrètement contre le gaspillage',
+      '📲 Application simple pour gérer vos livraisons'
     ],
     color: 'success',
     emoji: '🚴'
@@ -209,29 +209,29 @@ export const userProfiles: UserProfile[] = [
 export const whyReasons: WhyReason[] = [
   {
     icon: Leaf,
-    title: 'Impact Environnemental',
-    description: 'La production alimentaire représente 30% des émissions de CO₂ mondiales. Sauver un repas, c\'est éviter 0.9kg de CO₂.',
+    title: 'Pour la Planète',
+    description: 'Chaque année, un tiers de la production alimentaire mondiale finit à la poubelle. C\'est un non-sens écologique et économique. Avec ÉcoPanier, chaque repas sauvé évite 0.9kg de CO₂ dans l\'atmosphère. Ensemble, nous avons déjà sauvé l\'équivalent de 15 tonnes de CO₂.',
     stats: '15 tonnes de CO₂ évitées',
     color: 'success'
   },
   {
     icon: Heart,
-    title: 'Solidarité Sociale',
-    description: 'En France, 1 personne sur 10 a recours à l\'aide alimentaire. Notre programme solidaire (2 lots/jour max) offre une aide digne et respectueuse.',
+    title: 'Pour Nos Voisins',
+    description: 'En France, 1 personne sur 10 dépend de l\'aide alimentaire. Notre mission : créer un cercle vertueux où chaque panier vendu finance un panier solidaire. Les bénéficiaires accèdent à de bons produits frais, en toute dignité, jusqu\'à 2 fois par jour.',
     stats: '5,000+ personnes aidées',
     color: 'accent'
   },
   {
     icon: DollarSign,
-    title: 'Économies Réelles',
-    description: 'Les invendus sont proposés jusqu\'à -70%. Un foyer moyen économise jusqu\'à 100€/mois en utilisant notre plateforme.',
-    stats: '100,000€+ économisés',
+    title: 'Pour Votre Portefeuille',
+    description: 'Manger mieux sans se ruiner, c\'est possible. Nos utilisateurs économisent en moyenne 100€ par mois sur leurs courses alimentaires, tout en découvrant de nouveaux produits et commerces de leur quartier. Le tout sans compromis sur la qualité.',
+    stats: '100,000€+ économisés collectivement',
     color: 'warning'
   },
   {
     icon: Users,
-    title: 'Commerce Local',
-    description: 'Soutenez les artisans et commerçants de votre quartier. 100% de vos achats bénéficient directement aux commerces locaux.',
+    title: 'Pour Nos Commerçants',
+    description: 'Derrière chaque commerce, il y a une passion, un savoir-faire, des emplois. En valorisant les invendus plutôt que de les jeter, nous aidons nos artisans à limiter leurs pertes tout en renforçant leur ancrage local. C\'est bon pour eux, c\'est bon pour le quartier.',
     stats: '200+ commerces partenaires',
     color: 'primary'
   }

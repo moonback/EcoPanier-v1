@@ -24,24 +24,24 @@ export const FinalCTASection = () => {
         >
           
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight max-w-3xl mx-auto">
-            Prêt à faire la différence ?
+            Et vous, prêt à rejoindre l'aventure ?
           </h2>
-          <p className="text-xl text-white/70 mb-12 max-w-2xl mx-auto font-light">
-            Rejoignez des milliers d'utilisateurs qui agissent contre le gaspillage alimentaire
+          <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto font-light">
+            Des milliers de personnes comme vous ont déjà fait le premier pas. Chaque panier compte, chaque geste a un impact.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate('/dashboard')}
-              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-5 rounded-lg text-lg font-medium hover:bg-gray-100 transition-all"
+              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-5 rounded-lg text-lg font-medium hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
             >
-              <span>Commencer maintenant</span>
+              <span>Je trouve mon panier maintenant</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
               onClick={() => navigate('/how-it-works')}
               className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm text-white px-8 py-5 rounded-lg text-lg font-medium hover:bg-white/20 transition-all border border-white/20"
             >
-              En savoir plus
+              Découvrir comment ça marche
             </button>
           </div>
         </motion.div>

@@ -36,12 +36,12 @@ export const CustomerDashboard = () => {
 
   // Configuration des onglets
   const tabs = [
-    { id: 'browse' as TabId, label: 'Parcourir', icon: ShoppingBag },
-    { id: 'map' as TabId, label: 'Carte', icon: MapPin },
-    { id: 'reservations' as TabId, label: 'Mes réservations', icon: History },
-    { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp },
-    { id: 'qrcode' as TabId, label: 'Mon QR Code', icon: QrCode },
-    { id: 'profile' as TabId, label: 'Mon profil', icon: User },
+    { id: 'browse' as TabId, label: 'Découvrir', icon: ShoppingBag, emoji: '🛒' },
+    { id: 'map' as TabId, label: 'Carte', icon: MapPin, emoji: '🗺️' },
+    { id: 'reservations' as TabId, label: 'Mes paniers', icon: History, emoji: '📦' },
+    { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp, emoji: '🌍' },
+    { id: 'qrcode' as TabId, label: 'QR Code', icon: QrCode, emoji: '📱' },
+    { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
 
   // Render principal
@@ -53,10 +53,10 @@ export const CustomerDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <h1 className="text-xl font-bold text-black">
-                Espace Client
+                👋 Bonjour {profile?.full_name?.split(' ')[0] || 'Client'} !
               </h1>
               <p className="text-sm text-gray-600 font-light mt-0.5">
-                {profile?.full_name}
+                Prêt à sauver des paniers aujourd'hui ?
               </p>
             </div>
 
@@ -103,24 +103,29 @@ export const CustomerDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
+                  className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
                     isActive
-                      ? 'text-black'
-                      : 'text-gray-500 hover:text-black'
+                      ? 'text-primary-600'
+                      : 'text-gray-500 hover:text-gray-700'
                   }`}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon
-                    size={20}
-                    strokeWidth={isActive ? 2 : 1.5}
-                  />
+                  {isActive && (
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-b-full" />
+                  )}
+                  <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
+                    <Icon
+                      size={20}
+                      strokeWidth={isActive ? 2.5 : 1.5}
+                    />
+                  </div>
                   <span
                     className={`text-[10px] transition-all ${
-                      isActive ? 'font-semibold' : 'font-light'
+                      isActive ? 'font-bold' : 'font-light'
                     }`}
                   >
-                    {tab.label.replace('Mes ', '').replace('Mon ', '')}
+                    {tab.label}
                   </span>
                 </button>
               );

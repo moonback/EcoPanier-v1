@@ -7,8 +7,11 @@ import {
   SuspendedBasketsSection,
   UserProfilesSection,
   WhySection,
+  BasketJourneySection,
+  MerchantHeroesSection,
   FeaturesSection,
   HowItWorksSection,
+  ImpactCalculatorSection,
   TestimonialsSection,
   ImpactStatsSection,
   FAQSection,
@@ -19,9 +22,9 @@ export const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white overflow-hidden">
       <SEOHead
-        title="EcoPanier - Plateforme Solidaire Anti-gaspillage Alimentaire | Sauvez la Planète"
-        description="EcoPanier connecte commerçants et consommateurs pour lutter contre le gaspillage alimentaire. Achetez des lots d'invendus à prix réduits, offrez des paniers suspendus et participez à la solidarité alimentaire."
-        keywords="anti-gaspillage, alimentaire, solidarité, panier suspendu, invendus, écologie, développement durable, commerce local, économie circulaire, France"
+        title="ÉcoPanier - Mangez Mieux, Dépensez Moins, Sauvez la Planète | Anti-Gaspillage Alimentaire"
+        description="Découvrez des paniers surprises de vos commerçants locaux jusqu'à -70%. Économisez sur vos courses, réduisez le gaspillage et aidez les personnes en difficulté. Rejoignez le mouvement anti-gaspi !"
+        keywords="anti-gaspillage alimentaire, économies courses, invendus pas cher, commerce local, solidarité alimentaire, paniers suspendus, réduction gaspillage, produits frais, développement durable, économie circulaire France"
         url="https://ecopanier.fr"
       />
       <Header transparent />
@@ -41,11 +44,20 @@ export const LandingPage = () => {
       {/* Section Pourquoi ? - Triple impact */}
       <WhySection />
       
+      {/* Section Histoire d'un panier sauvé - Storytelling */}
+      <BasketJourneySection />
+      
+      {/* Section Nos Commerçants Héros */}
+      <MerchantHeroesSection />
+      
       {/* Section Features */}
       <FeaturesSection />
       
       {/* Section Comment ça marche ? */}
       <HowItWorksSection />
+      
+      {/* Section Calculateur d'impact */}
+      <ImpactCalculatorSection />
       
       {/* Section Témoignages */}
       <TestimonialsSection />

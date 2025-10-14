@@ -145,16 +145,21 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
 
   if (dailyCount >= 2) {
     return (
-      <div className="text-center py-8 sm:py-12 px-4">
-        <Heart size={48} className="sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
-          Limite quotidienne atteinte
+      <div className="text-center py-16">
+        <div className="inline-flex p-6 bg-gradient-to-br from-success-50 to-accent-50 rounded-full mb-6">
+          <Heart size={64} className="text-success-500" strokeWidth={1} />
+        </div>
+        <h3 className="text-2xl font-bold text-black mb-3">
+          Vous avez vos 2 paniers du jour ! 🎉
         </h3>
-        <p className="text-sm sm:text-base text-gray-600">
-          Vous avez atteint votre limite de 2 réservations pour aujourd'hui.
-          <br className="hidden sm:block" />
-          <span className="block sm:inline mt-1 sm:mt-0"> Revenez demain pour plus de dons!</span>
+        <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed font-light">
+          Vous avez atteint votre limite quotidienne de 2 paniers solidaires.
+          Revenez demain pour découvrir de nouveaux paniers gratuits ! 🌅
         </p>
+        <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-success-100 to-accent-100 text-success-800 rounded-xl border-2 border-success-200 font-semibold">
+          <span>✅</span>
+          <span>Rendez-vous demain !</span>
+        </div>
       </div>
     );
   }
@@ -162,15 +167,15 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
   return (
     <div>
       {/* Bouton de filtre compact */}
-      <div className="mb-4 sm:mb-6 flex items-center justify-between gap-3">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <button
           onClick={() => setShowFilterModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-200 hover:border-pink-300 font-medium text-sm"
+          className="group flex items-center gap-2 px-5 py-3 bg-white text-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-all border-2 border-gray-200 hover:border-accent-300 font-semibold"
         >
-          <Filter size={18} />
-          <span>Filtrer par catégorie</span>
+          <Filter size={18} strokeWidth={2} className="group-hover:text-accent-600 transition-colors" />
+          <span className="group-hover:text-accent-600 transition-colors">Filtrer</span>
           {selectedCategory && (
-            <span className="ml-1 px-2 py-0.5 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold">
+            <span className="ml-1 px-2.5 py-0.5 bg-gradient-to-r from-accent-100 to-pink-100 text-accent-700 rounded-full text-xs font-bold border border-accent-200">
               1
             </span>
           )}
@@ -179,9 +184,9 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
         {selectedCategory && (
           <button
             onClick={() => setSelectedCategory('')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all text-sm font-medium"
+            className="flex items-center gap-1.5 px-4 py-3 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 border-2 border-gray-200 transition-all font-medium"
           >
-            <X size={16} />
+            <X size={16} strokeWidth={2} />
             <span className="hidden sm:inline">Réinitialiser</span>
           </button>
         )}
@@ -198,9 +203,25 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
       )}
 
       {lots.length === 0 ? (
-        <div className="text-center py-8 sm:py-12 px-4">
-          <Package size={48} className="sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-sm sm:text-base text-gray-600">Aucun lot d'aide alimentaire disponible pour le moment</p>
+        <div className="text-center py-16">
+          <div className="inline-flex p-6 bg-gray-50 rounded-full mb-6">
+            <Package size={64} className="text-gray-300" strokeWidth={1} />
+          </div>
+          <h3 className="text-2xl font-bold text-black mb-3">
+            Aucun panier disponible pour le moment 🔍
+          </h3>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
+            De nouveaux paniers solidaires gratuits sont ajoutés régulièrement. 
+            Revenez bientôt ou modifiez vos filtres ! ⏰
+          </p>
+          {selectedCategory && (
+            <button
+              onClick={() => setSelectedCategory('')}
+              className="px-6 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl font-semibold hover:from-accent-700 hover:to-accent-800 transition-all shadow-lg"
+            >
+              Voir tous les paniers
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -210,9 +231,9 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
             return (
               <div
                 key={lot.id}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all hover-lift"
+                className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all border-2 border-gray-100 hover:border-accent-200"
               >
-                <div className="relative h-40 sm:h-48 bg-gradient-to-br from-pink-100 to-red-100">
+                <div className="relative h-48 bg-gradient-to-br from-accent-100 via-pink-100 to-accent-100">
                   {lot.image_urls.length > 0 ? (
                     <img
                       src={lot.image_urls[0]}
@@ -221,12 +242,12 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <Package size={48} className="sm:w-16 sm:h-16 text-gray-400" />
+                      <Package size={56} className="text-accent-300" strokeWidth={1} />
                     </div>
                   )}
-                  <div className="absolute top-2 right-2 bg-pink-500 text-white px-2 sm:px-3 py-1 rounded-full font-bold text-xs sm:text-sm flex items-center gap-1 shadow-lg">
-                    <Heart size={14} className="sm:w-4 sm:h-4" />
-                    <span>SOLIDAIRE</span>
+                  <div className="absolute top-3 right-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-xl border-2 border-white">
+                    <Heart size={14} strokeWidth={2} />
+                    <span>GRATUIT</span>
                   </div>
                 </div>
 
@@ -254,9 +275,9 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
                       setSelectedLot(lot);
                       setQuantity(1);
                     }}
-                    className="w-full py-2 sm:py-2.5 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-all font-medium text-sm sm:text-base shadow-md hover:shadow-lg"
+                    className="w-full py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl hover:from-accent-700 hover:to-accent-800 transition-all font-semibold shadow-lg hover:shadow-xl"
                   >
-                    Réserver mon lot
+                    🎁 Réserver gratuitement
                   </button>
                 </div>
               </div>
@@ -368,27 +389,33 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
               </p>
             </div>
             
-            <div className="mb-5 p-3 sm:p-4 bg-pink-50 rounded-lg border border-pink-200">
-              <div className="flex items-start gap-2">
-                <Heart size={18} className="text-pink-600 flex-shrink-0 mt-0.5" />
-                <p className="text-xs sm:text-sm text-pink-800 font-medium">
-                  Ce lot fait partie du programme d'aide alimentaire solidaire. Merci aux commerçants partenaires!
-                </p>
+            <div className="mb-6 p-4 bg-gradient-to-r from-accent-50 to-pink-50 rounded-xl border-2 border-accent-100">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-white rounded-lg shadow-sm">
+                  <Heart size={20} className="text-accent-600" strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="font-semibold text-accent-800 mb-1">Programme Solidaire</p>
+                  <p className="text-xs text-accent-700 leading-relaxed">
+                    Ce panier vous est offert gratuitement grâce aux commerçants partenaires engagés. 
+                    Merci à eux pour leur générosité ! 🙏
+                  </p>
+                </div>
               </div>
             </div>
             
-            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
               <button
                 onClick={() => setSelectedLot(null)}
-                className="flex-1 py-2.5 sm:py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-medium text-sm sm:text-base"
+                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 border-2 border-gray-200 transition-all font-semibold"
               >
                 Annuler
               </button>
               <button
                 onClick={() => handleReserve(selectedLot)}
-                className="flex-1 py-2.5 sm:py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-all font-medium text-sm sm:text-base shadow-md hover:shadow-lg"
+                className="flex-1 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl hover:from-accent-700 hover:to-accent-800 transition-all font-semibold shadow-lg hover:shadow-xl"
               >
-                Confirmer la réservation
+                ✅ Confirmer ma réservation
               </button>
             </div>
           </div>

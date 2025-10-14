@@ -26,10 +26,10 @@ export const MerchantDashboard = () => {
 
   // Configuration des onglets
   const tabs = [
-    { id: 'lots' as TabId, label: 'Mes invendus', icon: Package },
-    { id: 'reservations' as TabId, label: 'Réservations', icon: ClipboardList },
-    { id: 'stats' as TabId, label: 'Statistiques', icon: TrendingUp },
-    { id: 'profile' as TabId, label: 'Mon profil', icon: User },
+    { id: 'lots' as TabId, label: 'Mes paniers', icon: Package, emoji: '📦' },
+    { id: 'reservations' as TabId, label: 'Commandes', icon: ClipboardList, emoji: '📋' },
+    { id: 'stats' as TabId, label: 'Stats', icon: TrendingUp, emoji: '📊' },
+    { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
 
   // Render principal
@@ -39,13 +39,31 @@ export const MerchantDashboard = () => {
       <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-black">
-                Espace Commerçant
-              </h1>
-              <p className="text-sm text-gray-600 font-light mt-0.5">
-                {profile?.business_name || profile?.full_name}
-              </p>
+            <div className="flex items-center gap-4 flex-1">
+              {/* Logo du commerce */}
+              {profile?.business_logo_url ? (
+                <div className="flex-shrink-0">
+                  <img
+                    src={profile.business_logo_url}
+                    alt={profile.business_name || 'Logo du commerce'}
+                    className="w-16 h-16 rounded-xl object-cover border-2 border-gray-200 shadow-md"
+                  />
+                </div>
+              ) : (
+                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
+                  <span className="text-2xl">🏪</span>
+                </div>
+              )}
+              
+              {/* Informations du commerce */}
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl font-bold text-black truncate">
+                  {profile?.business_name || profile?.full_name}
+                </h1>
+                <p className="text-sm text-gray-600 font-light mt-0.5">
+                  Valorisez vos invendus, réduisez le gaspillage ! 💚
+                </p>
+              </div>
             </div>
             
             <div className="flex items-center gap-3">
@@ -53,10 +71,10 @@ export const MerchantDashboard = () => {
                 href="/pickup"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-900 transition-all font-medium"
+                className="px-4 py-2 text-sm bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl hover:from-secondary-700 hover:to-secondary-800 transition-all font-semibold shadow-md hover:shadow-lg"
               >
-                <Scan size={18} className="inline mr-2" strokeWidth={1.5} />
-                <span className="hidden sm:inline">Station</span>
+                <Scan size={18} className="inline mr-2" strokeWidth={2} />
+                <span className="hidden sm:inline">Station Retrait</span>
               </a>
               <button
                 onClick={signOut}
@@ -90,24 +108,29 @@ export const MerchantDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
+                  className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
                     isActive
-                      ? 'text-black'
-                      : 'text-gray-500 hover:text-black'
+                      ? 'text-secondary-600'
+                      : 'text-gray-500 hover:text-gray-700'
                   }`}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon
-                    size={20}
-                    strokeWidth={isActive ? 2 : 1.5}
-                  />
+                  {isActive && (
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-b-full" />
+                  )}
+                  <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
+                    <Icon
+                      size={20}
+                      strokeWidth={isActive ? 2.5 : 1.5}
+                    />
+                  </div>
                   <span
                     className={`text-[10px] transition-all ${
-                      isActive ? 'font-semibold' : 'font-light'
+                      isActive ? 'font-bold' : 'font-light'
                     }`}
                   >
-                    {tab.label.replace('Mes ', '').replace('Mon ', '')}
+                    {tab.label}
                   </span>
                 </button>
               );

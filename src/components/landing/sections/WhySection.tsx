@@ -13,16 +13,26 @@ export const WhySection = () => {
           className="mb-20"
         >
           <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight max-w-3xl">
-            Un impact qui compte
+            Notre mission est simple :
+            <br />
+            <span className="text-primary-600">créer un cercle vertueux</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl font-light">
-            Chaque achat crée un cercle vertueux pour la planète et les personnes
+          <p className="text-xl text-gray-600 max-w-3xl font-light">
+            Où chaque repas sauvé est une victoire pour la planète, un soutien pour nos commerçants et un coup de pouce pour nos voisins.
           </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-20">
           {whyReasons.map((reason, index) => {
             const Icon = reason.icon;
+            const colorClasses = {
+              success: { bg: 'from-success-500 to-success-600', text: 'text-success-600', border: 'border-success-200' },
+              accent: { bg: 'from-accent-500 to-accent-600', text: 'text-accent-600', border: 'border-accent-200' },
+              warning: { bg: 'from-warning-500 to-warning-600', text: 'text-warning-600', border: 'border-warning-200' },
+              primary: { bg: 'from-primary-500 to-primary-600', text: 'text-primary-600', border: 'border-primary-200' }
+            };
+            const colors = colorClasses[reason.color as keyof typeof colorClasses];
+            
             return (
               <motion.div
                 key={index}
@@ -30,15 +40,22 @@ export const WhySection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group"
               >
-                <div className="p-10">
-                  <Icon className="w-12 h-12 mb-6 text-black" strokeWidth={1.5} />
-                  <h3 className="text-3xl font-bold text-black mb-3">
+                <div className={`relative p-10 h-full bg-white rounded-2xl border ${colors.border} hover:shadow-2xl transition-all`}>
+                  {/* Icône avec badge */}
+                  <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${colors.bg} mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-8 h-8 text-white" strokeWidth={2} />
+                  </div>
+                  
+                  <h3 className={`text-3xl font-bold mb-3 ${colors.text}`}>
                     {reason.title}
                   </h3>
-                  <p className="text-lg text-gray-900 font-medium mb-4">
+                  
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${colors.bg} text-white font-semibold text-sm mb-4`}>
                     {reason.stats}
-                  </p>
+                  </div>
+                  
                   <p className="text-gray-600 font-light leading-relaxed text-lg">
                     {reason.description}
                   </p>

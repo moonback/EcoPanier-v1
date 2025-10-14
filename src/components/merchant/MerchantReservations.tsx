@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { Package, User, Clock, Key, MapPin, ShoppingCart, AlertCircle } from 'lucide-react';
+import { Package, User, Clock, Key, MapPin, ShoppingCart, ClipboardList } from 'lucide-react';
 
 // Imports internes
 import { supabase } from '../../lib/supabase';
@@ -34,6 +34,7 @@ export const MerchantReservations = () => {
   // Effets
   useEffect(() => {
     fetchReservations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handlers
@@ -73,33 +74,38 @@ export const MerchantReservations = () => {
     switch (status) {
       case 'pending':
         return {
-          bg: 'bg-blue-50',
-          badge: 'bg-blue-100 text-blue-700 border-blue-200',
-          label: 'En attente',
+          bg: 'bg-gradient-to-br from-warning-50 to-white',
+          badge: 'bg-gradient-to-r from-warning-100 to-warning-200 text-warning-700 border-warning-300',
+          label: '⏳ En attente',
+          emoji: '⏰',
         };
       case 'confirmed':
         return {
-          bg: 'bg-yellow-50',
-          badge: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-          label: 'Confirmé',
+          bg: 'bg-gradient-to-br from-primary-50 to-white',
+          badge: 'bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 border-primary-300',
+          label: '✓ Confirmé',
+          emoji: '✅',
         };
       case 'completed':
         return {
-          bg: 'bg-green-50',
-          badge: 'bg-green-100 text-green-700 border-green-200',
-          label: 'Récupéré',
+          bg: 'bg-gradient-to-br from-success-50 to-white',
+          badge: 'bg-gradient-to-r from-success-100 to-success-200 text-success-700 border-success-300',
+          label: '✅ Récupéré',
+          emoji: '🎉',
         };
       case 'cancelled':
         return {
-          bg: 'bg-gray-50',
-          badge: 'bg-gray-100 text-gray-700 border-gray-200',
-          label: 'Annulé',
+          bg: 'bg-gradient-to-br from-gray-50 to-white',
+          badge: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-gray-300',
+          label: '❌ Annulé',
+          emoji: '🚫',
         };
       default:
         return {
-          bg: 'bg-gray-50',
-          badge: 'bg-gray-100 text-gray-700 border-gray-200',
+          bg: 'bg-gradient-to-br from-gray-50 to-white',
+          badge: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-gray-300',
           label: status,
+          emoji: '❓',
         };
     }
   };
@@ -130,13 +136,22 @@ export const MerchantReservations = () => {
   if (reservations.length === 0) {
     return (
       <div className="text-center py-16">
-        <Package size={64} className="text-gray-300 mx-auto mb-6" strokeWidth={1} />
-        <h3 className="text-xl font-bold text-black mb-2">
-          Aucune réservation
+        <div className="inline-flex p-6 bg-gradient-to-br from-secondary-50 to-primary-50 rounded-full mb-6">
+          <Package size={64} className="text-secondary-400" strokeWidth={1} />
+        </div>
+        <h3 className="text-2xl font-bold text-black mb-3">
+          Vos commandes apparaîtront ici 📋
         </h3>
-        <p className="text-gray-600 font-light">
-          Les réservations de vos lots apparaîtront ici
+        <p className="text-gray-600 font-light mb-6 max-w-md mx-auto leading-relaxed">
+          Créez vos premiers paniers d'invendus et commencez à valoriser vos produits 
+          tout en réduisant le gaspillage ! 🌱
         </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl font-semibold hover:from-secondary-700 hover:to-secondary-800 transition-all shadow-lg"
+        >
+          Créer mon premier panier
+        </button>
       </div>
     );
   }
@@ -145,28 +160,36 @@ export const MerchantReservations = () => {
   return (
     <div className="space-y-6">
       {/* En-tête avec statistiques */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <h2 className="text-2xl font-bold text-black mb-6">
-          Suivi des Réservations
-        </h2>
+      <div className="bg-white rounded-2xl border-2 border-gray-100 p-6 shadow-lg">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl shadow-md">
+            <ClipboardList className="w-6 h-6 text-white" strokeWidth={2} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-black">
+              Suivi des Commandes
+            </h2>
+            <p className="text-sm text-gray-600">Gérez vos réservations en temps réel 📊</p>
+          </div>
+        </div>
         
         {/* Statistiques */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <p className="text-sm text-gray-600 font-light mb-1">Total</p>
-            <p className="text-2xl font-bold text-black">{stats.total}</p>
+          <div className="bg-gradient-to-br from-primary-50 to-white rounded-xl p-4 border-2 border-primary-100 shadow-sm">
+            <p className="text-xs text-gray-600 font-semibold mb-1">📦 Total</p>
+            <p className="text-2xl font-bold text-primary-600">{stats.total}</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <p className="text-sm text-gray-600 font-light mb-1">En attente</p>
-            <p className="text-2xl font-bold text-black">{stats.pending}</p>
+          <div className="bg-gradient-to-br from-warning-50 to-white rounded-xl p-4 border-2 border-warning-100 shadow-sm">
+            <p className="text-xs text-gray-600 font-semibold mb-1">⏳ En attente</p>
+            <p className="text-2xl font-bold text-warning-600">{stats.pending}</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <p className="text-sm text-gray-600 font-light mb-1">Récupérés</p>
-            <p className="text-2xl font-bold text-black">{stats.completed}</p>
+          <div className="bg-gradient-to-br from-success-50 to-white rounded-xl p-4 border-2 border-success-100 shadow-sm">
+            <p className="text-xs text-gray-600 font-semibold mb-1">✅ Récupérés</p>
+            <p className="text-2xl font-bold text-success-600">{stats.completed}</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <p className="text-sm text-gray-600 font-light mb-1">Annulés</p>
-            <p className="text-2xl font-bold text-black">{stats.cancelled}</p>
+          <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
+            <p className="text-xs text-gray-600 font-semibold mb-1">❌ Annulés</p>
+            <p className="text-2xl font-bold text-gray-600">{stats.cancelled}</p>
           </div>
         </div>
 
@@ -174,43 +197,43 @@ export const MerchantReservations = () => {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
+            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
               filter === 'all'
-                ? 'bg-black text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg scale-105'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-primary-300'
             }`}
           >
-            Tous ({stats.total})
+            📦 Tous ({stats.total})
           </button>
           <button
             onClick={() => setFilter('pending')}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
+            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
               filter === 'pending'
-                ? 'bg-black text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-gradient-to-r from-warning-600 to-warning-700 text-white shadow-lg scale-105'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-warning-300'
             }`}
           >
-            En attente ({stats.pending})
+            ⏳ En attente ({stats.pending})
           </button>
           <button
             onClick={() => setFilter('completed')}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
+            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
               filter === 'completed'
-                ? 'bg-black text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-gradient-to-r from-success-600 to-success-700 text-white shadow-lg scale-105'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-success-300'
             }`}
           >
-            Récupérés ({stats.completed})
+            ✅ Récupérés ({stats.completed})
           </button>
           <button
             onClick={() => setFilter('cancelled')}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
+            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
               filter === 'cancelled'
-                ? 'bg-black text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-gradient-to-r from-gray-600 to-gray-700 text-white shadow-lg scale-105'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-gray-300'
             }`}
           >
-            Annulés ({stats.cancelled})
+            ❌ Annulés ({stats.cancelled})
           </button>
         </div>
       </div>
@@ -223,16 +246,16 @@ export const MerchantReservations = () => {
           return (
             <div
               key={reservation.id}
-              className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition"
+              className="bg-white rounded-2xl border-2 border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-xl transition-all group"
             >
               <div className={`p-6 ${statusStyles.bg}`}>
                 {/* En-tête avec statut */}
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-bold text-black flex-1 pr-2">
+                  <h3 className="font-bold text-black flex-1 pr-2 group-hover:text-secondary-600 transition-colors">
                     {reservation.lots.title}
                   </h3>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles.badge}`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm ${statusStyles.badge}`}
                   >
                     {statusStyles.label}
                   </span>
@@ -261,21 +284,24 @@ export const MerchantReservations = () => {
                 </div>
 
                 {/* Code PIN */}
-                <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-2 justify-center">
-                    <Key size={18} strokeWidth={1.5} />
-                    <span className="font-mono text-lg font-bold text-black">
-                      PIN: {reservation.pickup_pin}
+                <div className="mb-4 p-4 bg-white rounded-xl border-2 border-gray-200 shadow-sm">
+                  <div className="flex items-center gap-3 justify-center">
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <Key size={18} strokeWidth={2} className="text-gray-700" />
+                    </div>
+                    <span className="font-mono text-2xl font-bold text-black tracking-wider">
+                      {reservation.pickup_pin}
                     </span>
                   </div>
+                  <p className="text-xs text-center text-gray-500 mt-2">Code PIN de retrait</p>
                 </div>
 
                 {/* Badge panier suspendu */}
                 {reservation.is_donation && (
-                  <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-xs text-black font-medium text-center flex items-center justify-center gap-1">
-                      <AlertCircle size={14} strokeWidth={1.5} />
-                      Panier Suspendu (Don solidaire)
+                  <div className="mb-4 p-3 bg-gradient-to-r from-accent-50 to-pink-50 rounded-xl border-2 border-accent-200">
+                    <p className="text-xs text-accent-700 font-semibold text-center flex items-center justify-center gap-2">
+                      <span className="text-lg">❤️</span>
+                      <span>Panier Solidaire (Don généreux)</span>
                     </p>
                   </div>
                 )}
@@ -303,9 +329,14 @@ export const MerchantReservations = () => {
       {/* Message si aucun résultat après filtrage */}
       {filteredReservations.length === 0 && (
         <div className="text-center py-16">
-          <Package size={64} className="text-gray-300 mx-auto mb-6" strokeWidth={1} />
+          <div className="inline-flex p-6 bg-gray-50 rounded-full mb-6">
+            <Package size={64} className="text-gray-300" strokeWidth={1} />
+          </div>
+          <h3 className="text-xl font-bold text-black mb-2">
+            Aucune commande trouvée 🔍
+          </h3>
           <p className="text-gray-600 font-light">
-            Aucune réservation avec le filtre sélectionné
+            Aucune réservation ne correspond au filtre "{filter === 'all' ? 'Tous' : filter === 'pending' ? 'En attente' : filter === 'completed' ? 'Récupérés' : 'Annulés'}"
           </p>
         </div>
       )}
