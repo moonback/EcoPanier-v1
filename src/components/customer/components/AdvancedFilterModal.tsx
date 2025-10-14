@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { categories } from '../../../utils/helpers';
+import { categories, getCategoryLabel } from '../../../utils/helpers';
 
 export interface AdvancedFilters {
   category: string;
@@ -102,7 +102,7 @@ export function AdvancedFilterModal({
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {cat}
+                  {getCategoryLabel(cat)}
                 </button>
               ))}
             </div>

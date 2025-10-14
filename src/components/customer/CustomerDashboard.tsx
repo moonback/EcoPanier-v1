@@ -73,7 +73,7 @@ export const CustomerDashboard = () => {
       </header>
 
       {/* Contenu principal */}
-      <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
+      <main className={`${activeTab === 'browse' ? 'pb-24' : 'max-w-12xl mx-auto px-6 py-6 pb-24'}`}>
         {activeTab === 'browse' && <LotBrowser />}
         {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}
