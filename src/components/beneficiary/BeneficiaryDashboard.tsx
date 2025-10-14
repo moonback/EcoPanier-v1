@@ -92,45 +92,36 @@ export const BeneficiaryDashboard = () => {
       {/* En-tête */}
       <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-black">
-                ❤️ Bienvenue {profile?.full_name?.split(' ')[0] || 'Bénéficiaire'} !
-              </h1>
-              <p className="text-sm text-gray-600 font-light mt-0.5">
-                Découvrez vos paniers solidaires gratuits 🎁
-              </p>
-            </div>
-            
+          <div className="flex items-center justify-between py-3">
+            <h1 className="text-xl font-bold text-black whitespace-nowrap overflow-hidden text-ellipsis flex-1">
+              ❤️ Bienvenue {profile?.full_name?.split(' ')[0] || 'Bénéficiaire'} !
+              <span className="ml-2 text-sm text-gray-600 font-normal align-middle hidden sm:inline">| Paniers solidaires gratuits 🎁</span>
+            </h1>
             <button
               onClick={signOut}
-              className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-all font-medium"
+              className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition font-medium ml-4"
             >
               <LogOut size={18} className="inline mr-2" strokeWidth={1.5} />
               <span className="hidden sm:inline">Quitter</span>
             </button>
           </div>
-
-          {/* Compteur */}
-          <div className="pb-4">
-            <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-accent-50 to-pink-50 rounded-xl border-2 border-accent-100 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg shadow-sm">
-                  <Heart size={16} className="text-accent-600" strokeWidth={2} />
+          <div className="pb-3">
+            <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-accent-50 to-pink-50 rounded-lg border border-accent-100 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-white rounded shadow-sm">
+                  <Heart size={15} className="text-accent-600" strokeWidth={2} />
                 </div>
-                <div>
-                  <span className="text-sm text-accent-900 font-semibold block">
-                    Aujourd'hui : {dailyCount}/{settings.maxDailyBeneficiaryReservations} paniers
-                  </span>
-                  <span className="text-xs text-accent-700">
-                    {dailyCount < settings.maxDailyBeneficiaryReservations 
-                      ? `Encore ${settings.maxDailyBeneficiaryReservations - dailyCount} disponible${settings.maxDailyBeneficiaryReservations - dailyCount > 1 ? 's' : ''} !` 
-                      : 'Revenez demain 🌅'}
-                  </span>
-                </div>
+                <span className="text-sm text-accent-900 font-semibold">
+                  Aujourd'hui : {dailyCount}/{settings.maxDailyBeneficiaryReservations}
+                </span>
+                <span className="text-xs text-accent-700 ml-2">
+                  {dailyCount < settings.maxDailyBeneficiaryReservations
+                    ? `+${settings.maxDailyBeneficiaryReservations - dailyCount} dispo${settings.maxDailyBeneficiaryReservations - dailyCount > 1 ? 's' : ''}`
+                    : 'Complet'}
+                </span>
               </div>
               {dailyCount >= settings.maxDailyBeneficiaryReservations && (
-                <span className="text-xs px-3 py-1.5 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-full font-semibold shadow-sm">
+                <span className="text-xs px-2 py-0.5 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-full font-semibold shadow-sm">
                   ✓ Complet
                 </span>
               )}

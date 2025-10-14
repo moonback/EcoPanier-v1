@@ -39,13 +39,31 @@ export const MerchantDashboard = () => {
       <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-black">
-                🏪 {profile?.business_name || profile?.full_name}
-              </h1>
-              <p className="text-sm text-gray-600 font-light mt-0.5">
-                Valorisez vos invendus, réduisez le gaspillage ! 💚
-              </p>
+            <div className="flex items-center gap-4 flex-1">
+              {/* Logo du commerce */}
+              {profile?.business_logo_url ? (
+                <div className="flex-shrink-0">
+                  <img
+                    src={profile.business_logo_url}
+                    alt={profile.business_name || 'Logo du commerce'}
+                    className="w-16 h-16 rounded-xl object-cover border-2 border-gray-200 shadow-md"
+                  />
+                </div>
+              ) : (
+                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
+                  <span className="text-2xl">🏪</span>
+                </div>
+              )}
+              
+              {/* Informations du commerce */}
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl font-bold text-black truncate">
+                  {profile?.business_name || profile?.full_name}
+                </h1>
+                <p className="text-sm text-gray-600 font-light mt-0.5">
+                  Valorisez vos invendus, réduisez le gaspillage ! 💚
+                </p>
+              </div>
             </div>
             
             <div className="flex items-center gap-3">
