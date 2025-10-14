@@ -5,10 +5,10 @@ import {
   X, 
   HelpCircle, 
   Layers,
-  // QrCode,
-  LogIn,
-  UserPlus,
-  Home
+  Home,
+  Store,
+  Building2,
+  ChevronDown
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -18,12 +18,29 @@ interface HeaderProps {
 export const Header = ({ transparent = false }: HeaderProps) => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const navLinks = [
     { name: 'Accueil', path: '/', icon: Home },
     { name: 'Comment ça marche', path: '/how-it-works', icon: Layers },
-    // { name: 'Station de retrait', path: '/pickup', icon: QrCode },
     { name: 'Centre d\'aide', path: '/help', icon: HelpCircle },
+  ];
+
+  const roleLinks = [
+    { 
+      name: 'Commerçants', 
+      path: '/commercants', 
+      icon: Store,
+      description: 'Valorisez vos invendus',
+      emoji: '🏪'
+    },
+    { 
+      name: 'Associations', 
+      path: '/associations', 
+      icon: Building2,
+      description: 'Gérez votre aide alimentaire',
+      emoji: '🏛️'
+    },
   ];
 
   return (
@@ -54,6 +71,51 @@ export const Header = ({ transparent = false }: HeaderProps) => {
                   {link.name}
                 </button>
               ))}
+              
+              {/* Dropdown "Pour vous" */}
+              <div className="relative">
+                <button
+                  onMouseEnter={() => setDropdownOpen(true)}
+                  onMouseLeave={() => setDropdownOpen(false)}
+                  className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-black transition-colors"
+                >
+                  Pour vous
+                  <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {dropdownOpen && (
+                  <div
+                    onMouseEnter={() => setDropdownOpen(true)}
+                    onMouseLeave={() => setDropdownOpen(false)}
+                    className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50"
+                  >
+                    {roleLinks.map((role) => {
+                      const Icon = role.icon;
+                      return (
+                        <button
+                          key={role.path}
+                          onClick={() => {
+                            navigate(role.path);
+                            setDropdownOpen(false);
+                          }}
+                          className="w-full flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                        >
+                          <span className="text-2xl flex-shrink-0">{role.emoji}</span>
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900 mb-0.5 flex items-center gap-2">
+                              {role.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {role.description}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </nav>
 
             {/* CTA Buttons Desktop */}
@@ -133,6 +195,31 @@ export const Header = ({ transparent = false }: HeaderProps) => {
                   {link.name}
                 </button>
               ))}
+              
+              {/* Section "Pour vous" en mobile */}
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-4 mb-2">
+                  Pour vous
+                </div>
+                {roleLinks.map((role) => (
+                  <button
+                    key={role.path}
+                    onClick={() => {
+                      navigate(role.path);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-100 rounded-lg transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{role.emoji}</span>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900">{role.name}</div>
+                        <div className="text-xs text-gray-500">{role.description}</div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </nav>
           </div>
 

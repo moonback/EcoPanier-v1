@@ -18,6 +18,7 @@ import {
   TestimonialsSection,
   ImpactStatsSection,
   FAQSection,
+  JoinUsSection,
   FinalCTASection
 } from './sections';
 
@@ -80,6 +81,9 @@ export const LandingPage = () => {
       
       {/* Section FAQ */}
       <FAQSection />
+      
+      {/* Section Rejoignez-nous */}
+      <JoinUsSection />
       
       {/* Section CTA Final */}
       <FinalCTASection />

@@ -12,5 +12,6 @@ export { ImpactCalculatorSection } from './ImpactCalculatorSection';
 export { TestimonialsSection } from './TestimonialsSection';
 export { ImpactStatsSection } from './ImpactStatsSection';
 export { FAQSection } from './FAQSection';
+export { JoinUsSection } from './JoinUsSection';
 export { FinalCTASection } from './FinalCTASection';
 
