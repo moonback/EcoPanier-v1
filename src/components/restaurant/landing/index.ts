@@ -1,0 +1,2 @@
+export { RestaurantLanding } from './RestaurantLanding';
+

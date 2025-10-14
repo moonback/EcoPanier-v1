@@ -8,7 +8,8 @@ import {
   Home,
   Store,
   Building2,
-  ChevronDown
+  ChevronDown,
+  ChefHat
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -33,6 +34,13 @@ export const Header = ({ transparent = false }: HeaderProps) => {
       icon: Store,
       description: 'Valorisez vos invendus',
       emoji: '🏪'
+    },
+    { 
+      name: 'Restaurateurs', 
+      path: '/restaurateurs', 
+      icon: ChefHat,
+      description: 'Transformez vos restes en dons',
+      emoji: '👨‍🍳'
     },
     { 
       name: 'Associations', 
