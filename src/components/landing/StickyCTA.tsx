@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuthStore } from '../../stores/authStore';
 
 export const StickyCTA = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -17,6 +19,9 @@ export const StickyCTA = () => {
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Ne pas afficher le CTA si l'utilisateur est connecté (il sera redirigé)
+  if (user) return null;
 
   return (
     <AnimatePresence>

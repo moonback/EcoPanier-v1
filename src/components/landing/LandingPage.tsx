@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../stores/authStore';
 import { Header } from '../shared/Header';
 import { Footer } from '../shared/Footer';
 import { SEOHead } from '../shared/SEOHead';
@@ -19,6 +22,16 @@ import {
 } from './sections';
 
 export const LandingPage = () => {
+  const navigate = useNavigate();
+  const { user, profile, initialized } = useAuthStore();
+
+  // Rediriger vers le dashboard si l'utilisateur est connecté
+  useEffect(() => {
+    if (initialized && user && profile) {
+      navigate('/dashboard');
+    }
+  }, [initialized, user, profile, navigate]);
+
   return (
     <div className="min-h-screen bg-white overflow-hidden">
       <SEOHead
