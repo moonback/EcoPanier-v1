@@ -1,73 +1,58 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 export const HeroSection = () => {
   const navigate = useNavigate();
 
-  const scrollToContent = () => {
-    window.scrollTo({
-      top: window.innerHeight,
-      behavior: 'smooth'
-    });
-  };
-
   return (
-    <section className="relative h-screen flex items-center overflow-hidden bg-black">
-      {/* Image Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <img 
-          src="/slide-7.png"
-          alt="EcoPanier - Lutte contre le gaspillage alimentaire"
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
-      </div>
-
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12">
+    <section className="py-32 text-center bg-gray-50 bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/slide-7.png)' }}>
+      <div className="absolute inset-0 bg-black/50"></div>
+      <div className="max-w-4xl mx-auto px-6 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="max-w-4xl"
+          transition={{ duration: 0.8 }}
         >
-          <h1 className="text-5xl md:text-7xl lg:text-7xl font-extrabold text-white mb-8 leading-tight tracking-tight">
-            <span className="block">
-              Sauvez des paniers, 
-            </span>
-            <span className="text-primary-400 block">
-              soutenez votre quartier
-            </span>
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full font-medium mb-6 border border-white/20">
+            <Sparkles className="w-5 h-5" />
+            <span>Rejoignez le mouvement anti-gaspi</span>
+          </div>
+          
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+            Sauvez des paniers,
+            <br />
+            <span className="text-primary-400">soutenez votre quartier</span>
           </h1>
           
-          <p className="text-lg md:text-2xl text-white/90 mb-10 max-w-2xl font-light">
+          <p className="text-xl text-white/90 font-light max-w-2xl mx-auto mb-10">
             EcoPanier connecte commerçants engagés, voisins solidaires, associations et collecteurs pour sauver des invendus, proposer des paniers suspendus et lutter ensemble contre le gaspillage alimentaire.
           </p>
 
           {/* Badges d'impact */}
-          <div className="flex flex-wrap gap-3 mb-12">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow hover-lift transition-all">
+          <div className="flex flex-wrap gap-3 mb-12 justify-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
               <span className="text-lg">♻️</span>
               <span>Anti-gaspillage</span>
             </div>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow hover-lift transition-all">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
               <span className="text-lg">🙏</span>
               <span>Solidarité locale</span>
             </div>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow hover-lift transition-all">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
               <span className="text-lg">🌱</span>
               <span>Impact CO₂</span>
             </div>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow hover-lift transition-all">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
               <span className="text-lg">💶</span>
               <span>Petits prix</span>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate('/dashboard')}
-              className="btn-primary text-lg px-8 py-5 rounded-lg shadow-xl hover:shadow-2xl transition-all group flex items-center gap-3 justify-center"
+              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
               type="button"
             >
               <span>Je découvre EcoPanier</span>
@@ -76,7 +61,7 @@ export const HeroSection = () => {
             
             <button
               onClick={() => navigate('/commercants')}
-              className="btn-secondary text-lg px-8 py-5 rounded-lg flex items-center justify-center border border-white/20"
+              className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white/20 transition-all border border-white/20"
               type="button"
             >
               Devenir partenaire
@@ -84,16 +69,6 @@ export const HeroSection = () => {
           </div>
         </motion.div>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.button
-        onClick={scrollToContent}
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 text-white/60 hover:text-white transition-colors cursor-pointer"
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <ChevronDown className="w-8 h-8" />
-      </motion.button>
     </section>
   );
 };
