@@ -450,98 +450,161 @@ export const LotManagement = () => {
       </div>
 
       {/* Grille de lots */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {lots.map((lot) => {
           const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
           const isOutOfStock = availableQty <= 0;
+          const discount = lot.original_price > 0 ? Math.round((1 - lot.discounted_price / lot.original_price) * 100) : 0;
 
           return (
             <div 
               key={lot.id} 
-              className={`group bg-white rounded-2xl border-2 border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-xl transition-all ${
-                isOutOfStock ? 'opacity-60 grayscale' : ''
+              className={`group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 ${
+                isOutOfStock ? 'opacity-60' : ''
               }`}
             >
-              <div className="relative h-48 bg-gray-100">
-                {lot.image_urls.length > 0 ? (
-                  <img
-                    src={lot.image_urls[0]}
-                    alt={lot.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <Package size={48} className="text-gray-300" strokeWidth={1} />
+              {/* En-tête au-dessus de l'image */}
+              <div className="relative">
+                {/* Badges en haut */}
+                <div className="absolute top-0 left-0 right-0 z-10 p-2 flex items-start justify-between gap-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    {/* Badge catégorie */}
+                    <span className="px-2 py-0.5 bg-white/95 backdrop-blur-sm text-xs font-medium text-gray-700 rounded-md shadow-sm">
+                      {lot.category}
+                    </span>
+                    
+                    {/* Badge urgent */}
+                    {lot.is_urgent && (
+                      <span className="px-2 py-0.5 bg-red-500/95 backdrop-blur-sm text-xs font-medium text-white rounded-md shadow-sm flex items-center gap-1">
+                        <span className="animate-pulse">⚡</span>
+                        Urgent
+                      </span>
+                    )}
+                    
+                    {/* Badge chaîne du froid */}
+                    {lot.requires_cold_chain && (
+                      <span className="px-2 py-0.5 bg-blue-500/95 backdrop-blur-sm text-xs font-medium text-white rounded-md shadow-sm">
+                        🧊 Frais
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Badge statut/réduction */}
+                  <div className="flex flex-col items-end gap-1.5">
+                    {discount > 0 && !isOutOfStock && (
+                      <span className="px-2 py-0.5 bg-green-500/95 backdrop-blur-sm text-xs font-bold text-white rounded-md shadow-sm">
+                        -{discount}%
+                      </span>
+                    )}
+                    <span className={`px-2 py-0.5 backdrop-blur-sm text-xs font-medium rounded-md shadow-sm ${
+                      isOutOfStock 
+                        ? 'bg-gray-800/95 text-white' 
+                        : 'bg-green-500/95 text-white'
+                    }`}>
+                      {isOutOfStock ? '❌ Épuisé' : '✅ Dispo'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Image */}
+                <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200">
+                  {lot.image_urls.length > 0 ? (
+                    <img
+                      src={lot.image_urls[0]}
+                      alt={lot.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <Package size={40} className="text-gray-400" strokeWidth={1.5} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Barre de progression en bas de l'image */}
+                {!isOutOfStock && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+                    <div 
+                      className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300"
+                      style={{ width: `${(availableQty / lot.quantity_total) * 100}%` }}
+                    />
                   </div>
                 )}
-                <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-white font-medium text-xs ${
-                  isOutOfStock ? 'bg-black' :
-                  lot.status === 'available' ? 'bg-black' :
-                  lot.status === 'sold_out' ? 'bg-black' :
-                  lot.status === 'expired' ? 'bg-gray-500' : 'bg-black'
-                }`}>
-                  {isOutOfStock ? 'Épuisé' :
-                   lot.status === 'available' ? 'Disponible' :
-                   lot.status === 'sold_out' ? 'Épuisé' :
-                   lot.status === 'expired' ? 'Expiré' : 'Réservé'}
-                </div>
               </div>
 
-              <div className="p-4">
+              {/* Contenu compact */}
+              <div className="p-3">
+                {/* Titre et prix */}
+                <div className="mb-2">
+                  <h3 className="text-sm font-bold text-gray-900 line-clamp-1 mb-1">
+                    {lot.title}
+                  </h3>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-bold text-gray-900">
+                      {formatCurrency(lot.discounted_price)}
+                    </span>
+                    {lot.original_price > lot.discounted_price && (
+                      <span className="text-xs text-gray-400 line-through">
+                        {formatCurrency(lot.original_price)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Stats compactes en grille */}
+                <div className="grid grid-cols-4 gap-1 mb-3 text-center">
+                  <div className="bg-gray-50 rounded-md py-1.5 px-1">
+                    <div className="text-xs font-bold text-gray-900">{lot.quantity_total}</div>
+                    <div className="text-[10px] text-gray-500">Total</div>
+                  </div>
+                  <div className="bg-orange-50 rounded-md py-1.5 px-1">
+                    <div className="text-xs font-bold text-orange-700">{lot.quantity_reserved}</div>
+                    <div className="text-[10px] text-orange-600">Réservé</div>
+                  </div>
+                  <div className="bg-green-50 rounded-md py-1.5 px-1">
+                    <div className="text-xs font-bold text-green-700">{lot.quantity_sold}</div>
+                    <div className="text-[10px] text-green-600">Vendu</div>
+                  </div>
+                  <div className={`rounded-md py-1.5 px-1 ${
+                    availableQty > 0 ? 'bg-blue-50' : 'bg-red-50'
+                  }`}>
+                    <div className={`text-xs font-bold ${
+                      availableQty > 0 ? 'text-blue-700' : 'text-red-700'
+                    }`}>
+                      {availableQty}
+                    </div>
+                    <div className={`text-[10px] ${
+                      availableQty > 0 ? 'text-blue-600' : 'text-red-600'
+                    }`}>
+                      Dispo
+                    </div>
+                  </div>
+                </div>
+
+                {/* Message suppression auto */}
                 {isOutOfStock && (
-                  <div className="mb-3 p-2 bg-gray-50 border border-gray-200 rounded-lg">
-                    <p className="text-xs text-gray-700 font-light">
-                      Suppression auto dans 24h
+                  <div className="mb-2 p-1.5 bg-amber-50 border border-amber-200 rounded-md">
+                    <p className="text-[10px] text-amber-700 text-center font-medium">
+                      ⏱️ Suppression auto dans 24h
                     </p>
                   </div>
                 )}
-                <h3 className="text-base font-bold text-black mb-2 line-clamp-1">{lot.title}</h3>
-                <p className="text-sm text-gray-600 font-light mb-3 line-clamp-2">{lot.description}</p>
 
-                <div className="space-y-2 text-sm text-gray-700 font-light mb-4">
-                  <div className="flex justify-between">
-                    <span>Total:</span>
-                    <span className="font-medium">{lot.quantity_total}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Réservé:</span>
-                    <span className="font-medium">{lot.quantity_reserved}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Vendu:</span>
-                    <span className="font-medium">{lot.quantity_sold}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Disponible:</span>
-                    <span className="font-semibold text-black">{availableQty}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between mb-4 pt-4 border-t border-gray-200">
-                  <div>
-                    <span className="text-xl font-bold text-black">
-                      {formatCurrency(lot.discounted_price)}
-                    </span>
-                    <span className="text-sm text-gray-400 line-through ml-2">
-                      {formatCurrency(lot.original_price)}
-                    </span>
-                  </div>
-                </div>
-
+                {/* Boutons d'action */}
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEditModal(lot)}
-                    className="flex-1 py-2.5 bg-gradient-to-r from-secondary-50 to-primary-50 text-secondary-700 rounded-xl hover:from-secondary-100 hover:to-primary-100 border border-secondary-200 transition-all flex items-center justify-center gap-2 font-semibold"
+                    className="flex-1 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-lg hover:from-blue-100 hover:to-indigo-100 border border-blue-200 transition-all flex items-center justify-center gap-1.5 text-sm font-semibold"
                   >
-                    <Edit size={16} strokeWidth={2} />
+                    <Edit size={14} strokeWidth={2} />
                     <span>Modifier</span>
                   </button>
                   <button
                     onClick={() => handleDelete(lot.id)}
-                    className="px-3 py-2.5 bg-gray-50 text-gray-600 rounded-xl hover:bg-red-50 hover:text-red-600 border border-gray-200 hover:border-red-200 transition-all"
+                    className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 border border-gray-200 hover:border-red-300 transition-all"
                     aria-label="Supprimer le lot"
                   >
-                    <Trash2 size={16} strokeWidth={2} />
+                    <Trash2 size={14} strokeWidth={2} />
                   </button>
                 </div>
               </div>
