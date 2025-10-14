@@ -136,7 +136,11 @@ export const deleteImages = async (imageUrls: string[]): Promise<void> => {
   }
 };
 
-export const categories = [
+/**
+ * Liste des catégories standards de lots 
+ * (utiliser pour les filtres, formulaires, etc.)
+ */
+export const CATEGORIES: string[] = [
   'Fruits & Légumes',
   'Boulangerie',
   'Viandes & Poissons',

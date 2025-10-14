@@ -5,17 +5,21 @@ import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, 
 
 // Types de commerces disponibles
 const BUSINESS_TYPES = [
-  { value: 'bakery', label: '🥖 Boulangerie / Pâtisserie' },
-  { value: 'restaurant', label: '🍽️ Restaurant / Bistrot' },
-  { value: 'supermarket', label: '🛒 Supermarché / Épicerie' },
-  { value: 'butcher', label: '🥩 Boucherie / Charcuterie' },
-  { value: 'fruits_vegetables', label: '🥬 Fruits & Légumes / Primeur' },
-  { value: 'grocery', label: '🏪 Épicerie fine / Traiteur' },
-  { value: 'cafe', label: '☕ Café / Salon de thé' },
-  { value: 'fastfood', label: '🍔 Fast-food / Snack' },
-  { value: 'fishmonger', label: '🐟 Poissonnerie' },
-  { value: 'cheese_dairy', label: '🧀 Fromagerie / Crèmerie' },
-  { value: 'other', label: '🏬 Autre commerce alimentaire' },
+  { value: 'bakery', label: '🥖 Boulangerie / Pâtisserie', category: 'Commerces de proximité' },
+  { value: 'restaurant', label: '🍽️ Restaurant / Bistrot', category: 'Restauration' },
+  { value: 'caterer', label: '👨‍🍳 Traiteur événementiel', category: 'Restauration' },
+  { value: 'gastronomic', label: '⭐ Restaurant gastronomique', category: 'Restauration' },
+  { value: 'brasserie', label: '🍺 Brasserie / Bar à vin', category: 'Restauration' },
+  { value: 'fastfood', label: '🍔 Fast-food / Snack', category: 'Restauration' },
+  { value: 'cafe', label: '☕ Café / Salon de thé', category: 'Restauration' },
+  { value: 'supermarket', label: '🛒 Supermarché / Épicerie', category: 'Commerces de proximité' },
+  { value: 'butcher', label: '🥩 Boucherie / Charcuterie', category: 'Commerces de proximité' },
+  { value: 'fruits_vegetables', label: '🥬 Fruits & Légumes / Primeur', category: 'Commerces de proximité' },
+  { value: 'grocery', label: '🏪 Épicerie fine', category: 'Commerces de proximité' },
+  { value: 'fishmonger', label: '🐟 Poissonnerie', category: 'Commerces de proximité' },
+  { value: 'cheese_dairy', label: '🧀 Fromagerie / Crèmerie', category: 'Commerces de proximité' },
+  { value: 'organic', label: '🌿 Magasin bio / Vrac', category: 'Commerces de proximité' },
+  { value: 'other', label: '🏬 Autre commerce alimentaire', category: 'Autre' },
 ] as const;
 
 interface AuthFormProps {
@@ -377,6 +381,61 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     </div>
                   </div>
 
+                  {/* Type d'activité - Juste après le nom pour les commerçants */}
+                  {role === 'merchant' && (
+                    <div>
+                      <label className="block text-sm font-medium text-black mb-2 flex items-center gap-2">
+                        <span>Type d'activité</span>
+                        <span className="text-accent-600 text-xs font-semibold">*Obligatoire</span>
+                      </label>
+                      <div className="relative">
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
+                        <select
+                          value={businessType}
+                          onChange={(e) => setBusinessType(e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black focus:border-secondary-500 focus:ring-2 focus:ring-secondary-100 transition-all outline-none font-medium appearance-none cursor-pointer"
+                          required
+                        >
+                          <option value="" disabled>Sélectionnez votre type d'activité</option>
+                          
+                          {/* Restauration */}
+                          <optgroup label="🍽️ Restauration">
+                            {BUSINESS_TYPES.filter(t => t.category === 'Restauration').map((type) => (
+                              <option key={type.value} value={type.value}>
+                                {type.label}
+                              </option>
+                            ))}
+                          </optgroup>
+
+                          {/* Commerces de proximité */}
+                          <optgroup label="🏪 Commerces de proximité">
+                            {BUSINESS_TYPES.filter(t => t.category === 'Commerces de proximité').map((type) => (
+                              <option key={type.value} value={type.value}>
+                                {type.label}
+                              </option>
+                            ))}
+                          </optgroup>
+
+                          {/* Autre */}
+                          <optgroup label="Autre">
+                            {BUSINESS_TYPES.filter(t => t.category === 'Autre').map((type) => (
+                              <option key={type.value} value={type.value}>
+                                {type.label}
+                              </option>
+                            ))}
+                          </optgroup>
+                        </select>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2 flex items-start gap-1">
+                        <span>💡</span>
+                        <span>
+                          Choisissez le type qui correspond le mieux à votre activité. 
+                          Cela aide les clients à trouver vos paniers.
+                        </span>
+                      </p>
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-sm font-medium text-black mb-2">
                       Adresse {role === 'merchant' ? 'du commerce' : 'de l\'association'}
@@ -424,30 +483,6 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     </p>
                   </div>
 
-                  {/* Type de commerce - Uniquement pour merchants */}
-                  {role === 'merchant' && (
-                    <div>
-                      <label className="block text-sm font-medium text-black mb-2">
-                        Type de commerce
-                      </label>
-                      <div className="relative">
-                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
-                        <select
-                          value={businessType}
-                          onChange={(e) => setBusinessType(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light appearance-none"
-                          required
-                        >
-                          <option value="">Sélectionnez un type</option>
-                          {BUSINESS_TYPES.map((type) => (
-                            <option key={type.value} value={type.value}>
-                              {type.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Email professionnel */}
                   <div>
