@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { categories } from '../../../utils/helpers';
+import { CATEGORIES } from '../../../utils/helpers';
 
 export interface AdvancedFilters {
   category: string;
@@ -92,7 +92,7 @@ export function AdvancedFilterModal({
               >
                 Toutes
               </button>
-              {categories.map((cat) => (
+              {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setLocalFilters({ ...localFilters, category: cat })}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
-import { formatDateTime, categories, generatePIN } from '../../utils/helpers';
+import { formatDateTime, CATEGORIES, generatePIN } from '../../utils/helpers';
 import { Package, MapPin, Clock, Heart, Filter, X, Check } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 
@@ -323,7 +323,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
               </button>
 
               {/* Liste des catégories */}
-              {categories.map((cat) => (
+              {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => {

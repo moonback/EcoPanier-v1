@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
-import { formatCurrency, categories, uploadImage, deleteImages } from '../../utils/helpers';
+import { formatCurrency, CATEGORIES, uploadImage, deleteImages } from '../../utils/helpers';
 import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
 import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
@@ -33,7 +33,7 @@ export const LotManagement = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: categories[0],
+    category: CATEGORIES[0],
     original_price: 0,
     discounted_price: 0,
     quantity_total: 1,
@@ -291,7 +291,7 @@ export const LotManagement = () => {
     setFormData({
       title: '',
       description: '',
-      category: categories[0],
+      category: CATEGORIES[0],
       original_price: 0,
       discounted_price: 0,
       quantity_total: 1,
@@ -821,7 +821,7 @@ export const LotManagement = () => {
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   >
-                    {categories.map((cat) => (
+                    {CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
                         {cat}
                       </option>

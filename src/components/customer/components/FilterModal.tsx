@@ -1,5 +1,5 @@
 import { X, Filter, Check } from 'lucide-react';
-import { categories } from '../../../utils/helpers';
+import { CATEGORIES } from '../../../utils/helpers';
 
 interface FilterModalProps {
   selectedCategory: string;
@@ -57,7 +57,7 @@ export function FilterModal({
           </button>
 
           {/* Catégories spécifiques */}
-          {categories.map((category) => (
+          {CATEGORIES.map((category) => (
             <button
               key={category}
               onClick={() => handleSelectCategory(category)}

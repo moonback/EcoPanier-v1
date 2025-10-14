@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { categories } from './helpers';
+import { CATEGORIES } from './helpers';
 
 /**
  * Service pour l'analyse d'images de produits alimentaires via Gemini 2.0 Flash
@@ -67,7 +67,7 @@ RÉPONDS AU FORMAT JSON STRICT (sans markdown, sans \`\`\`, juste le JSON brut) 
 {
   "title": "Nom commercial exact du produit si visible, sinon nom descriptif (max 80 caractères)",
   "description": "Description détaillée : ingrédients/contenu, état visuel, conditionnement, conservation (max 250 caractères)",
-  "category": "UNE SEULE catégorie parmi : ${categories.join(', ')}",
+  "category": "UNE SEULE catégorie parmi : ${CATEGORIES.join(', ')}",
   "original_price": Prix de vente habituel en France (nombre avec décimales, ex: 12.50),
   "discounted_price": Prix anti-gaspi (40-70% du prix original, ex: 6.00),
   "quantity_total": Nombre exact d'unités/portions visibles (minimum 1),
@@ -216,7 +216,7 @@ function parseGeminiResponse(text: string): LotAnalysisResult {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validateAndCorrectAnalysis(analysis: any): LotAnalysisResult {
   // Valider la catégorie
-  const validCategory = categories.includes(analysis.category)
+  const validCategory = CATEGORIES.includes(analysis.category)
     ? analysis.category
     : 'Autres';
 
@@ -298,7 +298,7 @@ export async function quickAnalyzeImage(imageFile: File): Promise<{ title: strin
     const prompt = `Identifie rapidement ce produit alimentaire. Réponds en JSON :
 {
   "title": "Nom du produit (court, max 60 caractères)",
-  "category": "Catégorie parmi : ${categories.join(', ')}"
+  "category": "Catégorie parmi : ${CATEGORIES.join(', ')}"
 }`;
 
     const result = await model.generateContent([
@@ -311,7 +311,7 @@ export async function quickAnalyzeImage(imageFile: File): Promise<{ title: strin
     
     return {
       title: parsed.title || 'Produit alimentaire',
-      category: categories.includes(parsed.category) ? parsed.category : 'Autres',
+      category: CATEGORIES.includes(parsed.category) ? parsed.category : 'Autres',
     };
   } catch (error) {
     console.error('Erreur analyse rapide:', error);
@@ -326,7 +326,7 @@ export function getAnalysisStats() {
   const stats = {
     apiConfigured: isGeminiConfigured(),
     timeoutDuration: API_TIMEOUT / 1000, // en secondes
-    supportedCategories: categories.length,
+    supportedCategories: CATEGORIES.length,
     maxImageSize: '10MB recommandé',
     features: [
       'Détection DLC/DDM',
