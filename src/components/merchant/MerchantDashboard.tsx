@@ -1,6 +1,7 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, LogOut, Scan, User, ClipboardList } from 'lucide-react';
+import { Package, TrendingUp, LogOut, Scan, User, ClipboardList, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -67,6 +68,13 @@ export const MerchantDashboard = () => {
             </div>
             
             <div className="flex items-center gap-3">
+              <Link
+                to="/quick-add-product"
+                className="px-4 py-2 text-sm bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all font-semibold shadow-md hover:shadow-lg"
+              >
+                <Zap size={18} className="inline mr-2" strokeWidth={2} />
+                <span className="hidden sm:inline">Ajout Rapide</span>
+              </Link>
               <a
                 href="/pickup"
                 target="_blank"

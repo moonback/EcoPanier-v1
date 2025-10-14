@@ -12,6 +12,7 @@ import { HelpCenter } from './components/pages/HelpCenter';
 import { AuthForm } from './components/auth/AuthForm';
 import { CustomerDashboard } from './components/customer/CustomerDashboard';
 import { MerchantDashboard } from './components/merchant/MerchantDashboard';
+import { QuickAddProduct } from './components/merchant/QuickAddProduct';
 import { BeneficiaryDashboard } from './components/beneficiary/BeneficiaryDashboard';
 import { CollectorDashboard } from './components/collector/CollectorDashboard';
 import { AdminDashboard } from './components/admin/AdminDashboard';
@@ -130,6 +131,9 @@ function App() {
           
           {/* Route publique pour la station de retrait */}
           <Route path="/pickup" element={<PickupStation />} />
+          
+          {/* Route pour ajout rapide de produit (commerçants) */}
+          <Route path="/quick-add-product" element={<QuickAddProduct />} />
           
           {/* Route pour le dashboard avec authentification */}
           <Route path="/dashboard" element={<DashboardRouter />} />

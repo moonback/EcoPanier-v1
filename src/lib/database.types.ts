@@ -93,7 +93,8 @@ export interface Database {
           requires_cold_chain: boolean;
           is_urgent: boolean;
           status: LotStatus;
-          image_urls: string[];
+          image_urls: string[] | null;
+          barcode: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -113,7 +114,8 @@ export interface Database {
           requires_cold_chain?: boolean;
           is_urgent?: boolean;
           status?: LotStatus;
-          image_urls?: string[];
+          image_urls?: string[] | null;
+          barcode?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -133,7 +135,8 @@ export interface Database {
           requires_cold_chain?: boolean;
           is_urgent?: boolean;
           status?: LotStatus;
-          image_urls?: string[];
+          image_urls?: string[] | null;
+          barcode?: string | null;
           created_at?: string;
           updated_at?: string;
         };
