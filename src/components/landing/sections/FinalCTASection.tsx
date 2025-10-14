@@ -6,47 +6,88 @@ export const FinalCTASection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-32 bg-gray-50 relative overflow-hidden">
-      {/* Image de fond */}
-      <img
-        src="/slide-5.png"
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none opacity-50"
-      />
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+    <section className="relative py-32 bg-black overflow-hidden">
+      {/* Image Background - même style que Hero */}
+      <div className="absolute inset-0 overflow-hidden">
+        <img 
+          src="/slide-5.png"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover opacity-50 pointer-events-none select-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="bg-black rounded-3xl p-12 md:p-20 text-center bg-opacity-70"
+          transition={{ duration: 0.8 }}
+          className="text-center max-w-4xl mx-auto"
         >
-          
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight max-w-3xl mx-auto">
-            Prêt à économiser et agir pour la planète ?
+          {/* Titre principal */}
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-8 tracking-tight leading-tight">
+            <span className="block">
+              Prêt à faire la
+            </span>
+            <span className="text-primary-400 block">
+              différence ensemble ?
+            </span>
           </h2>
-          <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto font-light">
-            Que vous soyez commerce, collecteur, association ou citoyen, EcoPanier vous aide à agir simplement contre le gaspillage alimentaire.
+
+          {/* Description */}
+          <p className="text-lg md:text-2xl text-white/90 mb-10 max-w-2xl mx-auto font-light">
+            Rejoignez une communauté engagée qui sauve des repas, soutient les plus précaires et combat le gaspillage au quotidien.
           </p>
+
+          {/* Badges d'avantages - même style que Hero */}
+          <div className="flex flex-wrap gap-3 mb-12 justify-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow">
+              <span className="text-lg">✨</span>
+              <span>Inscription gratuite</span>
+            </div>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow">
+              <span className="text-lg">⚡</span>
+              <span>Sans engagement</span>
+            </div>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow">
+              <span className="text-lg">🚀</span>
+              <span>Impact immédiat</span>
+            </div>
+          </div>
+
+          {/* Boutons CTA - même style que Hero */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate('/dashboard')}
-              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-5 rounded-lg text-lg font-medium hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
+              className="btn-primary text-lg px-10 py-5 rounded-lg shadow-xl hover:shadow-2xl transition-all group flex items-center gap-3 justify-center"
+              type="button"
             >
-              <span>Rejoindre gratuitement</span>
+              <span>Commencer maintenant</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
+            
             <button
               onClick={() => navigate('/commercants')}
-              className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm text-white px-8 py-5 rounded-lg text-lg font-medium hover:bg-white/20 transition-all border border-white/20"
+              className="btn-secondary text-lg px-8 py-5 rounded-lg flex items-center justify-center gap-2 border border-white/20"
+              type="button"
             >
-              En savoir plus sur le partenariat
+              <span>Devenir partenaire</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
-          <p className="text-sm text-white/60 mt-6 font-light">
-            Aucun engagement • 100% gratuit
-          </p>
+
+          {/* Mention légère en bas */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-sm text-white/60 mt-8 font-light"
+          >
+            Aucun engagement • 100% gratuit • Sans publicité
+          </motion.p>
         </motion.div>
       </div>
     </section>
