@@ -136,12 +136,12 @@ export const LotBrowser = () => {
       <div className="mb-6 flex items-center justify-between gap-3">
         <button
           onClick={() => setShowFilterModal(true)}
-          className="flex items-center gap-2 px-4 py-3 bg-white text-black rounded-lg border border-gray-300 hover:border-black transition-all font-medium"
+          className="flex items-center gap-2 px-4 py-3 bg-white text-black rounded-xl border-2 border-gray-200 hover:border-primary-500 hover:shadow-md transition-all font-medium group"
         >
-          <Filter className="w-5 h-5" />
-          <span>Filtres</span>
+          <Filter className="w-5 h-5 group-hover:text-primary-600 transition-colors" />
+          <span className="group-hover:text-primary-600 transition-colors">Filtres</span>
           {activeFiltersCount > 0 && (
-            <span className="ml-1 px-2 py-0.5 bg-black text-white rounded-full text-xs font-bold">
+            <span className="ml-1 px-2 py-0.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-full text-xs font-bold shadow-sm">
               {activeFiltersCount}
             </span>
           )}
@@ -149,8 +149,8 @@ export const LotBrowser = () => {
 
         <div className="flex items-center gap-2">
           {/* Résultats */}
-          <div className="px-4 py-3 bg-gray-100 text-black rounded-lg font-medium text-sm">
-            {filteredLots.length} lot{filteredLots.length > 1 ? 's' : ''}
+          <div className="px-4 py-3 bg-gradient-to-r from-primary-50 to-secondary-50 text-primary-700 rounded-xl font-semibold text-sm border border-primary-100">
+            🎁 {filteredLots.length} panier{filteredLots.length > 1 ? 's' : ''}
           </div>
 
           {/* Réinitialiser */}
@@ -222,11 +222,24 @@ export const LotBrowser = () => {
 
       {/* Grille de lots - Mobile: 1 colonne, Desktop: grille responsive */}
       {filteredLots.length === 0 ? (
-        <EmptyState
-          icon={Package}
-          title="Aucun lot disponible"
-          description="Aucun lot ne correspond à vos critères. Essayez de modifier vos filtres."
-        />
+        <div className="text-center py-16">
+          <div className="inline-flex p-6 bg-gray-50 rounded-full mb-6">
+            <Package size={64} className="text-gray-300" strokeWidth={1} />
+          </div>
+          <h3 className="text-2xl font-bold text-black mb-3">
+            Aucun panier trouvé 🔍
+          </h3>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            Pas de panique ! Essayez d'ajuster vos filtres ou revenez un peu plus tard. 
+            De nouveaux paniers sont ajoutés régulièrement ! ⏰
+          </p>
+          <button
+            onClick={() => setFilters(DEFAULT_FILTERS)}
+            className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg"
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
       ) : (
         <div className="grid gap-4
           /* Mobile : 1 lot par ligne (pleine largeur) */

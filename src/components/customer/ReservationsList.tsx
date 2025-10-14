@@ -72,11 +72,24 @@ export const ReservationsList = () => {
 
   if (reservations.length === 0) {
     return (
-      <EmptyState
-        icon={Package}
-        title="Aucune réservation pour le moment"
-        description="Vos réservations apparaîtront ici une fois que vous aurez réservé un lot."
-      />
+      <div className="text-center py-16">
+        <div className="inline-flex p-6 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-full mb-6">
+          <Package size={64} className="text-primary-400" strokeWidth={1} />
+        </div>
+        <h3 className="text-2xl font-bold text-black mb-3">
+          Votre premier panier vous attend ! 🎁
+        </h3>
+        <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
+          Vous n'avez pas encore de réservation. Explorez les paniers surprises 
+          près de chez vous et faites vos premières économies ! 💰
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg"
+        >
+          Découvrir les paniers
+        </button>
+      </div>
     );
   }
 

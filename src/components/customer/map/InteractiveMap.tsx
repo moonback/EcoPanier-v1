@@ -151,13 +151,21 @@ export function InteractiveMap() {
   // Vérifier si Mapbox est configuré
   if (!MAPBOX_TOKEN) {
     return (
-      <div className="card p-8 text-center">
-        <MapPin className="w-12 h-12 text-accent-500 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-          Configuration requise
+      <div className="card p-8 text-center bg-gradient-to-br from-accent-50 to-warning-50 border-2 border-accent-200">
+        <div className="inline-flex p-6 bg-white rounded-full mb-6">
+          <MapPin className="w-12 h-12 text-accent-500" />
+        </div>
+        <h3 className="text-2xl font-bold text-black mb-3">
+          Configuration de la carte requise 🗺️
         </h3>
-        <p className="text-neutral-600">
-          Veuillez configurer <code className="bg-neutral-100 px-2 py-1 rounded mx-1">VITE_MAPBOX_ACCESS_TOKEN</code> dans <code className="bg-neutral-100 px-2 py-1 rounded">.env</code>
+        <p className="text-gray-700 mb-4 leading-relaxed max-w-md mx-auto">
+          Pour afficher la carte interactive des commerçants, veuillez configurer votre clé Mapbox.
+        </p>
+        <code className="inline-block bg-gray-900 text-green-400 px-4 py-2 rounded-lg text-sm font-mono mb-2">
+          VITE_MAPBOX_ACCESS_TOKEN
+        </code>
+        <p className="text-xs text-gray-500 mt-2">
+          Fichier : <code className="bg-gray-100 px-2 py-1 rounded">.env</code>
         </p>
       </div>
     );
