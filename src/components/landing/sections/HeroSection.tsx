@@ -32,21 +32,23 @@ export const HeroSection = () => {
           className="max-w-4xl"
         >
           <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-[1.1] tracking-tight">
-            Sauvez de la nourriture.
+            Mangez mieux,
             <br />
-            <span className="text-white/70">Aidez des personnes.</span>
+            dépensez moins.
+            <br />
+            <span className="text-primary-400">La planète vous dit merci.</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-2xl font-light">
-            Connectez-vous avec des commerçants locaux et accédez à des produits invendus à prix réduits.
+          <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl font-light">
+            Rejoignez le mouvement anti-gaspi. Découvrez chaque jour des paniers surprises de vos commerçants préférés à prix mini.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => navigate('/dashboard')}
-              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-5 rounded-lg text-lg font-medium hover:bg-gray-100 transition-all"
+              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-5 rounded-lg text-lg font-medium hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
             >
-              <span>Commencer</span>
+              <span>Trouver mon premier panier</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             
@@ -54,7 +56,7 @@ export const HeroSection = () => {
               onClick={() => navigate('/how-it-works')}
               className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm text-white px-8 py-5 rounded-lg text-lg font-medium hover:bg-white/20 transition-all border border-white/20"
             >
-              En savoir plus
+              Découvrir notre mission
             </button>
           </div>
         </motion.div>
