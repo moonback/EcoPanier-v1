@@ -210,56 +210,90 @@ export const PickupStation = () => {
 
       {/* Contenu principal */}
       {!reservation ? (
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="w-full max-w-2xl">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-black mb-3">
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="w-full max-w-7xl">
+            <div className="text-center mb-4">
+              <h2 className="text-3xl font-bold text-black mb-2">
                 Bienvenue ! 👋
               </h2>
-              <p className="text-xl text-gray-600 font-light">
+              <p className="text-lg text-gray-600 font-light">
                 Prêt à valider un retrait de panier ?
               </p>
             </div>
 
-            <button
-              onClick={() => setScannerActive(true)}
-              disabled={loading}
-              className="group w-full py-24 bg-gradient-to-br from-secondary-600 via-secondary-700 to-primary-700 text-white rounded-3xl hover:from-secondary-700 hover:via-secondary-800 hover:to-primary-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-12 shadow-2xl hover:shadow-3xl"
-            >
-              <div className="flex flex-col items-center gap-6">
-                <div className="w-28 h-28 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                  <Scan size={56} className="text-white" strokeWidth={2} />
-                </div>
-                <div className="text-center">
-                  <span className="text-3xl font-bold block mb-2">📲 Scanner le QR Code</span>
-                  <span className="text-base text-white/90 font-light">Cliquez pour activer la caméra</span>
-                </div>
-              </div>
-            </button>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white rounded-2xl p-6 text-center border-2 border-gray-100 hover:border-primary-200 hover:shadow-lg transition-all">
-                <div className="w-14 h-14 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md">
-                  <span className="text-xl font-bold text-white">1</span>
-                </div>
-                <p className="text-sm font-bold text-black mb-1">📱 Scanner</p>
-                <p className="text-xs text-gray-600 font-light">QR Code client</p>
+            {/* Layout 2 colonnes */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Colonne gauche - Scanner */}
+              <div className="flex flex-col">
+                <button
+                  onClick={() => setScannerActive(true)}
+                  disabled={loading}
+                  className="group flex-1 py-12 bg-gradient-to-br from-secondary-600 via-secondary-700 to-primary-700 text-white rounded-2xl hover:from-secondary-700 hover:via-secondary-800 hover:to-primary-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                >
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-24 h-24 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform shadow-lg">
+                      <Scan size={48} className="text-white" strokeWidth={2} />
+                    </div>
+                    <div className="text-center">
+                      <span className="text-2xl font-bold block mb-1">📲 Scanner le QR Code</span>
+                      <span className="text-sm text-white/90 font-light">Cliquez pour activer la caméra</span>
+                    </div>
+                  </div>
+                </button>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 text-center border-2 border-gray-100 hover:border-warning-200 hover:shadow-lg transition-all">
-                <div className="w-14 h-14 bg-gradient-to-br from-warning-600 to-warning-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md">
-                  <span className="text-xl font-bold text-white">2</span>
-                </div>
-                <p className="text-sm font-bold text-black mb-1">🔑 Valider</p>
-                <p className="text-xs text-gray-600 font-light">Code PIN</p>
-              </div>
+              {/* Colonne droite - Instructions et étapes */}
+              <div className="flex flex-col gap-3">
+                <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-md">
+                  <h3 className="text-lg font-bold text-black mb-3 flex items-center gap-2">
+                    <span className="text-2xl">📋</span>
+                    <span>Mode d'emploi</span>
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 bg-primary-50 rounded-lg border border-primary-200">
+                      <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span className="text-base font-bold text-white">1</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-black">📱 Scanner le QR Code</p>
+                        <p className="text-xs text-gray-600 font-light">Client présente son QR code</p>
+                      </div>
+                    </div>
 
-              <div className="bg-white rounded-2xl p-6 text-center border-2 border-gray-100 hover:border-success-200 hover:shadow-lg transition-all">
-                <div className="w-14 h-14 bg-gradient-to-br from-success-600 to-success-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md">
-                  <span className="text-xl font-bold text-white">3</span>
+                    <div className="flex items-start gap-3 p-3 bg-warning-50 rounded-lg border border-warning-200">
+                      <div className="w-9 h-9 bg-gradient-to-br from-warning-600 to-warning-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span className="text-base font-bold text-white">2</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-black">🔑 Vérifier le code PIN</p>
+                        <p className="text-xs text-gray-600 font-light">Code PIN à 6 chiffres</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 bg-success-50 rounded-lg border border-success-200">
+                      <div className="w-9 h-9 bg-gradient-to-br from-success-600 to-success-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span className="text-base font-bold text-white">3</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-black">✅ Remettre le panier</p>
+                        <p className="text-xs text-gray-600 font-light">Donner au client</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm font-semibold text-black mb-1">Remettre</p>
-                <p className="text-xs text-gray-600 font-light">Le colis</p>
+
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-blue-500 rounded-lg">
+                      <Package size={16} className="text-white" strokeWidth={2} />
+                    </div>
+                    <h4 className="text-sm font-bold text-black">Astuce</h4>
+                  </div>
+                  <p className="text-xs text-gray-700 leading-relaxed">
+                    Vérifiez le panier et le code PIN avant remise.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
