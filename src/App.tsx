@@ -19,6 +19,7 @@ import { AssociationDashboard } from './components/association/AssociationDashbo
 import { PickupStation } from './components/pickup/PickupStation';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
+import { ScrollToTop } from './components/shared/ScrollToTop';
 
 function DashboardRouter() {
   const { user, profile, loading, initialized, initialize, fetchProfile } = useAuthStore();
@@ -113,6 +114,7 @@ function App() {
   return (
     <SettingsProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           {/* Page d'accueil publique */}
           <Route path="/" element={<LandingPage />} />
