@@ -1,7 +1,22 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText, FileCheck, Briefcase } from 'lucide-react';
+
+// Types de commerces disponibles
+const BUSINESS_TYPES = [
+  { value: 'bakery', label: '🥖 Boulangerie / Pâtisserie' },
+  { value: 'restaurant', label: '🍽️ Restaurant / Bistrot' },
+  { value: 'supermarket', label: '🛒 Supermarché / Épicerie' },
+  { value: 'butcher', label: '🥩 Boucherie / Charcuterie' },
+  { value: 'fruits_vegetables', label: '🥬 Fruits & Légumes / Primeur' },
+  { value: 'grocery', label: '🏪 Épicerie fine / Traiteur' },
+  { value: 'cafe', label: '☕ Café / Salon de thé' },
+  { value: 'fastfood', label: '🍔 Fast-food / Snack' },
+  { value: 'fishmonger', label: '🐟 Poissonnerie' },
+  { value: 'cheese_dairy', label: '🧀 Fromagerie / Crèmerie' },
+  { value: 'other', label: '🏬 Autre commerce alimentaire' },
+] as const;
 
 interface AuthFormProps {
   onSuccess?: () => void;
@@ -17,6 +32,11 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [address, setAddress] = useState('');
   const [businessName, setBusinessName] = useState('');
   const [businessAddress, setBusinessAddress] = useState('');
+  const [siret, setSiret] = useState('');
+  const [businessType, setBusinessType] = useState('');
+  const [businessEmail, setBusinessEmail] = useState('');
+  const [businessDescription, setBusinessDescription] = useState('');
+  const [vatNumber, setVatNumber] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,6 +63,11 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           business_address: (role === 'merchant' || role === 'association') ? businessAddress : null,
           business_logo_url: null,
           business_hours: null,
+          siret: (role === 'merchant' || role === 'association') ? siret || null : null,
+          business_type: role === 'merchant' ? businessType || null : null,
+          business_email: (role === 'merchant' || role === 'association') ? businessEmail || null : null,
+          business_description: (role === 'merchant' || role === 'association') ? businessDescription || null : null,
+          vat_number: (role === 'merchant' || role === 'association') ? vatNumber || null : null,
           latitude: null,
           longitude: null,
           beneficiary_id: null,
@@ -365,6 +390,114 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
                         placeholder="15 avenue de la République"
                         required
+                      />
+                    </div>
+                  </div>
+
+                  {/* SIRET - Obligatoire pour les commerçants français */}
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">
+                      Numéro SIRET {role === 'association' && <span className="text-gray-400 font-light">(ou RNA)</span>}
+                    </label>
+                    <div className="relative">
+                      <FileCheck className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
+                      <input
+                        type="text"
+                        value={siret}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          setSiret(value.slice(0, 14));
+                        }}
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                        placeholder="12345678901234 (14 chiffres)"
+                        maxLength={14}
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {siret.length > 0 && siret.length !== 14 && (
+                        <span className="text-amber-600">⚠️ Le SIRET doit contenir exactement 14 chiffres</span>
+                      )}
+                      {siret.length === 14 && (
+                        <span className="text-success-600">✓ SIRET valide</span>
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Type de commerce - Uniquement pour merchants */}
+                  {role === 'merchant' && (
+                    <div>
+                      <label className="block text-sm font-medium text-black mb-2">
+                        Type de commerce
+                      </label>
+                      <div className="relative">
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
+                        <select
+                          value={businessType}
+                          onChange={(e) => setBusinessType(e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light appearance-none"
+                          required
+                        >
+                          <option value="">Sélectionnez un type</option>
+                          {BUSINESS_TYPES.map((type) => (
+                            <option key={type.value} value={type.value}>
+                              {type.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Email professionnel */}
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">
+                      Email professionnel <span className="text-gray-400 font-light">(optionnel)</span>
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
+                      <input
+                        type="email"
+                        value={businessEmail}
+                        onChange={(e) => setBusinessEmail(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                        placeholder="contact@moncommerce.fr"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Description du commerce */}
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">
+                      Description {role === 'merchant' ? 'du commerce' : 'de l\'association'} <span className="text-gray-400 font-light">(optionnel)</span>
+                    </label>
+                    <textarea
+                      value={businessDescription}
+                      onChange={(e) => setBusinessDescription(e.target.value)}
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light resize-none"
+                      placeholder={role === 'merchant' ? 'Boulangerie artisanale depuis 1985, spécialisée dans le pain bio...' : 'Association de lutte contre le gaspillage alimentaire...'}
+                      rows={3}
+                      maxLength={300}
+                    />
+                    <p className="text-xs text-gray-500 mt-1 text-right">
+                      {businessDescription.length}/300 caractères
+                    </p>
+                  </div>
+
+                  {/* Numéro de TVA - Optionnel */}
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">
+                      Numéro de TVA intracommunautaire <span className="text-gray-400 font-light">(optionnel)</span>
+                    </label>
+                    <div className="relative">
+                      <FileText className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
+                      <input
+                        type="text"
+                        value={vatNumber}
+                        onChange={(e) => setVatNumber(e.target.value.toUpperCase())}
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                        placeholder="FR12345678901"
+                        maxLength={13}
                       />
                     </div>
                   </div>

@@ -19,6 +19,11 @@ export interface Database {
           business_address: string | null;
           business_logo_url: string | null;
           business_hours: Record<string, { open: string | null; close: string | null; closed: boolean }> | null;
+          siret: string | null;
+          business_type: string | null;
+          business_email: string | null;
+          business_description: string | null;
+          vat_number: string | null;
           latitude: number | null;
           longitude: number | null;
           beneficiary_id: string | null;
@@ -36,6 +41,11 @@ export interface Database {
           business_address?: string | null;
           business_logo_url?: string | null;
           business_hours?: Record<string, { open: string | null; close: string | null; closed: boolean }> | null;
+          siret?: string | null;
+          business_type?: string | null;
+          business_email?: string | null;
+          business_description?: string | null;
+          vat_number?: string | null;
           latitude?: number | null;
           longitude?: number | null;
           beneficiary_id?: string | null;
@@ -53,6 +63,11 @@ export interface Database {
           business_address?: string | null;
           business_logo_url?: string | null;
           business_hours?: Record<string, { open: string | null; close: string | null; closed: boolean }> | null;
+          siret?: string | null;
+          business_type?: string | null;
+          business_email?: string | null;
+          business_description?: string | null;
+          vat_number?: string | null;
           latitude?: number | null;
           longitude?: number | null;
           beneficiary_id?: string | null;

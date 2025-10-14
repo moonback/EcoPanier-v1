@@ -97,6 +97,11 @@ EcoPanier utilise **PostgreSQL** via Supabase avec un schéma relationnel optimi
 | `business_address` | TEXT | | Adresse du commerce |
 | `business_hours` | JSONB | | Horaires d'ouverture (merchants) |
 | `business_logo_url` | TEXT | | URL du logo (Storage) |
+| `siret` | TEXT | CHECK (14 chiffres) | Numéro SIRET (merchants) 🆕 |
+| `business_type` | TEXT | | Type de commerce (merchants) 🆕 |
+| `business_email` | TEXT | CHECK (format email) | Email professionnel (merchants) 🆕 |
+| `business_description` | TEXT | MAX 300 chars | Description du commerce 🆕 |
+| `vat_number` | TEXT | MAX 13 chars | Numéro de TVA intracommunautaire 🆕 |
 | `latitude` | NUMERIC(10,8) | | Latitude GPS |
 | `longitude` | NUMERIC(11,8) | | Longitude GPS |
 | `beneficiary_id` | TEXT | UNIQUE | Format: YYYY-BEN-XXXXX |

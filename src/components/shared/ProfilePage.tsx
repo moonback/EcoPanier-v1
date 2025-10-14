@@ -19,8 +19,26 @@ import {
   Heart,
   Package,
   Star,
-  Clock
+  Clock,
+  FileCheck,
+  Briefcase,
+  FileText
 } from 'lucide-react';
+
+// Types de commerces disponibles
+const BUSINESS_TYPES = [
+  { value: 'bakery', label: '🥖 Boulangerie / Pâtisserie' },
+  { value: 'restaurant', label: '🍽️ Restaurant / Bistrot' },
+  { value: 'supermarket', label: '🛒 Supermarché / Épicerie' },
+  { value: 'butcher', label: '🥩 Boucherie / Charcuterie' },
+  { value: 'fruits_vegetables', label: '🥬 Fruits & Légumes / Primeur' },
+  { value: 'grocery', label: '🏪 Épicerie fine / Traiteur' },
+  { value: 'cafe', label: '☕ Café / Salon de thé' },
+  { value: 'fastfood', label: '🍔 Fast-food / Snack' },
+  { value: 'fishmonger', label: '🐟 Poissonnerie' },
+  { value: 'cheese_dairy', label: '🧀 Fromagerie / Crèmerie' },
+  { value: 'other', label: '🏬 Autre commerce alimentaire' },
+] as const;
 
 interface DayHours {
   open: string;
@@ -61,6 +79,11 @@ export const ProfilePage = () => {
     address: profile?.address || '',
     business_name: profile?.business_name || '',
     business_address: profile?.business_address || '',
+    siret: profile?.siret || '',
+    business_type: profile?.business_type || '',
+    business_email: profile?.business_email || '',
+    business_description: profile?.business_description || '',
+    vat_number: profile?.vat_number || '',
   });
 
   // Business hours state
@@ -144,6 +167,11 @@ export const ProfilePage = () => {
           address: formData.address || null,
           business_name: formData.business_name || null,
           business_address: formData.business_address || null,
+          siret: formData.siret || null,
+          business_type: formData.business_type || null,
+          business_email: formData.business_email || null,
+          business_description: formData.business_description || null,
+          vat_number: formData.vat_number || null,
         })
         .eq('id', user.id);
 
@@ -170,6 +198,11 @@ export const ProfilePage = () => {
       address: profile?.address || '',
       business_name: profile?.business_name || '',
       business_address: profile?.business_address || '',
+      siret: profile?.siret || '',
+      business_type: profile?.business_type || '',
+      business_email: profile?.business_email || '',
+      business_description: profile?.business_description || '',
+      vat_number: profile?.vat_number || '',
     });
     setIsEditing(false);
     setError('');
@@ -423,29 +456,124 @@ export const ProfilePage = () => {
 
               {/* Merchant-specific fields */}
               {profile?.role === 'merchant' && (
-                <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                <div className="space-y-6 pt-4 border-t border-gray-100">
+                  <div className="p-4 bg-gradient-to-r from-secondary-50 to-primary-50 rounded-xl border border-secondary-100">
+                    <p className="text-sm text-black font-semibold flex items-center gap-2">
+                      <span>🏪</span>
+                      <span>Informations professionnelles du commerce</span>
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Nom du commerce
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.business_name}
+                        onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
+                        placeholder="Ma Boulangerie"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Adresse du commerce
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.business_address}
+                        onChange={(e) => setFormData({ ...formData, business_address: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
+                        placeholder="15 avenue de la République"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Numéro SIRET
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.siret}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          setFormData({ ...formData, siret: value.slice(0, 14) });
+                        }}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
+                        placeholder="12345678901234 (14 chiffres)"
+                        maxLength={14}
+                      />
+                      {formData.siret && formData.siret.length !== 14 && (
+                        <p className="text-xs text-amber-600 mt-1">⚠️ Le SIRET doit contenir exactement 14 chiffres</p>
+                      )}
+                      {formData.siret && formData.siret.length === 14 && (
+                        <p className="text-xs text-success-600 mt-1">✓ SIRET valide</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Type de commerce
+                      </label>
+                      <select
+                        value={formData.business_type}
+                        onChange={(e) => setFormData({ ...formData, business_type: e.target.value })}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all appearance-none bg-white"
+                      >
+                        <option value="">Sélectionnez un type</option>
+                        {BUSINESS_TYPES.map((type) => (
+                          <option key={type.value} value={type.value}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom du commerce
+                      Email professionnel <span className="text-gray-400 font-light">(optionnel)</span>
                     </label>
                     <input
-                      type="text"
-                      value={formData.business_name}
-                      onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
+                      type="email"
+                      value={formData.business_email}
+                      onChange={(e) => setFormData({ ...formData, business_email: e.target.value })}
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
-                      placeholder="Ma Boulangerie"
+                      placeholder="contact@moncommerce.fr"
                     />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Adresse du commerce
+                      Description du commerce <span className="text-gray-400 font-light">(optionnel)</span>
+                    </label>
+                    <textarea
+                      value={formData.business_description}
+                      onChange={(e) => setFormData({ ...formData, business_description: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all resize-none"
+                      placeholder="Boulangerie artisanale depuis 1985, spécialisée dans le pain bio..."
+                      rows={3}
+                      maxLength={300}
+                    />
+                    <p className="text-xs text-gray-500 mt-1 text-right">
+                      {formData.business_description.length}/300 caractères
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Numéro de TVA intracommunautaire <span className="text-gray-400 font-light">(optionnel)</span>
                     </label>
                     <input
                       type="text"
-                      value={formData.business_address}
-                      onChange={(e) => setFormData({ ...formData, business_address: e.target.value })}
+                      value={formData.vat_number}
+                      onChange={(e) => setFormData({ ...formData, vat_number: e.target.value.toUpperCase() })}
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all"
-                      placeholder="15 avenue de la République"
+                      placeholder="FR12345678901"
+                      maxLength={13}
                     />
                   </div>
                 </div>
@@ -511,34 +639,106 @@ export const ProfilePage = () => {
               {/* Merchant-specific information */}
               {profile?.role === 'merchant' && (
                 <div className="pt-6 border-t border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Informations du commerce
-                  </h3>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
+                      <Building size={20} strokeWidth={2} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Informations professionnelles
+                      </h3>
+                      <p className="text-sm text-gray-600">Détails de votre commerce</p>
+                    </div>
+                  </div>
+                  
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <Building size={20} strokeWidth={1.5} />
+                    <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-secondary-50 to-white rounded-xl border-2 border-secondary-100">
+                      <div className="w-10 h-10 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg flex items-center justify-center shadow-md">
+                        <Building size={18} strokeWidth={2} className="text-white" />
                       </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-500">Nom du commerce</div>
-                        <div className="text-base font-semibold text-gray-900">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-gray-500 mb-1">Nom du commerce</div>
+                        <div className="text-sm font-bold text-gray-900 truncate">
                           {profile?.business_name || 'Non renseigné'}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <MapPin size={20} strokeWidth={1.5} />
+                    <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-primary-50 to-white rounded-xl border-2 border-primary-100">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-md">
+                        <Briefcase size={18} strokeWidth={2} className="text-white" />
                       </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-500">Adresse du commerce</div>
-                        <div className="text-base font-semibold text-gray-900">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-gray-500 mb-1">Type de commerce</div>
+                        <div className="text-sm font-bold text-gray-900 truncate">
+                          {profile?.business_type 
+                            ? BUSINESS_TYPES.find(t => t.value === profile.business_type)?.label || profile.business_type
+                            : 'Non renseigné'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-success-50 to-white rounded-xl border-2 border-success-100">
+                      <div className="w-10 h-10 bg-gradient-to-br from-success-500 to-success-600 rounded-lg flex items-center justify-center shadow-md">
+                        <MapPin size={18} strokeWidth={2} className="text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-gray-500 mb-1">Adresse du commerce</div>
+                        <div className="text-sm font-bold text-gray-900 truncate">
                           {profile?.business_address || 'Non renseignée'}
                         </div>
                       </div>
                     </div>
+
+                    <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-warning-50 to-white rounded-xl border-2 border-warning-100">
+                      <div className="w-10 h-10 bg-gradient-to-br from-warning-500 to-warning-600 rounded-lg flex items-center justify-center shadow-md">
+                        <FileCheck size={18} strokeWidth={2} className="text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-gray-500 mb-1">SIRET</div>
+                        <div className="text-sm font-bold text-gray-900 truncate">
+                          {profile?.siret || 'Non renseigné'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {profile?.business_email && (
+                      <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-accent-50 to-white rounded-xl border-2 border-accent-100">
+                        <div className="w-10 h-10 bg-gradient-to-br from-accent-500 to-accent-600 rounded-lg flex items-center justify-center shadow-md">
+                          <Mail size={18} strokeWidth={2} className="text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-semibold text-gray-500 mb-1">Email professionnel</div>
+                          <div className="text-sm font-bold text-gray-900 truncate">
+                            {profile.business_email}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {profile?.vat_number && (
+                      <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-purple-50 to-white rounded-xl border-2 border-purple-100">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                          <FileText size={18} strokeWidth={2} className="text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-semibold text-gray-500 mb-1">Numéro de TVA</div>
+                          <div className="text-sm font-bold text-gray-900 truncate">
+                            {profile.vat_number}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+                  {profile?.business_description && (
+                    <div className="mt-4 p-4 bg-gradient-to-br from-gray-50 to-white rounded-xl border-2 border-gray-100">
+                      <div className="text-xs font-semibold text-gray-500 mb-2">Description</div>
+                      <div className="text-sm text-gray-700 leading-relaxed">
+                        {profile.business_description}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
