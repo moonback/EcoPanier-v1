@@ -4,7 +4,7 @@
 
 
 
-> **Combattez le gaspillage alimentaire tout en nourrissant l'espoir** - Une plateforme moderne qui connecte commerçants, clients, bénéficiaires et collecteurs pour réduire le gaspillage et promouvoir la solidarité.
+> **Combattez le gaspillage alimentaire tout en nourrissant l'espoir** - Une plateforme moderne qui connecte commerçants, clients, bénéficiaires, associations et collecteurs pour réduire le gaspillage et promouvoir la solidarité.
 
 [![React](https://img.shields.io/badge/React-18.3.1-blue?logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -23,6 +23,7 @@
 - **Réduire le gaspillage** : Sauver les invendus alimentaires avant qu'ils ne finissent à la poubelle
 - **Promouvoir la solidarité** : Les commerçants créent des lots gratuits exclusifs pour les bénéficiaires (2 lots/jour max)
 - **Soutenir les commerces locaux** : Valoriser les commerçants engagés dans la démarche anti-gaspillage
+- **Accompagner les associations** : Faciliter l'enregistrement et le suivi des bénéficiaires par les associations partenaires
 - **Faciliter la logistique** : Coordonner les collecteurs pour les livraisons solidaires
 
 ---
@@ -31,7 +32,7 @@
 
 ### 👥 Multi-rôles
 
-La plateforme gère **5 types d'utilisateurs** avec des fonctionnalités dédiées :
+La plateforme gère **6 types d'utilisateurs** avec des fonctionnalités dédiées :
 
 #### 🛍️ **Client**
 - Navigation et recherche de lots à prix réduits (jusqu'à -70%)
@@ -54,6 +55,16 @@ La plateforme gère **5 types d'utilisateurs** avec des fonctionnalités dédié
 - Système de vérification avec ID unique (YYYY-BEN-XXXXX)
 - Retrait avec QR code et PIN en toute dignité
 - Suivi de l'aide reçue (repas sauvés, valeur)
+
+#### 🏛️ **Association**
+- Enregistrement et gestion des bénéficiaires partenaires
+- Dashboard avec 7 onglets dédiés (statistiques, enregistrement, export, etc.)
+- Création de comptes bénéficiaires avec ID unique auto-généré
+- Statistiques avancées avec graphiques d'évolution sur 6 mois
+- Historique détaillé de l'activité des bénéficiaires (réservations)
+- Export de données (CSV/JSON) pour rapports et conformité RGPD
+- Gestion des informations de l'association (nom, adresse, responsable)
+- Suivi en temps réel (total enregistrés, vérifiés, actifs du mois)
 
 #### 🚚 **Collecteur**
 - Liste des missions de collecte disponibles
@@ -80,6 +91,27 @@ Fonctionnalité phare de solidarité :
 - Récupération identique aux autres clients (QR code + PIN)
 - Aucune distinction visuelle pour préserver la dignité
 - Suivi transparent de l'aide distribuée
+
+### 🏛️ Espace Association
+
+Interface dédiée aux associations partenaires pour gérer leurs bénéficiaires :
+
+#### Dashboard avec 7 onglets
+1. **Vue d'ensemble** : KPIs en temps réel (total, vérifiés, en attente, inscriptions du mois)
+2. **Statistiques avancées** : Graphiques d'évolution sur 6 mois (inscriptions, réservations, catégories)
+3. **Informations** : Gestion du profil association (nom, adresse, responsable)
+4. **Enregistrer** : Formulaire de création de comptes bénéficiaires
+5. **Bénéficiaires** : Liste complète avec gestion (vérification, suppression)
+6. **Activité** : Historique détaillé des réservations par bénéficiaire
+7. **Export** : Téléchargement CSV/JSON pour rapports
+
+#### Fonctionnalités clés
+- **Enregistrement simplifié** : Création de comptes bénéficiaires en quelques clics
+- **ID unique auto-généré** : Format YYYY-BEN-XXXXX attribué automatiquement
+- **Suivi de l'activité** : Visualisation des réservations de chaque bénéficiaire
+- **Statistiques visuelles** : Graphiques interactifs (évolution, répartition par catégorie)
+- **Export de données** : Conformité RGPD avec export CSV/JSON
+- **Gestion des vérifications** : Basculer le statut de vérification des bénéficiaires
 
 ### 📱 Station de Retrait
 
@@ -349,6 +381,16 @@ ecopanier/
 │   │   │   └── SettingsHistory.tsx
 │   │   ├── auth/               # Authentification
 │   │   │   └── AuthForm.tsx
+│   │   ├── association/        # Composants association
+│   │   │   ├── AssociationDashboard.tsx
+│   │   │   ├── AssociationStats.tsx
+│   │   │   ├── AdvancedStats.tsx
+│   │   │   ├── AssociationInfo.tsx
+│   │   │   ├── BeneficiaryRegistration.tsx
+│   │   │   ├── RegisteredBeneficiaries.tsx
+│   │   │   ├── BeneficiaryActivityHistory.tsx
+│   │   │   ├── ExportData.tsx
+│   │   │   └── README.md
 │   │   ├── beneficiary/        # Composants bénéficiaire
 │   │   │   ├── BeneficiaryDashboard.tsx
 │   │   │   ├── BeneficiaryReservations.tsx
@@ -406,7 +448,9 @@ ecopanier/
 │       ├── 20251011204650_create_food_waste_platform_schema.sql
 │       ├── 20251012_platform_settings.sql
 │       ├── 20251012_suspended_baskets.sql
-│       └── 20251012_suspended_baskets_sample_data.sql
+│       ├── 20251012_suspended_baskets_sample_data.sql
+│       ├── 20250116_add_association_role.sql
+│       └── 20250116_add_association_beneficiary_registrations.sql
 ├── .env.example                # Exemple de configuration
 ├── .gitignore                  # Fichiers ignorés par Git
 ├── eslint.config.js            # Configuration ESLint
@@ -552,6 +596,7 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](./LICENSE) pour pl
 - [Documentation d'architecture](./ARCHITECTURE.md) - Architecture système détaillée
 - [Documentation API](./API_DOCS.md) - Référence complète de l'API
 - [Schéma de la base de données](./DB_SCHEMA.md) - Structure de la base de données
+- [Documentation Espace Association](./docs/ASSOCIATION_FEATURE.md) - Guide complet de l'espace association
 - [Roadmap](./ROADMAP.md) - Fonctionnalités à venir
 - [Guide de contribution](./CONTRIBUTING.md) - Comment contribuer
 
