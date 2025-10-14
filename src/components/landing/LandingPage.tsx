@@ -34,7 +34,7 @@ export const LandingPage = () => {
         keywords="anti-gaspillage alimentaire, solidarité alimentaire, commerce local, invendus, paniers suspendus, aide alimentaire, commerçants engagés, économie circulaire, impact social, plateforme solidaire France"
         url="https://ecopanier.fr"
       />
-      <Header transparent />
+      <Header />
       
       {/* Sticky CTA flottant */}
       <StickyCTA />

@@ -35,7 +35,7 @@ export const AssociationLanding = () => {
         keywords="aide alimentaire, association solidaire, gestion bénéficiaires, solidarité locale, précarité alimentaire, banque alimentaire"
         url="https://ecopanier.fr/associations"
       />
-      <Header transparent />
+      <Header />
       
       {/* Sticky CTA flottant */}
       <AssociationStickyCTA />

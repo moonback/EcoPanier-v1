@@ -4,7 +4,7 @@ import { useAuthStore } from '../../../stores/authStore';
 import { Header } from '../../shared/Header';
 import { Footer } from '../../shared/Footer';
 import { SEOHead } from '../../shared/SEOHead';
-import { MerchantStickyCTA } from './MerchantStickyCTA';
+import { MerchantStickyCTA } from '../../merchant/landing/MerchantStickyCTA';
 import {
   MerchantHeroSection,
   MerchantWhySection,
@@ -36,7 +36,7 @@ export const MerchantLanding = () => {
         keywords="commerçants anti-gaspillage, valorisation invendus, commerce local, gestion invendus, économie circulaire, boulangerie, primeur, restauration"
         url="https://ecopanier.fr/commercants"
       />
-      <Header transparent />
+      <Header />
       
       {/* Sticky CTA flottant */}
       <MerchantStickyCTA />
