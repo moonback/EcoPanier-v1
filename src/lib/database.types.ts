@@ -1,4 +1,4 @@
-export type UserRole = 'customer' | 'merchant' | 'beneficiary' | 'collector' | 'admin';
+export type UserRole = 'customer' | 'merchant' | 'beneficiary' | 'collector' | 'admin' | 'association';
 export type LotStatus = 'available' | 'reserved' | 'sold_out' | 'expired';
 export type ReservationStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type MissionStatus = 'available' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
@@ -305,6 +305,41 @@ export interface Database {
           type?: NotificationType;
           read?: boolean;
           created_at?: string;
+        };
+      };
+      association_beneficiary_registrations: {
+        Row: {
+          id: string;
+          association_id: string;
+          beneficiary_id: string;
+          registration_date: string;
+          notes: string | null;
+          verification_document_url: string | null;
+          is_verified: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          association_id: string;
+          beneficiary_id: string;
+          registration_date?: string;
+          notes?: string | null;
+          verification_document_url?: string | null;
+          is_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          association_id?: string;
+          beneficiary_id?: string;
+          registration_date?: string;
+          notes?: string | null;
+          verification_document_url?: string | null;
+          is_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };

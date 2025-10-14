@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText } from 'lucide-react';
 
 interface AuthFormProps {
   onSuccess?: () => void;
