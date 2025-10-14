@@ -1,54 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Menu, 
-  X, 
-  HelpCircle, 
-  Layers,
-  Home,
-  Store,
-  Building2,
-  ChevronDown,
-  ChefHat
-} from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
-interface HeaderProps {
-  transparent?: boolean;
-}
-
-export const Header = ({ transparent = false }: HeaderProps) => {
+export const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Accueil', path: '/', icon: Home },
-    { name: 'Comment ça marche', path: '/how-it-works', icon: Layers },
-    { name: 'Centre d\'aide', path: '/help', icon: HelpCircle },
-  ];
-
-  const roleLinks = [
-    { 
-      name: 'Commerçants', 
-      path: '/commercants', 
-      icon: Store,
-      description: 'Valorisez vos invendus',
-      emoji: '🏪'
-    },
-    { 
-      name: 'Restaurateurs', 
-      path: '/restaurateurs', 
-      icon: ChefHat,
-      description: 'Transformez vos restes en dons',
-      emoji: '👨‍🍳'
-    },
-    { 
-      name: 'Associations', 
-      path: '/associations', 
-      icon: Building2,
-      description: 'Gérez votre aide alimentaire',
-      emoji: '🏛️'
-    },
+    { name: 'Accueil', path: '/' },
+    { name: 'Comment ça marche', path: '/how-it-works' },
+    { name: 'Commerçants', path: '/commercants' },
+    { name: 'Restaurateurs', path: '/restaurateurs' },
+    { name: 'Associations', path: '/associations' },
+    { name: 'Aide', path: '/help' },
   ];
 
   return (
@@ -69,61 +33,16 @@ export const Header = ({ transparent = false }: HeaderProps) => {
             </button>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-6">
               {navLinks.map((link) => (
                 <button
                   key={link.path}
                   onClick={() => navigate(link.path)}
-                  className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
+                  className="text-sm font-medium text-gray-700 hover:text-black transition-colors whitespace-nowrap"
                 >
                   {link.name}
                 </button>
               ))}
-              
-              {/* Dropdown "Pour vous" */}
-              <div className="relative">
-                <button
-                  onMouseEnter={() => setDropdownOpen(true)}
-                  onMouseLeave={() => setDropdownOpen(false)}
-                  className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-black transition-colors"
-                >
-                  Pour vous
-                  <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Dropdown Menu */}
-                {dropdownOpen && (
-                  <div
-                    onMouseEnter={() => setDropdownOpen(true)}
-                    onMouseLeave={() => setDropdownOpen(false)}
-                    className="absolute top-full right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50"
-                  >
-                    {roleLinks.map((role) => {
-                      const Icon = role.icon;
-                      return (
-                        <button
-                          key={role.path}
-                          onClick={() => {
-                            navigate(role.path);
-                            setDropdownOpen(false);
-                          }}
-                          className="w-full flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
-                        >
-                          <span className="text-2xl flex-shrink-0">{role.emoji}</span>
-                          <div className="flex-1">
-                            <div className="font-semibold text-gray-900 mb-0.5 flex items-center gap-2">
-                              {role.name}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {role.description}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
             </nav>
 
             {/* CTA Buttons Desktop */}
@@ -190,7 +109,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
 
           {/* Navigation Links */}
           <div className="flex-1 overflow-y-auto p-6">
-            <nav className="space-y-1">
+            <nav className="space-y-2">
               {navLinks.map((link) => (
                 <button
                   key={link.path}
@@ -203,31 +122,6 @@ export const Header = ({ transparent = false }: HeaderProps) => {
                   {link.name}
                 </button>
               ))}
-              
-              {/* Section "Pour vous" en mobile */}
-              <div className="pt-4 mt-4 border-t border-gray-200">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-4 mb-2">
-                  Pour vous
-                </div>
-                {roleLinks.map((role) => (
-                  <button
-                    key={role.path}
-                    onClick={() => {
-                      navigate(role.path);
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-100 rounded-lg transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{role.emoji}</span>
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900">{role.name}</div>
-                        <div className="text-xs text-gray-500">{role.description}</div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
             </nav>
           </div>
 
