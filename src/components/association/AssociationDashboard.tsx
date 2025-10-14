@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
-import { Users, UserPlus, FileText, LogOut, BarChart3, Building2 } from 'lucide-react';
+import { Users, UserPlus, FileText, LogOut, BarChart3, Building2, Download, Clock, TrendingUp } from 'lucide-react';
 import { BeneficiaryRegistration } from './BeneficiaryRegistration';
 import { RegisteredBeneficiaries } from './RegisteredBeneficiaries';
 import { AssociationStats } from './AssociationStats';
 import { AssociationInfo } from './AssociationInfo';
+import { ExportData } from './ExportData';
+import { BeneficiaryActivityHistory } from './BeneficiaryActivityHistory';
+import { AdvancedStats } from './AdvancedStats';
 
-type TabType = 'stats' | 'register' | 'list' | 'info';
+type TabType = 'stats' | 'register' | 'list' | 'info' | 'export' | 'activity' | 'advanced';
 
 export function AssociationDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('stats');
@@ -21,10 +24,13 @@ export function AssociationDashboard() {
   };
 
   const tabs = [
-    { id: 'stats' as TabType, label: 'Statistiques', icon: BarChart3 },
+    { id: 'stats' as TabType, label: 'Vue d\'ensemble', icon: BarChart3 },
+    { id: 'advanced' as TabType, label: 'Statistiques avancées', icon: TrendingUp },
     { id: 'info' as TabType, label: 'Informations', icon: Building2 },
-    { id: 'register' as TabType, label: 'Enregistrer un bénéficiaire', icon: UserPlus },
-    { id: 'list' as TabType, label: 'Mes bénéficiaires', icon: Users },
+    { id: 'register' as TabType, label: 'Enregistrer', icon: UserPlus },
+    { id: 'list' as TabType, label: 'Bénéficiaires', icon: Users },
+    { id: 'activity' as TabType, label: 'Activité', icon: Clock },
+    { id: 'export' as TabType, label: 'Export', icon: Download },
   ];
 
   return (
@@ -94,9 +100,12 @@ export function AssociationDashboard() {
       {/* Contenu principal */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'stats' && <AssociationStats />}
+        {activeTab === 'advanced' && <AdvancedStats />}
         {activeTab === 'info' && <AssociationInfo />}
         {activeTab === 'register' && <BeneficiaryRegistration />}
         {activeTab === 'list' && <RegisteredBeneficiaries />}
+        {activeTab === 'activity' && <BeneficiaryActivityHistory />}
+        {activeTab === 'export' && <ExportData />}
       </main>
     </div>
   );
