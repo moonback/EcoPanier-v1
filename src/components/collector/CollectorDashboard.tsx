@@ -3,7 +3,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { MissionsList } from './MissionsList';
 import { MyMissions } from './MyMissions';
 import { CollectorStats } from './CollectorStats';
-import { ProfilePage } from '../shared/ProfilePage';
+import { CollectorProfilePage } from './CollectorProfilePage';
 import { Truck, History, LogOut, User, TrendingUp } from 'lucide-react';
 
 export const CollectorDashboard = () => {
@@ -48,7 +48,7 @@ export const CollectorDashboard = () => {
         {activeTab === 'available' && <MissionsList />}
         {activeTab === 'my-missions' && <MyMissions />}
         {activeTab === 'stats' && <CollectorStats />}
-        {activeTab === 'profile' && <ProfilePage />}
+        {activeTab === 'profile' && <CollectorProfilePage />}
       </main>
 
       {/* Barre de navigation fixe en bas */}
