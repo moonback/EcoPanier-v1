@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, categories, uploadImage, deleteImages } from '../../utils/helpers';
 import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
-import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar, Filter } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 import { format, addDays, startOfDay, setHours, setMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -459,37 +459,75 @@ export const LotManagement = () => {
         </div>
 
         {/* Boutons de filtre */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setDisplayFilter('all')}
-            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
-              displayFilter === 'all'
-                ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg scale-105'
-                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-primary-300'
-            }`}
-          >
-            📦 Tous ({lots.length})
-          </button>
-          <button
-            onClick={() => setDisplayFilter('paid')}
-            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
-              displayFilter === 'paid'
-                ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg scale-105'
-                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-green-300'
-            }`}
-          >
-            💰 Avec prix ({lots.filter(l => l.discounted_price > 0).length})
-          </button>
-          <button
-            onClick={() => setDisplayFilter('donations')}
-            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
-              displayFilter === 'donations'
-                ? 'bg-gradient-to-r from-accent-600 to-pink-600 text-white shadow-lg scale-105'
-                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-accent-300'
-            }`}
-          >
-            ❤️ Dons généreux ({lots.filter(l => l.discounted_price === 0).length})
-          </button>
+        <div className="bg-white rounded-2xl border-2 border-gray-100 p-4 shadow-md">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg shadow-sm">
+              <Filter size={18} className="text-white" strokeWidth={2} />
+            </div>
+            <h3 className="text-sm font-bold text-gray-800">Filtrer par type</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setDisplayFilter('all')}
+              className={`group relative overflow-hidden px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                displayFilter === 'all'
+                  ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg scale-105'
+                  : 'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 text-gray-700 hover:border-primary-400 hover:scale-102 hover:shadow-md'
+              }`}
+            >
+              <span className="relative z-10 flex items-center gap-1.5">
+                <span className="text-base">📦</span>
+                <span>Tous</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  displayFilter === 'all' 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-primary-100 text-primary-700'
+                }`}>
+                  {lots.length}
+                </span>
+              </span>
+            </button>
+            <button
+              onClick={() => setDisplayFilter('paid')}
+              className={`group relative overflow-hidden px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                displayFilter === 'paid'
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg scale-105'
+                  : 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 text-green-700 hover:border-green-400 hover:scale-102 hover:shadow-md'
+              }`}
+            >
+              <span className="relative z-10 flex items-center gap-1.5">
+                <span className="text-base">💰</span>
+                <span>Avec prix</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  displayFilter === 'paid' 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-green-200 text-green-800'
+                }`}>
+                  {lots.filter(l => l.discounted_price > 0).length}
+                </span>
+              </span>
+            </button>
+            <button
+              onClick={() => setDisplayFilter('donations')}
+              className={`group relative overflow-hidden px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                displayFilter === 'donations'
+                  ? 'bg-gradient-to-r from-accent-600 to-pink-600 text-white shadow-lg scale-105'
+                  : 'bg-gradient-to-br from-accent-50 to-pink-50 border-2 border-accent-200 text-accent-700 hover:border-accent-400 hover:scale-102 hover:shadow-md'
+              }`}
+            >
+              <span className="relative z-10 flex items-center gap-1.5">
+                <span className="text-base">❤️</span>
+                <span>Dons généreux</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  displayFilter === 'donations' 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-accent-200 text-accent-800'
+                }`}>
+                  {lots.filter(l => l.discounted_price === 0).length}
+                </span>
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
