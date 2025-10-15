@@ -1,18 +1,34 @@
 // Imports externes
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Scan, ArrowLeft, Check, AlertCircle, Package, DollarSign, Calendar, Clock, Sparkles, ImagePlus } from 'lucide-react';
-import { format, addDays, startOfDay, setHours, setMinutes } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { Scan, ArrowLeft, Check, AlertCircle, Package, Calendar, Clock, Sparkles, ImagePlus } from 'lucide-react';
+import { addDays, startOfDay, setHours, setMinutes } from 'date-fns';
 
 // Imports internes
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { fetchProductByBarcode, mapOpenFoodFactsCategory, estimatePrice } from '../../utils/openFoodFactsService';
 import { categories, uploadImage } from '../../utils/helpers';
-import type { Database } from '../../lib/database.types';
 
-type LotInsert = Database['public']['Tables']['lots']['Insert'];
+// Type pour l'insertion d'un lot (contournement du problème de types Supabase)
+interface LotInsertData {
+  merchant_id: string;
+  title: string;
+  description: string;
+  category: string;
+  original_price: number;
+  discounted_price: number;
+  quantity_total: number;
+  quantity_reserved?: number;
+  quantity_sold?: number;
+  pickup_start: string;
+  pickup_end: string;
+  requires_cold_chain?: boolean;
+  is_urgent?: boolean;
+  status?: 'available' | 'reserved' | 'sold_out' | 'expired';
+  image_urls?: string[] | null;
+  barcode?: string | null;
+}
 
 interface ScannedProduct {
   barcode: string;
@@ -195,7 +211,7 @@ export function QuickAddProduct() {
     setSaving(true);
 
     try {
-      const lotData: LotInsert = {
+      const lotData: LotInsertData = {
         merchant_id: profile.id,
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -214,7 +230,9 @@ export function QuickAddProduct() {
         barcode: scannedProduct?.barcode || null,
       };
 
-      const { error } = await supabase.from('lots').insert([lotData]);
+      // Note: Types Supabase générés posent problème, contournement temporaire
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await supabase.from('lots').insert([lotData as any]);
 
       if (error) throw error;
 
