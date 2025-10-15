@@ -56,7 +56,7 @@ export function QRCodeModal({ reservation, userId, onClose }: QRCodeModalProps):
       aria-modal="true"
       aria-label="Code de retrait"
     >
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-lg my-auto max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-lg my-auto max-h-[100vh] overflow-y-auto">
         {/* En-tête */}
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-2xl font-bold text-gray-900">Code de retrait</h3>
