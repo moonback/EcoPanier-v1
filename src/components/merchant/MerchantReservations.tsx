@@ -310,9 +310,16 @@ export const MerchantReservations = () => {
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600 font-light">Total</span>
-                    <span className="text-lg font-bold text-black">
-                      {formatCurrency(reservation.total_price)}
-                    </span>
+                    {reservation.total_price === 0 ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-accent-500 to-pink-500 text-white rounded-lg text-sm font-bold shadow-md">
+                        <span>❤️</span>
+                        <span>Don généreux</span>
+                      </span>
+                    ) : (
+                      <span className="text-lg font-bold text-black">
+                        {formatCurrency(reservation.total_price)}
+                      </span>
+                    )}
                   </div>
                 </div>
 

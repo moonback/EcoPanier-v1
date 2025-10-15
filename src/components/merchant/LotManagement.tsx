@@ -540,13 +540,22 @@ export const LotManagement = () => {
                     {lot.title}
                   </h3>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold text-gray-900">
-                      {formatCurrency(lot.discounted_price)}
-                    </span>
-                    {lot.original_price > lot.discounted_price && (
-                      <span className="text-xs text-gray-400 line-through">
-                        {formatCurrency(lot.original_price)}
+                    {lot.discounted_price === 0 ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-accent-500 to-pink-500 text-white rounded-lg text-sm font-bold shadow-md">
+                        <span>❤️</span>
+                        <span>Don généreux</span>
                       </span>
+                    ) : (
+                      <>
+                        <span className="text-lg font-bold text-gray-900">
+                          {formatCurrency(lot.discounted_price)}
+                        </span>
+                        {lot.original_price > lot.discounted_price && (
+                          <span className="text-xs text-gray-400 line-through">
+                            {formatCurrency(lot.original_price)}
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
