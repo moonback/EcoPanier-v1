@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Package, MapPin, Clock, ShoppingCart, Heart, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Package, MapPin, Clock, ShoppingCart, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database } from '../../../lib/database.types';
@@ -16,11 +16,10 @@ interface LotDetailsModalProps {
   lot: Lot;
   onClose: () => void;
   onReserve: () => void;
-  onDonate: () => void;
   onMerchantClick?: () => void;
 }
 
-export function LotDetailsModal({ lot, onClose, onReserve, onDonate, onMerchantClick }: LotDetailsModalProps) {
+export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: LotDetailsModalProps) {
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
@@ -292,28 +291,18 @@ export function LotDetailsModal({ lot, onClose, onReserve, onDonate, onMerchantC
           )}
 
           {/* Actions */}
-          <div className="flex gap-3">
-            <button
-              onClick={onReserve}
-              disabled={availableQty === 0}
-              className={`flex-1 flex items-center justify-center gap-2.5 py-4 rounded-xl font-medium text-lg transition-all ${
-                availableQty === 0
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-black text-white hover:bg-gray-900'
-              }`}
-            >
-              <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
-              {availableQty === 0 ? 'Épuisé' : 'Réserver'}
-            </button>
-            <button
-              onClick={onDonate}
-              className="px-6 py-4 bg-gray-100 hover:bg-gray-200 text-black rounded-xl transition-all font-medium flex items-center justify-center gap-2"
-              title="Offrir en panier suspendu"
-            >
-              <Heart className="w-5 h-5" strokeWidth={1.5} />
-              <span className="hidden sm:inline">Offrir</span>
-            </button>
-          </div>
+          <button
+            onClick={onReserve}
+            disabled={availableQty === 0}
+            className={`w-full flex items-center justify-center gap-2.5 py-4 rounded-xl font-medium text-lg transition-all ${
+              availableQty === 0
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-black text-white hover:bg-gray-900'
+            }`}
+          >
+            <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
+            {availableQty === 0 ? 'Épuisé' : 'Réserver'}
+          </button>
         </div>
       </div>
 

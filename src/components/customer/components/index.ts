@@ -6,7 +6,6 @@ export { LotCard } from './LotCard';
 export { ReservationCard } from './ReservationCard';
 export { ImpactCard } from './ImpactCard';
 export { ReservationModal } from './ReservationModal';
-export { DonationModal } from './DonationModal';
 export { FilterModal } from './FilterModal';
 export { QRCodeModal } from './QRCodeModal';
 export { LotDetailsModal } from './LotDetailsModal';

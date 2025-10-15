@@ -10,7 +10,6 @@ import { getCategoryLabel } from '../../utils/helpers';
 import {
   LotCard,
   ReservationModal,
-  DonationModal,
   LotDetailsModal,
   MerchantLotsModal,
   FilterSidebar,
@@ -46,7 +45,7 @@ export const LotBrowser = () => {
   // État local
   const [showFilterSidebar, setShowFilterSidebar] = useState(false);
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
-  const [reservationMode, setReservationMode] = useState<'reserve' | 'donate' | null>(null);
+  const [reservationMode, setReservationMode] = useState<'reserve' | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showMerchantLotsModal, setShowMerchantLotsModal] = useState(false);
   const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_FILTERS);
@@ -70,20 +69,9 @@ export const LotBrowser = () => {
     setReservationMode('reserve');
   };
 
-  const handleDonateLot = (lot: Lot) => {
-    setSelectedLot(lot);
-    setShowDetailsModal(false);
-    setReservationMode('donate');
-  };
-
   const handleReserveFromDetails = () => {
     setShowDetailsModal(false);
     setReservationMode('reserve');
-  };
-
-  const handleDonateFromDetails = () => {
-    setShowDetailsModal(false);
-    setReservationMode('donate');
   };
 
   const handleConfirmReservation = async (quantity: number) => {
@@ -91,15 +79,6 @@ export const LotBrowser = () => {
 
     const pin = await reserveLot(selectedLot, quantity, profile.id, false);
     alert(`Réservation confirmée! Code PIN: ${pin}`);
-    setSelectedLot(null);
-    setReservationMode(null);
-  };
-
-  const handleConfirmDonation = async (quantity: number) => {
-    if (!selectedLot || !profile) return;
-
-    await reserveLot(selectedLot, quantity, profile.id, true);
-    alert('Panier suspendu créé avec succès!');
     setSelectedLot(null);
     setReservationMode(null);
   };
@@ -272,7 +251,6 @@ export const LotBrowser = () => {
                 key={lot.id}
                 lot={lot}
                 onReserve={handleReserveLot}
-                onDonate={handleDonateLot}
                 onViewDetails={handleViewDetails}
               />
             ))}
@@ -286,7 +264,6 @@ export const LotBrowser = () => {
             lot={selectedLot}
             onClose={handleCloseDetailsModal}
             onReserve={handleReserveFromDetails}
-            onDonate={handleDonateFromDetails}
             onMerchantClick={handleMerchantClick}
           />
         )}
@@ -300,7 +277,6 @@ export const LotBrowser = () => {
             onClose={handleCloseMerchantModal}
             onLotSelect={handleViewDetails}
             onReserve={handleReserveLot}
-            onDonate={handleDonateLot}
           />
         )}
 
@@ -309,14 +285,6 @@ export const LotBrowser = () => {
             lot={selectedLot}
             onClose={handleCloseModal}
             onConfirm={handleConfirmReservation}
-          />
-        )}
-
-        {selectedLot && reservationMode === 'donate' && (
-          <DonationModal
-            lot={selectedLot}
-            onClose={handleCloseModal}
-            onConfirm={handleConfirmDonation}
           />
         )}
         </div>

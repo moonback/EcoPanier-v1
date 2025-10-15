@@ -1,4 +1,4 @@
-import { Package, MapPin, Clock, Heart, ShoppingCart } from 'lucide-react';
+import { Package, MapPin, Clock, ShoppingCart } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database } from '../../../lib/database.types';
@@ -15,7 +15,6 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
 interface LotCardProps {
   lot: Lot;
   onReserve: (lot: Lot) => void;
-  onDonate: (lot: Lot) => void;
   onViewDetails?: (lot: Lot) => void;
 }
 
@@ -23,7 +22,7 @@ interface LotCardProps {
  * Composant carte pour afficher un lot disponible
  * Design cohérent avec les cartes marchands
  */
-export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProps) {
+export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
   const availableQty =
     lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
   const discount = Math.round(
@@ -163,40 +162,22 @@ export function LotCard({ lot, onReserve, onDonate, onViewDetails }: LotCardProp
           </div>
         </div>
 
-        {/* Boutons d'action */}
-        <div className="flex gap-2">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onReserve(lot);
-            }}
-            disabled={isOutOfStock}
-            className={`flex-1 py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 text-sm font-semibold ${
-              isOutOfStock
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 hover:from-blue-100 hover:to-indigo-100 border border-blue-200'
-            }`}
-          >
-            <ShoppingCart size={14} strokeWidth={2} />
-            <span>{isOutOfStock ? 'Épuisé' : 'Réserver'}</span>
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDonate(lot);
-            }}
-            disabled={isOutOfStock}
-            className={`p-2 rounded-lg transition-all ${
-              isOutOfStock
-                ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-50 text-gray-600 hover:bg-pink-50 hover:text-pink-600 border border-gray-200 hover:border-pink-300'
-            }`}
-            aria-label="Offrir en panier suspendu"
-            title="Panier suspendu"
-          >
-            <Heart size={14} strokeWidth={2} />
-          </button>
-        </div>
+        {/* Bouton d'action */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onReserve(lot);
+          }}
+          disabled={isOutOfStock}
+          className={`w-full py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 text-sm font-semibold ${
+            isOutOfStock
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 hover:from-blue-100 hover:to-indigo-100 border border-blue-200'
+          }`}
+        >
+          <ShoppingCart size={14} strokeWidth={2} />
+          <span>{isOutOfStock ? 'Épuisé' : 'Réserver'}</span>
+        </button>
       </div>
     </div>
   );

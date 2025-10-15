@@ -20,7 +20,6 @@ interface MerchantLotsModalProps {
   onClose: () => void;
   onLotSelect: (lot: Lot) => void;
   onReserve: (lot: Lot) => void;
-  onDonate: (lot: Lot) => void;
 }
 
 export function MerchantLotsModal({
@@ -31,7 +30,6 @@ export function MerchantLotsModal({
   onClose,
   onLotSelect,
   onReserve,
-  onDonate,
 }: MerchantLotsModalProps) {
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,7 +154,6 @@ export function MerchantLotsModal({
                   key={lot.id}
                   lot={lot}
                   onReserve={onReserve}
-                  onDonate={onDonate}
                   onViewDetails={onLotSelect}
                 />
               ))}
