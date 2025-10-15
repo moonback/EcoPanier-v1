@@ -2,16 +2,18 @@ import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { MissionsList } from './MissionsList';
 import { MyMissions } from './MyMissions';
+import { CollectorStats } from './CollectorStats';
 import { ProfilePage } from '../shared/ProfilePage';
-import { Truck, History, LogOut, User } from 'lucide-react';
+import { Truck, History, LogOut, User, TrendingUp } from 'lucide-react';
 
 export const CollectorDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'available' | 'my-missions' | 'profile'>('available');
+  const [activeTab, setActiveTab] = useState<'available' | 'my-missions' | 'stats' | 'profile'>('available');
   const { profile, signOut } = useAuthStore();
 
   const tabs = [
     { id: 'available', label: 'Missions Dispo', icon: Truck, emoji: '🚚' },
     { id: 'my-missions', label: 'Mes Missions', icon: History, emoji: '📦' },
+    { id: 'stats', label: 'Mes Revenus', icon: TrendingUp, emoji: '💰' },
     { id: 'profile', label: 'Profil', icon: User, emoji: '👤' },
   ];
 
@@ -45,6 +47,7 @@ export const CollectorDashboard = () => {
       <main className="max-w-7xl mx-auto px-6 py-6 pb-24">
         {activeTab === 'available' && <MissionsList />}
         {activeTab === 'my-missions' && <MyMissions />}
+        {activeTab === 'stats' && <CollectorStats />}
         {activeTab === 'profile' && <ProfilePage />}
       </main>
 
@@ -59,7 +62,7 @@ export const CollectorDashboard = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'available' | 'my-missions' | 'profile')}
+                  onClick={() => setActiveTab(tab.id as 'available' | 'my-missions' | 'stats' | 'profile')}
                   className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
                     isActive
                       ? 'text-success-600'
