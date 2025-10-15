@@ -90,18 +90,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-6 bg-black">
-      {/* Vidéo en arrière-plan */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-30"
-      >
-        <source src="/ÉcoPanier.mp4" type="video/mp4" />
-      </video>
-      
+    <div className="min-h-screen flex flex-col lg:flex-row relative overflow-hidden bg-white">
       {/* Bouton retour accueil */}
       <button
         onClick={() => navigate('/')}
@@ -110,9 +99,76 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         <span className="hidden sm:inline">Retour accueil</span>
       </button>
-      
-      {/* Conteneur du formulaire */}
-      <div className="max-w-md w-full bg-white p-8 relative z-10 rounded-lg">
+
+      {/* Colonne gauche - Photo/Vidéo */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-primary-600 to-primary-800">
+        {/* Vidéo en arrière-plan */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
+        >
+          <source src="/ÉcoPanier.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Overlay avec contenu */}
+        <div className="relative z-10 flex flex-col items-center justify-center w-full p-12 text-white">
+          <div className="max-w-md space-y-6">
+            <div className="space-y-4">
+              <h1 className="text-4xl font-bold leading-tight">
+                Ensemble contre le gaspillage alimentaire
+              </h1>
+              <p className="text-lg text-white/90 font-light">
+                Rejoignez des milliers d'utilisateurs engagés pour sauver des repas et protéger notre planète
+              </p>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 pt-8">
+              <div className="text-center">
+                <div className="text-3xl font-bold">10k+</div>
+                <div className="text-sm text-white/80">Utilisateurs</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">50k+</div>
+                <div className="text-sm text-white/80">Repas sauvés</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">-70%</div>
+                <div className="text-sm text-white/80">D'économies</div>
+              </div>
+            </div>
+
+            {/* Avantages */}
+            <div className="space-y-3 pt-8">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <span className="text-lg">🌍</span>
+                </div>
+                <span className="text-white/90">Réduisez votre impact environnemental</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <span className="text-lg">💰</span>
+                </div>
+                <span className="text-white/90">Économisez jusqu'à 70% sur vos courses</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <span className="text-lg">🤝</span>
+                </div>
+                <span className="text-white/90">Soutenez les commerces locaux</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Colonne droite - Formulaire */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
+        <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <img
@@ -628,6 +684,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
