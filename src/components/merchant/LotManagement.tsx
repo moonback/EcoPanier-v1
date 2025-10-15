@@ -20,6 +20,7 @@ export const LotManagement = () => {
   const [analyzingImage, setAnalyzingImage] = useState(false);
   const [analysisConfidence, setAnalysisConfidence] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
+  const [displayFilter, setDisplayFilter] = useState<'all' | 'paid' | 'donations'>('all');
   const { profile } = useAuthStore();
 
   const totalSteps = editingLot ? 4 : 5; // 5 étapes pour création (avec IA), 4 pour édition
@@ -425,33 +426,76 @@ export const LotManagement = () => {
     );
   }
 
+  // Filtrer les lots selon le filtre sélectionné
+  const filteredLots = lots.filter((lot) => {
+    if (displayFilter === 'paid') return lot.discounted_price > 0;
+    if (displayFilter === 'donations') return lot.discounted_price === 0;
+    return true; // 'all'
+  });
+
   return (
     <div>
       {/* Header avec boutons d'action */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-bold text-black flex items-center gap-3">
-            <span>📦</span>
-            <span>Mes Paniers Anti-Gaspi</span>
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">Créez et gérez vos lots d'invendus en quelques clics</p>
+      <div className="mb-6 flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-black flex items-center gap-3">
+              <span>📦</span>
+              <span>Mes Paniers Anti-Gaspi</span>
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">Créez et gérez vos lots d'invendus en quelques clics</p>
+          </div>
+          <button
+            onClick={() => {
+              resetForm();
+              setEditingLot(null);
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl hover:from-secondary-700 hover:to-secondary-800 transition-all font-semibold shadow-md hover:shadow-lg"
+          >
+            <Plus size={18} strokeWidth={2} />
+            <span>Créer un panier</span>
+          </button>
         </div>
-        <button
-          onClick={() => {
-            resetForm();
-            setEditingLot(null);
-            setShowModal(true);
-          }}
-          className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl hover:from-secondary-700 hover:to-secondary-800 transition-all font-semibold shadow-md hover:shadow-lg"
-        >
-          <Plus size={18} strokeWidth={2} />
-          <span>Créer un panier</span>
-        </button>
+
+        {/* Boutons de filtre */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setDisplayFilter('all')}
+            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
+              displayFilter === 'all'
+                ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg scale-105'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-primary-300'
+            }`}
+          >
+            📦 Tous ({lots.length})
+          </button>
+          <button
+            onClick={() => setDisplayFilter('paid')}
+            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
+              displayFilter === 'paid'
+                ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg scale-105'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-green-300'
+            }`}
+          >
+            💰 Avec prix ({lots.filter(l => l.discounted_price > 0).length})
+          </button>
+          <button
+            onClick={() => setDisplayFilter('donations')}
+            className={`px-4 py-2 rounded-xl font-semibold transition-all shadow-sm ${
+              displayFilter === 'donations'
+                ? 'bg-gradient-to-r from-accent-600 to-pink-600 text-white shadow-lg scale-105'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-accent-300'
+            }`}
+          >
+            ❤️ Dons généreux ({lots.filter(l => l.discounted_price === 0).length})
+          </button>
+        </div>
       </div>
 
       {/* Grille de lots */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {lots.map((lot) => {
+        {filteredLots.map((lot) => {
           const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
           const isOutOfStock = availableQty <= 0;
           const discount = lot.original_price > 0 ? Math.round((1 - lot.discounted_price / lot.original_price) * 100) : 0;
@@ -621,6 +665,28 @@ export const LotManagement = () => {
           );
         })}
       </div>
+
+      {/* Message si aucun résultat après filtrage */}
+      {filteredLots.length === 0 && lots.length > 0 && (
+        <div className="text-center py-16">
+          <div className="inline-flex p-6 bg-gray-50 rounded-full mb-6">
+            <Package size={64} className="text-gray-300" strokeWidth={1} />
+          </div>
+          <h3 className="text-xl font-bold text-black mb-2">
+            Aucun panier trouvé 🔍
+          </h3>
+          <p className="text-gray-600 font-light mb-4">
+            Aucun lot ne correspond au filtre "
+            {displayFilter === 'paid' ? 'Avec prix' : displayFilter === 'donations' ? 'Dons généreux' : 'Tous'}"
+          </p>
+          <button
+            onClick={() => setDisplayFilter('all')}
+            className="px-6 py-3 bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl font-semibold hover:from-secondary-700 hover:to-secondary-800 transition-all shadow-lg"
+          >
+            Afficher tous les paniers
+          </button>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto">
