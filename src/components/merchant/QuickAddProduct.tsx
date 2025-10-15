@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Scan, ArrowLeft, Check, AlertCircle, Package, Calendar, Clock, Sparkles, ImagePlus } from 'lucide-react';
-import { addDays, startOfDay, setHours, setMinutes } from 'date-fns';
+import { addDays, startOfDay, setHours, setMinutes, format } from 'date-fns';
 
 // Imports internes
 import { supabase } from '../../lib/supabase';
@@ -232,7 +232,7 @@ export function QuickAddProduct() {
 
       // Note: Types Supabase générés posent problème, contournement temporaire
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await supabase.from('lots').insert([lotData as any]);
+      const { error } = await supabase.from('lots').insert(lotData as any);
 
       if (error) throw error;
 
@@ -341,21 +341,7 @@ export function QuickAddProduct() {
               </button>
             </div>
 
-            {/* Info OpenFoodFacts */}
-            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-              <p className="text-sm text-blue-900">
-                <strong>💡 Astuce :</strong> OpenFoodFacts est une base de données collaborative.
-                Si votre produit n'est pas trouvé, vous pouvez le créer manuellement ou l'ajouter sur{' '}
-                <a
-                  href="https://world.openfoodfacts.org"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline font-semibold"
-                >
-                  openfoodfacts.org
-                </a>
-              </p>
-            </div>
+            
           </div>
         ) : (
           // Étape 2: Validation et ajustement
