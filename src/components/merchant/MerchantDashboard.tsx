@@ -1,16 +1,17 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, LogOut, Scan, User, ClipboardList } from 'lucide-react';
+import { Package, TrendingUp, LogOut, Scan, User, ClipboardList, Truck } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
 import { LotManagement } from './LotManagement';
 import { MerchantReservations } from './MerchantReservations';
 import { SalesStats } from './SalesStats';
+import { MissionsManagement } from './MissionsManagement';
 import { ProfilePage } from '../shared/ProfilePage';
 
 // Type pour les onglets
-type TabId = 'lots' | 'reservations' | 'stats' | 'profile';
+type TabId = 'lots' | 'reservations' | 'missions' | 'stats' | 'profile';
 
 /**
  * Dashboard principal pour les commerçants
@@ -28,6 +29,7 @@ export const MerchantDashboard = () => {
   const tabs = [
     { id: 'lots' as TabId, label: 'Mes paniers', icon: Package, emoji: '📦' },
     { id: 'reservations' as TabId, label: 'Commandes', icon: ClipboardList, emoji: '📋' },
+    { id: 'missions' as TabId, label: 'Missions', icon: Truck, emoji: '🚚' },
     { id: 'stats' as TabId, label: 'Stats', icon: TrendingUp, emoji: '📊' },
     { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
@@ -92,6 +94,7 @@ export const MerchantDashboard = () => {
       <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
         {activeTab === 'lots' && <LotManagement />}
         {activeTab === 'reservations' && <MerchantReservations />}
+        {activeTab === 'missions' && <MissionsManagement />}
         {activeTab === 'stats' && <SalesStats />}
         {activeTab === 'profile' && <ProfilePage />}
       </main>

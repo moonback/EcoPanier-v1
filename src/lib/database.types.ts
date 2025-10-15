@@ -4,6 +4,20 @@ export type ReservationStatus = 'pending' | 'confirmed' | 'completed' | 'cancell
 export type MissionStatus = 'available' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
 export type MetricType = 'meals_saved' | 'co2_saved' | 'money_saved' | 'donations_made';
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
+export type VehicleType = 'bike' | 'ebike' | 'scooter' | 'car' | 'van';
+export type EquipmentType = 'cooler_bag' | 'large_cooler' | 'thermal_box' | 'delivery_bag';
+export type DeliveryZone = 'center' | 'suburbs' | 'outskirts' | 'all';
+export type AvailabilitySlot = 'morning' | 'afternoon' | 'evening' | 'flexible';
+
+export interface CollectorPreferences {
+  vehicle_type: VehicleType;
+  equipment: EquipmentType[];
+  delivery_zones: DeliveryZone[];
+  availability: AvailabilitySlot[];
+  max_distance: number;
+  accepts_cold_chain: boolean;
+  bio: string;
+}
 
 export interface Database {
   public: {
@@ -28,6 +42,7 @@ export interface Database {
           longitude: number | null;
           beneficiary_id: string | null;
           verified: boolean;
+          collector_preferences: CollectorPreferences | null;
           created_at: string;
           updated_at: string;
         };
@@ -50,6 +65,7 @@ export interface Database {
           longitude?: number | null;
           beneficiary_id?: string | null;
           verified?: boolean;
+          collector_preferences?: CollectorPreferences | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -72,6 +88,7 @@ export interface Database {
           longitude?: number | null;
           beneficiary_id?: string | null;
           verified?: boolean;
+          collector_preferences?: CollectorPreferences | null;
           created_at?: string;
           updated_at?: string;
         };
