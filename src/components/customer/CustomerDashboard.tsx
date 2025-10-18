@@ -19,6 +19,8 @@ import { QRCodeDisplay } from '../shared/QRCodeDisplay';
 import { ProfilePage } from '../shared/ProfilePage';
 import { InteractiveMap } from './InteractiveMap';
 
+import EcoPanierLogo from '/public/logo.png'; // Import du logo
+
 // Type pour les onglets
 type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'qrcode' | 'profile';
 
@@ -50,30 +52,34 @@ export const CustomerDashboard = () => {
       {/* En-tête */}
       <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
         <div className="max-w-12xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-black">
-                Bonjour {profile?.full_name?.split('  ')[0] || 'Client'} !
-              </h1>
-              <p className="text-sm text-gray-600 font-light mt-0.5">
-                Prêt à sauver des paniers aujourd'hui ?
-              </p>
+          <div className="flex items-center justify-between gap-4">
+            {/* Logo et titre */}
+            <div className="flex items-center gap-3 flex-grow">
+              <img src={EcoPanierLogo} alt="EcoPanier Logo" className="h-8 w-auto" />
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-black">
+                  Bonjour {profile?.full_name || 'Client'} !
+                </h1>
+                <p className="text-sm text-gray-600 font-light mt-0.5">
+                  Prêt à sauver des paniers aujourd'hui ?
+                </p>
+              </div>
             </div>
-
+            {/* Bouton de déconnexion */}
             <button
               onClick={signOut}
-              className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-all font-medium"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium"
               aria-label="Se déconnecter"
             >
-              <LogOut size={18} className="inline mr-2" />
-              <span className="hidden sm:inline">Quitter</span>
+              <LogOut size={18} />
+              <span className="hidden sm:inline">Déconnexion</span>
             </button>
           </div>
         </div>
       </header>
 
       {/* Contenu principal */}
-      <main className={`${activeTab === 'browse' ? 'pb-24' : 'max-w-12xl mx-auto px-6 py-6 pb-24'}`}>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         {activeTab === 'browse' && <LotBrowser />}
         {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}
@@ -92,7 +98,7 @@ export const CustomerDashboard = () => {
       </main>
 
       {/* Barre de navigation fixe en bas */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
         <div className="max-w-12xl mx-auto">
           <div className="flex items-center justify-around">
             {tabs.map((tab) => {
@@ -121,7 +127,7 @@ export const CustomerDashboard = () => {
                     />
                   </div>
                   <span
-                    className={`text-[10px] transition-all ${
+                    className={`text-xs transition-all ${
                       isActive ? 'font-bold' : 'font-light'
                     }`}
                   >

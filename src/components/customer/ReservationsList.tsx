@@ -8,7 +8,6 @@ import { useReservations } from '../../hooks/useReservations';
 import {
   ReservationCard,
   QRCodeModal,
-  EmptyState,
   InlineSpinner,
 } from './components';
 

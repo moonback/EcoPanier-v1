@@ -139,14 +139,7 @@ export function ReservationCard({
         )}
         
         {/* Message si le don ne peut plus être annulé */}
-        {isDonationExpired && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-start gap-2">
-            <AlertCircle size={16} className="text-gray-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-            <p className="text-xs text-gray-700 font-light">
-              Le délai d'annulation (30 min) est dépassé. Votre don est maintenant confirmé.
-            </p>
-          </div>
-        )}
+        {/* isDonationExpired et le message associé sont supprimés */}
 
         {/* Prix total (masqué pour les dons) */}
         {!reservation.is_donation && (
