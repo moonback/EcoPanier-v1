@@ -130,11 +130,11 @@ export function FilterSidebar({
                 <button
                   onClick={() => handleFilterChange({ category: '' })}
                   aria-pressed={filters.category === ''}
-                  className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                  className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
                     ${
                       filters.category === ''
-                        ? 'bg-gradient-to-br from-primary-500 to-secondary-500 text-white shadow-lg border-primary-600 hover:from-primary-600 hover:to-secondary-600'
-                        : 'bg-white border-gray-200 text-gray-700 hover:bg-primary-50 hover:border-primary-200'
+                        ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
                     }
                   `}
                 >
@@ -157,11 +157,11 @@ export function FilterSidebar({
                     <button
                       onClick={() => handleFilterChange({ category: cat })}
                       aria-pressed={selected}
-                      className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                      className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
                         ${
                           selected
-                            ? 'bg-gradient-to-br from-primary-500 to-secondary-500 text-white shadow-lg border-primary-600 hover:from-primary-600 hover:to-secondary-600'
-                            : 'bg-white border-gray-200 text-gray-700 hover:bg-primary-50 hover:border-primary-200'
+                            ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                            : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
                         }
                       `}
                     >
