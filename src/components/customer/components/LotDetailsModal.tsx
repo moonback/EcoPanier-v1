@@ -44,7 +44,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2"
       onClick={onClose}
     >
       <div
@@ -52,8 +52,8 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-white to-primary-50/30 border-b border-primary-100 p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Détails du lot</h2>
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-white to-primary-50/30 border-b border-gray-200/50 p-2 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">Détails du lot</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-primary-100 rounded-lg transition-colors"
@@ -62,7 +62,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-12">
           {/* Grille principale : Image + Infos */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             {/* Image principale avec zoom */}

@@ -13,7 +13,7 @@ import {
   LotDetailsModal,
   MerchantLotsModal,
   FilterSidebar,
-  InlineSpinner,
+  SkeletonGrid,
 } from './components';
 import type { AdvancedFilters } from './components';
 
@@ -109,7 +109,33 @@ export const LotBrowser = () => {
   };
 
   // Early returns (conditions de sortie)
-  if (loading) return <InlineSpinner />;
+  if (loading) {
+    return (
+      <div>
+        {/* Sidebar de filtres */}
+        <FilterSidebar
+          filters={filters}
+          onApplyFilters={setFilters}
+          onReset={handleResetFilters}
+          isOpen={showFilterSidebar}
+          onClose={() => setShowFilterSidebar(false)}
+        />
+
+        {/* Contenu principal avec margin pour la sidebar */}
+        <div className="lg:ml-80">
+          <div className="w-full px-4 py-6">
+            {/* Barre de filtres mobile skeleton */}
+            <div className="mb-6 flex items-center justify-between gap-3">
+              <div className="lg:hidden h-12 bg-gray-200 rounded-xl animate-pulse w-32"></div>
+            </div>
+            
+            {/* Grid de skeleton loaders */}
+            <SkeletonGrid count={12} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -140,7 +166,7 @@ export const LotBrowser = () => {
 
       {/* Contenu principal avec margin pour la sidebar */}
       <div className="lg:ml-80">
-        <div className="w-full px-4 py-6">
+        <div className="w-full px-4">
         {/* Barre de filtres mobile + résultats */}
         <div className="mb-6 flex items-center justify-between gap-3">
           <button
@@ -233,7 +259,7 @@ export const LotBrowser = () => {
             </button>
           </div>
         ) : (
-          <div className="grid gap-3
+          <div className="grid gap-4
             /* Mobile : 1 lot par ligne (pleine largeur) */
             grid-cols-1
             /* Petits écrans : 2 colonnes */
@@ -242,10 +268,8 @@ export const LotBrowser = () => {
             md:grid-cols-3
             /* Desktop avec sidebar : 4 colonnes */
             lg:grid-cols-4
-            /* Large desktop : 5 colonnes */
-            xl:grid-cols-5
-            /* Extra large : 6 colonnes */
-            2xl:grid-cols-6">
+            /* Large desktop : 5 colonnes max */
+            xl:grid-cols-5">
             {filteredLots.map((lot) => (
               <LotCard
                 key={lot.id}

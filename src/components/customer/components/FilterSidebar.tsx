@@ -68,7 +68,7 @@ export function FilterSidebar({
         `}
       >
         {/* Header */}
-        <div className="flex-shrink-0 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 p-6">
+        <div className="flex-shrink-0 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-xl">
@@ -125,37 +125,57 @@ export function FilterSidebar({
               <Package className="w-5 h-5 text-primary-600" />
               Catégorie
             </label>
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                onClick={() => handleFilterChange({ category: '' })}
-                className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
-                  filters.category === ''
-                    ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
-                }`}
-              >
-                <div className={`p-2 rounded-lg ${filters.category === '' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
-                  <Package className={`w-4 h-4 ${filters.category === '' ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
+            <div className="grid grid-cols-5 gap-3">
+              <div className="relative group/tooltip">
+                <button
+                  onClick={() => handleFilterChange({ category: '' })}
+                  aria-pressed={filters.category === ''}
+                  className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                    ${
+                      filters.category === ''
+                        ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <Package className={`w-6 h-6 ${
+                    filters.category === '' ? 'text-white' : 'text-primary-600 group-hover/tooltip:text-primary-700'
+                  } transition-colors`} />
+                </button>
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                  <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap shadow-lg">
+                    Toutes les catégories
+                  </div>
                 </div>
-                <span className="font-semibold">Toutes les catégories</span>
-              </button>
+              </div>
               {categories.map((cat) => {
                 const IconComponent = getCategoryIcon(cat);
+                const selected = filters.category === cat;
                 return (
-                  <button
-                    key={cat}
-                    onClick={() => handleFilterChange({ category: cat })}
-                    className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
-                      filters.category === cat
-                        ? 'bg-primary-600 text-white shadow-lg'
-                        : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
-                    }`}
-                  >
-                    <div className={`p-2 rounded-lg ${filters.category === cat ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
-                      <IconComponent className={`w-4 h-4 ${filters.category === cat ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
+                  <div key={cat} className="relative group/tooltip">
+                    <button
+                      onClick={() => handleFilterChange({ category: cat })}
+                      aria-pressed={selected}
+                      className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                        ${
+                          selected
+                            ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                            : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                        }
+                      `}
+                    >
+                      <IconComponent className={`w-6 h-6 ${
+                        selected ? 'text-white' : 'text-primary-600 group-hover/tooltip:text-primary-700'
+                      } transition-colors`} />
+                    </button>
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                      <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap shadow-lg">
+                        {getCategoryLabel(cat)}
+                      </div>
                     </div>
-                    <span className="font-semibold">{getCategoryLabel(cat)}</span>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -309,7 +329,7 @@ export function FilterSidebar({
         </div>
 
         {/* Footer - Informations */}
-        <div className="flex-shrink-0 bg-gradient-to-r from-gray-50 to-gray-100/50 border-t border-gray-200/50 p-6">
+        <div className="flex-shrink-0 bg-gradient-to-r from-gray-50 to-gray-100/50 border-t border-gray-200/50 p-2">
           <div className="text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 rounded-full border border-gray-200/50">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>

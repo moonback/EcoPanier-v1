@@ -1,6 +1,6 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, LogOut, Scan, User, ClipboardList, Truck } from 'lucide-react';
+import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -9,6 +9,7 @@ import { MerchantReservations } from './MerchantReservations';
 import { SalesStats } from './SalesStats';
 import { MissionsManagement } from './MissionsManagement';
 import { ProfilePage } from '../shared/ProfilePage';
+import { DashboardHeader } from '../shared/DashboardHeader';
 
 // Type pour les onglets
 type TabId = 'lots' | 'reservations' | 'missions' | 'stats' | 'profile';
@@ -21,9 +22,10 @@ type TabId = 'lots' | 'reservations' | 'missions' | 'stats' | 'profile';
 export const MerchantDashboard = () => {
   // État local
   const [activeTab, setActiveTab] = useState<TabId>('lots');
+  const [createLotHandler, setCreateLotHandler] = useState<(() => void) | null>(null);
 
   // Hooks (stores, contexts, router)
-  const { profile, signOut } = useAuthStore();
+  const { profile } = useAuthStore();
 
   // Configuration des onglets
   const tabs = [
@@ -38,61 +40,57 @@ export const MerchantDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* En-tête */}
-      <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
-        <div className="max-w-12xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 flex-1">
-              {/* Logo du commerce */}
-              {profile?.business_logo_url ? (
-                <div className="flex-shrink-0">
-                  <img
-                    src={profile.business_logo_url}
-                    alt={profile.business_name || 'Logo du commerce'}
-                    className="w-16 h-16 rounded-xl object-cover border-2 border-gray-200 shadow-md"
-                  />
-                </div>
-              ) : (
-                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
-                  <span className="text-2xl">🏪</span>
-                </div>
-              )}
-              
-              {/* Informations du commerce */}
-              <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-bold text-black truncate">
-                  {profile?.business_name || profile?.full_name}
-                </h1>
-                <p className="text-sm text-gray-600 font-light mt-0.5">
-                  Valorisez vos invendus, réduisez le gaspillage ! 💚
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <a
-                href="/pickup"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 text-sm bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl hover:from-secondary-700 hover:to-secondary-800 transition-all font-semibold shadow-md hover:shadow-lg"
-              >
-                <Scan size={18} className="inline mr-2" strokeWidth={2} />
-                <span className="hidden sm:inline">Station Retrait</span>
-              </a>
-              <button
-                onClick={signOut}
-                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-all font-medium"
-              >
-                <LogOut size={18} className="inline mr-2" strokeWidth={1.5} />
-                <span className="hidden sm:inline">Quitter</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader
+        logo={
+          profile?.business_logo_url ? (
+            <img
+              src={profile.business_logo_url}
+              alt={profile.business_name || 'Logo du commerce'}
+              className="w-12 h-12 rounded-xl object-cover border-2 border-gray-200 shadow-md"
+            />
+          ) : undefined
+        }
+        title={profile?.business_name || profile?.full_name || 'Commerçant'}
+        subtitle="Valorisez vos invendus, réduisez le gaspillage ! 💚"
+        defaultIcon="🏪"
+        actions={[
+          {
+            label: 'Créer un panier',
+            icon: Plus,
+            onClick: () => {
+              // Basculer vers l'onglet "lots" si nécessaire
+              if (activeTab !== 'lots') {
+                setActiveTab('lots');
+                // Attendre que le composant soit monté avant d'appeler le handler
+                setTimeout(() => {
+                  if (createLotHandler) {
+                    createLotHandler();
+                  }
+                }, 100);
+              } else if (createLotHandler) {
+                createLotHandler();
+              }
+            },
+            variant: 'primary',
+            mobileLabel: 'Créer',
+          },
+          {
+            label: 'Station Retrait',
+            icon: Scan,
+            onClick: () => window.open('/pickup', '_blank'),
+            variant: 'secondary',
+            mobileLabel: 'Station',
+          },
+        ]}
+      />
 
       {/* Contenu principal */}
       <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
-        {activeTab === 'lots' && <LotManagement />}
+        {activeTab === 'lots' && (
+          <LotManagement 
+            onCreateLotClick={(handler) => setCreateLotHandler(() => handler)}
+          />
+        )}
         {activeTab === 'reservations' && <MerchantReservations />}
         {activeTab === 'missions' && <MissionsManagement />}
         {activeTab === 'stats' && <SalesStats />}

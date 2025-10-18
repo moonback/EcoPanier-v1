@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, categories, uploadImage, deleteImages } from '../../utils/helpers';
 import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
-import { Plus, Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar, Filter } from 'lucide-react';
+import { Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 import { format, addDays, startOfDay, setHours, setMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -12,7 +12,11 @@ type Lot = Database['public']['Tables']['lots']['Row'];
 type LotInsert = Database['public']['Tables']['lots']['Insert'];
 type LotUpdate = Database['public']['Tables']['lots']['Update'];
 
-export const LotManagement = () => {
+interface LotManagementProps {
+  onCreateLotClick?: (handler: () => void) => void;
+}
+
+export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => {
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -20,7 +24,6 @@ export const LotManagement = () => {
   const [analyzingImage, setAnalyzingImage] = useState(false);
   const [analysisConfidence, setAnalysisConfidence] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
-  const [displayFilter, setDisplayFilter] = useState<'all' | 'paid' | 'donations'>('all');
   const { profile } = useAuthStore();
 
   const totalSteps = editingLot ? 4 : 5; // 5 étapes pour création (avec IA), 4 pour édition
@@ -44,6 +47,18 @@ export const LotManagement = () => {
     is_urgent: false,
     image_urls: [] as string[],
   });
+
+  // Enregistrer le handler pour ouvrir le modal de création depuis le header
+  useEffect(() => {
+    if (onCreateLotClick) {
+      const handleCreate = () => {
+        setEditingLot(null);
+        setShowModal(true);
+        setCurrentStep(1);
+      };
+      onCreateLotClick(handleCreate);
+    }
+  }, [onCreateLotClick]);
 
   // Effet pour mettre à jour les dates de retrait selon la sélection
   useEffect(() => {
@@ -426,114 +441,12 @@ export const LotManagement = () => {
     );
   }
 
-  // Filtrer les lots selon le filtre sélectionné
-  const filteredLots = lots.filter((lot) => {
-    if (displayFilter === 'paid') return lot.discounted_price > 0;
-    if (displayFilter === 'donations') return lot.discounted_price === 0;
-    return true; // 'all'
-  });
-
   return (
     <div>
-      {/* Header avec boutons d'action */}
-      <div className="mb-6 flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-          <div>
-            <h2 className="text-3xl font-bold text-black flex items-center gap-3">
-              <span>📦</span>
-              <span>Mes Paniers Anti-Gaspi</span>
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">Créez et gérez vos lots d'invendus en quelques clics</p>
-          </div>
-          <button
-            onClick={() => {
-              resetForm();
-              setEditingLot(null);
-              setShowModal(true);
-            }}
-            className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl hover:from-secondary-700 hover:to-secondary-800 transition-all font-semibold shadow-md hover:shadow-lg"
-          >
-            <Plus size={18} strokeWidth={2} />
-            <span>Créer un panier</span>
-          </button>
-        </div>
-
-        {/* Boutons de filtre */}
-        <div className="bg-white rounded-2xl border-2 border-gray-100 p-4 shadow-md">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-lg shadow-sm">
-              <Filter size={18} className="text-white" strokeWidth={2} />
-            </div>
-            <h3 className="text-sm font-bold text-gray-800">Filtrer par type</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setDisplayFilter('all')}
-              className={`group relative overflow-hidden px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                displayFilter === 'all'
-                  ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg scale-105'
-                  : 'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 text-gray-700 hover:border-primary-400 hover:scale-102 hover:shadow-md'
-              }`}
-            >
-              <span className="relative z-10 flex items-center gap-1.5">
-                <span className="text-base">📦</span>
-                <span>Tous</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  displayFilter === 'all' 
-                    ? 'bg-white/20 text-white' 
-                    : 'bg-primary-100 text-primary-700'
-                }`}>
-                  {lots.length}
-                </span>
-              </span>
-            </button>
-            <button
-              onClick={() => setDisplayFilter('paid')}
-              className={`group relative overflow-hidden px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                displayFilter === 'paid'
-                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg scale-105'
-                  : 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 text-green-700 hover:border-green-400 hover:scale-102 hover:shadow-md'
-              }`}
-            >
-              <span className="relative z-10 flex items-center gap-1.5">
-                <span className="text-base">💰</span>
-                <span>Avec prix</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  displayFilter === 'paid' 
-                    ? 'bg-white/20 text-white' 
-                    : 'bg-green-200 text-green-800'
-                }`}>
-                  {lots.filter(l => l.discounted_price > 0).length}
-                </span>
-              </span>
-            </button>
-            <button
-              onClick={() => setDisplayFilter('donations')}
-              className={`group relative overflow-hidden px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                displayFilter === 'donations'
-                  ? 'bg-gradient-to-r from-accent-600 to-pink-600 text-white shadow-lg scale-105'
-                  : 'bg-gradient-to-br from-accent-50 to-pink-50 border-2 border-accent-200 text-accent-700 hover:border-accent-400 hover:scale-102 hover:shadow-md'
-              }`}
-            >
-              <span className="relative z-10 flex items-center gap-1.5">
-                <span className="text-base">❤️</span>
-                <span>Dons généreux</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  displayFilter === 'donations' 
-                    ? 'bg-white/20 text-white' 
-                    : 'bg-accent-200 text-accent-800'
-                }`}>
-                  {lots.filter(l => l.discounted_price === 0).length}
-                </span>
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Grille de lots */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {filteredLots.map((lot) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {lots.map((lot) => {
           const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
           const isOutOfStock = availableQty <= 0;
           const discount = lot.original_price > 0 ? Math.round((1 - lot.discounted_price / lot.original_price) * 100) : 0;
@@ -545,69 +458,99 @@ export const LotManagement = () => {
                 isOutOfStock ? 'opacity-60' : ''
               }`}
             >
-              {/* En-tête au-dessus de l'image */}
-              <div className="relative">
-                {/* Badges en haut */}
-                <div className="absolute top-0 left-0 right-0 z-10 p-2 flex items-start justify-between gap-2">
-                  <div className="flex flex-wrap gap-1.5">
-                    {/* Badge catégorie */}
-                    <span className="px-2 py-0.5 bg-white/95 backdrop-blur-sm text-xs font-medium text-gray-700 rounded-md shadow-sm">
-                      {lot.category}
-                    </span>
-                    
-                    {/* Badge urgent */}
-                    {lot.is_urgent && (
-                      <span className="px-2 py-0.5 bg-red-500/95 backdrop-blur-sm text-xs font-medium text-white rounded-md shadow-sm flex items-center gap-1">
-                        <span className="animate-pulse">⚡</span>
-                        Urgent
-                      </span>
-                    )}
-                    
-                    {/* Badge chaîne du froid */}
-                    {lot.requires_cold_chain && (
-                      <span className="px-2 py-0.5 bg-blue-500/95 backdrop-blur-sm text-xs font-medium text-white rounded-md shadow-sm">
-                        🧊 Frais
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Badge statut/réduction */}
-                  <div className="flex flex-col items-end gap-1.5">
-                    {discount > 0 && !isOutOfStock && (
-                      <span className="px-2 py-0.5 bg-green-500/95 backdrop-blur-sm text-xs font-bold text-white rounded-md shadow-sm">
-                        -{discount}%
-                      </span>
-                    )}
-                    <span className={`px-2 py-0.5 backdrop-blur-sm text-xs font-medium rounded-md shadow-sm ${
-                      isOutOfStock 
-                        ? 'bg-gray-800/95 text-white' 
-                        : 'bg-green-500/95 text-white'
-                    }`}>
-                      {isOutOfStock ? '❌ Épuisé' : '✅ Dispo'}
-                    </span>
-                  </div>
-                </div>
-
+              {/* Image avec overlay */}
+              <div className="relative overflow-hidden">
                 {/* Image */}
-                <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200">
+                <div className="h-36 bg-gradient-to-br from-gray-100 to-gray-200">
                   {lot.image_urls.length > 0 ? (
                     <img
                       src={lot.image_urls[0]}
                       alt={lot.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <Package size={40} className="text-gray-400" strokeWidth={1.5} />
+                      <Package size={36} className="text-gray-400" strokeWidth={1.5} />
                     </div>
                   )}
                 </div>
 
+                {/* Overlay gradient subtil au hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                {/* Badges haut gauche - Design pro */}
+                <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
+                  {/* Catégorie - Always visible */}
+                  <span className="inline-flex items-center px-2 py-0.5 bg-white/75 backdrop-blur-sm text-[9px] font-bold text-gray-800 rounded shadow-md border border-white/30 uppercase tracking-wide">
+                    {lot.category}
+                  </span>
+                  
+                  {/* Urgent - Icône seule */}
+                  {lot.is_urgent && (
+                    <div className="relative group/urgent">
+                      <span className="inline-flex items-center justify-center w-6 h-6 text-base animate-pulse drop-shadow-lg cursor-help">
+                        ⚡
+                      </span>
+                      {/* Tooltip */}
+                      <div className="absolute left-0 top-full mt-1 opacity-0 group-hover/urgent:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                        <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[9px] font-semibold whitespace-nowrap shadow-lg">
+                          Produit urgent
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Chaîne du froid - Icône seule */}
+                  {lot.requires_cold_chain && (
+                    <div className="relative group/cold">
+                      <span className="inline-flex items-center justify-center w-6 h-6 text-base drop-shadow-lg cursor-help">
+                        ❄️
+                      </span>
+                      {/* Tooltip */}
+                      <div className="absolute left-0 top-full mt-1 opacity-0 group-hover/cold:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                        <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[9px] font-semibold whitespace-nowrap shadow-lg">
+                          Chaîne du froid
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Badge réduction haut droite - Visible au hover avec info */}
+                    {discount > 0 && !isOutOfStock && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <div className="relative group/badge">
+                      {/* Badge circulaire */}
+                      <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-br from-green-400/90 via-green-500/90 to-green-600/90 backdrop-blur-sm rounded-full shadow-md">
+                        <span className="text-white font-black text-[10px]">-{discount}%</span>
+                  </div>
+                      {/* Tooltip au hover */}
+                      <div className="absolute top-full right-0 mt-1.5 opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 pointer-events-none">
+                        <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[9px] font-semibold whitespace-nowrap shadow-lg">
+                          Économie: {formatCurrency(lot.original_price - lot.discounted_price)}
+                </div>
+                      </div>
+                    </div>
+                    </div>
+                  )}
+
+                {/* Badge épuisé - Full overlay */}
+                {isOutOfStock && (
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur flex items-center justify-center z-20">
+                    <div className="text-center">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/90 backdrop-blur-sm text-white text-[10px] font-bold rounded shadow-lg">
+                        <span className="text-sm">❌</span>
+                        Épuisé
+                      </span>
+                </div>
+                  </div>
+                )}
+
                 {/* Barre de progression en bas de l'image */}
                 {!isOutOfStock && (
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black/5">
                     <div 
-                      className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300"
+                      className="h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-300"
                       style={{ width: `${(availableQty / lot.quantity_total) * 100}%` }}
                     />
                   </div>
@@ -615,25 +558,25 @@ export const LotManagement = () => {
               </div>
 
               {/* Contenu compact */}
-              <div className="p-3">
+              <div className="p-2.5">
                 {/* Titre et prix */}
-                <div className="mb-2">
-                  <h3 className="text-sm font-bold text-gray-900 line-clamp-1 mb-1">
+                <div className="mb-1.5">
+                  <h3 className="text-[13px] font-bold text-gray-900 line-clamp-1 mb-0.5">
                     {lot.title}
                   </h3>
-                  <div className="flex items-baseline gap-2">
+                  <div className="flex items-baseline gap-1.5">
                     {lot.discounted_price === 0 ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-accent-500 to-pink-500 text-white rounded-lg text-sm font-bold shadow-md">
-                        <span>❤️</span>
-                        <span>Don généreux</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-accent-500 to-pink-500 text-white rounded text-[10px] font-bold shadow-sm">
+                        <span className="text-xs">❤️</span>
+                        <span>Don</span>
                       </span>
                     ) : (
                       <>
-                        <span className="text-lg font-bold text-gray-900">
+                        <span className="text-base font-bold text-gray-900">
                           {formatCurrency(lot.discounted_price)}
                         </span>
                         {lot.original_price > lot.discounted_price && (
-                          <span className="text-xs text-gray-400 line-through">
+                          <span className="text-[10px] text-gray-400 line-through">
                             {formatCurrency(lot.original_price)}
                           </span>
                         )}
@@ -643,28 +586,28 @@ export const LotManagement = () => {
                 </div>
 
                 {/* Stats compactes en grille */}
-                <div className="grid grid-cols-4 gap-1 mb-3 text-center">
-                  <div className="bg-gray-50 rounded-md py-1.5 px-1">
-                    <div className="text-xs font-bold text-gray-900">{lot.quantity_total}</div>
-                    <div className="text-[10px] text-gray-500">Total</div>
+                <div className="grid grid-cols-4 gap-0.5 mb-2 text-center">
+                  <div className="bg-gray-50 rounded py-1 px-0.5">
+                    <div className="text-[10px] font-bold text-gray-900">{lot.quantity_total}</div>
+                    <div className="text-[8px] text-gray-500">Total</div>
                   </div>
-                  <div className="bg-orange-50 rounded-md py-1.5 px-1">
-                    <div className="text-xs font-bold text-orange-700">{lot.quantity_reserved}</div>
-                    <div className="text-[10px] text-orange-600">Réservé</div>
+                  <div className="bg-orange-50 rounded py-1 px-0.5">
+                    <div className="text-[10px] font-bold text-orange-700">{lot.quantity_reserved}</div>
+                    <div className="text-[8px] text-orange-600">Réservé</div>
                   </div>
-                  <div className="bg-green-50 rounded-md py-1.5 px-1">
-                    <div className="text-xs font-bold text-green-700">{lot.quantity_sold}</div>
-                    <div className="text-[10px] text-green-600">Vendu</div>
+                  <div className="bg-green-50 rounded py-1 px-0.5">
+                    <div className="text-[10px] font-bold text-green-700">{lot.quantity_sold}</div>
+                    <div className="text-[8px] text-green-600">Vendu</div>
                   </div>
-                  <div className={`rounded-md py-1.5 px-1 ${
+                  <div className={`rounded py-1 px-0.5 ${
                     availableQty > 0 ? 'bg-blue-50' : 'bg-red-50'
                   }`}>
-                    <div className={`text-xs font-bold ${
+                    <div className={`text-[10px] font-bold ${
                       availableQty > 0 ? 'text-blue-700' : 'text-red-700'
                     }`}>
                       {availableQty}
                     </div>
-                    <div className={`text-[10px] ${
+                    <div className={`text-[8px] ${
                       availableQty > 0 ? 'text-blue-600' : 'text-red-600'
                     }`}>
                       Dispo
@@ -674,28 +617,28 @@ export const LotManagement = () => {
 
                 {/* Message suppression auto */}
                 {isOutOfStock && (
-                  <div className="mb-2 p-1.5 bg-amber-50 border border-amber-200 rounded-md">
-                    <p className="text-[10px] text-amber-700 text-center font-medium">
+                  <div className="mb-1.5 p-1 bg-amber-50 border border-amber-200 rounded">
+                    <p className="text-[9px] text-amber-700 text-center font-medium">
                       ⏱️ Suppression auto dans 24h
                     </p>
                   </div>
                 )}
 
                 {/* Boutons d'action */}
-                <div className="flex gap-2">
+                <div className="flex gap-1.5">
                   <button
                     onClick={() => openEditModal(lot)}
-                    className="flex-1 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-lg hover:from-blue-100 hover:to-indigo-100 border border-blue-200 transition-all flex items-center justify-center gap-1.5 text-sm font-semibold"
+                    className="flex-1 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded hover:from-blue-100 hover:to-indigo-100 border border-blue-200 transition-all flex items-center justify-center gap-1 text-xs font-semibold"
                   >
-                    <Edit size={14} strokeWidth={2} />
+                    <Edit size={12} strokeWidth={2} />
                     <span>Modifier</span>
                   </button>
                   <button
                     onClick={() => handleDelete(lot.id)}
-                    className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 border border-gray-200 hover:border-red-300 transition-all"
+                    className="p-1.5 bg-gray-50 text-gray-600 rounded hover:bg-red-50 hover:text-red-600 border border-gray-200 hover:border-red-300 transition-all"
                     aria-label="Supprimer le lot"
                   >
-                    <Trash2 size={14} strokeWidth={2} />
+                    <Trash2 size={12} strokeWidth={2} />
                   </button>
                 </div>
               </div>
@@ -703,28 +646,6 @@ export const LotManagement = () => {
           );
         })}
       </div>
-
-      {/* Message si aucun résultat après filtrage */}
-      {filteredLots.length === 0 && lots.length > 0 && (
-        <div className="text-center py-16">
-          <div className="inline-flex p-6 bg-gray-50 rounded-full mb-6">
-            <Package size={64} className="text-gray-300" strokeWidth={1} />
-          </div>
-          <h3 className="text-xl font-bold text-black mb-2">
-            Aucun panier trouvé 🔍
-          </h3>
-          <p className="text-gray-600 font-light mb-4">
-            Aucun lot ne correspond au filtre "
-            {displayFilter === 'paid' ? 'Avec prix' : displayFilter === 'donations' ? 'Dons généreux' : 'Tous'}"
-          </p>
-          <button
-            onClick={() => setDisplayFilter('all')}
-            className="px-6 py-3 bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl font-semibold hover:from-secondary-700 hover:to-secondary-800 transition-all shadow-lg"
-          >
-            Afficher tous les paniers
-          </button>
-        </div>
-      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto">

@@ -37,69 +37,99 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
       }`}
       onClick={() => onViewDetails?.(lot)}
     >
-      {/* En-tête avec image et badges */}
-      <div className="relative">
-        {/* Badges superposés */}
-        <div className="absolute top-0 left-0 right-0 z-10 p-2 flex items-start justify-between gap-2">
-          <div className="flex flex-wrap gap-1.5">
-            {/* Badge catégorie */}
-            <span className="px-2 py-0.5 bg-white/95 backdrop-blur-sm text-xs font-medium text-gray-700 rounded-md shadow-sm">
-              {lot.category}
-            </span>
-            
-            {/* Badge urgent */}
-            {lot.is_urgent && (
-              <span className="px-2 py-0.5 bg-red-500/95 backdrop-blur-sm text-xs font-medium text-white rounded-md shadow-sm flex items-center gap-1">
-                <span className="animate-pulse">⚡</span>
-                Urgent
-              </span>
-            )}
-            
-            {/* Badge chaîne du froid */}
-            {lot.requires_cold_chain && (
-              <span className="px-2 py-0.5 bg-blue-500/95 backdrop-blur-sm text-xs font-medium text-white rounded-md shadow-sm">
-                🧊 Frais
-              </span>
-            )}
-          </div>
-
-          {/* Badge réduction et statut */}
-          <div className="flex flex-col items-end gap-1.5">
-            {discount > 0 && !isOutOfStock && (
-              <span className="px-2 py-0.5 bg-green-500/95 backdrop-blur-sm text-xs font-bold text-white rounded-md shadow-sm">
-                -{discount}%
-              </span>
-            )}
-            <span className={`px-2 py-0.5 backdrop-blur-sm text-xs font-medium rounded-md shadow-sm ${
-              isOutOfStock 
-                ? 'bg-gray-800/95 text-white' 
-                : 'bg-green-500/95 text-white'
-            }`}>
-              {isOutOfStock ? '❌ Épuisé' : '✅ Dispo'}
-            </span>
-          </div>
-        </div>
-
+      {/* Image avec overlay */}
+      <div className="relative overflow-hidden">
         {/* Image */}
-        <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200">
+        <div className="h-36 bg-gradient-to-br from-gray-100 to-gray-200">
           {lot.image_urls && lot.image_urls.length > 0 ? (
             <img
               src={lot.image_urls[0]}
               alt={lot.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="flex items-center justify-center h-full">
-              <Package size={40} className="text-gray-400" strokeWidth={1.5} />
+              <Package size={36} className="text-gray-400" strokeWidth={1.5} />
             </div>
           )}
         </div>
 
-        {/* Barre de progression */}
+        {/* Overlay gradient subtil au hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Badges haut gauche - Design pro */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
+          {/* Catégorie - Always visible */}
+          <span className="inline-flex items-center px-2 py-0.5 bg-white/75 backdrop-blur-sm text-[9px] font-bold text-gray-800 rounded shadow-md border border-white/30 uppercase tracking-wide">
+            {lot.category}
+          </span>
+          
+          {/* Urgent - Icône seule */}
+          {lot.is_urgent && (
+            <div className="relative group/urgent">
+              <span className="inline-flex items-center justify-center w-6 h-6 text-base animate-pulse drop-shadow-lg cursor-help">
+                ⚡
+              </span>
+              {/* Tooltip */}
+              <div className="absolute left-0 top-full mt-1 opacity-0 group-hover/urgent:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[9px] font-semibold whitespace-nowrap shadow-lg">
+                  Produit urgent
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Chaîne du froid - Icône seule */}
+          {lot.requires_cold_chain && (
+            <div className="relative group/cold">
+              <span className="inline-flex items-center justify-center w-6 h-6 text-base drop-shadow-lg cursor-help">
+                ❄️
+              </span>
+              {/* Tooltip */}
+              <div className="absolute left-0 top-full mt-1 opacity-0 group-hover/cold:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[9px] font-semibold whitespace-nowrap shadow-lg">
+                  Chaîne du froid
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Badge réduction haut droite - Visible au hover avec info */}
+        {discount > 0 && !isOutOfStock && (
+          <div className="absolute top-2 right-2 z-10">
+            <div className="relative group/badge">
+              {/* Badge circulaire */}
+              <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-br from-green-400/90 via-green-500/90 to-green-600/90 backdrop-blur-sm rounded-full shadow-md">
+                <span className="text-white font-black text-[10px]">-{discount}%</span>
+              </div>
+              {/* Tooltip au hover */}
+              <div className="absolute top-full right-0 mt-1.5 opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 pointer-events-none">
+                <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[9px] font-semibold whitespace-nowrap shadow-lg">
+                  Économie: {(lot.original_price - lot.discounted_price).toFixed(2)}€
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Badge épuisé - Full overlay */}
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur flex items-center justify-center z-20">
+            <div className="text-center">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/90 backdrop-blur-sm text-white text-[10px] font-bold rounded shadow-lg">
+                <span className="text-sm">❌</span>
+                Épuisé
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Barre de progression en bas de l'image */}
         {!isOutOfStock && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black/5">
             <div 
-              className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300"
+              className="h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-300"
               style={{ width: `${(availableQty / lot.quantity_total) * 100}%` }}
             />
           </div>
@@ -107,14 +137,14 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
       </div>
 
       {/* Contenu compact */}
-      <div className="p-3">
+      <div className="p-2.5">
         {/* Titre et commerçant */}
-        <div className="mb-2">
-          <h3 className="text-sm font-bold text-gray-900 line-clamp-1 mb-1">
+        <div className="mb-1.5">
+          <h3 className="text-[13px] font-bold text-gray-900 line-clamp-1 mb-0.5">
             {lot.title}
           </h3>
-          <div className="flex items-center gap-1.5 text-xs text-gray-600 font-light">
-            <div className="w-4 h-4 bg-gray-100 rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="flex items-center gap-1 text-xs text-gray-600 font-light">
+            <div className="w-3.5 h-3.5 bg-gray-100 rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
               {lot.profiles.business_logo_url ? (
                 <img
                   src={lot.profiles.business_logo_url}
@@ -126,20 +156,20 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
                   }}
                 />
               ) : null}
-              <MapPin className={`w-2.5 h-2.5 text-gray-500 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
+              <MapPin className={`w-2 h-2 text-gray-500 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
             </div>
-            <span className="truncate text-[11px]">{lot.profiles.business_name}</span>
+            <span className="truncate text-[10px]">{lot.profiles.business_name}</span>
           </div>
         </div>
 
         {/* Prix */}
-        <div className="mb-2">
-          <div className="flex items-baseline gap-2">
-            <span className="text-lg font-bold text-gray-900">
+        <div className="mb-1.5">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-base font-bold text-gray-900">
               {lot.discounted_price}€
             </span>
             {lot.original_price > lot.discounted_price && (
-              <span className="text-xs text-gray-400 line-through">
+              <span className="text-[10px] text-gray-400 line-through">
                 {lot.original_price}€
               </span>
             )}
@@ -147,17 +177,17 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
         </div>
 
         {/* Quantité disponible et horaires */}
-        <div className="flex items-center justify-between text-[10px] text-gray-500 mb-3 pb-3 border-b border-gray-100">
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3" strokeWidth={1.5} />
+        <div className="flex items-center justify-between text-[9px] text-gray-500 mb-2 pb-2 border-b border-gray-100">
+          <div className="flex items-center gap-0.5">
+            <Clock className="w-2.5 h-2.5" strokeWidth={1.5} />
             <span>
               {format(new Date(lot.pickup_start), 'dd/MM', { locale: fr })} • {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
             </span>
           </div>
-          <div className={`flex items-center gap-1 font-semibold ${
+          <div className={`flex items-center gap-0.5 font-semibold ${
             availableQty > 3 ? 'text-green-600' : availableQty > 0 ? 'text-orange-600' : 'text-red-600'
           }`}>
-            <Package className="w-3 h-3" strokeWidth={1.5} />
+            <Package className="w-2.5 h-2.5" strokeWidth={1.5} />
             <span>{availableQty} dispo</span>
           </div>
         </div>
@@ -169,13 +199,13 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
             onReserve(lot);
           }}
           disabled={isOutOfStock}
-          className={`w-full py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 text-sm font-semibold ${
+          className={`w-full py-1.5 rounded-lg transition-all flex items-center justify-center gap-1 text-xs font-semibold ${
             isOutOfStock
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
               : 'bg-primary-600 text-white hover:bg-primary-700'
           }`}
         >
-          <ShoppingCart size={14} strokeWidth={2} />
+          <ShoppingCart size={12} strokeWidth={2} />
           <span>{isOutOfStock ? 'Épuisé' : 'Réserver'}</span>
         </button>
       </div>
