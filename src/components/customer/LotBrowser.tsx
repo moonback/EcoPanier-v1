@@ -13,7 +13,7 @@ import {
   LotDetailsModal,
   MerchantLotsModal,
   FilterSidebar,
-  InlineSpinner,
+  SkeletonGrid,
 } from './components';
 import type { AdvancedFilters } from './components';
 
@@ -109,7 +109,33 @@ export const LotBrowser = () => {
   };
 
   // Early returns (conditions de sortie)
-  if (loading) return <InlineSpinner />;
+  if (loading) {
+    return (
+      <div>
+        {/* Sidebar de filtres */}
+        <FilterSidebar
+          filters={filters}
+          onApplyFilters={setFilters}
+          onReset={handleResetFilters}
+          isOpen={showFilterSidebar}
+          onClose={() => setShowFilterSidebar(false)}
+        />
+
+        {/* Contenu principal avec margin pour la sidebar */}
+        <div className="lg:ml-80">
+          <div className="w-full px-4 py-6">
+            {/* Barre de filtres mobile skeleton */}
+            <div className="mb-6 flex items-center justify-between gap-3">
+              <div className="lg:hidden h-12 bg-gray-200 rounded-xl animate-pulse w-32"></div>
+            </div>
+            
+            {/* Grid de skeleton loaders */}
+            <SkeletonGrid count={12} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (

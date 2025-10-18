@@ -1,6 +1,7 @@
 import { X, Package, MapPin, Store } from 'lucide-react';
 import type { Database } from '../../../lib/database.types';
 import { LotCard } from './LotCard';
+import { SkeletonLotCard } from './SkeletonLotCard';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabase';
 
@@ -126,18 +127,25 @@ export function MerchantLotsModal({
         {/* Contenu */}
         <div className="p-4 sm:p-6">
           {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            <div className="grid gap-3
+              grid-cols-1
+              sm:grid-cols-2
+              md:grid-cols-3
+              lg:grid-cols-4
+              xl:grid-cols-5">
+              {Array.from({ length: 10 }).map((_, index) => (
+                <SkeletonLotCard key={index} />
+              ))}
             </div>
           ) : lots.length === 0 ? (
             <div className="text-center py-20">
-              <div className="inline-flex p-6 bg-gray-50 rounded-full mb-6">
-                <Package size={64} className="text-gray-300" strokeWidth={1} />
+              <div className="inline-flex p-6 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-full mb-6 border-2 border-primary-100">
+                <Package size={64} className="text-primary-400" strokeWidth={1.5} />
               </div>
-              <h3 className="text-2xl font-bold text-black mb-3">
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
                 Aucun produit disponible
               </h3>
-              <p className="text-gray-600 max-w-md mx-auto">
+              <p className="text-gray-600 max-w-md mx-auto font-light">
                 Ce commerçant n'a pas de produits disponibles pour le moment. 
                 Revenez plus tard ! ⏰
               </p>

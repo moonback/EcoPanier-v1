@@ -262,19 +262,23 @@ export const ProfilePage = () => {
     <div className="max-w-12xl mx-auto">
       {/* Success Message */}
       {success && (
-        <div className="mb-6 p-4 bg-success-50 border-2 border-success-200 rounded-xl">
+        <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl shadow-md">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">✅</span>
-            <p className="text-success-800 font-semibold flex-1">{success}</p>
+            <div className="p-2 bg-green-100 rounded-lg">
+              <span className="text-xl">✅</span>
+            </div>
+            <p className="text-green-800 font-semibold flex-1">{success}</p>
           </div>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+        <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-xl shadow-md">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">⚠️</span>
+            <div className="p-2 bg-red-100 rounded-lg">
+              <span className="text-xl">⚠️</span>
+            </div>
             <p className="text-red-700 font-semibold flex-1">{error}</p>
           </div>
         </div>
@@ -295,7 +299,7 @@ export const ProfilePage = () => {
                 {getRoleLabel()}
               </span>
               {profile?.verified && (
-                <span className="px-3 py-1.5 bg-success-50 text-success-700 text-sm rounded-full font-semibold flex items-center gap-1.5 border-2 border-success-200">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 text-sm rounded-full font-semibold flex items-center gap-1.5 border-2 border-green-200 shadow-sm">
                   <Shield size={14} strokeWidth={2} />
                   <span>✓ Vérifié</span>
                 </span>
@@ -305,9 +309,9 @@ export const ProfilePage = () => {
           {!isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="p-3 border-2 border-gray-200 rounded-xl hover:bg-primary-50 hover:border-primary-300 transition-all group"
+              className="p-3 bg-gradient-to-r from-white to-primary-50 border-2 border-gray-200 rounded-xl hover:border-primary-400 hover:shadow-lg transition-all group"
             >
-              <Edit2 size={20} strokeWidth={2} className="group-hover:text-primary-600 transition-colors" />
+              <Edit2 size={20} strokeWidth={2} className="text-gray-600 group-hover:text-primary-600 transition-colors" />
             </button>
           )}
         </div>
@@ -324,8 +328,8 @@ export const ProfilePage = () => {
                 secondary: 'from-secondary-500 to-secondary-600',
                 warning: 'from-warning-500 to-warning-600',
               };
-              return (
-                <div key={index} className="group bg-white p-5 rounded-2xl border-2 border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all">
+                return (
+                <div key={index} className="group bg-gradient-to-br from-white to-gray-50 p-5 rounded-2xl border-2 border-gray-100 hover:border-primary-200 hover:shadow-xl transition-all">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 bg-gradient-to-br ${colors[stat.color as keyof typeof colors]} rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
                       <Icon size={18} strokeWidth={2} className="text-white" />
@@ -366,14 +370,14 @@ export const ProfilePage = () => {
               <div className="flex gap-3">
                 <button
                   onClick={handleCancel}
-                  className="px-5 py-2 text-gray-700 hover:bg-white border-2 border-gray-200 rounded-xl transition-all font-semibold"
+                  className="px-5 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200 rounded-xl transition-all font-semibold"
                   disabled={loading}
                 >
                   Annuler
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="px-6 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all flex items-center gap-2 font-semibold shadow-lg"
+                  className="px-6 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all flex items-center gap-2 font-semibold shadow-lg hover:shadow-xl"
                   disabled={loading}
                 >
                   {loading ? (
@@ -457,8 +461,8 @@ export const ProfilePage = () => {
               {/* Merchant-specific fields */}
               {profile?.role === 'merchant' && (
                 <div className="space-y-6 pt-4 border-t border-gray-100">
-                  <div className="p-4 bg-gradient-to-r from-secondary-50 to-primary-50 rounded-xl border border-secondary-100">
-                    <p className="text-sm text-black font-semibold flex items-center gap-2">
+                  <div className="p-4 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-xl border-2 border-primary-200">
+                    <p className="text-sm text-primary-800 font-bold flex items-center gap-2">
                       <span>🏪</span>
                       <span>Informations professionnelles du commerce</span>
                     </p>
@@ -775,10 +779,10 @@ export const ProfilePage = () => {
               {!isEditingHours && (
                 <button
                   onClick={() => setIsEditingHours(true)}
-                  className="px-5 py-2 border-2 border-gray-200 rounded-xl hover:bg-secondary-50 hover:border-secondary-300 transition-all flex items-center gap-2 font-semibold group"
+                  className="px-5 py-2 bg-gradient-to-r from-white to-primary-50 border-2 border-gray-200 rounded-xl hover:border-primary-400 hover:shadow-lg transition-all flex items-center gap-2 font-semibold group"
                 >
-                  <Edit2 size={16} strokeWidth={2} className="group-hover:text-secondary-600 transition-colors" />
-                  <span className="group-hover:text-secondary-600 transition-colors">{businessHours ? 'Modifier' : 'Définir'}</span>
+                  <Edit2 size={16} strokeWidth={2} className="text-gray-600 group-hover:text-primary-600 transition-colors" />
+                  <span className="text-gray-700 group-hover:text-primary-600 transition-colors">{businessHours ? 'Modifier' : 'Définir'}</span>
                 </button>
               )}
             </div>
@@ -828,25 +832,25 @@ export const ProfilePage = () => {
           </h2>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200">
               <div>
                 <div className="font-medium text-gray-900">Notifications email</div>
                 <div className="text-sm text-gray-600">Recevoir les notifications</div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" defaultChecked />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-gray-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-primary-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200">
               <div>
                 <div className="font-medium text-gray-900">Newsletter</div>
                 <div className="text-sm text-gray-600">Recevoir les actualités</div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" defaultChecked />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-gray-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-primary-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
               </label>
             </div>
           </div>
@@ -875,12 +879,12 @@ export const ProfilePage = () => {
                   <div className="text-sm text-gray-600">Modifier votre mot de passe</div>
                 </div>
               </div>
-              <button className="px-5 py-2 border-2 border-warning-300 text-warning-700 rounded-xl hover:bg-warning-50 transition-all font-semibold">
+              <button className="px-5 py-2 bg-gradient-to-r from-warning-50 to-orange-50 border-2 border-warning-300 text-warning-700 rounded-xl hover:bg-warning-100 hover:border-warning-400 transition-all font-semibold">
                 Modifier
               </button>
             </div>
 
-            <div className="flex items-center justify-between p-5 bg-gradient-to-br from-red-50 to-white rounded-xl border-2 border-red-300">
+            <div className="flex items-center justify-between p-5 bg-gradient-to-br from-red-50 to-rose-50 rounded-xl border-2 border-red-300">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">⚠️</span>
                 <div>
@@ -888,7 +892,7 @@ export const ProfilePage = () => {
                   <div className="text-sm text-gray-600">Action irréversible</div>
                 </div>
               </div>
-              <button className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-semibold shadow-lg">
+              <button className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-semibold shadow-lg hover:shadow-xl">
                 Supprimer
               </button>
             </div>

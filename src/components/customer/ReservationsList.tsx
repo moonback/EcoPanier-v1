@@ -8,7 +8,7 @@ import { useReservations } from '../../hooks/useReservations';
 import {
   ReservationCard,
   QRCodeModal,
-  InlineSpinner,
+  SkeletonReservationCard,
 } from './components';
 
 // Imports types
@@ -59,7 +59,15 @@ export const ReservationsList = () => {
   };
 
   // Early returns (conditions de sortie)
-  if (loading) return <InlineSpinner />;
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <SkeletonReservationCard key={index} />
+        ))}
+      </div>
+    );
+  }
 
   if (error) {
     return (
