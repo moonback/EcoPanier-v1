@@ -100,14 +100,14 @@ export function ReservationModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="flex-1 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Annuler
           </button>
           <button
             onClick={handleConfirm}
             disabled={loading}
-            className="flex-1 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Confirmation...' : 'Confirmer'}
           </button>

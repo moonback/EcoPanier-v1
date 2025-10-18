@@ -86,7 +86,7 @@ export function AdvancedFilterModal({
                 onClick={() => setLocalFilters({ ...localFilters, category: '' })}
                 className={`p-3 rounded-lg font-medium transition-all ${
                   localFilters.category === ''
-                    ? 'bg-black text-white'
+                    ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -98,7 +98,7 @@ export function AdvancedFilterModal({
                   onClick={() => setLocalFilters({ ...localFilters, category: cat })}
                   className={`p-3 rounded-lg font-medium transition-all text-sm ${
                     localFilters.category === cat
-                      ? 'bg-black text-white'
+                      ? 'bg-primary-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -126,7 +126,7 @@ export function AdvancedFilterModal({
                   step="1"
                   value={localFilters.minPrice}
                   onChange={(e) => setLocalFilters({ ...localFilters, minPrice: Number(e.target.value) })}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
                 />
               </div>
               <div>
@@ -141,7 +141,7 @@ export function AdvancedFilterModal({
                   step="1"
                   value={localFilters.maxPrice}
                   onChange={(e) => setLocalFilters({ ...localFilters, maxPrice: Number(e.target.value) })}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
                 />
               </div>
             </div>
@@ -163,7 +163,7 @@ export function AdvancedFilterModal({
               step="1"
               value={localFilters.minQuantity}
               onChange={(e) => setLocalFilters({ ...localFilters, minQuantity: Number(e.target.value) })}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
             />
           </div>
 
@@ -174,7 +174,7 @@ export function AdvancedFilterModal({
                 type="checkbox"
                 checked={localFilters.onlyUrgent}
                 onChange={(e) => setLocalFilters({ ...localFilters, onlyUrgent: e.target.checked })}
-                className="w-5 h-5 text-black rounded focus:ring-gray-200 cursor-pointer"
+                className="w-5 h-5 text-primary-600 rounded focus:ring-primary-200 cursor-pointer"
               />
               <div className="flex-1">
                 <span className="text-sm font-medium text-black">Lots urgents uniquement</span>
@@ -193,7 +193,7 @@ export function AdvancedFilterModal({
                 onClick={() => setLocalFilters({ ...localFilters, sortBy: 'urgent' })}
                 className={`p-3 rounded-lg font-medium transition-all text-sm ${
                   localFilters.sortBy === 'urgent'
-                    ? 'bg-black text-white'
+                    ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -203,7 +203,7 @@ export function AdvancedFilterModal({
                 onClick={() => setLocalFilters({ ...localFilters, sortBy: 'price_asc' })}
                 className={`p-3 rounded-lg font-medium transition-all text-sm ${
                   localFilters.sortBy === 'price_asc'
-                    ? 'bg-black text-white'
+                    ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -213,7 +213,7 @@ export function AdvancedFilterModal({
                 onClick={() => setLocalFilters({ ...localFilters, sortBy: 'price_desc' })}
                 className={`p-3 rounded-lg font-medium transition-all text-sm ${
                   localFilters.sortBy === 'price_desc'
-                    ? 'bg-black text-white'
+                    ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -223,7 +223,7 @@ export function AdvancedFilterModal({
                 onClick={() => setLocalFilters({ ...localFilters, sortBy: 'quantity_desc' })}
                 className={`p-3 rounded-lg font-medium transition-all text-sm ${
                   localFilters.sortBy === 'quantity_desc'
-                    ? 'bg-black text-white'
+                    ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -243,7 +243,7 @@ export function AdvancedFilterModal({
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-all font-medium"
+            className="flex-1 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all font-medium"
           >
             Appliquer ({activeFiltersCount})
           </button>

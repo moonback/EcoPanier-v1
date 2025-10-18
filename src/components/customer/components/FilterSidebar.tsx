@@ -130,7 +130,7 @@ export function FilterSidebar({
                 onClick={() => handleFilterChange({ category: '' })}
                 className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
                   filters.category === ''
-                    ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg'
+                    ? 'bg-primary-600 text-white shadow-lg'
                     : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
                 }`}
               >
@@ -147,7 +147,7 @@ export function FilterSidebar({
                     onClick={() => handleFilterChange({ category: cat })}
                     className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
                       filters.category === cat
-                        ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg'
+                        ? 'bg-primary-600 text-white shadow-lg'
                         : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
                     }`}
                   >
@@ -256,12 +256,12 @@ export function FilterSidebar({
                 onClick={() => handleFilterChange({ sortBy: 'urgent' })}
                 className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
                   filters.sortBy === 'urgent'
-                    ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-red-200'
+                    ? 'bg-primary-600 text-white shadow-lg'
+                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
                 }`}
               >
-                <div className={`p-2 rounded-lg ${filters.sortBy === 'urgent' ? 'bg-white/20' : 'bg-red-50 group-hover:bg-red-100'}`}>
-                  <Zap className={`w-4 h-4 ${filters.sortBy === 'urgent' ? 'text-white' : 'text-red-600'}`} />
+                <div className={`p-2 rounded-lg ${filters.sortBy === 'urgent' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
+                  <Zap className={`w-4 h-4 ${filters.sortBy === 'urgent' ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
                 </div>
                 <span className="font-semibold">Urgence</span>
               </button>
@@ -269,12 +269,12 @@ export function FilterSidebar({
                 onClick={() => handleFilterChange({ sortBy: 'price_asc' })}
                 className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
                   filters.sortBy === 'price_asc'
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-green-200'
+                    ? 'bg-primary-600 text-white shadow-lg'
+                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
                 }`}
               >
-                <div className={`p-2 rounded-lg ${filters.sortBy === 'price_asc' ? 'bg-white/20' : 'bg-green-50 group-hover:bg-green-100'}`}>
-                  <Euro className={`w-4 h-4 ${filters.sortBy === 'price_asc' ? 'text-white' : 'text-green-600'}`} />
+                <div className={`p-2 rounded-lg ${filters.sortBy === 'price_asc' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
+                  <Euro className={`w-4 h-4 ${filters.sortBy === 'price_asc' ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
                 </div>
                 <span className="font-semibold">Prix croissant</span>
               </button>
@@ -282,12 +282,12 @@ export function FilterSidebar({
                 onClick={() => handleFilterChange({ sortBy: 'price_desc' })}
                 className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
                   filters.sortBy === 'price_desc'
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-green-200'
+                    ? 'bg-primary-600 text-white shadow-lg'
+                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
                 }`}
               >
-                <div className={`p-2 rounded-lg ${filters.sortBy === 'price_desc' ? 'bg-white/20' : 'bg-green-50 group-hover:bg-green-100'}`}>
-                  <Euro className={`w-4 h-4 ${filters.sortBy === 'price_desc' ? 'text-white' : 'text-green-600'}`} />
+                <div className={`p-2 rounded-lg ${filters.sortBy === 'price_desc' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
+                  <Euro className={`w-4 h-4 ${filters.sortBy === 'price_desc' ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
                 </div>
                 <span className="font-semibold">Prix décroissant</span>
               </button>
@@ -295,12 +295,12 @@ export function FilterSidebar({
                 onClick={() => handleFilterChange({ sortBy: 'quantity_desc' })}
                 className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
                   filters.sortBy === 'quantity_desc'
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-blue-200'
+                    ? 'bg-primary-600 text-white shadow-lg'
+                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
                 }`}
               >
-                <div className={`p-2 rounded-lg ${filters.sortBy === 'quantity_desc' ? 'bg-white/20' : 'bg-blue-50 group-hover:bg-blue-100'}`}>
-                  <Package className={`w-4 h-4 ${filters.sortBy === 'quantity_desc' ? 'text-white' : 'text-blue-600'}`} />
+                <div className={`p-2 rounded-lg ${filters.sortBy === 'quantity_desc' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
+                  <Package className={`w-4 h-4 ${filters.sortBy === 'quantity_desc' ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
                 </div>
                 <span className="font-semibold">Quantité disponible</span>
               </button>

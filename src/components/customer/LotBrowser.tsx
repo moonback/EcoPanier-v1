@@ -145,12 +145,12 @@ export const LotBrowser = () => {
         <div className="mb-6 flex items-center justify-between gap-3">
           <button
             onClick={() => setShowFilterSidebar(true)}
-            className="lg:hidden flex items-center gap-2 px-4 py-3 bg-white text-black rounded-xl border-2 border-gray-200 hover:border-primary-500 hover:shadow-md transition-all font-medium group"
+            className="lg:hidden flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-white to-primary-50/50 text-gray-900 rounded-xl border-2 border-gray-200 hover:border-primary-400 hover:shadow-lg transition-all font-medium group"
           >
-            <Filter className="w-5 h-5 group-hover:text-primary-600 transition-colors" />
+            <Filter className="w-5 h-5 text-gray-600 group-hover:text-primary-600 transition-colors" strokeWidth={1.5} />
             <span className="group-hover:text-primary-600 transition-colors">Filtres</span>
             {activeFiltersCount > 0 && (
-              <span className="ml-1 px-2 py-0.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-full text-xs font-bold shadow-sm">
+              <span className="ml-1 px-2 py-0.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-full text-xs font-bold shadow-sm animate-pulse">
                 {activeFiltersCount}
               </span>
             )}
@@ -162,48 +162,48 @@ export const LotBrowser = () => {
         {activeFiltersCount > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
             {filters.category && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-black rounded-full text-sm font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-full text-sm font-medium border border-primary-200">
                 <Package className="w-3 h-3" />
                 {getCategoryLabel(filters.category)}
                 <button
                   onClick={() => setFilters({ ...filters, category: '' })}
-                  className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                  className="ml-1 hover:bg-primary-100 rounded-full p-0.5 transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
             {filters.onlyUrgent && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-black rounded-full text-sm font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-700 rounded-full text-sm font-medium border border-red-200">
                 <Zap className="w-3 h-3" />
                 Urgents uniquement
                 <button
                   onClick={() => setFilters({ ...filters, onlyUrgent: false })}
-                  className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                  className="ml-1 hover:bg-red-100 rounded-full p-0.5 transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
             {(filters.minPrice > 0 || filters.maxPrice < 100) && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-black rounded-full text-sm font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary-50 text-secondary-700 rounded-full text-sm font-medium border border-secondary-200">
                 <Euro className="w-3 h-3" />
                 {filters.minPrice}€ - {filters.maxPrice}€
                 <button
                   onClick={() => setFilters({ ...filters, minPrice: 0, maxPrice: 100 })}
-                  className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                  className="ml-1 hover:bg-secondary-100 rounded-full p-0.5 transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
             {filters.minQuantity > 1 && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-black rounded-full text-sm font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-full text-sm font-medium border border-primary-200">
                 <Package className="w-3 h-3" />
                 Min. {filters.minQuantity} unités
                 <button
                   onClick={() => setFilters({ ...filters, minQuantity: 1 })}
-                  className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                  className="ml-1 hover:bg-primary-100 rounded-full p-0.5 transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -215,19 +215,19 @@ export const LotBrowser = () => {
         {/* Grille de lots - Mobile: 1 colonne, Desktop: grille responsive */}
         {filteredLots.length === 0 ? (
           <div className="text-center py-16">
-            <div className="inline-flex p-6 bg-gray-50 rounded-full mb-6">
-              <Package size={64} className="text-gray-300" strokeWidth={1} />
+            <div className="inline-flex p-6 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-full mb-6 border-2 border-primary-100">
+              <Package size={64} className="text-primary-400" strokeWidth={1.5} />
             </div>
-            <h3 className="text-2xl font-bold text-black mb-3">
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">
               Aucun panier trouvé 🔍
             </h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <p className="text-gray-600 mb-6 max-w-md mx-auto font-light">
               Pas de panique ! Essayez d'ajuster vos filtres ou revenez un peu plus tard. 
               De nouveaux paniers sont ajoutés régulièrement ! ⏰
             </p>
             <button
               onClick={handleResetFilters}
-              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg"
+              className="px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl"
             >
               Réinitialiser les filtres
             </button>

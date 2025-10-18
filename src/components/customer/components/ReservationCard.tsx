@@ -155,7 +155,7 @@ export function ReservationCard({
           {canShowQRCode && (
             <button
               onClick={() => onShowQRCode(reservation)}
-              className="flex-1 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition text-sm font-medium"
+              className="flex-1 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-sm font-medium"
             >
               Voir QR Code
             </button>

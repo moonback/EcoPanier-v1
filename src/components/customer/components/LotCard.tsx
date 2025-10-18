@@ -172,7 +172,7 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
           className={`w-full py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 text-sm font-semibold ${
             isOutOfStock
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 hover:from-blue-100 hover:to-indigo-100 border border-blue-200'
+              : 'bg-primary-600 text-white hover:bg-primary-700'
           }`}
         >
           <ShoppingCart size={14} strokeWidth={2} />

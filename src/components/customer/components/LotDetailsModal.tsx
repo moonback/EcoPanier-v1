@@ -52,13 +52,13 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-black">Détails du lot</h2>
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-white to-primary-50/30 border-b border-primary-100 p-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">Détails du lot</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-primary-100 rounded-lg transition-colors"
           >
-            <X className="w-6 h-6" strokeWidth={1.5} />
+            <X className="w-6 h-6 text-gray-600" strokeWidth={1.5} />
           </button>
         </div>
 
@@ -79,7 +79,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                   {/* Bouton zoom */}
                   <button
                     onClick={() => setShowImageZoom(true)}
-                    className="absolute bottom-3 right-3 bg-black/70 hover:bg-black text-white p-2 rounded-lg backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
+                    className="absolute bottom-3 right-3 bg-primary-600/90 hover:bg-primary-700 text-white p-2 rounded-lg backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 shadow-lg"
                     aria-label="Zoomer sur l'image"
                   >
                     <ZoomIn className="w-5 h-5" strokeWidth={1.5} />
@@ -94,7 +94,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                             e.stopPropagation();
                             prevImage();
                           }}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black text-white p-2 rounded-full backdrop-blur-sm transition-all"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 bg-primary-600/90 hover:bg-primary-700 text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-lg"
                           aria-label="Image précédente"
                         >
                           <ChevronLeft className="w-5 h-5" strokeWidth={2} />
@@ -107,7 +107,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                             e.stopPropagation();
                             nextImage();
                           }}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black text-white p-2 rounded-full backdrop-blur-sm transition-all"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 bg-primary-600/90 hover:bg-primary-700 text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-lg"
                           aria-label="Image suivante"
                         >
                           <ChevronRight className="w-5 h-5" strokeWidth={2} />
@@ -115,7 +115,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                       )}
 
                       {/* Indicateur de position */}
-                      <div className="absolute bottom-3 left-3 bg-black/70 text-white text-xs px-2 py-1 rounded-md backdrop-blur-sm">
+                      <div className="absolute bottom-3 left-3 bg-primary-600/90 text-white text-xs px-2 py-1 rounded-md backdrop-blur-sm shadow-md">
                         {currentImageIndex + 1} / {lot.image_urls.length}
                       </div>
                     </>
@@ -130,11 +130,11 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
               {/* Badges sur l'image */}
               <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
                 {lot.is_urgent && (
-                  <span className="inline-flex items-center gap-1.5 bg-black/90 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full font-medium">
+                  <span className="inline-flex items-center gap-1.5 bg-red-600/95 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full font-medium shadow-lg">
                     🔥 Urgent
                   </span>
                 )}
-                <span className="ml-auto bg-black/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium">
+                <span className="ml-auto bg-primary-600/95 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg">
                   -{discount}%
                 </span>
               </div>
@@ -144,26 +144,32 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
             <div className="space-y-4">
               {/* Titre */}
               <div>
-                <h3 className="text-3xl font-bold text-black mb-2">
+                <h3 className="text-3xl font-bold text-gray-900 mb-2">
                   {lot.title}
                 </h3>
-                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-black text-sm px-3 py-1.5 rounded-full font-medium">
+                <span className="inline-flex items-center gap-1.5 bg-primary-50 text-primary-700 text-sm px-3 py-1.5 rounded-full font-medium">
                   <Package className="w-4 h-4" strokeWidth={1.5} />
                   {lot.category}
                 </span>
               </div>
 
               {/* Description */}
-              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <h4 className="text-sm font-bold text-black mb-2">Description</h4>
+              <div className="p-4 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-xl border border-gray-200">
+                <h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+                  <Package className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                  Description
+                </h4>
                 <p className="text-gray-700 leading-relaxed font-light">
                   {lot.description}
                 </p>
               </div>
 
               {/* Prix */}
-              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <h4 className="text-sm font-bold text-black mb-3">Prix</h4>
+              <div className="p-4 bg-gradient-to-br from-primary-50 to-secondary-50/50 rounded-xl border border-primary-100">
+                <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+                  <span className="text-primary-600">💰</span>
+                  Prix
+                </h4>
                 <div className="flex items-end justify-between">
                   <div>
                     <div className="text-xs text-gray-600 font-light mb-1">Prix initial</div>
@@ -174,14 +180,14 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                   <div className="text-right">
                     <div className="text-xs text-gray-600 font-light mb-1">Prix réduit</div>
                     <div className="flex items-center gap-1">
-                      <span className="text-4xl font-bold text-black">
+                      <span className="text-4xl font-bold text-primary-700">
                         {lot.discounted_price}€
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="mt-3 text-center">
-                  <span className="inline-block bg-black text-white px-4 py-2 rounded-full text-sm font-medium">
+                  <span className="inline-block bg-gradient-to-r from-primary-600 to-primary-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md">
                     Économisez {(lot.original_price - lot.discounted_price).toFixed(2)}€ ({discount}%)
                   </span>
                 </div>
@@ -189,18 +195,18 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
 
               {/* Commerçant avec logo - Cliquable */}
               <div 
-                className={`p-4 bg-gray-50 rounded-xl border border-gray-200 transition-all ${
+                className={`p-4 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-xl border border-gray-200 transition-all ${
                   onMerchantClick 
-                    ? 'cursor-pointer hover:bg-primary-50 hover:border-primary-300' 
+                    ? 'cursor-pointer hover:bg-primary-50 hover:border-primary-300 hover:shadow-md' 
                     : ''
                 }`}
                 onClick={onMerchantClick}
               >
-                <h4 className="text-sm font-bold text-black mb-3 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" strokeWidth={1.5} />
+                <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
                   Commerçant
                   {onMerchantClick && (
-                    <span className="ml-auto text-xs text-primary-600 font-medium">
+                    <span className="ml-auto text-xs text-primary-600 font-medium hover:text-primary-700">
                       Voir tous ses produits →
                     </span>
                   )}
@@ -221,9 +227,9 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                     <MapPin className={`w-6 h-6 text-gray-400 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-black text-base mb-0.5 truncate">{lot.profiles.business_name}</div>
+                    <div className="font-bold text-gray-900 text-base mb-0.5 truncate">{lot.profiles.business_name}</div>
                     <div className="text-sm text-gray-600 font-light flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
+                      <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-gray-500" strokeWidth={1.5} />
                       <span className="truncate">{lot.profiles.business_address}</span>
                     </div>
                   </div>
@@ -235,12 +241,14 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
           {/* Informations complémentaires */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             {/* Disponibilité */}
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="p-4 bg-gradient-to-br from-primary-50 to-white rounded-xl border border-primary-100 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-2">
-                <Package className="w-5 h-5 text-black" strokeWidth={1.5} />
+                <div className="p-2 bg-primary-100 rounded-lg">
+                  <Package className="w-5 h-5 text-primary-600" strokeWidth={1.5} />
+                </div>
                 <div>
                   <div className="text-xs text-gray-600 font-light">Disponibilité</div>
-                  <div className="text-2xl font-bold text-black">{availableQty}</div>
+                  <div className="text-2xl font-bold text-primary-700">{availableQty}</div>
                 </div>
               </div>
               <div className="text-xs text-gray-600 font-light">
@@ -249,12 +257,14 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
             </div>
 
             {/* Horaire de retrait */}
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="p-4 bg-gradient-to-br from-secondary-50 to-white rounded-xl border border-secondary-100 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-2">
-                <Clock className="w-5 h-5 text-black" strokeWidth={1.5} />
+                <div className="p-2 bg-secondary-100 rounded-lg">
+                  <Clock className="w-5 h-5 text-secondary-600" strokeWidth={1.5} />
+                </div>
                 <div>
                   <div className="text-xs text-gray-600 font-light">Retrait</div>
-                  <div className="text-sm font-bold text-black">
+                  <div className="text-sm font-bold text-secondary-700">
                     {format(new Date(lot.pickup_start), 'dd MMM', { locale: fr })}
                   </div>
                 </div>
@@ -265,12 +275,14 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
             </div>
 
             {/* Impact environnemental */}
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="p-4 bg-gradient-to-br from-green-50 to-white rounded-xl border border-green-100 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-xl">🌱</span>
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <span className="text-xl">🌱</span>
+                </div>
                 <div>
                   <div className="text-xs text-gray-600 font-light">Impact CO₂</div>
-                  <div className="text-sm font-bold text-black">{(availableQty * 0.9).toFixed(1)} kg</div>
+                  <div className="text-sm font-bold text-green-700">{(availableQty * 0.9).toFixed(1)} kg</div>
                 </div>
               </div>
               <div className="text-xs text-gray-600 font-light">
@@ -281,9 +293,9 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
 
           {/* Caractéristiques */}
           {lot.requires_cold_chain && (
-            <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-black">
+                <span className="text-sm font-medium text-blue-700">
                   ❄️ Produit nécessitant une chaîne du froid
                 </span>
               </div>
@@ -297,7 +309,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
             className={`w-full flex items-center justify-center gap-2.5 py-4 rounded-xl font-medium text-lg transition-all ${
               availableQty === 0
                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-black text-white hover:bg-gray-900'
+                : 'bg-primary-600 text-white hover:bg-primary-700'
             }`}
           >
             <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
