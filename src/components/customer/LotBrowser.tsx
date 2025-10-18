@@ -16,6 +16,7 @@ import {
   InlineSpinner,
 } from './components';
 import type { AdvancedFilters } from './components';
+import { ConfirmationModal } from '../shared/ConfirmationModal';
 
 // Imports types
 import type { Database } from '../../lib/database.types';
@@ -49,6 +50,8 @@ export const LotBrowser = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showMerchantLotsModal, setShowMerchantLotsModal] = useState(false);
   const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_FILTERS);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [reservationPin, setReservationPin] = useState<string>('');
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
@@ -78,9 +81,10 @@ export const LotBrowser = () => {
     if (!selectedLot || !profile) return;
 
     const pin = await reserveLot(selectedLot, quantity, profile.id, false);
-    alert(`Réservation confirmée! Code PIN: ${pin}`);
+    setReservationPin(pin);
     setSelectedLot(null);
     setReservationMode(null);
+    setShowConfirmationModal(true);
   };
 
   const handleCloseModal = () => {
@@ -285,6 +289,17 @@ export const LotBrowser = () => {
             lot={selectedLot}
             onClose={handleCloseModal}
             onConfirm={handleConfirmReservation}
+          />
+        )}
+
+        {/* Modal de confirmation */}
+        {showConfirmationModal && (
+          <ConfirmationModal
+            type="success"
+            title="🎉 Réservation confirmée !"
+            message="Votre panier a été réservé avec succès. Notez bien votre code PIN pour récupérer votre commande."
+            pin={reservationPin}
+            onClose={() => setShowConfirmationModal(false)}
           />
         )}
         </div>

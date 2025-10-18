@@ -4,6 +4,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { formatDateTime, categories, generatePIN } from '../../utils/helpers';
 import { Package, MapPin, Clock, Heart, Filter, X, Check } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
+import { ConfirmationModal } from '../shared/ConfirmationModal';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: { business_name: string; business_address: string };
@@ -21,6 +22,13 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [confirmationConfig, setConfirmationConfig] = useState<{
+    type: 'success' | 'error' | 'info';
+    title: string;
+    message: string;
+    pin?: string;
+  } | null>(null);
   const { profile } = useAuthStore();
 
   useEffect(() => {
@@ -61,14 +69,24 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
 
   const handleReserve = async (lot: Lot) => {
     if (!profile || dailyCount >= 2) {
-      alert('Limite quotidienne de 2 réservations atteinte');
+      setConfirmationConfig({
+        type: 'info',
+        title: '⚠️ Limite atteinte',
+        message: 'Vous avez atteint votre limite quotidienne de 2 réservations. Revenez demain pour profiter de nouveaux paniers solidaires !'
+      });
+      setShowConfirmationModal(true);
       return;
     }
 
     try {
       const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
       if (quantity > availableQty) {
-        alert('Quantité non disponible');
+        setConfirmationConfig({
+          type: 'error',
+          title: '❌ Quantité non disponible',
+          message: `Désolé, il ne reste que ${availableQty} unité(s) disponible(s) pour ce panier.`
+        });
+        setShowConfirmationModal(true);
         return;
       }
 
@@ -125,13 +143,24 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
         if (limitInsertError) throw limitInsertError;
       }
 
-      alert(`Réservation confirmée! Code PIN: ${pin}`);
+      setConfirmationConfig({
+        type: 'success',
+        title: '🎉 Réservation confirmée !',
+        message: 'Votre panier solidaire gratuit a été réservé avec succès. Notez bien votre code PIN pour le récupérer.',
+        pin: pin
+      });
+      setShowConfirmationModal(true);
       setSelectedLot(null);
       fetchFreeLots();
       onReservationMade();
     } catch (error) {
       console.error('Error creating reservation:', error);
-      alert('Erreur lors de la réservation');
+      setConfirmationConfig({
+        type: 'error',
+        title: '❌ Erreur de réservation',
+        message: 'Une erreur est survenue lors de la réservation. Veuillez réessayer dans quelques instants.'
+      });
+      setShowConfirmationModal(true);
     }
   };
 
@@ -420,6 +449,17 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de confirmation */}
+      {showConfirmationModal && confirmationConfig && (
+        <ConfirmationModal
+          type={confirmationConfig.type}
+          title={confirmationConfig.title}
+          message={confirmationConfig.message}
+          pin={confirmationConfig.pin}
+          onClose={() => setShowConfirmationModal(false)}
+        />
       )}
     </div>
   );
