@@ -58,7 +58,7 @@ export const CustomerDashboard = () => {
       />
 
       {/* Contenu principal */}
-      <main className="w-full px-4 py-6 pb-24">
+      <main className="w-full pb-24">
         {activeTab === 'browse' && <LotBrowser />}
         {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}

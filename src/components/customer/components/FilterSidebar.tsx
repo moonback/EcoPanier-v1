@@ -68,7 +68,7 @@ export function FilterSidebar({
         `}
       >
         {/* Header */}
-        <div className="flex-shrink-0 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 p-6">
+        <div className="flex-shrink-0 bg-white/80 backdrop-blur-sm border-b border-gray-200/50 p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-xl">
@@ -309,7 +309,7 @@ export function FilterSidebar({
         </div>
 
         {/* Footer - Informations */}
-        <div className="flex-shrink-0 bg-gradient-to-r from-gray-50 to-gray-100/50 border-t border-gray-200/50 p-6">
+        <div className="flex-shrink-0 bg-gradient-to-r from-gray-50 to-gray-100/50 border-t border-gray-200/50 p-2">
           <div className="text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 rounded-full border border-gray-200/50">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>

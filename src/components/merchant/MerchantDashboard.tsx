@@ -1,6 +1,6 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, Scan, User, ClipboardList, Truck } from 'lucide-react';
+import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -22,6 +22,7 @@ type TabId = 'lots' | 'reservations' | 'missions' | 'stats' | 'profile';
 export const MerchantDashboard = () => {
   // État local
   const [activeTab, setActiveTab] = useState<TabId>('lots');
+  const [createLotHandler, setCreateLotHandler] = useState<(() => void) | null>(null);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
@@ -54,6 +55,26 @@ export const MerchantDashboard = () => {
         defaultIcon="🏪"
         actions={[
           {
+            label: 'Créer un panier',
+            icon: Plus,
+            onClick: () => {
+              // Basculer vers l'onglet "lots" si nécessaire
+              if (activeTab !== 'lots') {
+                setActiveTab('lots');
+                // Attendre que le composant soit monté avant d'appeler le handler
+                setTimeout(() => {
+                  if (createLotHandler) {
+                    createLotHandler();
+                  }
+                }, 100);
+              } else if (createLotHandler) {
+                createLotHandler();
+              }
+            },
+            variant: 'primary',
+            mobileLabel: 'Créer',
+          },
+          {
             label: 'Station Retrait',
             icon: Scan,
             onClick: () => window.open('/pickup', '_blank'),
@@ -65,7 +86,11 @@ export const MerchantDashboard = () => {
 
       {/* Contenu principal */}
       <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
-        {activeTab === 'lots' && <LotManagement />}
+        {activeTab === 'lots' && (
+          <LotManagement 
+            onCreateLotClick={(handler) => setCreateLotHandler(() => handler)}
+          />
+        )}
         {activeTab === 'reservations' && <MerchantReservations />}
         {activeTab === 'missions' && <MissionsManagement />}
         {activeTab === 'stats' && <SalesStats />}

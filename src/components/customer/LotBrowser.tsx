@@ -166,7 +166,7 @@ export const LotBrowser = () => {
 
       {/* Contenu principal avec margin pour la sidebar */}
       <div className="lg:ml-80">
-        <div className="w-full px-4 py-6">
+        <div className="w-full px-4">
         {/* Barre de filtres mobile + résultats */}
         <div className="mb-6 flex items-center justify-between gap-3">
           <button
@@ -259,7 +259,7 @@ export const LotBrowser = () => {
             </button>
           </div>
         ) : (
-          <div className="grid gap-3
+          <div className="grid gap-4
             /* Mobile : 1 lot par ligne (pleine largeur) */
             grid-cols-1
             /* Petits écrans : 2 colonnes */
@@ -268,10 +268,8 @@ export const LotBrowser = () => {
             md:grid-cols-3
             /* Desktop avec sidebar : 4 colonnes */
             lg:grid-cols-4
-            /* Large desktop : 5 colonnes */
-            xl:grid-cols-5
-            /* Extra large : 6 colonnes */
-            2xl:grid-cols-6">
+            /* Large desktop : 5 colonnes max */
+            xl:grid-cols-5">
             {filteredLots.map((lot) => (
               <LotCard
                 key={lot.id}
