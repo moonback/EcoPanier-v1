@@ -16,7 +16,6 @@ import {
   InlineSpinner,
 } from './components';
 import type { AdvancedFilters } from './components';
-import { ConfirmationModal } from '../shared/ConfirmationModal';
 
 // Imports types
 import type { Database } from '../../lib/database.types';
@@ -50,8 +49,6 @@ export const LotBrowser = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showMerchantLotsModal, setShowMerchantLotsModal] = useState(false);
   const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_FILTERS);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [reservationPin, setReservationPin] = useState<string>('');
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
@@ -81,10 +78,9 @@ export const LotBrowser = () => {
     if (!selectedLot || !profile) return;
 
     const pin = await reserveLot(selectedLot, quantity, profile.id, false);
-    setReservationPin(pin);
+    alert(`Réservation confirmée! Code PIN: ${pin}`);
     setSelectedLot(null);
     setReservationMode(null);
-    setShowConfirmationModal(true);
   };
 
   const handleCloseModal = () => {
@@ -144,7 +140,7 @@ export const LotBrowser = () => {
 
       {/* Contenu principal avec margin pour la sidebar */}
       <div className="lg:ml-80">
-        <div className="max-w-12xl mx-auto px-6 py-6">
+        <div className="w-full px-4 py-6">
         {/* Barre de filtres mobile + résultats */}
         <div className="mb-6 flex items-center justify-between gap-3">
           <button
@@ -242,14 +238,14 @@ export const LotBrowser = () => {
             grid-cols-1
             /* Petits écrans : 2 colonnes */
             sm:grid-cols-2
-            /* Tablettes : 2-3 colonnes */
-            md:grid-cols-2
-            /* Desktop avec sidebar : 3 colonnes */
-            lg:grid-cols-3
-            /* Large desktop : 4 colonnes */
-            xl:grid-cols-4
-            /* Extra large : 5 colonnes */
-            2xl:grid-cols-3">
+            /* Tablettes : 3 colonnes */
+            md:grid-cols-3
+            /* Desktop avec sidebar : 4 colonnes */
+            lg:grid-cols-4
+            /* Large desktop : 5 colonnes */
+            xl:grid-cols-5
+            /* Extra large : 6 colonnes */
+            2xl:grid-cols-6">
             {filteredLots.map((lot) => (
               <LotCard
                 key={lot.id}
@@ -289,17 +285,6 @@ export const LotBrowser = () => {
             lot={selectedLot}
             onClose={handleCloseModal}
             onConfirm={handleConfirmReservation}
-          />
-        )}
-
-        {/* Modal de confirmation */}
-        {showConfirmationModal && (
-          <ConfirmationModal
-            type="success"
-            title="🎉 Réservation confirmée !"
-            message="Votre panier a été réservé avec succès. Notez bien votre code PIN pour récupérer votre commande."
-            pin={reservationPin}
-            onClose={() => setShowConfirmationModal(false)}
           />
         )}
         </div>
