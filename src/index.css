@@ -144,6 +144,11 @@
   .section-gradient-dark {
     @apply bg-gradient-to-br from-primary-600 via-secondary-600 to-secondary-700;
   }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 3s ease infinite;
+  }
 }
 
 /* Animations personnalisées */
@@ -167,6 +172,18 @@
   50% {
     background-size: 200% 200%;
     background-position: right center;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 

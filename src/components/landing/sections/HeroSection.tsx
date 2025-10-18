@@ -1,73 +1,190 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Users } from 'lucide-react';
 
 export const HeroSection = () => {
   const navigate = useNavigate();
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut" as const
+      }
+    }
+  };
+
+  const badgeVariants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 200,
+        damping: 15
+      }
+    }
+  };
+
   return (
-    <section className="py-32 text-center bg-gray-50 bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/slide-7.png)' }}>
-      <div className="absolute inset-0 bg-black/50"></div>
-      <div className="max-w-4xl mx-auto px-6 relative z-10">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background image avec overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(/slide-7.png)' }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70"></div>
+        
+        {/* Effet de lumière animé */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          className="absolute inset-0 bg-gradient-to-r from-primary-500/20 via-accent-500/20 to-secondary-500/20"
+          animate={{
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-20 relative z-10">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="text-center"
         >
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full font-medium mb-6 border border-white/20">
-            <Sparkles className="w-5 h-5" />
-            <span>Rejoignez le mouvement anti-gaspi</span>
-          </div>
+          {/* Badge animé */}
+          <motion.div variants={badgeVariants} className="mb-8">
+            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold border-2 border-white/30 shadow-2xl">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles className="w-5 h-5" />
+              </motion.div>
+              <span>Plateforme Anti-Gaspillage & Solidaire</span>
+            </div>
+          </motion.div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Sauvez des paniers,
+          {/* Titre principal avec gradient */}
+          <motion.h1 
+            variants={itemVariants}
+            className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-tight"
+          >
+            Ensemble contre le
             <br />
-            <span className="text-primary-400">soutenez votre quartier</span>
-          </h1>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 animate-gradient">
+              gaspillage alimentaire
+            </span>
+          </motion.h1>
           
-          <p className="text-xl text-white/90 font-light max-w-2xl mx-auto mb-10">
-            EcoPanier connecte commerçants engagés, voisins solidaires, associations et collecteurs pour sauver des invendus, proposer des paniers suspendus et lutter ensemble contre le gaspillage alimentaire.
-          </p>
+          {/* Sous-titre */}
+          <motion.p 
+            variants={itemVariants}
+            className="text-xl md:text-2xl text-white/95 font-light max-w-3xl mx-auto mb-12 leading-relaxed"
+          >
+            Sauvez des invendus à <strong className="text-accent-400">prix réduits</strong>, 
+            soutenez les <strong className="text-primary-400">commerçants locaux</strong> et 
+            aidez les <strong className="text-secondary-400">personnes en précarité</strong>
+          </motion.p>
 
-          {/* Badges d'impact */}
-          <div className="flex flex-wrap gap-3 mb-12 justify-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
-              <span className="text-lg">♻️</span>
-              <span>Anti-gaspillage</span>
-            </div>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
-              <span className="text-lg">🙏</span>
-              <span>Solidarité locale</span>
-            </div>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
-              <span className="text-lg">🌱</span>
-              <span>Impact CO₂</span>
-            </div>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20">
-              <span className="text-lg">💶</span>
-              <span>Petits prix</span>
-            </div>
-          </div>
+          
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
+          {/* Boutons CTA */}
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <motion.button
               onClick={() => navigate('/dashboard')}
-              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
+              className="group relative inline-flex items-center justify-center gap-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-10 py-5 rounded-xl text-lg font-bold overflow-hidden shadow-2xl hover:shadow-primary-500/50 transition-all"
               type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span>Je découvre EcoPanier</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-500"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="relative z-10">Découvrir la plateforme</span>
+              <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+            </motion.button>
             
-            <button
+            <motion.button
               onClick={() => navigate('/commercants')}
-              className="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-white/20 transition-all border border-white/20"
+              className="inline-flex items-center justify-center bg-white/15 backdrop-blur-md text-white px-10 py-5 rounded-xl text-lg font-semibold hover:bg-white/25 transition-all border-2 border-white/40 shadow-xl"
               type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
-              Devenir partenaire
-            </button>
-          </div>
+              <Users className="w-5 h-5 mr-2" />
+              <span>Je suis commerçant</span>
+            </motion.button>
+          </motion.div>
+
+          {/* Indicateur de scroll */}
+          <motion.div
+            variants={itemVariants}
+            className="mt-16"
+          >
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="inline-flex flex-col items-center gap-2 text-white/70 cursor-pointer"
+              onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+            >
+              <span className="text-sm font-medium">Découvrir plus</span>
+              <svg className="w-6 h-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+              </svg>
+            </motion.div>
+          </motion.div>
         </motion.div>
+      </div>
+
+      {/* Particules flottantes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-white/20 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.2, 0.5, 0.2],
+              scale: [1, 1.5, 1]
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
       </div>
     </section>
   );
