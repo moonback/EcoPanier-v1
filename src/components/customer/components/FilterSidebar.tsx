@@ -1,4 +1,4 @@
-import { X, RotateCcw, Filter, Apple, Croissant, Beef, Fish, Milk, ShoppingBag, ChefHat, Package, Euro, Zap } from 'lucide-react';
+import { X, RotateCcw, Filter, Apple, Croissant, Beef, Fish, Milk, ShoppingBag, ChefHat, Package, Euro, Zap, ArrowUpDown, TrendingUp, TrendingDown } from 'lucide-react';
 import { categories, getCategoryLabel } from '../../../utils/helpers';
 import type { AdvancedFilters } from './AdvancedFilterModal';
 
@@ -268,62 +268,109 @@ export function FilterSidebar({
           {/* Tri */}
           <div>
             <label className="block text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Filter className="w-5 h-5 text-primary-600" />
+              <ArrowUpDown className="w-5 h-5 text-primary-600" />
               Trier par
             </label>
-            <div className="grid grid-cols-1 gap-3">
-              <button
-                onClick={() => handleFilterChange({ sortBy: 'urgent' })}
-                className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
-                  filters.sortBy === 'urgent'
-                    ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
-                }`}
-              >
-                <div className={`p-2 rounded-lg ${filters.sortBy === 'urgent' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
-                  <Zap className={`w-4 h-4 ${filters.sortBy === 'urgent' ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
+            <div className="grid grid-cols-4 gap-3">
+              {/* Urgence */}
+              <div className="relative group/tooltip">
+                <button
+                  onClick={() => handleFilterChange({ sortBy: 'urgent' })}
+                  aria-pressed={filters.sortBy === 'urgent'}
+                  className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                    ${
+                      filters.sortBy === 'urgent'
+                        ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <Zap className={`w-6 h-6 ${
+                    filters.sortBy === 'urgent' ? 'text-white' : 'text-primary-600 group-hover/tooltip:text-primary-700'
+                  } transition-colors`} />
+                </button>
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                  <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap shadow-lg">
+                    Urgence
+                  </div>
                 </div>
-                <span className="font-semibold">Urgence</span>
-              </button>
-              <button
-                onClick={() => handleFilterChange({ sortBy: 'price_asc' })}
-                className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
-                  filters.sortBy === 'price_asc'
-                    ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
-                }`}
-              >
-                <div className={`p-2 rounded-lg ${filters.sortBy === 'price_asc' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
-                  <Euro className={`w-4 h-4 ${filters.sortBy === 'price_asc' ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
+              </div>
+
+              {/* Prix croissant */}
+              <div className="relative group/tooltip">
+                <button
+                  onClick={() => handleFilterChange({ sortBy: 'price_asc' })}
+                  aria-pressed={filters.sortBy === 'price_asc'}
+                  className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                    ${
+                      filters.sortBy === 'price_asc'
+                        ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <TrendingUp className={`w-6 h-6 ${
+                    filters.sortBy === 'price_asc' ? 'text-white' : 'text-primary-600 group-hover/tooltip:text-primary-700'
+                  } transition-colors`} />
+                </button>
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                  <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap shadow-lg">
+                    Prix croissant
+                  </div>
                 </div>
-                <span className="font-semibold">Prix croissant</span>
-              </button>
-              <button
-                onClick={() => handleFilterChange({ sortBy: 'price_desc' })}
-                className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
-                  filters.sortBy === 'price_desc'
-                    ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
-                }`}
-              >
-                <div className={`p-2 rounded-lg ${filters.sortBy === 'price_desc' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
-                  <Euro className={`w-4 h-4 ${filters.sortBy === 'price_desc' ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
+              </div>
+
+              {/* Prix décroissant */}
+              <div className="relative group/tooltip">
+                <button
+                  onClick={() => handleFilterChange({ sortBy: 'price_desc' })}
+                  aria-pressed={filters.sortBy === 'price_desc'}
+                  className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                    ${
+                      filters.sortBy === 'price_desc'
+                        ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <TrendingDown className={`w-6 h-6 ${
+                    filters.sortBy === 'price_desc' ? 'text-white' : 'text-primary-600 group-hover/tooltip:text-primary-700'
+                  } transition-colors`} />
+                </button>
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                  <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap shadow-lg">
+                    Prix décroissant
+                  </div>
                 </div>
-                <span className="font-semibold">Prix décroissant</span>
-              </button>
-              <button
-                onClick={() => handleFilterChange({ sortBy: 'quantity_desc' })}
-                className={`p-4 rounded-xl font-medium transition-all text-left flex items-center gap-3 group ${
-                  filters.sortBy === 'quantity_desc'
-                    ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-200'
-                }`}
-              >
-                <div className={`p-2 rounded-lg ${filters.sortBy === 'quantity_desc' ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-primary-50'}`}>
-                  <Package className={`w-4 h-4 ${filters.sortBy === 'quantity_desc' ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'}`} />
+              </div>
+
+              {/* Quantité */}
+              <div className="relative group/tooltip">
+                <button
+                  onClick={() => handleFilterChange({ sortBy: 'quantity_desc' })}
+                  aria-pressed={filters.sortBy === 'quantity_desc'}
+                  className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                    ${
+                      filters.sortBy === 'quantity_desc'
+                        ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <Package className={`w-6 h-6 ${
+                    filters.sortBy === 'quantity_desc' ? 'text-white' : 'text-primary-600 group-hover/tooltip:text-primary-700'
+                  } transition-colors`} />
+                </button>
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                  <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap shadow-lg">
+                    Quantité disponible
+                  </div>
                 </div>
-                <span className="font-semibold">Quantité disponible</span>
-              </button>
+              </div>
             </div>
           </div>
         </div>

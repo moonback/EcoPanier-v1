@@ -164,73 +164,74 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                 </p>
               </div>
 
-              {/* Prix */}
-              <div className="p-4 bg-gradient-to-br from-primary-50 to-secondary-50/50 rounded-xl border border-primary-100">
-                <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
-                  <span className="text-primary-600">💰</span>
-                  Prix
-                </h4>
-                <div className="flex items-end justify-between">
-                  <div>
-                    <div className="text-xs text-gray-600 font-light mb-1">Prix initial</div>
-                    <div className="text-gray-400 line-through text-xl font-bold">
-                      {lot.original_price}€
+              {/* Prix et Commerçant sur la même ligne */}
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Prix */}
+                <div className="p-4 bg-gradient-to-br from-primary-50 to-secondary-50/50 rounded-xl border border-primary-100">
+                  <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+                    <span className="text-primary-600">💰</span>
+                    Prix
+                  </h4>
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <div className="text-xs text-gray-600 font-light mb-1">Prix initial</div>
+                      <div className="text-gray-400 line-through text-lg font-bold">
+                        {lot.original_price}€
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-gray-600 font-light mb-1">Prix réduit</div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-4xl font-bold text-primary-700">
+                    <div className="text-right">
+                      <div className="text-xs text-gray-600 font-light mb-1">Prix réduit</div>
+                      <div className="text-3xl font-bold text-primary-700">
                         {lot.discounted_price}€
-                      </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="mt-3 text-center">
-                  <span className="inline-block bg-gradient-to-r from-primary-600 to-primary-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md">
-                    Économisez {(lot.original_price - lot.discounted_price).toFixed(2)}€ ({discount}%)
-                  </span>
-                </div>
-              </div>
-
-              {/* Commerçant avec logo - Cliquable */}
-              <div 
-                className={`p-4 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-xl border border-gray-200 transition-all ${
-                  onMerchantClick 
-                    ? 'cursor-pointer hover:bg-primary-50 hover:border-primary-300 hover:shadow-md' 
-                    : ''
-                }`}
-                onClick={onMerchantClick}
-              >
-                <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
-                  Commerçant
-                  {onMerchantClick && (
-                    <span className="ml-auto text-xs text-primary-600 font-medium hover:text-primary-700">
-                      Voir tous ses produits →
+                  <div className="text-center">
+                    <span className="inline-block bg-gradient-to-r from-primary-600 to-primary-700 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-md">
+                      Économisez {(lot.original_price - lot.discounted_price).toFixed(2)}€ ({discount}%)
                     </span>
-                  )}
-                </h4>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gray-200">
-                    {lot.profiles.business_logo_url ? (
-                      <img
-                        src={lot.profiles.business_logo_url}
-                        alt={lot.profiles.business_name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                        }}
-                      />
-                    ) : null}
-                    <MapPin className={`w-6 h-6 text-gray-400 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-900 text-base mb-0.5 truncate">{lot.profiles.business_name}</div>
-                    <div className="text-sm text-gray-600 font-light flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-gray-500" strokeWidth={1.5} />
-                      <span className="truncate">{lot.profiles.business_address}</span>
+                </div>
+
+                {/* Commerçant avec logo - Cliquable */}
+                <div 
+                  className={`p-4 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-xl border border-gray-200 transition-all ${
+                    onMerchantClick 
+                      ? 'cursor-pointer hover:bg-primary-50 hover:border-primary-300 hover:shadow-md' 
+                      : ''
+                  }`}
+                  onClick={onMerchantClick}
+                >
+                  <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                    Commerçant
+                    {onMerchantClick && (
+                      <span className="ml-auto text-xs text-primary-600 font-medium hover:text-primary-700">
+                        Voir tous →
+                      </span>
+                    )}
+                  </h4>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gray-200">
+                      {lot.profiles.business_logo_url ? (
+                        <img
+                          src={lot.profiles.business_logo_url}
+                          alt={lot.profiles.business_name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <MapPin className={`w-6 h-6 text-gray-400 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-gray-900 text-base mb-0.5 truncate">{lot.profiles.business_name}</div>
+                      <div className="text-sm text-gray-600 font-light flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-gray-500" strokeWidth={1.5} />
+                        <span className="truncate">{lot.profiles.business_address}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -238,55 +239,50 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
             </div>
           </div>
 
-          {/* Informations complémentaires */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          {/* Informations complémentaires - Une seule ligne */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
             {/* Disponibilité */}
-            <div className="p-4 bg-gradient-to-br from-primary-50 to-white rounded-xl border border-primary-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-3 mb-2">
+            <div className="p-3 bg-gradient-to-br from-primary-50 to-white rounded-xl border border-primary-100 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-2">
                 <div className="p-2 bg-primary-100 rounded-lg">
-                  <Package className="w-5 h-5 text-primary-600" strokeWidth={1.5} />
+                  <Package className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
                 </div>
-                <div>
-                  <div className="text-xs text-gray-600 font-light">Disponibilité</div>
-                  <div className="text-2xl font-bold text-primary-700">{availableQty}</div>
+                <div className="flex-1">
+                  <div className="text-[10px] text-gray-600 font-light">Disponible</div>
+                  <div className="text-xl font-bold text-primary-700">{availableQty}<span className="text-sm font-normal text-gray-500">/{lot.quantity_total}</span></div>
                 </div>
-              </div>
-              <div className="text-xs text-gray-600 font-light">
-                Sur {lot.quantity_total} au total
               </div>
             </div>
 
             {/* Horaire de retrait */}
-            <div className="p-4 bg-gradient-to-br from-secondary-50 to-white rounded-xl border border-secondary-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-3 mb-2">
+            <div className="p-3 bg-gradient-to-br from-secondary-50 to-white rounded-xl border border-secondary-100 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-2">
                 <div className="p-2 bg-secondary-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-secondary-600" strokeWidth={1.5} />
+                  <Clock className="w-4 h-4 text-secondary-600" strokeWidth={1.5} />
                 </div>
-                <div>
-                  <div className="text-xs text-gray-600 font-light">Retrait</div>
+                <div className="flex-1">
+                  <div className="text-[10px] text-gray-600 font-light">Retrait</div>
                   <div className="text-sm font-bold text-secondary-700">
                     {format(new Date(lot.pickup_start), 'dd MMM', { locale: fr })}
                   </div>
+                  <div className="text-[10px] text-gray-600 font-light">
+                    {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                  </div>
                 </div>
-              </div>
-              <div className="text-xs text-gray-600 font-light">
-                {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} - {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
               </div>
             </div>
 
             {/* Impact environnemental */}
-            <div className="p-4 bg-gradient-to-br from-green-50 to-white rounded-xl border border-green-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-3 mb-2">
+            <div className="p-3 bg-gradient-to-br from-green-50 to-white rounded-xl border border-green-100 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-2">
                 <div className="p-2 bg-green-100 rounded-lg">
-                  <span className="text-xl">🌱</span>
+                  <span className="text-lg">🌱</span>
                 </div>
-                <div>
-                  <div className="text-xs text-gray-600 font-light">Impact CO₂</div>
+                <div className="flex-1">
+                  <div className="text-[10px] text-gray-600 font-light">Impact CO₂</div>
                   <div className="text-sm font-bold text-green-700">{(availableQty * 0.9).toFixed(1)} kg</div>
+                  <div className="text-[10px] text-gray-600 font-light">évités</div>
                 </div>
-              </div>
-              <div className="text-xs text-gray-600 font-light">
-                Évités potentiel
               </div>
             </div>
           </div>
