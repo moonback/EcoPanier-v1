@@ -17,6 +17,7 @@ import { CollectorDashboard } from './components/collector/CollectorDashboard';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AssociationDashboard } from './components/association/AssociationDashboard';
 import { PickupStation } from './components/pickup/PickupStation';
+import { KioskMode } from './components/kiosk/KioskMode';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { ScrollToTop } from './components/shared/ScrollToTop';
@@ -130,6 +131,9 @@ function App() {
           
           {/* Route publique pour la station de retrait */}
           <Route path="/pickup" element={<PickupStation />} />
+          
+          {/* Route publique pour le mode kiosque (foyers d'accueil) */}
+          <Route path="/kiosk" element={<KioskMode />} />
           
           {/* Route pour le dashboard avec authentification */}
           <Route path="/dashboard" element={<DashboardRouter />} />

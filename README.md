@@ -55,6 +55,7 @@ La plateforme gère **6 types d'utilisateurs** avec des fonctionnalités dédié
 - Système de vérification avec ID unique (YYYY-BEN-XXXXX)
 - Retrait avec QR code et PIN en toute dignité
 - Suivi de l'aide reçue (repas sauvés, valeur)
+- **📱 Mode Kiosque** : Accès via tablette dans les foyers pour bénéficiaires sans téléphone
 
 #### 🏛️ **Association**
 - Enregistrement et gestion des bénéficiaires partenaires
@@ -91,6 +92,19 @@ Fonctionnalité phare de solidarité :
 - Récupération identique aux autres clients (QR code + PIN)
 - Aucune distinction visuelle pour préserver la dignité
 - Suivi transparent de l'aide distribuée
+
+### 📱 Mode Kiosque (Nouveau !)
+
+**Accessibilité pour tous** - Interface dédiée pour les foyers d'accueil :
+- 🏠 **Accès via tablette** pour bénéficiaires sans téléphone (SDF, précarité)
+- 🔐 **Connexion par QR Code** : Scan de la carte bénéficiaire
+- 🎯 **Interface simplifiée** : Gros boutons, textes très lisibles
+- ⏱️ **Sécurité renforcée** : Déconnexion auto après 3 min d'inactivité
+- 🔒 **Mode plein écran** : Empêche sortie accidentelle de l'application
+- 📊 **Même fonctionnalités** : Réservation, QR code, code PIN agrandi
+- 🤝 **Dignité préservée** : Expérience identique aux autres utilisateurs
+
+**Route dédiée :** `/kiosk` - [Documentation complète](./docs/MODE_KIOSQUE.md)
 
 ### 🏛️ Espace Association
 
@@ -533,6 +547,69 @@ npm run test:coverage
   to = "/index.html"
   status = 200
 ```
+
+---
+
+## 📚 Documentation Complète
+
+### Documentation Utilisateur Bénéficiaire
+
+Une documentation détaillée sur le fonctionnement de l'interface bénéficiaire est disponible dans le dossier `docs/` :
+
+📖 **[INDEX DE LA DOCUMENTATION BÉNÉFICIAIRE](./docs/BENEFICIAIRE_INDEX.md)**
+
+#### Documents disponibles :
+
+1. **[Analyse Fonctionnelle Complète](./docs/BENEFICIAIRE_FONCTIONNEMENT_ANALYSE.md)** (70+ pages)
+   - Explication détaillée de chaque phase du parcours bénéficiaire
+   - Identification des forces et faiblesses du système actuel
+   - Analyse UX, technique et impact social
+   - Points d'amélioration et recommandations
+
+2. **[Roadmap d'Améliorations](./docs/BENEFICIAIRE_AMELIORATIONS_ROADMAP.md)** (60+ pages)
+   - User stories détaillées (US-BEN-001 à US-BEN-XXX)
+   - Priorisation par sprints (P0 Critique → P3 Futur)
+   - Code d'implémentation (SQL, React, TypeScript)
+   - Estimations de complexité et durée
+
+3. **[Synthèse Exécutive](./docs/BENEFICIAIRE_SYNTHESE_EXECUTIVE.md)** (15 pages)
+   - Résumé pour décideurs (lecture : 5-10 min)
+   - Top 5 des problèmes critiques
+   - Plan d'action et budget (~100k € sur 11 semaines)
+   - KPIs et métriques de succès
+
+4. **[Diagrammes et Flux](./docs/BENEFICIAIRE_DIAGRAMMES_FLUX.md)** (15 diagrammes Mermaid)
+   - Parcours utilisateurs visualisés
+   - Architecture DB et composants React
+   - Flux de sécurité et transactions
+   - Roadmap future (PWA, gamification, etc.)
+
+5. 🆕 **[Mode Kiosque Tablette](./docs/BENEFICIAIRE_MODE_KIOSQUE_TABLETTE.md)** (40+ pages) - **🔴 CRITIQUE**
+   - **Solution pour bénéficiaires SDF sans téléphone**
+   - Tablettes partagées dans foyers/associations (Restos du Cœur, CHRS, etc.)
+   - Cartes physiques avec QR code (pas de mot de passe requis)
+   - Mode kiosque sécurisé avec auto-déconnexion
+   - Budget : ~15-24k € initial, ~700-1,4k €/mois
+   - **Impact : +30-50% de bénéficiaires accessibles**
+
+#### 🚀 Quick Start Documentation
+
+**Pour la direction** : Lire la [Synthèse Executive](./docs/BENEFICIAIRE_SYNTHESE_EXECUTIVE.md) (5 min) + 🆕 [Mode Kiosque](./docs/BENEFICIAIRE_MODE_KIOSQUE_TABLETTE.md) (20 min) **🔴 CRITIQUE**  
+**Pour les développeurs** : Consulter la [Roadmap](./docs/BENEFICIAIRE_AMELIORATIONS_ROADMAP.md) et les [Diagrammes](./docs/BENEFICIAIRE_DIAGRAMMES_FLUX.md)  
+**Pour les designers** : Lire l'[Analyse](./docs/BENEFICIAIRE_FONCTIONNEMENT_ANALYSE.md) sections UX
+
+> ⚠️ **IMPORTANT** : Le document sur le **Mode Kiosque** est **critique** car il adresse l'exclusion de 30-50% des bénéficiaires potentiels (personnes sans téléphone, SDF). À lire en priorité pour garantir une inclusion réelle.
+
+### Autres Documentations
+
+- **[Architecture Globale](./docs/ARCHITECTURE.md)** - Vue d'ensemble de l'architecture
+- **[Schéma de Base de Données](./docs/DB_SCHEMA.md)** - Documentation des tables et relations
+- **[API Documentation](./docs/API_DOCS.md)** - Endpoints et intégrations
+- **[Guide de Déploiement](./docs/GUIDE_DEPLOIEMENT_OPTIMISATIONS.md)** - Instructions de déploiement
+- **[Roadmap Générale](./docs/ROADMAP.md)** - Vision produit à long terme
+- **[SEO Guide](./docs/SEO_GUIDE.md)** - Optimisations SEO
+- **[Guide Associations](./docs/ASSOCIATION_FEATURE.md)** - Fonctionnalités pour associations
+- **[Guide Collecteurs](./docs/COLLECTEURS_IMPLEMENTATION.md)** - Système de collecteurs
 
 ---
 
