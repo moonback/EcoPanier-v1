@@ -3,7 +3,8 @@ import { supabase } from '../../lib/supabase';
 import { useSettings } from '../../contexts/SettingsContext';
 import { KioskLotsList } from './KioskLotsList';
 import { KioskReservations } from './KioskReservations';
-import { Heart, Package } from 'lucide-react';
+import { KioskHistory } from './KioskHistory';
+import { Heart, Package, History } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -14,7 +15,7 @@ interface KioskDashboardProps {
 }
 
 export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => {
-  const [activeTab, setActiveTab] = useState<'browse' | 'reservations'>('browse');
+  const [activeTab, setActiveTab] = useState<'browse' | 'reservations' | 'history'>('browse');
   const [dailyCount, setDailyCount] = useState(0);
   const { settings } = useSettings();
 
@@ -46,7 +47,7 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
     checkDailyLimit();
   }, [checkDailyLimit]);
 
-  const handleTabChange = (tab: 'browse' | 'reservations') => {
+  const handleTabChange = (tab: 'browse' | 'reservations' | 'history') => {
     setActiveTab(tab);
     onActivity();
   };
@@ -89,29 +90,41 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
 
       {/* Navigation par onglets */}
       <div className="max-w-7xl mx-auto px-3 mb-2">
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <button
             onClick={() => handleTabChange('browse')}
-            className={`flex-1 py-3 rounded-lg font-bold text-sm transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2.5 rounded-lg font-bold text-xs transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1 ${
               activeTab === 'browse'
                 ? 'bg-gradient-to-r from-accent-600 to-accent-700 text-white border-accent-700'
                 : 'bg-white text-gray-700 border-gray-200 hover:border-accent-300'
             }`}
           >
-            <Heart size={16} strokeWidth={2} />
+            <Heart size={14} strokeWidth={2} />
             <span>Paniers</span>
           </button>
 
           <button
             onClick={() => handleTabChange('reservations')}
-            className={`flex-1 py-3 rounded-lg font-bold text-sm transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2.5 rounded-lg font-bold text-xs transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1 ${
               activeTab === 'reservations'
                 ? 'bg-gradient-to-r from-accent-600 to-accent-700 text-white border-accent-700'
                 : 'bg-white text-gray-700 border-gray-200 hover:border-accent-300'
             }`}
           >
-            <Package size={16} strokeWidth={2} />
-            <span>Mes Paniers</span>
+            <Package size={14} strokeWidth={2} />
+            <span>Actifs</span>
+          </button>
+
+          <button
+            onClick={() => handleTabChange('history')}
+            className={`flex-1 py-2.5 rounded-lg font-bold text-xs transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1 ${
+              activeTab === 'history'
+                ? 'bg-gradient-to-r from-accent-600 to-accent-700 text-white border-accent-700'
+                : 'bg-white text-gray-700 border-gray-200 hover:border-accent-300'
+            }`}
+          >
+            <History size={14} strokeWidth={2} />
+            <span>Historique</span>
           </button>
         </div>
       </div>
@@ -128,6 +141,13 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
         )}
         {activeTab === 'reservations' && (
           <KioskReservations 
+            profile={profile}
+            onActivity={onActivity}
+            showOnlyPending={true}
+          />
+        )}
+        {activeTab === 'history' && (
+          <KioskHistory 
             profile={profile}
             onActivity={onActivity}
           />

@@ -238,9 +238,28 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
       {selectedLot && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-3 z-50 animate-fade-in">
           <div className="bg-white rounded-xl max-w-md w-full p-4 max-h-[90vh] overflow-y-auto animate-fade-in-up shadow-soft-xl border-2 border-accent-200">
-            <h3 className="text-base font-bold mb-3 text-gray-900">
+            <h3 className="text-base font-bold mb-3 text-gray-900 text-center">
               Confirmer la réservation ?
             </h3>
+
+            {/* Image du produit */}
+            <div className="mb-3 relative h-32 bg-gradient-to-br from-accent-100 via-pink-100 to-accent-100 rounded-lg overflow-hidden border-2 border-accent-200">
+              {selectedLot.image_urls.length > 0 ? (
+                <img
+                  src={selectedLot.image_urls[0]}
+                  alt={selectedLot.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <Package size={48} className="text-accent-300" strokeWidth={1.5} />
+                </div>
+              )}
+              <div className="absolute top-2 right-2 bg-gradient-to-r from-accent-600 to-accent-700 text-white px-2 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg border-2 border-white">
+                <Heart size={12} strokeWidth={2} />
+                <span>GRATUIT</span>
+              </div>
+            </div>
 
             <div className="mb-4 p-3 bg-accent-50 rounded-lg border border-accent-200">
               <h4 className="text-sm font-bold text-accent-900 mb-1 line-clamp-2">{selectedLot.title}</h4>

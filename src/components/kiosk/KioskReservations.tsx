@@ -16,9 +16,10 @@ type Profile = Database['public']['Tables']['profiles']['Row'];
 interface KioskReservationsProps {
   profile: Profile;
   onActivity: () => void;
+  showOnlyPending?: boolean;
 }
 
-export const KioskReservations = ({ profile, onActivity }: KioskReservationsProps) => {
+export const KioskReservations = ({ profile, onActivity, showOnlyPending = false }: KioskReservationsProps) => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
@@ -29,12 +30,18 @@ export const KioskReservations = ({ profile, onActivity }: KioskReservationsProp
 
   const fetchReservations = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('reservations')
         .select('*, lots(*, profiles(business_name, business_address))')
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .eq('user_id', profile.id);
+
+      if (showOnlyPending) {
+        query = query.eq('status', 'pending');
+      }
+
+      query = query.order('created_at', { ascending: false }).limit(10);
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setReservations(data as Reservation[]);
@@ -65,10 +72,10 @@ export const KioskReservations = ({ profile, onActivity }: KioskReservationsProp
           <Package size={48} className="text-accent-400" strokeWidth={1.5} />
         </div>
         <h3 className="text-xl font-bold text-black mb-2">
-          Aucune réservation 🎁
+          {showOnlyPending ? 'Aucune réservation active 📦' : 'Aucune réservation 🎁'}
         </h3>
         <p className="text-sm text-gray-600">
-          Réservez votre premier panier !
+          {showOnlyPending ? 'Réservez un panier pour le voir ici !' : 'Réservez votre premier panier !'}
         </p>
       </div>
     );
