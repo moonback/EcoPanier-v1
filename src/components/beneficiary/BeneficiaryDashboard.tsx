@@ -6,7 +6,8 @@ import { FreeLotsList } from './FreeLotsList';
 import { BeneficiaryReservations } from './BeneficiaryReservations';
 import { QRCodeDisplay } from '../shared/QRCodeDisplay';
 import { ProfilePage } from '../shared/ProfilePage';
-import { Heart, History, QrCode, LogOut, AlertCircle, User } from 'lucide-react';
+import { DashboardHeader } from '../shared/DashboardHeader';
+import { Heart, History, QrCode, AlertCircle, User } from 'lucide-react';
 
 export const BeneficiaryDashboard = () => {
   const [activeTab, setActiveTab] = useState<'browse' | 'reservations' | 'qrcode' | 'profile'>('browse');
@@ -90,45 +91,37 @@ export const BeneficiaryDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* En-tête */}
-      <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
-        <div className="max-w-12xl mx-auto px-6">
-          <div className="flex items-center justify-between py-3">
-            <h1 className="text-xl font-bold text-black whitespace-nowrap overflow-hidden text-ellipsis flex-1">
-              ❤️ Bienvenue {profile?.full_name?.split(' ')[0] || 'Bénéficiaire'} !
-              <span className="ml-2 text-sm text-gray-600 font-normal align-middle hidden sm:inline">| Paniers solidaires gratuits 🎁</span>
-            </h1>
-            <button
-              onClick={signOut}
-              className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition font-medium ml-4"
-            >
-              <LogOut size={18} className="inline mr-2" strokeWidth={1.5} />
-              <span className="hidden sm:inline">Quitter</span>
-            </button>
-          </div>
-          <div className="pb-3">
-            <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-accent-50 to-pink-50 rounded-lg border border-accent-100 shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-white rounded shadow-sm">
-                  <Heart size={15} className="text-accent-600" strokeWidth={2} />
-                </div>
-                <span className="text-sm text-accent-900 font-semibold">
-                  Aujourd'hui : {dailyCount}/{settings.maxDailyBeneficiaryReservations}
-                </span>
-                <span className="text-xs text-accent-700 ml-2">
-                  {dailyCount < settings.maxDailyBeneficiaryReservations
-                    ? `+${settings.maxDailyBeneficiaryReservations - dailyCount} dispo${settings.maxDailyBeneficiaryReservations - dailyCount > 1 ? 's' : ''}`
-                    : 'Complet'}
-                </span>
+      <DashboardHeader
+        title={`❤️ Bienvenue ${profile?.full_name?.split(' ')[0] || 'Bénéficiaire'} !`}
+        subtitle="Paniers solidaires gratuits 🎁"
+        defaultIcon="🤝"
+      />
+
+      {/* Barre d'information quotidienne */}
+      <div className="bg-white border-b border-gray-200 sticky top-[73px] z-30">
+        <div className="max-w-12xl mx-auto px-4 sm:px-6 py-3">
+          <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-accent-50 to-pink-50 rounded-lg border border-accent-100 shadow-sm">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white rounded shadow-sm">
+                <Heart size={15} className="text-accent-600" strokeWidth={2} />
               </div>
-              {dailyCount >= settings.maxDailyBeneficiaryReservations && (
-                <span className="text-xs px-2 py-0.5 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-full font-semibold shadow-sm">
-                  ✓ Complet
-                </span>
-              )}
+              <span className="text-sm text-accent-900 font-semibold">
+                Aujourd'hui : {dailyCount}/{settings.maxDailyBeneficiaryReservations}
+              </span>
+              <span className="text-xs text-accent-700 ml-2">
+                {dailyCount < settings.maxDailyBeneficiaryReservations
+                  ? `+${settings.maxDailyBeneficiaryReservations - dailyCount} dispo${settings.maxDailyBeneficiaryReservations - dailyCount > 1 ? 's' : ''}`
+                  : 'Complet'}
+              </span>
             </div>
+            {dailyCount >= settings.maxDailyBeneficiaryReservations && (
+              <span className="text-xs px-2 py-0.5 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-full font-semibold shadow-sm">
+                ✓ Complet
+              </span>
+            )}
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Contenu principal */}
       <main className="max-w-12xl mx-auto px-6 py-6 pb-24">

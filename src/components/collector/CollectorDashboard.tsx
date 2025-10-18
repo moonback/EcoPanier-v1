@@ -4,11 +4,12 @@ import { MissionsList } from './MissionsList';
 import { MyMissions } from './MyMissions';
 import { CollectorStats } from './CollectorStats';
 import { CollectorProfilePage } from './CollectorProfilePage';
-import { Truck, History, LogOut, User, TrendingUp } from 'lucide-react';
+import { DashboardHeader } from '../shared/DashboardHeader';
+import { Truck, History, User, TrendingUp } from 'lucide-react';
 
 export const CollectorDashboard = () => {
   const [activeTab, setActiveTab] = useState<'available' | 'my-missions' | 'stats' | 'profile'>('available');
-  const { profile, signOut } = useAuthStore();
+  const { profile } = useAuthStore();
 
   const tabs = [
     { id: 'available', label: 'Missions Dispo', icon: Truck, emoji: '🚚' },
@@ -20,28 +21,11 @@ export const CollectorDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* En-tête */}
-      <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-black">
-                🚴 Bonjour {profile?.full_name?.split(' ')[0] || 'Collecteur'} !
-              </h1>
-              <p className="text-sm text-gray-600 font-light mt-0.5">
-                Des missions solidaires vous attendent ! 💰
-              </p>
-            </div>
-            
-            <button
-              onClick={signOut}
-              className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-all font-medium"
-            >
-              <LogOut size={18} className="inline mr-2" strokeWidth={1.5} />
-              <span className="hidden sm:inline">Quitter</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader
+        title={`🚴 Bonjour ${profile?.full_name?.split(' ')[0] || 'Collecteur'} !`}
+        subtitle="Des missions solidaires vous attendent ! 💰"
+        defaultIcon="🚚"
+      />
 
       {/* Contenu principal */}
       <main className="max-w-7xl mx-auto px-6 py-6 pb-24">

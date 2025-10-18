@@ -6,7 +6,6 @@ import {
   TrendingUp,
   QrCode,
   User,
-  LogOut,
   MapPin,
 } from 'lucide-react';
 
@@ -18,6 +17,7 @@ import { ImpactDashboard } from './ImpactDashboard';
 import { QRCodeDisplay } from '../shared/QRCodeDisplay';
 import { ProfilePage } from '../shared/ProfilePage';
 import { InteractiveMap } from './InteractiveMap';
+import { DashboardHeader } from '../shared/DashboardHeader';
 
 import EcoPanierLogo from '/public/logo.png'; // Import du logo
 
@@ -34,7 +34,7 @@ export const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState<TabId>('browse');
 
   // Hooks (stores, contexts, router)
-  const { profile, signOut } = useAuthStore();
+  const { profile } = useAuthStore();
 
   // Configuration des onglets
   const tabs = [
@@ -50,33 +50,12 @@ export const CustomerDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* En-tête */}
-      <header className="bg-white sticky top-0 z-40 border-b border-gray-200">
-        <div className="max-w-12xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between gap-4">
-            {/* Logo et titre */}
-            <div className="flex items-center gap-3 flex-grow">
-              <img src={EcoPanierLogo} alt="EcoPanier Logo" className="h-8 w-auto" />
-              <div className="flex flex-col">
-                <h1 className="text-xl font-bold text-black">
-                  Bonjour {profile?.full_name || 'Client'} !
-                </h1>
-                <p className="text-sm text-gray-600 font-light mt-0.5">
-                  Prêt à sauver des paniers aujourd'hui ?
-                </p>
-              </div>
-            </div>
-            {/* Bouton de déconnexion */}
-            <button
-              onClick={signOut}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium"
-              aria-label="Se déconnecter"
-            >
-              <LogOut size={18} />
-              <span className="hidden sm:inline">Déconnexion</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader
+        logo={<img src={EcoPanierLogo} alt="EcoPanier Logo" className="h-10 w-auto" />}
+        title={`Bonjour ${profile?.full_name || 'Client'} !`}
+        subtitle="Prêt à sauver des paniers aujourd'hui ?"
+        defaultIcon="🛒"
+      />
 
       {/* Contenu principal */}
       <main className="w-full px-4 py-6 pb-24">
