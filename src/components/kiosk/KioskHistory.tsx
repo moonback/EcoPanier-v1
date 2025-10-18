@@ -20,6 +20,7 @@ interface KioskHistoryProps {
 export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddressTooltip, setShowAddressTooltip] = useState<string | null>(null);
 
   useEffect(() => {
     fetchHistory();
@@ -97,7 +98,7 @@ export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
   }
 
   return (
-    <div>
+    <div onClick={() => setShowAddressTooltip(null)}>
       <div className="space-y-2">
         {reservations.map((reservation) => {
           const statusBadge = getStatusBadge(reservation.status);
@@ -137,11 +138,27 @@ export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
                     {reservation.lots.title}
                   </h4>
                   <div className="space-y-0.5">
-                    <div className="flex items-center gap-1">
+                    <div className="relative flex items-center gap-1">
                       <MapPin size={10} className="text-gray-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-600 truncate">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAddressTooltip(showAddressTooltip === reservation.id ? null : reservation.id);
+                          onActivity();
+                        }}
+                        className="text-xs text-gray-600 truncate hover:text-accent-600 transition-colors font-medium underline decoration-dotted"
+                      >
                         {reservation.lots.profiles.business_name}
-                      </span>
+                      </button>
+                      
+                      {/* Tooltip avec adresse */}
+                      {showAddressTooltip === reservation.id && (
+                        <div className="absolute left-0 top-full mt-1 z-10 bg-gray-900 text-white text-xs rounded-lg px-2 py-1.5 shadow-lg min-w-[200px] animate-fade-in">
+                          <p className="font-semibold mb-0.5">📍 Adresse :</p>
+                          <p className="leading-tight">{reservation.lots.profiles.business_address}</p>
+                          <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock size={10} className="text-gray-500 flex-shrink-0" />

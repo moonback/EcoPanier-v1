@@ -6,7 +6,7 @@ import type { Database } from '../../lib/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
-const INACTIVITY_TIMEOUT = 3 * 60 * 1000; // 3 minutes d'inactivité
+const INACTIVITY_TIMEOUT = 1.5 * 60 * 1000; // 1.5 minutes d'inactivité
 
 export const KioskMode = () => {
   const [authenticatedProfile, setAuthenticatedProfile] = useState<Profile | null>(null);

@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { QRCodeSVG } from 'qrcode.react';
 import { formatDateTime } from '../../utils/helpers';
-import { Package, MapPin, Clock, Key, Heart, QrCode } from 'lucide-react';
+import { Package, MapPin, Clock, Key, Heart, QrCode, Download } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 
 type Reservation = Database['public']['Tables']['reservations']['Row'] & {
@@ -23,6 +23,8 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [showAddressTooltip, setShowAddressTooltip] = useState<string | null>(null);
+  const qrCodeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchReservations();
@@ -57,6 +59,149 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
     onActivity();
   };
 
+  const handleDownloadQR = () => {
+    if (!selectedReservation || !qrCodeRef.current) return;
+    
+    onActivity();
+
+    try {
+      // Obtenir le SVG du QR code
+      const qrSvg = qrCodeRef.current.querySelector('svg');
+      if (!qrSvg) {
+        alert('QR Code non trouve');
+        return;
+      }
+
+      // Créer un canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        alert('Canvas non supporte');
+        return;
+      }
+
+      // Dimensions
+      const width = 600;
+      const height = 800;
+      canvas.width = width;
+      canvas.height = height;
+
+      // Fond blanc
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+
+      // En-tête avec gradient
+      const gradient = ctx.createLinearGradient(0, 0, width, 80);
+      gradient.addColorStop(0, '#ec4899');
+      gradient.addColorStop(1, '#f472b6');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, 80);
+
+      // Logo/Titre
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 32px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('EcoPanier', width / 2, 50);
+
+      // Titre
+      ctx.fillStyle = '#1f2937';
+      ctx.font = 'bold 24px Arial';
+      ctx.fillText('Code de Retrait', width / 2, 130);
+
+      // Nom du panier
+      ctx.font = '18px Arial';
+      ctx.fillStyle = '#4b5563';
+      const title = selectedReservation.lots.title;
+      if (title.length > 40) {
+        ctx.fillText(title.substring(0, 40) + '...', width / 2, 160);
+      } else {
+        ctx.fillText(title, width / 2, 160);
+      }
+
+      // QR Code - Conversion SVG en DataURL
+      const svgString = new XMLSerializer().serializeToString(qrSvg);
+      const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+      
+      const img = new Image();
+      
+      img.onload = () => {
+        try {
+          // Dessiner le QR code centré
+          const qrSize = 250;
+          const qrX = (width - qrSize) / 2;
+          const qrY = 200;
+          
+          // Fond gris pour le QR
+          ctx.fillStyle = '#f3f4f6';
+          ctx.fillRect(qrX - 20, qrY - 20, qrSize + 40, qrSize + 40);
+          
+          // Dessiner le QR code
+          ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
+
+          // Code PIN
+          const pinY = 500;
+          
+          // Fond du PIN
+          ctx.fillStyle = '#fef3c7';
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 3;
+          const pinBoxWidth = 400;
+          const pinBoxHeight = 120;
+          const pinBoxX = (width - pinBoxWidth) / 2;
+          ctx.fillRect(pinBoxX, pinY, pinBoxWidth, pinBoxHeight);
+          ctx.strokeRect(pinBoxX, pinY, pinBoxWidth, pinBoxHeight);
+
+          // Label PIN
+          ctx.fillStyle = '#78350f';
+          ctx.font = 'bold 20px Arial';
+          ctx.fillText('Code PIN', width / 2, pinY + 35);
+
+          // Code PIN
+          ctx.fillStyle = '#92400e';
+          ctx.font = 'bold 48px monospace';
+          ctx.fillText(selectedReservation.pickup_pin, width / 2, pinY + 85);
+
+          // Informations en bas
+          const infoY = 650;
+          ctx.fillStyle = '#6b7280';
+          ctx.font = '16px Arial';
+          ctx.fillText(`Commercant: ${selectedReservation.lots.profiles.business_name}`, width / 2, infoY);
+          ctx.fillText(`Retrait: ${formatDateTime(selectedReservation.lots.pickup_start)}`, width / 2, infoY + 25);
+          ctx.fillText(`Quantite: ${selectedReservation.quantity}`, width / 2, infoY + 50);
+
+          // Footer
+          ctx.fillStyle = '#9ca3af';
+          ctx.font = '14px Arial';
+          ctx.fillText('EcoPanier', width / 2, infoY + 90);
+
+          // Télécharger l'image directement via toDataURL
+          const dataUrl = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.href = dataUrl;
+          link.download = `EcoPanier-${selectedReservation.pickup_pin}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+        } catch (err) {
+          console.error('Erreur dessin:', err);
+          alert('Erreur lors du dessin');
+        }
+      };
+
+      img.onerror = (err) => {
+        console.error('Erreur chargement image:', err);
+        alert('Erreur chargement QR');
+      };
+
+      img.src = svgDataUrl;
+
+    } catch (error) {
+      console.error('Erreur telechargement:', error);
+      alert('Erreur: ' + (error as Error).message);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-6">
@@ -82,7 +227,7 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
   }
 
   return (
-    <div>
+    <div onClick={() => setShowAddressTooltip(null)}>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
         {reservations.map((reservation) => (
           <div
@@ -122,9 +267,27 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
 
               {/* Informations */}
               <div className="space-y-0.5 text-xs text-gray-700 mb-2">
-                <div className="flex items-center gap-1">
+                <div className="relative flex items-center gap-1">
                   <MapPin size={10} className="flex-shrink-0" />
-                  <span className="truncate">{reservation.lots.profiles.business_name}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAddressTooltip(showAddressTooltip === reservation.id ? null : reservation.id);
+                      onActivity();
+                    }}
+                    className="truncate hover:text-accent-600 transition-colors font-medium underline decoration-dotted"
+                  >
+                    {reservation.lots.profiles.business_name}
+                  </button>
+                  
+                  {/* Tooltip avec adresse */}
+                  {showAddressTooltip === reservation.id && (
+                    <div className="absolute left-0 top-full mt-1 z-10 bg-gray-900 text-white text-xs rounded-lg px-2 py-1.5 shadow-lg min-w-[200px] animate-fade-in">
+                      <p className="font-semibold mb-0.5">📍 Adresse :</p>
+                      <p className="leading-tight">{reservation.lots.profiles.business_address}</p>
+                      <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                   <Package size={10} className="flex-shrink-0" />
@@ -170,7 +333,7 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
             </h3>
 
             {/* QR Code */}
-            <div className="mb-3 p-3 bg-gray-50 rounded-lg inline-block border border-gray-200">
+            <div ref={qrCodeRef} className="mb-3 p-3 bg-gray-50 rounded-lg inline-block border border-gray-200">
               <QRCodeSVG
                 value={JSON.stringify({
                   reservationId: selectedReservation.id,
@@ -211,16 +374,25 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
               </div>
             </div>
 
-            {/* Bouton fermer */}
-            <button
-              onClick={() => {
-                setSelectedReservation(null);
-                onActivity();
-              }}
-              className="w-full py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold text-sm border border-gray-300"
-            >
-              Fermer
-            </button>
+            {/* Boutons */}
+            <div className="flex gap-2">
+              <button
+                onClick={handleDownloadQR}
+                className="flex-1 py-2 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg hover:from-accent-700 hover:to-pink-700 transition-all font-semibold text-sm shadow-soft-md flex items-center justify-center gap-1.5"
+              >
+                <Download size={16} />
+                <span>Télécharger</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedReservation(null);
+                  onActivity();
+                }}
+                className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold text-sm border border-gray-300"
+              >
+                Fermer
+              </button>
+            </div>
           </div>
         </div>
       )}

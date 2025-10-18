@@ -23,6 +23,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
   const [reserving, setReserving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<{ pin: string; lot: string } | null>(null);
+  const [showAddressTooltip, setShowAddressTooltip] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFreeLots();
@@ -177,18 +178,20 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2" onClick={() => setShowAddressTooltip(null)}>
           {lots.map((lot) => {
             const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
 
             return (
-              <button
+              <div
                 key={lot.id}
-                onClick={() => handleSelectLot(lot)}
-                className="group bg-white rounded-lg shadow-soft overflow-hidden hover:shadow-soft-md transition-all border border-gray-100 hover:border-accent-300 text-left"
+                className="group bg-white rounded-lg shadow-soft overflow-hidden hover:shadow-soft-md transition-all border border-gray-100 hover:border-accent-300 text-left relative"
               >
                 {/* Image */}
-                <div className="relative h-24 bg-gradient-to-br from-accent-100 via-pink-100 to-accent-100">
+                <div 
+                  onClick={() => handleSelectLot(lot)}
+                  className="relative h-24 bg-gradient-to-br from-accent-100 via-pink-100 to-accent-100 cursor-pointer"
+                >
                   {lot.image_urls.length > 0 ? (
                     <img
                       src={lot.image_urls[0]}
@@ -208,14 +211,35 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
 
                 {/* Contenu */}
                 <div className="p-2">
-                  <h3 className="text-xs font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-accent-600 transition-colors leading-tight">
+                  <h3 
+                    onClick={() => handleSelectLot(lot)}
+                    className="text-xs font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-accent-600 transition-colors leading-tight cursor-pointer"
+                  >
                     {lot.title}
                   </h3>
 
                   <div className="space-y-0.5 text-xs text-gray-600 mb-2">
-                    <div className="flex items-center gap-1">
+                    <div className="relative flex items-center gap-1">
                       <MapPin size={10} className="flex-shrink-0" />
-                      <span className="truncate text-xs">{lot.profiles.business_name}</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAddressTooltip(showAddressTooltip === lot.id ? null : lot.id);
+                          onActivity();
+                        }}
+                        className="truncate text-xs hover:text-accent-600 transition-colors font-medium underline decoration-dotted"
+                      >
+                        {lot.profiles.business_name}
+                      </button>
+                      
+                      {/* Tooltip avec adresse */}
+                      {showAddressTooltip === lot.id && (
+                        <div className="absolute left-0 top-full mt-1 z-10 bg-gray-900 text-white text-xs rounded-lg px-2 py-1.5 shadow-lg min-w-[200px] animate-fade-in">
+                          <p className="font-semibold mb-0.5">📍 Adresse :</p>
+                          <p className="leading-tight">{lot.profiles.business_address}</p>
+                          <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-1">
                       <Package size={10} className="flex-shrink-0" />
@@ -223,12 +247,15 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                     </div>
                   </div>
 
-                  <div className="py-1.5 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-1 group-hover:from-accent-700 group-hover:to-pink-700 transition-all">
+                  <button
+                    onClick={() => handleSelectLot(lot)}
+                    className="w-full py-1.5 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-1 group-hover:from-accent-700 group-hover:to-pink-700 transition-all"
+                  >
                     <Heart size={12} strokeWidth={2} />
                     <span>Réserver</span>
-                  </div>
+                  </button>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
