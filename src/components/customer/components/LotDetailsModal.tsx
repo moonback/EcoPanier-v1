@@ -48,7 +48,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl sm:rounded-2xl max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-xl sm:rounded-2xl max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto pb-24 sm:pb-6"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -240,7 +240,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
           </div>
 
           {/* Informations complémentaires - Responsive */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
             {/* Disponibilité */}
             <div className="p-2.5 sm:p-3 bg-gradient-to-br from-primary-50 to-white rounded-xl border border-primary-100 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
@@ -249,7 +249,10 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                 </div>
                 <div className="flex-1">
                   <div className="text-[9px] sm:text-[10px] text-gray-600 font-light">Disponible</div>
-                  <div className="text-lg sm:text-xl font-bold text-primary-700">{availableQty}<span className="text-xs sm:text-sm font-normal text-gray-500">/{lot.quantity_total}</span></div>
+                  <div className="text-lg sm:text-xl font-bold text-primary-700">
+                    {availableQty}
+                    <span className="text-xs sm:text-sm font-normal text-gray-500">/{lot.quantity_total}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -268,20 +271,6 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                   <div className="text-[9px] sm:text-[10px] text-gray-600 font-light">
                     {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Impact environnemental */}
-            <div className="p-2.5 sm:p-3 bg-gradient-to-br from-green-50 to-white rounded-xl border border-green-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg">
-                  <span className="text-base sm:text-lg">🌱</span>
-                </div>
-                <div className="flex-1">
-                  <div className="text-[9px] sm:text-[10px] text-gray-600 font-light">Impact CO₂</div>
-                  <div className="text-xs sm:text-sm font-bold text-green-700">{(availableQty * 0.9).toFixed(1)} kg</div>
-                  <div className="text-[9px] sm:text-[10px] text-gray-600 font-light">évités</div>
                 </div>
               </div>
             </div>
