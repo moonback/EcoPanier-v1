@@ -298,17 +298,20 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
             </div>
           )}
 
-          {/* Actions */}
+        </div>
+
+        {/* Bouton d'action flottant - Fixed au-dessus de la nav mobile */}
+        <div className="fixed bottom-16 left-4 right-4 sm:sticky sm:bottom-0 sm:left-0 sm:right-0 p-4 sm:p-6 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl z-[100]">
           <button
             onClick={onReserve}
             disabled={availableQty === 0}
-            className={`w-full flex items-center justify-center gap-2 sm:gap-2.5 py-3 sm:py-4 rounded-xl font-medium text-base sm:text-lg transition-all ${
+            className={`w-full flex items-center justify-center gap-2 sm:gap-2.5 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all ${
               availableQty === 0
                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-primary-600 text-white hover:bg-primary-700 shadow-lg hover:shadow-xl'
+                : 'bg-primary-600 text-white hover:bg-primary-700 shadow-xl hover:shadow-2xl'
             }`}
           >
-            <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
+            <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
             {availableQty === 0 ? 'Épuisé' : 'Réserver ce panier'}
           </button>
         </div>
