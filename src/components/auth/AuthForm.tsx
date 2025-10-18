@@ -91,18 +91,18 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row relative overflow-hidden bg-white">
+    <div className="min-h-screen flex flex-col lg:flex-row relative bg-white">
       {/* Bouton retour accueil */}
       <button
         onClick={() => navigate('/')}
-        className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-black rounded-xl hover:bg-white transition-all font-medium shadow-lg hover:shadow-xl group"
+        className="absolute top-6 left-6 z-30 flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-black rounded-xl hover:bg-white transition-all font-medium shadow-lg hover:shadow-xl group"
       >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         <span className="hidden sm:inline">Retour accueil</span>
       </button>
 
-      {/* Colonne gauche - Photo/Vidéo */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-primary-600 to-primary-800">
+      {/* Colonne gauche - Photo/Vidéo FIXE */}
+      <div className="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:bottom-0 lg:w-1/2 overflow-hidden bg-gradient-to-br from-primary-600 to-primary-800">
         {/* Vidéo en arrière-plan */}
         <video
           autoPlay
@@ -116,51 +116,98 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
         
         {/* Overlay avec contenu */}
         <div className="relative z-10 flex flex-col items-center justify-center w-full p-12 text-white">
-          <div className="max-w-md space-y-6">
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold leading-tight">
-                Ensemble contre le gaspillage alimentaire
+          <div className="w-full space-y-8">
+            {/* Logo et titre */}
+            <div className="text-center space-y-3">
+              
+              <h1 className="text-5xl font-black leading-tight">
+                Sauvez des repas,<br />Économisez, Aidez ! 🌍
               </h1>
-              <p className="text-lg text-white/90 font-light">
-                Rejoignez des milliers d'utilisateurs engagés pour sauver des repas et protéger notre planète
+              <p className="text-lg text-white/90 font-light max-w-md mx-auto">
+                La plateforme anti-gaspillage qui profite à tous
               </p>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 pt-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold">10k+</div>
-                <div className="text-sm text-white/80">Utilisateurs</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold">50k+</div>
-                <div className="text-sm text-white/80">Repas sauvés</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold">-70%</div>
-                <div className="text-sm text-white/80">D'économies</div>
-              </div>
-            </div>
+            {/* Avantages en 2 colonnes */}
+            <div className="grid grid-cols-2 gap-6 pt-4">
+              {/* Colonne CLIENTS */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2 pb-2 border-b border-white/20">
+                  <span className="text-xl">🛒</span>
+                  Clients
+                </h3>
+                
+                <div className="space-y-3">
+                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mb-2 shadow-lg">
+                      <span className="text-lg">💰</span>
+                    </div>
+                    <div className="font-bold text-sm mb-1">Jusqu'à -70%</div>
+                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                      Produits de qualité à petits prix
+                    </div>
+                  </div>
 
-            {/* Avantages */}
-            <div className="space-y-3 pt-8">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <span className="text-lg">🌍</span>
+                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center mb-2 shadow-lg">
+                      <span className="text-lg">🌍</span>
+                    </div>
+                    <div className="font-bold text-sm mb-1">Impact écologique</div>
+                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                      0.9 kg CO₂ évités par panier
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mb-2 shadow-lg">
+                      <span className="text-lg">❤️</span>
+                    </div>
+                    <div className="font-bold text-sm mb-1">Soyez solidaire</div>
+                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                      Offrez des paniers aux plus démunis
+                    </div>
+                  </div>
                 </div>
-                <span className="text-white/90">Réduisez votre impact environnemental</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <span className="text-lg">💰</span>
+
+              {/* Colonne BÉNÉFICIAIRES */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2 pb-2 border-b border-white/20">
+                  <span className="text-xl">🤝</span>
+                  Bénéficiaires
+                </h3>
+                
+                <div className="space-y-3">
+                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center mb-2 shadow-lg">
+                      <span className="text-lg">🎁</span>
+                    </div>
+                    <div className="font-bold text-sm mb-1">2 paniers/jour gratuits</div>
+                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                      Paniers suspendus + dons généreux
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mb-2 shadow-lg">
+                      <span className="text-lg">✨</span>
+                    </div>
+                    <div className="font-bold text-sm mb-1">Accès simple</div>
+                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                      Juste votre ID, aucun papier
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center mb-2 shadow-lg">
+                      <span className="text-lg">🏪</span>
+                    </div>
+                    <div className="font-bold text-sm mb-1">Produits frais</div>
+                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                      Qualité des commerces locaux
+                    </div>
+                  </div>
                 </div>
-                <span className="text-white/90">Économisez jusqu'à 70% sur vos courses</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <span className="text-lg">🤝</span>
-                </div>
-                <span className="text-white/90">Soutenez les commerces locaux</span>
               </div>
             </div>
           </div>
@@ -168,7 +215,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
       </div>
 
       {/* Colonne droite - Formulaire */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 overflow-y-auto">
+      <div className="flex-1 lg:ml-[50%] flex items-center justify-center p-6 overflow-y-auto">
         <div className="max-w-xl w-full">
         {/* Header */}
         <div className="text-center mb-8">
