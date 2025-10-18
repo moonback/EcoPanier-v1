@@ -78,6 +78,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           longitude: null,
           beneficiary_id: null,
           verified: false,
+          collector_preferences: null
         });
         setSuccess('🎉 Félicitations ! Votre compte a été créé avec succès. Vérifiez votre email pour activer votre compte et commencer à sauver des paniers !');
         setLoading(false);
@@ -167,8 +168,8 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
       </div>
 
       {/* Colonne droite - Formulaire */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
-        <div className="max-w-md w-full">
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 overflow-y-auto">
+        <div className="max-w-xl w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <img
@@ -665,26 +666,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           </button>
         </div>
 
-        {/* Info sécurité et avantages */}
-        <div className="mt-6 space-y-3">
-          
-          {mode === 'signup' && (
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <div className="text-xs font-semibold text-primary-600">Gratuit</div>
-                <div className="text-[10px] text-gray-500">0€ / mois</div>
-              </div>
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <div className="text-xs font-semibold text-success-600">2 min</div>
-                <div className="text-[10px] text-gray-500">Inscription</div>
-              </div>
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <div className="text-xs font-semibold text-secondary-600">10k+</div>
-                <div className="text-[10px] text-gray-500">Utilisateurs</div>
-              </div>
-            </div>
-          )}
-        </div>
+        
         </div>
       </div>
     </div>
