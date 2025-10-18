@@ -94,7 +94,7 @@ export interface KeyFeature {
 
 export const stats: Stat[] = [
   { value: '-70%', label: 'd\'économies sur vos courses', icon: DollarSign, color: 'blue' },
-  { value: '2/jour', label: 'Paniers solidaires gratuits', icon: Heart, color: 'red' },
+  { value: '2/jour', label: 'Paniers solidaires soutenus', icon: Heart, color: 'red' },
   { value: '10k+', label: 'Repas sauvés ensemble', icon: Package, color: 'green' },
   { value: '15T', label: 'de CO₂ évité collectivement', icon: Leaf, color: 'pink' },
 ];
@@ -195,9 +195,9 @@ export const userProfiles: UserProfile[] = [
     icon: Heart,
     title: 'Bénéficiaires',
     subtitle: 'Accès à l\'aide alimentaire',
-    description: 'Accédez à de bons produits alimentaires chaque jour, gratuitement et en toute dignité, grâce à la solidarité de votre quartier.',
+    description: 'Bénéficiez d\'un soutien alimentaire solidaire grâce aux dons de votre communauté. Accédez à de bons produits chaque jour en toute dignité.',
     benefits: [
-      '🎁 Jusqu\'à 2 paniers solidaires par jour de produits de qualité',
+      '🎁 Jusqu\'à 2 paniers solidaires par jour, soutenus par la communauté',
       '🏪 Produits variés issus des commerçants engagés de votre quartier',
       '✨ Même qualité que tous les autres paniers de la plateforme',
       '📱 Retrait simple et discret avec votre QR code personnel',
@@ -259,11 +259,11 @@ export const faqItems: FAQItem[] = [
   },
   {
     question: 'C\'est quoi un "panier suspendu" ?',
-    answer: 'C\'est un geste de solidarité inspiré du "caffè sospeso" italien. Vous achetez un panier en plus du vôtre, qui sera offert gratuitement à une personne dans le besoin. Un moyen simple et direct d\'aider votre quartier tout en luttant contre le gaspillage.'
+    answer: 'C\'est un geste de solidarité inspiré du "caffè sospeso" italien. Vous achetez un panier en plus du vôtre, qui sera offert à une personne dans le besoin grâce à votre don. Un moyen simple et direct d\'aider votre quartier tout en luttant contre le gaspillage.'
   },
   {
     question: 'Comment accéder à l\'aide alimentaire en tant que bénéficiaire ?',
-    answer: 'Si vous êtes en situation de précarité, rapprochez-vous d\'une association partenaire près de chez vous. Elle vous inscrira sur notre plateforme et vous pourrez accéder gratuitement à 2 paniers par jour maximum, de tous types de commerces. Le retrait se fait avec votre QR code personnel, en toute dignité et confidentialité.'
+    answer: 'Si vous êtes en situation de précarité, rapprochez-vous d\'une association partenaire près de chez vous. Elle vous inscrira sur notre plateforme et vous pourrez bénéficier de 2 paniers solidaires par jour maximum, soutenus par la communauté, de tous types de commerces. Le retrait se fait avec votre QR code personnel, en toute dignité et confidentialité.'
   },
   {
     question: 'Y a-t-il des frais cachés ou un abonnement ?',
@@ -301,7 +301,7 @@ export const actorRoles: ActorRole[] = [
     icon: Heart,
     title: 'Bénéficiaire',
     role: 'Accès aide alimentaire',
-    description: 'Accède à 2 lots gratuits par jour en toute dignité, sans marquage spécial ni jugement.',
+    description: 'Bénéficie de 2 lots solidaires par jour soutenus par la communauté, en toute dignité et sans distinction.',
     color: 'accent',
     emoji: '❤️'
   },

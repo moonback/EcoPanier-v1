@@ -5,8 +5,8 @@ export const SolidarityModelSection = () => {
   const solidarityFeatures = [
     {
       icon: Users,
-      title: 'Maximum 2 lots gratuits par jour',
-      description: 'Pour garantir un accès équitable à tous les bénéficiaires'
+      title: 'Maximum 2 lots solidaires par jour',
+      description: 'Soutenus par la communauté pour garantir un accès équitable à tous les bénéficiaires'
     },
     {
       icon: QrCode,
@@ -52,7 +52,7 @@ export const SolidarityModelSection = () => {
             Un modèle de solidarité unique
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            Les lots gratuits : une aide digne et transparente pour les personnes en situation de précarité
+            Les lots solidaires : une aide digne et transparente, soutenue par la communauté, pour les personnes en situation de précarité
           </p>
         </motion.div>
 
@@ -70,8 +70,9 @@ export const SolidarityModelSection = () => {
                 Comment ça marche ?
               </h3>
               <p className="text-lg text-gray-600 font-light leading-relaxed mb-6">
-                Les commerçants peuvent créer des lots <strong className="font-semibold text-black">100% gratuits</strong> réservés 
-                aux bénéficiaires vérifiés par les associations partenaires.
+                Les commerçants créent des lots <strong className="font-semibold text-black">solidaires soutenus par la communauté</strong>, 
+                réservés aux bénéficiaires vérifiés par les associations partenaires. Grâce aux dons et à la solidarité locale, 
+                ces personnes peuvent accéder à de bons produits <strong className="font-semibold text-black">sans frais</strong>.
               </p>
               <p className="text-lg text-gray-600 font-light leading-relaxed mb-8">
                 Le système garantit <strong className="font-semibold text-black">dignité</strong> et <strong className="font-semibold text-black">confidentialité</strong> : 
