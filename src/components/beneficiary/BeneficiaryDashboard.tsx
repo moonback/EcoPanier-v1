@@ -44,7 +44,7 @@ export const BeneficiaryDashboard = () => {
   }, [checkDailyLimit]);
 
   const tabs = [
-    { id: 'browse', label: 'Paniers Gratuits', icon: Heart, emoji: '🎁' },
+    { id: 'browse', label: 'Paniers solidaires', icon: Heart, emoji: '🎁' },
     { id: 'reservations', label: 'Mes Paniers', icon: History, emoji: '📦' },
     { id: 'qrcode', label: 'QR Code', icon: QrCode, emoji: '📱' },
     { id: 'profile', label: 'Profil', icon: User, emoji: '👤' },
@@ -63,7 +63,7 @@ export const BeneficiaryDashboard = () => {
             </h1>
             <p className="text-gray-700 mb-6 font-light leading-relaxed">
               Votre compte est en attente de validation par notre équipe. 
-              Vous pourrez bientôt accéder aux paniers solidaires gratuits ! 💚
+              Vous pourrez bientôt accéder aux paniers solidaires ! 💚
             </p>
             <div className="p-5 bg-gradient-to-r from-accent-50 to-pink-50 rounded-xl mb-6 border-2 border-accent-100">
               <p className="text-xs text-gray-600 font-semibold mb-2">

@@ -183,14 +183,14 @@ export const BeneficiaryReservations = () => {
           Vos paniers solidaires vous attendent ! 🎁
         </h3>
         <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed font-light">
-          Vous n'avez pas encore de réservation. Explorez les paniers gratuits 
+          Vous n'avez pas encore de réservation. Explorez les paniers solidaires 
           disponibles et profitez du programme solidaire ! ❤️
         </p>
         <button
           onClick={() => window.location.reload()}
           className="px-6 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl font-semibold hover:from-accent-700 hover:to-accent-800 transition-all shadow-lg"
         >
-          Découvrir les paniers gratuits
+          Découvrir les paniers solidaires
         </button>
       </div>
     );
@@ -259,7 +259,7 @@ export const BeneficiaryReservations = () => {
                 <div className="flex items-center justify-center gap-2">
                   <Heart size={16} className="text-accent-600" strokeWidth={2} />
                   <p className="text-xs font-bold text-accent-700">
-                    ❤️ PANIER SOLIDAIRE GRATUIT
+                    ❤️ PANIER SOLIDAIRE
                   </p>
                 </div>
               </div>

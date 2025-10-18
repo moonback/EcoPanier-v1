@@ -150,7 +150,7 @@ export const HowItWorks = () => {
     },
     {
       number: 2,
-      title: 'Découvrez les paniers gratuits',
+      title: 'Découvrez les paniers solidaires',
       description: 'Jusqu\'à 2 paniers par jour de produits frais et de qualité',
       icon: Gift,
       details: [
@@ -162,12 +162,12 @@ export const HowItWorks = () => {
     },
     {
       number: 3,
-      title: 'Réservez gratuitement',
+      title: 'Réservez solidairement',
       description: 'Aucun paiement requis, c\'est solidaire',
       icon: Heart,
       details: [
         '❤️ Sélectionnez votre panier sans frais',
-        '🆓 Réservation 100% gratuite via le programme',
+        '🆓 Réservation 100% solidaire via le programme',
         '📱 Recevez votre QR code de retrait',
         '✨ Même qualité que pour tous les clients',
       ],
@@ -190,7 +190,7 @@ export const HowItWorks = () => {
     {
       number: 1,
       title: 'Créez votre compte association',
-      description: 'Inscription gratuite pour votre organisation solidaire',
+      description: 'Inscription solidaire pour votre organisation solidaire',
       icon: UserPlus,
       details: [
         '🏛️ Inscrivez votre association en quelques minutes',
@@ -202,19 +202,19 @@ export const HowItWorks = () => {
     {
       number: 2,
       title: 'Enregistrez vos bénéficiaires',
-      description: 'Formulaire simple pour créer des comptes en quelques clics',
+      description: 'Formulaire solidaire pour créer des comptes en quelques clics',
       icon: Users,
       details: [
         '📝 Remplissez le formulaire d\'enregistrement',
         '🎫 ID unique auto-généré (YYYY-BEN-XXXXX)',
         '📧 Email de confirmation envoyé automatiquement',
-        '✨ Le bénéficiaire peut utiliser la plateforme immédiatement',
+        '✨ Le bénéficiaire peut utiliser la plateforme solidaire immédiatement',
       ],
     },
     {
       number: 3,
       title: 'Suivez l\'activité en temps réel',
-      description: 'Tableaux de bord et statistiques complètes',
+      description: 'Tableaux de bord solidaires et statistiques complètes',
       icon: Smartphone,
       details: [
         '📊 Visualisez les statistiques de vos bénéficiaires',

@@ -15,7 +15,7 @@ export const SuspendedBasketsSection = () => {
     {
       title: 'Pour les Autres',
       description: 'Accès gratuit à 2 paniers alimentaires par jour pour les personnes en situation de précarité',
-      stats: '2 paniers gratuits / jour'
+      stats: '2 paniers solidaires / jour'
     }
   ];
 

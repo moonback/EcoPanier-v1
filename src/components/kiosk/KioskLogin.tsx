@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { supabase } from '../../lib/supabase';
-import { QrCode, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
+import { QrCode, AlertCircle, HelpCircle } from 'lucide-react';
 import { KioskTutorial } from './KioskTutorial';
 import type { Database } from '../../lib/database.types';
 
@@ -88,7 +88,7 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
             Kiosque EcoPanier
           </h1>
           <p className="text-base text-gray-600 font-light mb-3">
-            Scannez votre carte pour les paniers gratuits 🎁
+            Scannez votre carte pour les paniers solidaires 🎁
           </p>
           
           {/* Bouton aide */}

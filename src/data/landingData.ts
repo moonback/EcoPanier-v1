@@ -197,7 +197,7 @@ export const userProfiles: UserProfile[] = [
     subtitle: 'Accès à l\'aide alimentaire',
     description: 'Accédez à de bons produits alimentaires chaque jour, gratuitement et en toute dignité, grâce à la solidarité de votre quartier.',
     benefits: [
-      '🎁 Jusqu\'à 2 paniers gratuits par jour de produits de qualité',
+      '🎁 Jusqu\'à 2 paniers solidaires par jour de produits de qualité',
       '🏪 Produits variés issus des commerçants engagés de votre quartier',
       '✨ Même qualité que tous les autres paniers de la plateforme',
       '📱 Retrait simple et discret avec votre QR code personnel',

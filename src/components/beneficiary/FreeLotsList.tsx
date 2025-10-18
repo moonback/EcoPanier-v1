@@ -183,7 +183,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
         </h3>
         <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed font-light">
           Vous avez atteint votre limite quotidienne de 2 paniers solidaires.
-          Revenez demain pour découvrir de nouveaux paniers gratuits ! 🌅
+          Revenez demain pour découvrir de nouveaux paniers solidaires ! 🌅
         </p>
         <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-success-100 to-accent-100 text-success-800 rounded-xl border-2 border-success-200 font-semibold">
           <span>✅</span>

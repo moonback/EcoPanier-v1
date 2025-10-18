@@ -10,39 +10,33 @@ export const KioskTutorial = ({ onClose }: KioskTutorialProps) => {
 
   const steps = [
     {
-      title: 'Bienvenue au Kiosque EcoPanier ! 👋',
-      description: 'Nous allons vous guider pas à pas pour réserver vos paniers gratuits.',
-      icon: '🤝',
+      title: 'Bienvenue au Kiosque ! 👋',
+      description: 'Nous allons vous guider pas à pas pour réserver vos paniers alimentaires.',
       color: 'from-primary-500 to-primary-600'
     },
     {
       title: '1️⃣ Scannez votre carte',
       description: 'Cliquez sur "Scanner ma carte" puis présentez votre carte bénéficiaire devant la caméra. Le scan est automatique !',
-      icon: '📱',
       color: 'from-accent-500 to-accent-600'
     },
     {
       title: '2️⃣ Choisissez vos paniers',
-      description: 'Parcourez les paniers disponibles. Vous pouvez en réserver 2 maximum par jour, c\'est GRATUIT !',
-      icon: '🎁',
+      description: 'Parcourez les paniers disponibles. Vous pouvez en réserver 2 maximum par jour.',
       color: 'from-pink-500 to-pink-600'
     },
     {
       title: '3️⃣ Notez votre code PIN',
-      description: 'Après la réservation, un code PIN s\'affiche EN GROS. Notez-le bien ou prenez une photo ! Vous en aurez besoin pour récupérer vos paniers.',
-      icon: '🔑',
+      description: 'Après la réservation, un code PIN s\'affiche EN GROS. Notez-le bien ou imprimer le ! Vous en aurez besoin pour récupérer vos paniers.',
       color: 'from-warning-500 to-warning-600'
     },
     {
       title: '4️⃣ Récupérez vos paniers',
       description: 'Allez chez le commerçant avec votre code PIN. L\'adresse est indiquée en cliquant sur le nom du commerçant.',
-      icon: '🏪',
       color: 'from-success-500 to-success-600'
     },
     {
-      title: 'Besoin d\'aide ? 🆘',
-      description: 'Le personnel du foyer est là pour vous aider à tout moment. N\'hésitez pas à demander !',
-      icon: '💚',
+      title: 'Profitez de vos paniers offerts 🎁',
+      description: 'Bénéficiez des paniers proposés par les commerçants solidaires et réduisez le gaspillage !',
       color: 'from-blue-500 to-blue-600'
     }
   ];
@@ -75,15 +69,12 @@ export const KioskTutorial = ({ onClose }: KioskTutorialProps) => {
           <X size={20} className="text-gray-600" />
         </button>
 
-        {/* Icône et titre */}
+        {/* Titre et description */}
         <div className="text-center mb-6">
-          <div className={`inline-flex p-6 bg-gradient-to-br ${step.color} rounded-full mb-4 shadow-lg`}>
-            <span className="text-6xl">{step.icon}</span>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
             {step.title}
           </h2>
-          <p className="text-lg text-gray-700 leading-relaxed">
+          <p className="text-xl text-gray-700 leading-relaxed px-4">
             {step.description}
           </p>
         </div>
