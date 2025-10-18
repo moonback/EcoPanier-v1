@@ -12,7 +12,8 @@ import {
   Trash2,
   Filter,
   X,
-  Calendar
+  Calendar,
+  MapPin
 } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 
@@ -269,52 +270,86 @@ export const UserManagement = () => {
         </button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Design amélioré avec plus de détails */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-        <div className="bg-white p-4 rounded-xl border-2 border-gray-100 hover:border-primary-200 hover:shadow-lg transition-all">
+        <div className="bg-gradient-to-br from-primary-50 to-white p-4 rounded-xl border-2 border-primary-100 hover:border-primary-300 hover:shadow-lg transition-all">
           <div className="flex items-center gap-2 mb-2">
-            <Users size={16} className="text-primary-600" strokeWidth={2} />
-            <p className="text-xs font-semibold text-gray-600">Total</p>
+            <div className="p-1.5 bg-primary-100 rounded-lg">
+              <Users size={16} className="text-primary-600" strokeWidth={2} />
+            </div>
+            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Total</p>
           </div>
-          <p className="text-2xl font-bold text-primary-600">{stats.total}</p>
+          <p className="text-3xl font-black text-primary-600 mb-1">{stats.total}</p>
+          <p className="text-[9px] text-gray-500 font-medium">utilisateurs</p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border-2 border-gray-100 hover:border-primary-200 hover:shadow-lg transition-all">
+        <div className="bg-gradient-to-br from-success-50 to-white p-4 rounded-xl border-2 border-success-100 hover:border-success-300 hover:shadow-lg transition-all">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp size={16} className="text-success-600" strokeWidth={2} />
-            <p className="text-xs font-semibold text-gray-600">Nouveaux (7j)</p>
+            <div className="p-1.5 bg-success-100 rounded-lg">
+              <TrendingUp size={16} className="text-success-600" strokeWidth={2} />
+            </div>
+            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Nouveaux</p>
           </div>
-          <p className="text-2xl font-bold text-success-600">{stats.newThisWeek}</p>
+          <p className="text-3xl font-black text-success-600 mb-1">{stats.newThisWeek}</p>
+          <p className="text-[9px] text-gray-500 font-medium">cette semaine</p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border-2 border-primary-100 hover:shadow-lg transition-all">
-          <p className="text-xs font-semibold text-gray-600 mb-2">🛒 Clients</p>
-          <p className="text-2xl font-bold text-primary-600">{stats.customers}</p>
+        <div className="bg-gradient-to-br from-primary-50 to-white p-4 rounded-xl border-2 border-primary-100 hover:border-primary-300 hover:shadow-lg transition-all">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">🛒</span>
+            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Clients</p>
+          </div>
+          <p className="text-3xl font-black text-primary-600 mb-1">{stats.customers}</p>
+          <p className="text-[9px] text-gray-500 font-medium">{stats.total > 0 ? Math.round((stats.customers / stats.total) * 100) : 0}% du total</p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border-2 border-secondary-100 hover:shadow-lg transition-all">
-          <p className="text-xs font-semibold text-gray-600 mb-2">🏪 Commerçants</p>
-          <p className="text-2xl font-bold text-secondary-600">{stats.merchants}</p>
+        <div className="bg-gradient-to-br from-secondary-50 to-white p-4 rounded-xl border-2 border-secondary-100 hover:border-secondary-300 hover:shadow-lg transition-all">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">🏪</span>
+            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Commerçants</p>
+          </div>
+          <p className="text-3xl font-black text-secondary-600 mb-1">{stats.merchants}</p>
+          <p className="text-[9px] text-gray-500 font-medium">{stats.total > 0 ? Math.round((stats.merchants / stats.total) * 100) : 0}% du total</p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border-2 border-accent-100 hover:shadow-lg transition-all">
-          <p className="text-xs font-semibold text-gray-600 mb-2">🤝 Bénéficiaires</p>
-          <p className="text-2xl font-bold text-accent-600">{stats.beneficiaries}</p>
+        <div className="bg-gradient-to-br from-accent-50 to-white p-4 rounded-xl border-2 border-accent-100 hover:border-accent-300 hover:shadow-lg transition-all">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">🤝</span>
+            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Bénéficiaires</p>
+          </div>
+          <p className="text-3xl font-black text-accent-600 mb-1">{stats.beneficiaries}</p>
+          <p className="text-[9px] text-gray-500 font-medium">{stats.total > 0 ? Math.round((stats.beneficiaries / stats.total) * 100) : 0}% du total</p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border-2 border-success-100 hover:shadow-lg transition-all">
-          <p className="text-xs font-semibold text-gray-600 mb-2">🚴 Collecteurs</p>
-          <p className="text-2xl font-bold text-success-600">{stats.collectors}</p>
+        <div className="bg-gradient-to-br from-success-50 to-white p-4 rounded-xl border-2 border-success-100 hover:border-success-300 hover:shadow-lg transition-all">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">🚴</span>
+            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Collecteurs</p>
+          </div>
+          <p className="text-3xl font-black text-success-600 mb-1">{stats.collectors}</p>
+          <p className="text-[9px] text-gray-500 font-medium">{stats.total > 0 ? Math.round((stats.collectors / stats.total) * 100) : 0}% du total</p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border-2 border-success-100 hover:shadow-lg transition-all">
-          <p className="text-xs font-semibold text-gray-600 mb-2">✅ Vérifiés</p>
-          <p className="text-2xl font-bold text-success-600">{stats.verified}</p>
+        <div className="bg-gradient-to-br from-success-50 to-white p-4 rounded-xl border-2 border-success-100 hover:border-success-300 hover:shadow-lg transition-all">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-1.5 bg-success-100 rounded-lg">
+              <CheckCircle size={16} className="text-success-600" strokeWidth={2} />
+            </div>
+            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Vérifiés</p>
+          </div>
+          <p className="text-3xl font-black text-success-600 mb-1">{stats.verified}</p>
+          <p className="text-[9px] text-gray-500 font-medium">{stats.beneficiaries > 0 ? Math.round((stats.verified / stats.beneficiaries) * 100) : 0}% bénéf.</p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border-2 border-warning-100 hover:shadow-lg transition-all">
-          <p className="text-xs font-semibold text-gray-600 mb-2">⏳ En attente</p>
-          <p className="text-2xl font-bold text-warning-600">{stats.pending}</p>
+        <div className="bg-gradient-to-br from-warning-50 to-white p-4 rounded-xl border-2 border-warning-100 hover:border-warning-300 hover:shadow-lg transition-all">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-1.5 bg-warning-100 rounded-lg">
+              <XCircle size={16} className="text-warning-600" strokeWidth={2} />
+            </div>
+            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">En attente</p>
+          </div>
+          <p className="text-3xl font-black text-warning-600 mb-1">{stats.pending}</p>
+          <p className="text-[9px] text-gray-500 font-medium">{stats.beneficiaries > 0 ? Math.round((stats.pending / stats.beneficiaries) * 100) : 0}% bénéf.</p>
         </div>
       </div>
 
@@ -609,11 +644,16 @@ export const UserManagement = () => {
       {/* User Details Modal */}
       {selectedUser && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-gray-100">
+          <div className="bg-white rounded-2xl max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-gray-100">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h3 className="text-2xl font-bold text-black mb-1">Détails Utilisateur</h3>
-                <p className="text-sm text-gray-600">Informations complètes</p>
+                <h3 className="text-2xl font-bold text-black mb-1 flex items-center gap-2">
+                  <span className="text-3xl">
+                    {selectedUser.role === 'customer' ? '🛒' : selectedUser.role === 'merchant' ? '🏪' : selectedUser.role === 'beneficiary' ? '🤝' : selectedUser.role === 'collector' ? '🚴' : '👑'}
+                  </span>
+                  {selectedUser.full_name}
+                </h3>
+                <p className="text-sm text-gray-600">Fiche utilisateur complète</p>
               </div>
               <button
                 onClick={() => setSelectedUser(null)}
@@ -624,89 +664,150 @@ export const UserManagement = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-primary-50 rounded-xl border-2 border-primary-100">
-                <p className="text-xs font-semibold text-gray-600 mb-1">Nom complet</p>
-                <p className="text-lg font-bold text-black">{selectedUser.full_name}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Rôle</p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {selectedUser.role === 'customer'
-                      ? '🛒 Client'
+              {/* Badge rôle */}
+              <div className="flex items-center justify-center">
+                <span
+                  className={`px-4 py-2 rounded-full text-sm font-bold border-2 ${
+                    selectedUser.role === 'customer'
+                      ? 'bg-primary-50 text-primary-700 border-primary-200'
                       : selectedUser.role === 'merchant'
-                      ? '🏪 Commerçant'
+                      ? 'bg-secondary-50 text-secondary-700 border-secondary-200'
                       : selectedUser.role === 'beneficiary'
-                      ? '🤝 Bénéficiaire'
+                      ? 'bg-accent-50 text-accent-700 border-accent-200'
                       : selectedUser.role === 'collector'
-                      ? '🚴 Collecteur'
-                      : '👑 Admin'}
-                  </p>
-                </div>
+                      ? 'bg-success-50 text-success-700 border-success-200'
+                      : 'bg-gray-50 text-gray-700 border-gray-200'
+                  }`}
+                >
+                  {selectedUser.role === 'customer'
+                    ? '🛒 Client'
+                    : selectedUser.role === 'merchant'
+                    ? '🏪 Commerçant'
+                    : selectedUser.role === 'beneficiary'
+                    ? '🤝 Bénéficiaire'
+                    : selectedUser.role === 'collector'
+                    ? '🚴 Collecteur'
+                    : '👑 Admin'}
+                </span>
+              </div>
 
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Téléphone</p>
-                  <p className="text-sm font-bold text-gray-900">{selectedUser.phone || 'Non renseigné'}</p>
+              {/* Informations de contact */}
+              <div className="bg-gradient-to-br from-primary-50 to-white p-4 rounded-xl border-2 border-primary-100">
+                <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <Mail size={16} className="text-primary-600" />
+                  Informations de contact
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-[10px] text-gray-600 font-semibold mb-1">Nom complet</p>
+                    <p className="text-sm font-bold text-gray-900">{selectedUser.full_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-600 font-semibold mb-1">Téléphone</p>
+                    <p className="text-sm font-bold text-gray-900">{selectedUser.phone || 'Non renseigné'}</p>
+                  </div>
                 </div>
               </div>
 
+              {/* ID Utilisateur et dates */}
+              <div className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-xl border-2 border-gray-100">
+                <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <Calendar size={16} className="text-gray-600" />
+                  Informations système
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-[10px] text-gray-600 font-semibold mb-1">ID Utilisateur</p>
+                    <p className="text-[10px] font-mono font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded truncate">{selectedUser.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-600 font-semibold mb-1">Inscription</p>
+                    <p className="text-xs font-bold text-gray-900">
+                      {new Date(selectedUser.created_at).toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations spécifiques bénéficiaire */}
               {selectedUser.beneficiary_id && (
-                <div className="p-4 bg-accent-50 rounded-xl border-2 border-accent-100">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">ID Bénéficiaire</p>
-                  <p className="font-mono text-lg font-bold text-accent-700">{selectedUser.beneficiary_id}</p>
+                <div className="bg-gradient-to-br from-accent-50 to-white p-4 rounded-xl border-2 border-accent-100">
+                  <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span className="text-lg">🤝</span>
+                    Bénéficiaire
+                  </h4>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-[10px] text-gray-600 font-semibold mb-1">ID Bénéficiaire</p>
+                      <p className="font-mono text-base font-bold text-accent-700 bg-accent-100 px-3 py-1.5 rounded inline-block">{selectedUser.beneficiary_id}</p>
+                    </div>
+                    {selectedUser.address && (
+                      <div>
+                        <p className="text-[10px] text-gray-600 font-semibold mb-1">Adresse</p>
+                        <p className="text-sm font-medium text-gray-900">{selectedUser.address}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
+              {/* Informations spécifiques commerçant */}
               {selectedUser.business_name && (
-                <div className="p-4 bg-secondary-50 rounded-xl border-2 border-secondary-100">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Nom du commerce</p>
-                  <p className="text-lg font-bold text-secondary-700">{selectedUser.business_name}</p>
+                <div className="bg-gradient-to-br from-secondary-50 to-white p-4 rounded-xl border-2 border-secondary-100">
+                  <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span className="text-lg">🏪</span>
+                    Commerce
+                  </h4>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-[10px] text-gray-600 font-semibold mb-1">Nom du commerce</p>
+                      <p className="text-base font-bold text-secondary-700">{selectedUser.business_name}</p>
+                    </div>
+                    {selectedUser.business_address && (
+                      <div>
+                        <p className="text-[10px] text-gray-600 font-semibold mb-1">Adresse du commerce</p>
+                        <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
+                          <MapPin size={14} className="text-gray-500" />
+                          {selectedUser.business_address}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {selectedUser.business_address && (
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Adresse du commerce</p>
-                  <p className="text-sm font-bold text-gray-900">{selectedUser.business_address}</p>
-                </div>
-              )}
-
-              {selectedUser.address && (
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Adresse personnelle</p>
-                  <p className="text-sm font-bold text-gray-900">{selectedUser.address}</p>
-                </div>
-              )}
-
-              <div className="p-4 bg-gray-50 rounded-xl">
-                <p className="text-xs font-semibold text-gray-600 mb-1">Date d'inscription</p>
-                <p className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                  <Calendar size={16} />
-                  {new Date(selectedUser.created_at).toLocaleString('fr-FR')}
-                </p>
-              </div>
-
+              {/* Statut de vérification pour bénéficiaires */}
               {selectedUser.role === 'beneficiary' && (
                 <div className={`p-4 rounded-xl border-2 ${selectedUser.verified ? 'bg-success-50 border-success-200' : 'bg-warning-50 border-warning-200'}`}>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Statut de vérification</p>
-                  <p className={`text-lg font-bold flex items-center gap-2 ${selectedUser.verified ? 'text-success-700' : 'text-warning-700'}`}>
+                  <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
                     {selectedUser.verified ? (
                       <>
-                        <CheckCircle size={20} strokeWidth={2} />
+                        <CheckCircle size={16} className="text-success-600" />
                         Compte vérifié
                       </>
                     ) : (
                       <>
-                        <XCircle size={20} strokeWidth={2} />
+                        <XCircle size={16} className="text-warning-600" />
                         En attente de vérification
                       </>
                     )}
+                  </h4>
+                  <p className="text-xs text-gray-600">
+                    {selectedUser.verified 
+                      ? '✅ Ce bénéficiaire a accès à tous les services de la plateforme (paniers suspendus, dons généreux, etc.).'
+                      : '⏳ Ce bénéficiaire est en attente de validation par un administrateur. Une fois vérifié, il pourra accéder aux services solidaires.'}
                   </p>
                 </div>
               )}
             </div>
 
+            {/* Actions */}
             <div className="mt-6 flex gap-3">
               {selectedUser.role === 'beneficiary' && (
                 <button
@@ -714,15 +815,32 @@ export const UserManagement = () => {
                     toggleVerification(selectedUser.id, selectedUser.verified);
                     setSelectedUser(null);
                   }}
-                  className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                  className={`flex-1 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
                     selectedUser.verified
                       ? 'bg-warning-600 text-white hover:bg-warning-700'
                       : 'bg-success-600 text-white hover:bg-success-700'
                   }`}
                 >
-                  {selectedUser.verified ? 'Révoquer la vérification' : 'Vérifier le compte'}
+                  {selectedUser.verified ? (
+                    <>
+                      <XCircle size={18} strokeWidth={2} />
+                      Révoquer la vérification
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={18} strokeWidth={2} />
+                      Vérifier le compte
+                    </>
+                  )}
                 </button>
               )}
+              <button
+                onClick={() => sendEmail(selectedUser)}
+                className="flex-1 py-3 bg-secondary-600 text-white rounded-xl hover:bg-secondary-700 transition-all font-semibold flex items-center justify-center gap-2"
+              >
+                <Mail size={18} strokeWidth={2} />
+                Contacter
+              </button>
               <button
                 onClick={() => setSelectedUser(null)}
                 className="flex-1 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all font-semibold"
