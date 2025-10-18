@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { QRCodeSVG } from 'qrcode.react';
 import { formatDateTime } from '../../utils/helpers';
-import { Package, MapPin, Clock, Key, Heart, QrCode, Download } from 'lucide-react';
+import { Package, MapPin, Clock, Key, Heart, QrCode, Download, Maximize2, X } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 
 type Reservation = Database['public']['Tables']['reservations']['Row'] & {
@@ -25,9 +25,11 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [showAddressTooltip, setShowAddressTooltip] = useState<string | null>(null);
   const qrCodeRef = useRef<HTMLDivElement>(null);
+  const [enlargedQR, setEnlargedQR] = useState(false);
 
   useEffect(() => {
     fetchReservations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchReservations = async () => {
@@ -328,40 +330,70 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
       {selectedReservation && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-3 z-50 animate-fade-in">
           <div className="bg-white rounded-xl max-w-md w-full p-4 text-center animate-fade-in-up shadow-soft-xl border-2 border-accent-200">
-            <h3 className="text-base font-bold mb-3 text-gray-900">
+            <h3 className="text-base font-bold mb-3 text-gray-900 text-center">
               QR Code de Retrait
             </h3>
 
-            {/* QR Code */}
-            <div ref={qrCodeRef} className="mb-3 p-3 bg-gray-50 rounded-lg inline-block border border-gray-200">
-              <QRCodeSVG
-                value={JSON.stringify({
-                  reservationId: selectedReservation.id,
-                  pin: selectedReservation.pickup_pin,
-                  userId: profile.id,
-                })}
-                size={200}
-                level="H"
-                includeMargin
-              />
+            {/* Titre du panier */}
+            <div className="text-center mb-3">
+              <h4 className="text-sm font-bold text-black line-clamp-2">
+                {selectedReservation.lots.title}
+              </h4>
             </div>
 
-            {/* Code PIN */}
-            <div className="mb-3 p-3 bg-gradient-to-r from-accent-50 to-pink-50 rounded-lg border-2 border-accent-200">
-              <p className="text-xs font-bold text-accent-900 mb-2 flex items-center justify-center gap-1">
-                <Key size={12} />
-                <span>Code PIN</span>
-              </p>
-              <p className="font-mono font-bold text-4xl text-accent-700 tracking-wider">
-                {selectedReservation.pickup_pin}
-              </p>
+            {/* QR Code et PIN côte à côte */}
+            <div className="flex gap-2 mb-3">
+              {/* QR Code à gauche */}
+              <div ref={qrCodeRef} className="flex-1 flex flex-col items-center gap-1 p-2 bg-white rounded-lg border border-gray-200 shadow-soft">
+                <div className="flex items-center justify-between w-full">
+                  <p className="text-xs text-gray-600 font-semibold">QR Code</p>
+                  <button
+                    onClick={() => {
+                      setEnlargedQR(true);
+                      onActivity();
+                    }}
+                    className="p-0.5 hover:bg-gray-100 rounded transition-colors"
+                    title="Agrandir"
+                  >
+                    <Maximize2 size={12} className="text-gray-600" />
+                  </button>
+                </div>
+                <div 
+                  onClick={() => {
+                    setEnlargedQR(true);
+                    onActivity();
+                  }}
+                  className="p-1 bg-gray-50 rounded cursor-pointer hover:bg-accent-50 transition-colors"
+                >
+                  <QRCodeSVG
+                    value={JSON.stringify({
+                      reservationId: selectedReservation.id,
+                      pin: selectedReservation.pickup_pin,
+                      userId: profile.id,
+                    })}
+                    size={120}
+                    level="H"
+                  />
+                </div>
+              </div>
+
+              {/* Code PIN à droite */}
+              <div className="flex-1 flex flex-col items-center justify-center gap-2 p-3 bg-gradient-to-br from-accent-50 to-pink-50 rounded-lg border-2 border-accent-200 shadow-soft">
+                <div className="text-center">
+                  <p className="text-xs font-bold text-accent-900 mb-1 flex items-center justify-center gap-1">
+                    <Key size={12} />
+                    <span>Code PIN</span>
+                  </p>
+                  <p className="font-mono font-bold text-3xl text-accent-700 tracking-wider">
+                    {selectedReservation.pickup_pin}
+                  </p>
+                  <p className="text-xs text-accent-600 mt-1">À présenter</p>
+                </div>
+              </div>
             </div>
 
             {/* Informations */}
             <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 className="text-sm font-bold text-gray-900 mb-1 line-clamp-2">
-                {selectedReservation.lots.title}
-              </h4>
               <div className="space-y-0.5 text-xs text-gray-700">
                 <div className="flex items-center justify-center gap-1">
                   <MapPin size={12} />
@@ -370,6 +402,10 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
                 <div className="flex items-center justify-center gap-1">
                   <Clock size={12} />
                   <span>{formatDateTime(selectedReservation.lots.pickup_start)}</span>
+                </div>
+                <div className="flex items-center justify-center gap-1">
+                  <Package size={12} />
+                  <span>Quantité: {selectedReservation.quantity}</span>
                 </div>
               </div>
             </div>
@@ -392,6 +428,44 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
               >
                 Fermer
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal QR Code agrandi */}
+      {enlargedQR && selectedReservation && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[60] p-4 animate-fade-in"
+          onClick={() => {
+            setEnlargedQR(false);
+            onActivity();
+          }}
+        >
+          <div className="relative">
+            <button
+              onClick={() => {
+                setEnlargedQR(false);
+                onActivity();
+              }}
+              className="absolute -top-10 right-0 p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Fermer"
+            >
+              <X size={20} className="text-gray-900" />
+            </button>
+            <div className="bg-white p-4 rounded-xl shadow-2xl">
+              <QRCodeSVG 
+                value={JSON.stringify({
+                  reservationId: selectedReservation.id,
+                  pin: selectedReservation.pickup_pin,
+                  userId: profile.id,
+                })}
+                size={300} 
+                level="H" 
+              />
+              <p className="text-center mt-3 font-mono font-bold text-xl text-gray-900">
+                {selectedReservation.pickup_pin}
+              </p>
             </div>
           </div>
         </div>
