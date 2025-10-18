@@ -292,8 +292,15 @@ export const BeneficiaryReservations = () => {
               </h3>
             </div>
 
-             {/* QR Code et PIN côte à côte */}
-             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
+            {/* Message d'aide */}
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-center text-blue-900">
+                <strong>💡 Astuce :</strong> Cliquez sur le QR code pour l'agrandir
+              </p>
+            </div>
+
+            {/* QR Code et PIN côte à côte */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
                {/* QR Code à gauche */}
                <div ref={qrCodeRef} className="flex-1 flex flex-col items-center gap-2 p-3 bg-white rounded-xl border-2 border-gray-100 shadow-lg">
                  <div className="flex items-center justify-between w-full">

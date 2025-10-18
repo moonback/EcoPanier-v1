@@ -195,6 +195,13 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
 
   return (
     <div>
+      {/* Message d'aide */}
+      <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-accent-50 rounded-lg border border-blue-200 animate-fade-in">
+        <p className="text-sm text-center font-semibold text-blue-900">
+          🎁 Paniers <strong>100% GRATUITS</strong> • Maximum <strong>2 par jour</strong> • Cliquez pour réserver
+        </p>
+      </div>
+
       {/* Bouton de filtre compact */}
       <div className="mb-6 flex items-center justify-between gap-3">
         <button

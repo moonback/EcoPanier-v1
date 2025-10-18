@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatDateTime, generatePIN } from '../../utils/helpers';
-import { Package, MapPin, Clock, Heart, CheckCircle, XCircle } from 'lucide-react';
+import { Package, MapPin, Clock, Heart, CheckCircle, XCircle, Download } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
@@ -22,7 +22,12 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
   const [loading, setLoading] = useState(true);
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
   const [reserving, setReserving] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<{ pin: string; lot: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<{ 
+    pin: string; 
+    lot: string;
+    merchant: string;
+    pickupTime: string;
+  } | null>(null);
   const [showAddressTooltip, setShowAddressTooltip] = useState<string | null>(null);
 
   useEffect(() => {
@@ -127,7 +132,12 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
       }
 
       // Afficher le message de succès avec le PIN
-      setSuccessMessage({ pin, lot: selectedLot.title });
+      setSuccessMessage({ 
+        pin, 
+        lot: selectedLot.title,
+        merchant: selectedLot.profiles.business_name,
+        pickupTime: formatDateTime(selectedLot.pickup_start)
+      });
       setSelectedLot(null);
       fetchFreeLots();
       onReservationMade();
@@ -165,6 +175,13 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
 
   return (
     <div>
+      {/* Message d'aide en haut */}
+      <div className="mb-3 p-3 bg-gradient-to-r from-blue-50 to-accent-50 rounded-lg border border-blue-200 animate-fade-in">
+        <p className="text-sm text-center font-semibold text-blue-900">
+          👆 <strong>Cliquez sur un panier</strong> pour le réserver gratuitement • Maximum <strong>2 paniers par jour</strong>
+        </p>
+      </div>
+
       {lots.length === 0 ? (
         <div className="text-center py-6">
           <div className="inline-flex p-4 bg-gray-50 rounded-full mb-3">
@@ -332,9 +349,9 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
 
       {/* Modal de succès avec PIN */}
       {successMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-3 z-50 animate-fade-in">
-          <div className="bg-white rounded-xl max-w-md w-full p-4 text-center animate-fade-in-up shadow-soft-xl border-2 border-success-200">
-            <div className="inline-flex p-3 bg-gradient-to-br from-success-100 to-accent-100 rounded-full mb-3">
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-3 z-[100] animate-fade-in">
+          <div className="bg-white rounded-xl max-w-md w-full p-4 text-center animate-fade-in-up shadow-soft-xl border-4 border-success-400">
+            <div className="inline-flex p-3 bg-gradient-to-br from-success-100 to-accent-100 rounded-full mb-3 shadow-lg">
               <CheckCircle size={48} className="text-success-600" strokeWidth={2} />
             </div>
 
@@ -342,31 +359,120 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
               🎉 Réservation confirmée !
             </h3>
 
-            <p className="text-sm text-gray-700 mb-4 line-clamp-2">
+            <p className="text-sm text-gray-700 mb-3 line-clamp-2">
               {successMessage.lot}
             </p>
 
-            <div className="mb-4 p-4 bg-gradient-to-br from-accent-50 to-pink-50 rounded-lg border-2 border-accent-200 shadow-soft">
-              <p className="text-sm font-bold text-accent-900 mb-2">
-                🔑 Notez bien votre Code PIN
+            {/* Instruction TRÈS visible - Toujours affichée */}
+            <div className="mb-3 p-4 bg-gradient-to-r from-warning-100 to-warning-200 rounded-xl border-3 border-warning-400 shadow-lg animate-pulse">
+              <p className="text-base font-bold text-warning-900 mb-2 flex items-center justify-center gap-2">
+                <span className="text-2xl">⚠️</span>
+                <span>NOTEZ BIEN CE CODE !</span>
               </p>
-              <p className="font-mono font-bold text-5xl text-accent-700 tracking-wider">
-                {successMessage.pin}
-              </p>
-              <p className="text-xs text-accent-700 mt-2 font-semibold">
-                À présenter au commerçant
+              <p className="text-sm text-warning-900 font-semibold leading-relaxed">
+                Prenez une photo ou téléchargez-le.<br />
+                Sans ce code, vous ne pourrez PAS récupérer votre panier.
               </p>
             </div>
 
-            <button
-              onClick={() => {
-                setSuccessMessage(null);
-                onActivity();
-              }}
-              className="w-full py-3 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg hover:from-accent-700 hover:to-pink-700 transition-all font-semibold text-base shadow-soft-md"
-            >
-              Continuer
-            </button>
+            {/* Code PIN */}
+            <div className="mb-4 p-4 bg-gradient-to-br from-accent-50 to-pink-50 rounded-xl border-3 border-accent-300 shadow-lg">
+              <p className="text-base font-bold text-accent-900 mb-3 flex items-center justify-center gap-2">
+                <span className="text-xl">🔑</span>
+                <span>Votre Code PIN</span>
+              </p>
+              <div className="p-3 bg-white rounded-lg border-2 border-accent-400 mb-2">
+                <p className="font-mono font-bold text-5xl text-accent-700 tracking-wider animate-pulse">
+                  {successMessage.pin}
+                </p>
+              </div>
+              <p className="text-xs text-accent-800 font-bold">
+                À présenter au commerçant : {successMessage.merchant}
+              </p>
+            </div>
+
+            {/* Boutons d'action */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  // Créer une image simple avec le code PIN
+                  const canvas = document.createElement('canvas');
+                  const ctx = canvas.getContext('2d');
+                  if (!ctx) return;
+
+                  canvas.width = 600;
+                  canvas.height = 500;
+
+                  // Fond
+                  ctx.fillStyle = '#ffffff';
+                  ctx.fillRect(0, 0, 600, 500);
+
+                  // Header gradient
+                  const gradient = ctx.createLinearGradient(0, 0, 600, 80);
+                  gradient.addColorStop(0, '#ec4899');
+                  gradient.addColorStop(1, '#f472b6');
+                  ctx.fillStyle = gradient;
+                  ctx.fillRect(0, 0, 600, 80);
+
+                  ctx.fillStyle = '#ffffff';
+                  ctx.font = 'bold 32px Arial';
+                  ctx.textAlign = 'center';
+                  ctx.fillText('EcoPanier - Code de Retrait', 300, 50);
+
+                  // Panier
+                  ctx.fillStyle = '#1f2937';
+                  ctx.font = 'bold 20px Arial';
+                  ctx.fillText(successMessage.lot.substring(0, 40), 300, 130);
+
+                  // Box PIN
+                  ctx.fillStyle = '#fef3c7';
+                  ctx.strokeStyle = '#fbbf24';
+                  ctx.lineWidth = 4;
+                  ctx.fillRect(100, 180, 400, 150);
+                  ctx.strokeRect(100, 180, 400, 150);
+
+                  ctx.fillStyle = '#78350f';
+                  ctx.font = 'bold 24px Arial';
+                  ctx.fillText('CODE PIN', 300, 220);
+
+                  ctx.fillStyle = '#92400e';
+                  ctx.font = 'bold 72px monospace';
+                  ctx.fillText(successMessage.pin, 300, 295);
+
+                  // Infos
+                  ctx.fillStyle = '#6b7280';
+                  ctx.font = '16px Arial';
+                  ctx.fillText(`Commercant: ${successMessage.merchant}`, 300, 380);
+                  ctx.fillText(`Retrait: ${successMessage.pickupTime}`, 300, 410);
+
+                  ctx.fillStyle = '#dc2626';
+                  ctx.font = 'bold 18px Arial';
+                  ctx.fillText('CONSERVEZ CE CODE !', 300, 460);
+
+                  // Download
+                  const dataUrl = canvas.toDataURL('image/png');
+                  const link = document.createElement('a');
+                  link.href = dataUrl;
+                  link.download = `EcoPanier-PIN-${successMessage.pin}.png`;
+                  link.click();
+
+                  onActivity();
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-bold text-sm shadow-soft-md"
+              >
+                <Download size={18} />
+                <span>Télécharger</span>
+              </button>
+              <button
+                onClick={() => {
+                  setSuccessMessage(null);
+                  onActivity();
+                }}
+                className="flex-1 py-3 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg hover:from-accent-700 hover:to-pink-700 transition-all font-bold text-sm shadow-soft-md"
+              >
+                J'ai noté
+              </button>
+            </div>
           </div>
         </div>
       )}

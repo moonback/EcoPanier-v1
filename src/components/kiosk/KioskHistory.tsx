@@ -99,6 +99,13 @@ export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
 
   return (
     <div onClick={() => setShowAddressTooltip(null)}>
+      {/* Message d'aide */}
+      <div className="mb-3 p-3 bg-gradient-to-r from-blue-50 to-accent-50 rounded-lg border border-blue-200 animate-fade-in">
+        <p className="text-sm text-center font-semibold text-blue-900">
+          📜 Historique de toutes vos réservations • <strong>Cliquez sur le nom</strong> pour voir l'adresse du commerçant
+        </p>
+      </div>
+
       <div className="space-y-2">
         {reservations.map((reservation) => {
           const statusBadge = getStatusBadge(reservation.status);

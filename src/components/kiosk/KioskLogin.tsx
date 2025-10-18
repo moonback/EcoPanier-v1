@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { supabase } from '../../lib/supabase';
-import { QrCode, AlertCircle, CheckCircle } from 'lucide-react';
+import { QrCode, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
+import { KioskTutorial } from './KioskTutorial';
 import type { Database } from '../../lib/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -14,6 +15,20 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // Afficher le tutoriel au premier chargement
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('kiosk_tutorial_seen');
+    if (!hasSeenTutorial) {
+      setShowTutorial(true);
+    }
+  }, []);
+
+  const handleCloseTutorial = () => {
+    setShowTutorial(false);
+    localStorage.setItem('kiosk_tutorial_seen', 'true');
+  };
 
   const handleScan = async (result: string) => {
     if (loading) return;
@@ -72,9 +87,18 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
           <h1 className="text-2xl font-bold text-black mb-2">
             Kiosque EcoPanier
           </h1>
-          <p className="text-base text-gray-600 font-light">
+          <p className="text-base text-gray-600 font-light mb-3">
             Scannez votre carte pour les paniers gratuits 🎁
           </p>
+          
+          {/* Bouton aide */}
+          <button
+            onClick={() => setShowTutorial(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200 font-semibold text-sm"
+          >
+            <HelpCircle size={18} />
+            <span>Comment ça marche ?</span>
+          </button>
         </div>
 
         {/* Scanner ou bouton */}
@@ -188,6 +212,9 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
             </div>
           </div>
         )}
+
+        {/* Tutoriel */}
+        {showTutorial && <KioskTutorial onClose={handleCloseTutorial} />}
       </div>
     </div>
   );

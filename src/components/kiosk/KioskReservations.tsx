@@ -230,6 +230,15 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
 
   return (
     <div onClick={() => setShowAddressTooltip(null)}>
+      {/* Message d'aide */}
+      {showOnlyPending && (
+        <div className="mb-3 p-3 bg-gradient-to-r from-blue-50 to-accent-50 rounded-lg border border-blue-200 animate-fade-in">
+          <p className="text-sm text-center font-semibold text-blue-900">
+            📱 <strong>Cliquez sur "QR Code"</strong> pour voir votre code de retrait • <strong>Cliquez sur le nom</strong> pour voir l'adresse
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
         {reservations.map((reservation) => (
           <div
@@ -339,6 +348,13 @@ export const KioskReservations = ({ profile, onActivity, showOnlyPending = false
               <h4 className="text-sm font-bold text-black line-clamp-2">
                 {selectedReservation.lots.title}
               </h4>
+            </div>
+
+            {/* Message d'aide */}
+            <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-xs text-center text-blue-900">
+                <strong>💡</strong> Cliquez sur le QR pour l'agrandir
+              </p>
             </div>
 
             {/* QR Code et PIN côte à côte */}

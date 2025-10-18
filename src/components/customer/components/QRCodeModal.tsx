@@ -206,6 +206,13 @@ export function QRCodeModal({
           </h3>
         </div>
 
+        {/* Message d'aide */}
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm text-center text-blue-900">
+            <strong>💡 Astuce :</strong> Cliquez sur le QR code pour l'agrandir
+          </p>
+        </div>
+
         {/* QR Code et PIN côte à côte */}
         <div className="flex gap-4 mb-6">
           {/* QR Code à gauche */}
