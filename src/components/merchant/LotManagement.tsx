@@ -650,7 +650,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-xl sm:rounded-2xl max-w-4xl w-full my-4 sm:my-8 shadow-2xl">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-4xl w-full max-h-[90vh] my-4 sm:my-8 shadow-2xl flex flex-col">
             {/* Header avec fermeture */}
             <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
               <div className="flex-1 min-w-0 pr-2">
@@ -676,35 +676,49 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
               </button>
             </div>
 
-            {/* Barre de progression avec étapes */}
-            <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-b border-gray-200 overflow-x-auto">
-              <div className="flex items-center justify-between">
-                {getStepInfo().map((step, index) => {
-                  const StepIcon = step.icon;
+            {/* Barre de progression compacte */}
+            <div className="px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+              <div className="flex items-center justify-between max-w-lg mx-auto">
+                {getStepInfo().map((step, idx) => {
                   const isActive = currentStep === step.number;
                   const isCompleted = currentStep > step.number;
-                  
+                  const StepIcon = step.icon;
+
                   return (
-                    <div key={step.number} className="flex items-center flex-1 min-w-0">
-                      <div className="flex flex-col items-center flex-1 min-w-0">
+                    <div key={step.number} className="flex items-center flex-1">
+                      {/* Étape */}
+                      <div className="flex flex-col items-center">
                         <div className={`
-                          w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 flex-shrink-0
-                          ${isCompleted ? 'bg-green-500 text-white' : 
-                            isActive ? 'bg-blue-600 text-white ring-2 sm:ring-4 ring-blue-100' : 
-                            'bg-gray-200 text-gray-500'}
+                          relative w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm
+                          ${isCompleted 
+                            ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white' 
+                            : isActive 
+                            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white ring-2 ring-blue-100' 
+                            : 'bg-white border border-gray-300 text-gray-400'}
                         `}>
-                          {isCompleted ? <Check size={16} className="sm:w-5 sm:h-5" /> : <StepIcon size={16} className="sm:w-5 sm:h-5" />}
+                          {isCompleted ? (
+                            <Check size={12} className="text-white" />
+                          ) : (
+                            <StepIcon size={10} className={isActive ? 'text-white' : 'text-gray-400'} />
+                          )}
                         </div>
-                        <span className={`text-[10px] sm:text-xs mt-1 sm:mt-2 font-medium text-center truncate w-full px-1 ${
-                          isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                        
+                        <span className={`text-[10px] mt-1 font-medium text-center leading-tight ${
+                          isActive ? 'text-blue-600 font-semibold' : 
+                          isCompleted ? 'text-emerald-600' : 'text-gray-500'
                         }`}>
                           {step.title}
                         </span>
                       </div>
-                      {index < getStepInfo().length - 1 && (
-                        <div className={`h-0.5 sm:h-1 flex-1 mx-1 sm:mx-2 rounded transition-all duration-300 ${
-                          isCompleted ? 'bg-green-500' : 'bg-gray-200'
-                        }`} />
+                      
+                      {/* Ligne de connexion */}
+                      {idx < getStepInfo().length - 1 && (
+                        <div className={`
+                          flex-1 h-0.5 mx-2 rounded-full transition-all duration-500
+                          ${isCompleted 
+                            ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' 
+                            : 'bg-gray-300'}
+                        `} />
                       )}
                     </div>
                   );
@@ -713,12 +727,12 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
             </div>
 
             {/* Contenu du formulaire selon l'étape */}
-            <div className="p-4 sm:p-6 min-h-[300px] sm:min-h-[400px]">
+            <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
               <form onSubmit={handleSubmit}>
                 {/* Étape 1 : Analyse IA (uniquement en création) */}
                 {!editingLot && currentStep === 1 && (
                   <div className="space-y-6 animate-fade-in">
-                    <div className="text-center mb-8">
+                    {/* <div className="text-center mb-8">
                       
                       <h4 className="text-xl font-bold text-gray-800 mb-2">
                         🤖 Analyse par IA
@@ -726,7 +740,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
                       <p className="text-gray-600 max-w-md mx-auto">
                         Gagnez du temps ! Uploadez une photo de votre produit et l'IA remplira automatiquement tous les champs.
                       </p>
-                    </div>
+                    </div> */}
 
                     <div className="max-w-xl mx-auto">
                       <div className="p-6 bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border-2 border-purple-200 rounded-2xl">
@@ -1273,7 +1287,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
             </div>
 
             {/* Footer avec navigation */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-0">
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-0 flex-shrink-0">
               <div className="order-2 sm:order-1">
                 {currentStep > 1 && (
                   <button
