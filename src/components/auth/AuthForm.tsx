@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText, FileCheck, Briefcase, ArrowLeft, Eye, EyeOff, Shield, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText, FileCheck, Briefcase, ArrowLeft, Eye, EyeOff, Shield, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { geocodeAddress } from '../../utils/geocodingService';
 
 // Types de commerces disponibles
 const BUSINESS_TYPES = [
@@ -122,6 +123,31 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
         await signIn(email, password);
         onSuccess?.();
       } else {
+        // Géocoder l'adresse du commerce pour les commerçants et associations
+        let coordinates: { latitude: number | null; longitude: number | null } = { 
+          latitude: null, 
+          longitude: null 
+        };
+        
+        if ((role === 'merchant' || role === 'association') && businessAddress) {
+          try {
+            const geocodeResult = await geocodeAddress(businessAddress);
+            if (geocodeResult.success) {
+              coordinates = {
+                latitude: geocodeResult.latitude,
+                longitude: geocodeResult.longitude
+              };
+              console.log('✅ Géocodage réussi:', coordinates);
+            } else {
+              console.warn('⚠️ Géocodage échoué, les coordonnées seront null:', geocodeResult.error);
+              // Ne pas bloquer l'inscription si le géocodage échoue
+            }
+          } catch (error) {
+            console.error('Erreur lors du géocodage:', error);
+            // Ne pas bloquer l'inscription si le géocodage échoue
+          }
+        }
+
         await signUp(email, password, {
           role,
           full_name: fullName,
@@ -136,8 +162,8 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           business_email: (role === 'merchant' || role === 'association') ? businessEmail || null : null,
           business_description: (role === 'merchant' || role === 'association') ? businessDescription || null : null,
           vat_number: (role === 'merchant' || role === 'association') ? vatNumber || null : null,
-          latitude: null,
-          longitude: null,
+          latitude: coordinates.latitude,
+          longitude: coordinates.longitude,
           beneficiary_id: null,
           verified: false,
           collector_preferences: null
@@ -927,8 +953,12 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-                <span>Chargement...</span>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>
+                  {mode === 'signup' && (role === 'merchant' || role === 'association') 
+                    ? 'Géolocalisation en cours...' 
+                    : 'Chargement...'}
+                </span>
               </div>
             ) : mode === 'signin' ? (
               <span className="flex items-center justify-center gap-2">

@@ -3,6 +3,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
 import { BusinessHoursEditor } from './BusinessHoursEditor';
 import { BusinessLogoUploader } from '../merchant/BusinessLogoUploader';
+import { GeocodeButton } from '../merchant/GeocodeButton';
 import { useProfileStats } from '../../hooks/useProfileStats';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -750,32 +751,33 @@ export const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Business Hours & Logo (Merchant only) */}
+      {/* Business Hours, Logo & Geolocation (Merchant only) */}
       {profile?.role === 'merchant' && (
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Business Logo */}
-          {user && (
-            <div className="bg-white rounded-2xl border-2 border-gray-100 p-8 shadow-lg">
-              <BusinessLogoUploader
-                currentLogoUrl={profile?.business_logo_url}
-                userId={user.id}
-                onLogoUpdated={handleLogoUpdated}
-              />
-            </div>
-          )}
-
-          {/* Business Hours */}
-          <div className="bg-white rounded-2xl border-2 border-gray-100 p-8 shadow-lg">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
-                  <Clock size={20} strokeWidth={2} className="text-white" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Horaires d'ouverture</h2>
-                  <p className="text-sm text-gray-600">Informez vos clients de vos horaires</p>
-                </div>
+        <div className="mt-8 space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Business Logo */}
+            {user && (
+              <div className="bg-white rounded-2xl border-2 border-gray-100 p-8 shadow-lg">
+                <BusinessLogoUploader
+                  currentLogoUrl={profile?.business_logo_url}
+                  userId={user.id}
+                  onLogoUpdated={handleLogoUpdated}
+                />
               </div>
+            )}
+
+            {/* Business Hours */}
+            <div className="bg-white rounded-2xl border-2 border-gray-100 p-8 shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
+                    <Clock size={20} strokeWidth={2} className="text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Horaires d'ouverture</h2>
+                    <p className="text-sm text-gray-600">Informez vos clients de vos horaires</p>
+                  </div>
+                </div>
               {!isEditingHours && (
                 <button
                   onClick={() => setIsEditingHours(true)}
@@ -819,6 +821,21 @@ export const ProfilePage = () => {
                 <p className="text-sm text-gray-500">Ajoutez vos horaires d'ouverture</p>
               </div>
             )}
+          </div>
+          </div>
+
+          {/* Geolocation Section */}
+          <div className="bg-white rounded-2xl border-2 border-gray-100 p-8 shadow-lg">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-primary-600 rounded-xl flex items-center justify-center shadow-md">
+                <MapPin size={20} strokeWidth={2} className="text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Géolocalisation</h2>
+                <p className="text-sm text-gray-600">Apparaître sur la carte des clients</p>
+              </div>
+            </div>
+            <GeocodeButton onSuccess={() => fetchProfile()} />
           </div>
         </div>
       )}
