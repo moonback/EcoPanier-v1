@@ -92,14 +92,17 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
       <div className="relative z-10 max-w-2xl w-full">
         {/* En-tête */}
         <div className="text-center mb-4 animate-fade-in">
-          <div className="inline-flex p-3 bg-white rounded-full mb-3 shadow-2xl border-4 border-white/50">
-            <QrCode size={48} className="text-primary-600" strokeWidth={1.5} />
+          <div className="inline-flex p-3 bg-white rounded-xl mb-3 shadow-2xl border-4 border-white/50">
+            <img
+              src="/logo.png"
+              alt="EcoPanier"
+              className="w-24 object-contain"
+              draggable={false}
+            />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">
-            Kiosque EcoPanier
-          </h1>
+          
           <p className="text-lg text-white font-light mb-3 drop-shadow-md">
-            Scannez votre carte pour les paniers solidaires 🎁
+            Scannez votre carte pour les paniers solidaires !
           </p>
           
           {/* Bouton aide */}
