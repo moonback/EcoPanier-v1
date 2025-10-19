@@ -107,41 +107,47 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails
   }, [merchant.lots, sortBy, filterBy]);
 
   return (
-    <div className="space-y-3 pb-4">
-      {/* Header compact avec retour */}
-      <div className="bg-white rounded-3xl border border-gray-100 p-0 overflow-visible relative shadow-2xl">
-        {/* Bandeau haut, plus élégant */}
-        <div className="relative h-24 bg-gradient-to-r from-black via-gray-900 to-gray-800 overflow-hidden border-b-2 border-gray-100">
-          {/* Retour */}
+    <div className="space-y-4 pb-4">
+      {/* Header élégant avec retour */}
+      <div className="bg-white rounded-2xl border-2 border-gray-100 overflow-hidden shadow-lg">
+        {/* Bandeau supérieur avec dégradé cohérent */}
+        <div className="relative h-32 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600 overflow-hidden">
+          {/* Pattern décoratif */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
+          </div>
+
+          {/* Bouton retour */}
           <button
             onClick={onBack}
-            className="absolute top-3 left-3 z-20 bg-white/30 text-white hover:bg-white/60 flex items-center gap-2 px-3 py-1.5 rounded-xl shadow-md backdrop-blur-sm transition"
+            className="absolute top-4 left-4 z-20 flex items-center gap-2 px-4 py-2 bg-white/95 backdrop-blur-sm text-gray-900 rounded-xl hover:bg-white transition-all font-semibold shadow-lg hover:shadow-xl group"
             aria-label="Retour à la liste des commerçants"
             type="button"
           >
-            <ChevronLeft className="w-4 h-4" strokeWidth={2} />
-            <span className="font-semibold text-xs drop-shadow">Retour</span>
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" strokeWidth={2.5} />
+            <span className="text-sm">Retour</span>
           </button>
 
           {/* Distance badge */}
           {merchant.distance && (
-            <div className="absolute top-3 right-3 bg-white/30 text-white px-3 py-1 rounded-xl flex items-center gap-1 shadow-md backdrop-blur-sm select-none">
-              <Navigation className="w-4 h-4" strokeWidth={2} />
-              <span className="text-xs font-semibold">{formatDistance(merchant.distance)}</span>
+            <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+              <Navigation className="w-4 h-4 text-primary-600" strokeWidth={2} />
+              <span className="text-sm font-bold">{formatDistance(merchant.distance)}</span>
             </div>
           )}
         </div>
 
-        {/* Contenu principal affleurant sur le bandeau */}
-        <div className="px-4 pb-4 -mt-12 relative z-10">
-          {/* Logo commerçant stylisé */}
-          <div className="flex justify-center mb-2">
-            <div className="w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl border-4 border-white transition bg-black/90 overflow-hidden -mb-2">
+        {/* Contenu principal avec logo en superposition */}
+        <div className="px-6 pb-6 -mt-10 relative z-10">
+          {/* Logo commerçant */}
+          <div className="flex justify-center mb-4">
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-xl border-4 border-white bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
               {merchant.business_logo_url ? (
                 <img
                   src={merchant.business_logo_url}
                   alt={merchant.business_name || merchant.full_name}
-                  className="w-full h-full object-cover animate-fade-in"
+                  className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -149,55 +155,54 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails
                   loading="lazy"
                 />
               ) : null}
-              <Store className={`w-10 h-10 text-white ${merchant.business_logo_url ? 'hidden' : ''}`} strokeWidth={2} />
+              <Store className={`w-9 h-9 text-white ${merchant.business_logo_url ? 'hidden' : ''}`} strokeWidth={2} />
             </div>
           </div>
 
-          {/* Identité du commerce */}
-          <div className="text-center mb-3 space-y-1.5">
-            <h2 className="text-xl font-extrabold text-black px-2 leading-tight line-clamp-2">
+          {/* Informations du commerce */}
+          <div className="text-center space-y-2 mb-4">
+            <h2 className="text-2xl font-black text-gray-900 leading-tight">
               {merchant.business_name || merchant.full_name}
             </h2>
-            <div className="flex justify-center items-center gap-2 text-xs text-gray-500 font-light px-2">
-              <MapPin className="w-4 h-4 flex-shrink-0" strokeWidth={1.8} />
-              <span className="line-clamp-1">{merchant.business_address || merchant.address}</span>
+            
+            {/* Adresse */}
+            <div className="flex justify-center items-center gap-2 text-sm text-gray-600">
+              <MapPin className="w-4 h-4 text-primary-600" strokeWidth={2} />
+              <span className="font-medium">{merchant.business_address || merchant.address}</span>
             </div>
             
-            {/* Téléphone si dispo */}
+            {/* Téléphone */}
             {merchant.phone && (
               <a 
                 href={`tel:${merchant.phone}`}
-                className="inline-flex items-center gap-2 text-xs text-blue-600 hover:text-blue-800 font-medium underline transition"
+                className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-semibold transition-colors"
               >
-                <Phone className="w-4 h-4" strokeWidth={1.8} />
+                <Phone className="w-4 h-4" strokeWidth={2} />
                 {merchant.phone}
               </a>
             )}
           </div>
 
-          {/* Actions commerçant */}
-          <div className="flex justify-center gap-3 mb-1">
-            {businessHours && (
+          {/* Bouton horaires */}
+          {businessHours && (
+            <div className="flex justify-center">
               <button
                 onClick={() => setShowHoursModal(true)}
-                className="bg-black/90 text-white flex items-center gap-2 px-3 py-1.5 rounded-xl transition text-xs hover:bg-black"
+                className="bg-gradient-to-r from-gray-900 to-gray-800 text-white flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all font-semibold shadow-md hover:shadow-lg group"
                 type="button"
                 aria-label="Afficher les horaires d'ouverture"
               >
-                <Clock className="w-4 h-4" strokeWidth={1.8} />
-                <span className="font-medium">
-                  Horaires
-                </span>
-                {/* Statut ouvert/fermé du jour, badge coloré */}
+                <Clock className="w-4 h-4 group-hover:rotate-12 transition-transform" strokeWidth={2} />
+                <span>Horaires d'ouverture</span>
                 {(() => {
                   const today = businessHours.find((h) => h.isToday);
                   if (!today) return null;
                   return (
                     <span
-                      className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                      className={`ml-1 px-2.5 py-1 rounded-full text-xs font-bold ${
                         today.isClosed 
-                          ? 'bg-gray-100 text-gray-700 border-gray-300' 
-                          : 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                          ? 'bg-gray-600 text-white' 
+                          : 'bg-green-500 text-white'
                       }`}
                     >
                       {today.isClosed ? 'Fermé' : 'Ouvert'}
@@ -205,174 +210,192 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails
                   );
                 })()}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Stats enrichies du commerçant */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Nombre de lots */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-3 text-center hover:shadow-lg transition">
-          <div className="w-10 h-10 mx-auto mb-1.5 bg-gray-100 rounded-lg flex items-center justify-center">
-            <Package className="w-5 h-5 text-black" strokeWidth={1.5} />
+        <div className="bg-gradient-to-br from-primary-50 to-white rounded-2xl border-2 border-primary-100 p-4 hover:shadow-lg hover:scale-105 transition-all duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-md">
+              <Package className="w-6 h-6 text-white" strokeWidth={2} />
+            </div>
+            <div>
+              <div className="text-2xl font-black text-gray-900">{merchant.lots.length}</div>
+              <div className="text-xs text-gray-600 font-medium">Lots disponibles</div>
+            </div>
           </div>
-          <div className="text-xl font-bold text-black">{merchant.lots.length}</div>
-          <div className="text-[10px] text-gray-600 font-light uppercase">Invendus</div>
         </div>
 
         {/* Unités disponibles */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-3 text-center hover:shadow-lg transition">
-          <div className="w-10 h-10 mx-auto mb-1.5 bg-gray-100 rounded-lg flex items-center justify-center">
-            <ShoppingCart className="w-5 h-5 text-black" strokeWidth={1.5} />
+        <div className="bg-gradient-to-br from-secondary-50 to-white rounded-2xl border-2 border-secondary-100 p-4 hover:shadow-lg hover:scale-105 transition-all duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-md">
+              <ShoppingCart className="w-6 h-6 text-white" strokeWidth={2} />
+            </div>
+            <div>
+              <div className="text-2xl font-black text-gray-900">{stats.totalUnits}</div>
+              <div className="text-xs text-gray-600 font-medium">Unités restantes</div>
+            </div>
           </div>
-          <div className="text-xl font-bold text-black">{stats.totalUnits}</div>
-          <div className="text-[10px] text-gray-600 font-light uppercase">Unités dispo</div>
         </div>
 
         {/* Lots urgents */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-3 text-center hover:shadow-lg transition">
-          <div className="w-10 h-10 mx-auto mb-1.5 bg-gray-100 rounded-lg flex items-center justify-center">
-            <Flame className="w-5 h-5 text-black" strokeWidth={1.5} />
+        <div className="bg-gradient-to-br from-orange-50 to-white rounded-2xl border-2 border-orange-100 p-4 hover:shadow-lg hover:scale-105 transition-all duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-md">
+              <Flame className="w-6 h-6 text-white" strokeWidth={2} />
+            </div>
+            <div>
+              <div className="text-2xl font-black text-gray-900">{stats.urgentLots}</div>
+              <div className="text-xs text-gray-600 font-medium">Lots urgents</div>
+            </div>
           </div>
-          <div className="text-xl font-bold text-black">{stats.urgentLots}</div>
-          <div className="text-[10px] text-gray-600 font-light uppercase">Urgents</div>
         </div>
 
         {/* Économies potentielles */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-3 text-center hover:shadow-lg transition">
-          <div className="w-10 h-10 mx-auto mb-1.5 bg-gray-100 rounded-lg flex items-center justify-center">
-            <TrendingDown className="w-5 h-5 text-black" strokeWidth={1.5} />
+        <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl border-2 border-green-100 p-4 hover:shadow-lg hover:scale-105 transition-all duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-md">
+              <TrendingDown className="w-6 h-6 text-white" strokeWidth={2} />
+            </div>
+            <div>
+              <div className="text-2xl font-black text-gray-900">{stats.totalSavings.toFixed(0)}€</div>
+              <div className="text-xs text-gray-600 font-medium">À économiser</div>
+            </div>
           </div>
-          <div className="text-xl font-bold text-black">{stats.totalSavings.toFixed(0)}€</div>
-          <div className="text-[10px] text-gray-600 font-light uppercase">Économies</div>
         </div>
       </div>
 
       {/* Barre de filtres et tri */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-3 space-y-2">
+      <div className="bg-white rounded-2xl border-2 border-gray-100 p-4 shadow-md">
         {/* Titre et toggle filtres */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-bold text-black flex items-center gap-1.5">
-            <Package className="w-4 h-4" strokeWidth={1.5} />
-            <span className="text-sm">{filteredAndSortedLots.length} lot{filteredAndSortedLots.length > 1 ? 's' : ''}</span>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary-600" strokeWidth={2} />
+            <span>{filteredAndSortedLots.length} lot{filteredAndSortedLots.length > 1 ? 's' : ''} disponible{filteredAndSortedLots.length > 1 ? 's' : ''}</span>
           </h3>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition border font-medium ${
-              showFilters ? 'bg-black text-white border-black' : 'bg-gray-100 text-black border-gray-200'
+            className={`px-3 py-2 rounded-xl flex items-center gap-2 transition-all font-semibold shadow-md ${
+              showFilters 
+                ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
             type="button"
           >
-            <Filter className={`w-3.5 h-3.5 transition-transform ${showFilters ? 'rotate-180' : ''}`} strokeWidth={1.5} />
-            <span className="text-xs hidden sm:inline">Filtres</span>
+            <Filter className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} strokeWidth={2} />
+            <span className="text-sm">Filtres</span>
           </button>
         </div>
 
         {/* Panneau de filtres et tri (collapsible) */}
         {showFilters && (
-          <div className="space-y-2 pt-2 border-t border-gray-200">
+          <div className="space-y-4 pt-3 border-t-2 border-gray-100 animate-fade-in-up">
             {/* Filtres rapides */}
             <div>
-              <label className="text-[10px] font-medium text-black mb-1.5 block uppercase">Filtrer par</label>
-              <div className="flex flex-wrap gap-1.5">
+              <label className="text-xs font-bold text-gray-700 mb-2 block uppercase tracking-wide">Afficher</label>
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setFilterBy('all')}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition border ${
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                     filterBy === 'all'
-                      ? 'bg-black text-white border-black'
-                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md'
+                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 hover:border-gray-300'
                   }`}
                   type="button"
                 >
-                  Tous ({merchant.lots.length})
+                  Tous • {merchant.lots.length}
                 </button>
                 <button
                   onClick={() => setFilterBy('urgent')}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition border ${
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                     filterBy === 'urgent'
-                      ? 'bg-black text-white border-black'
-                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md'
+                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 hover:border-gray-300'
                   }`}
                   type="button"
                 >
-                  🔥 Urgents ({stats.urgentLots})
+                  🔥 Urgents • {stats.urgentLots}
                 </button>
                 <button
                   onClick={() => setFilterBy('available')}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition border ${
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                     filterBy === 'available'
-                      ? 'bg-black text-white border-black'
-                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md'
+                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 hover:border-gray-300'
                   }`}
                   type="button"
                 >
-                  Disponibles ({merchant.lots.filter(l => (l.quantity_total - l.quantity_reserved - l.quantity_sold) > 0).length})
+                  ✅ Disponibles • {merchant.lots.filter(l => (l.quantity_total - l.quantity_reserved - l.quantity_sold) > 0).length}
                 </button>
               </div>
             </div>
 
             {/* Options de tri */}
             <div>
-              <label className="text-[10px] font-medium text-black mb-1.5 block flex items-center gap-1.5 uppercase">
-                <SortAsc className="w-3 h-3" strokeWidth={1.5} />
+              <label className="text-xs font-bold text-gray-700 mb-2 block uppercase tracking-wide flex items-center gap-2">
+                <SortAsc className="w-4 h-4" strokeWidth={2} />
                 Trier par
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 <button
                   onClick={() => setSortBy('urgent')}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition border ${
+                  className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
                     sortBy === 'urgent'
-                      ? 'bg-black text-white border-black'
-                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-secondary-600 to-secondary-700 text-white shadow-md'
+                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                   }`}
                   type="button"
                 >
-                  Urgence
+                  ⚡ Urgence
                 </button>
                 <button
                   onClick={() => setSortBy('price-asc')}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition border ${
+                  className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
                     sortBy === 'price-asc'
-                      ? 'bg-black text-white border-black'
-                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-secondary-600 to-secondary-700 text-white shadow-md'
+                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                   }`}
                   type="button"
                 >
-                  Prix ↑
+                  💰 Prix ↑
                 </button>
                 <button
                   onClick={() => setSortBy('price-desc')}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition border ${
+                  className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
                     sortBy === 'price-desc'
-                      ? 'bg-black text-white border-black'
-                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-secondary-600 to-secondary-700 text-white shadow-md'
+                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                   }`}
                   type="button"
                 >
-                  Prix ↓
+                  💸 Prix ↓
                 </button>
                 <button
                   onClick={() => setSortBy('discount')}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition border ${
+                  className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
                     sortBy === 'discount'
-                      ? 'bg-black text-white border-black'
-                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-secondary-600 to-secondary-700 text-white shadow-md'
+                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                   }`}
                   type="button"
                 >
-                  Réduction
+                  📊 Réduction
                 </button>
                 <button
                   onClick={() => setSortBy('quantity')}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition border ${
+                  className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
                     sortBy === 'quantity'
-                      ? 'bg-black text-white border-black'
-                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-secondary-600 to-secondary-700 text-white shadow-md'
+                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                   }`}
                   type="button"
                 >
-                  Quantité
+                  📦 Quantité
                 </button>
               </div>
             </div>
@@ -417,17 +440,7 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails
           )}
         </div>
       ) : (
-        <div className="grid gap-3
-          /* Mobile : 1 lot par ligne (pleine largeur) */
-          grid-cols-1
-          /* Petits écrans : 2 colonnes */
-          sm:grid-cols-2
-          /* Tablettes : 3 colonnes */
-          md:grid-cols-3
-          /* Desktop : 4 colonnes */
-          lg:grid-cols-4
-          /* Large desktop : 5 colonnes */
-          xl:grid-cols-5">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredAndSortedLots.map((lot) => {
             const availableQuantity = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
             const discountPercent = Math.round(((lot.original_price - lot.discounted_price) / lot.original_price) * 100);
@@ -435,109 +448,114 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails
             return (
               <div
                 key={lot.id}
-                className={`group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer ${
-                  availableQuantity === 0 ? 'opacity-60' : ''
+                className={`group bg-white rounded-2xl border-2 border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer ${
+                  availableQuantity === 0 ? 'opacity-50 grayscale' : ''
                 }`}
                 onClick={() => onViewDetails ? onViewDetails(lot) : onReserveLot(lot)}
               >
-                {/* Image avec barre de progression */}
-                <div className="relative">
-                  <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200">
-                    {lot.image_urls && lot.image_urls.length > 0 ? (
-                      <img
-                        src={lot.image_urls[0]}
-                        alt={lot.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <Package size={40} className="text-gray-400" strokeWidth={1.5} />
-                      </div>
-                    )}
-                  </div>
+                {/* Image du lot */}
+                <div className="relative h-48 overflow-hidden">
+                  {lot.image_urls && lot.image_urls.length > 0 ? (
+                    <img
+                      src={lot.image_urls[0]}
+                      alt={lot.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-100 to-gray-200">
+                      <Package size={48} className="text-gray-400" strokeWidth={1.5} />
+                    </div>
+                  )}
 
-                  {/* Barre de progression */}
+                  {/* Barre de progression du stock */}
                   {availableQuantity > 0 && (
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-900/30 backdrop-blur-sm">
                       <div 
-                        className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300"
+                        className="h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-500 shadow-lg"
                         style={{ width: `${(availableQuantity / lot.quantity_total) * 100}%` }}
                       />
                     </div>
                   )}
 
-                  {/* Badges superposés */}
-                  <div className="absolute top-0 left-0 right-0 z-10 p-2 flex items-start justify-between gap-2">
-                    <div className="flex flex-wrap gap-1.5">
-                      {/* Badge catégorie */}
-                      <span className="px-2 py-0.5 bg-white/95 backdrop-blur-sm text-xs font-medium text-gray-700 rounded-md shadow-sm">
-                        {lot.category}
+                  {/* Badges */}
+                  <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
+                    {/* Badge catégorie */}
+                    <span className="px-3 py-1 bg-white/95 backdrop-blur-sm text-xs font-bold text-gray-900 rounded-lg shadow-md">
+                      {lot.category}
+                    </span>
+                    
+                    {/* Badge réduction */}
+                    {discountPercent > 0 && availableQuantity > 0 && (
+                      <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-black rounded-lg shadow-md">
+                        -{discountPercent}%
                       </span>
-                      
-                      {/* Badge urgent */}
-                      {lot.is_urgent && (
-                        <span className="px-2 py-0.5 bg-red-500/95 backdrop-blur-sm text-xs font-medium text-white rounded-md shadow-sm flex items-center gap-1">
-                          <span className="animate-pulse">⚡</span>
-                          Urgent
-                        </span>
-                      )}
-                    </div>
+                    )}
+                  </div>
 
-                    {/* Badge réduction et statut */}
-                    <div className="flex flex-col items-end gap-1.5">
-                      {discountPercent > 0 && availableQuantity > 0 && (
-                        <span className="px-2 py-0.5 bg-green-500/95 backdrop-blur-sm text-xs font-bold text-white rounded-md shadow-sm">
-                          -{discountPercent}%
-                        </span>
-                      )}
-                      <span className={`px-2 py-0.5 backdrop-blur-sm text-xs font-medium rounded-md shadow-sm ${
-                        availableQuantity === 0 
-                          ? 'bg-gray-800/95 text-white' 
-                          : 'bg-green-500/95 text-white'
-                      }`}>
-                        {availableQuantity === 0 ? '❌ Épuisé' : '✅ Dispo'}
+                  {/* Badge urgent animé */}
+                  {lot.is_urgent && (
+                    <div className="absolute top-3 right-3">
+                      <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-lg shadow-lg flex items-center gap-1.5 animate-pulse">
+                        <Flame className="w-3.5 h-3.5" strokeWidth={2.5} />
+                        URGENT
                       </span>
                     </div>
+                  )}
+
+                  {/* Badge statut */}
+                  <div className="absolute bottom-3 right-3">
+                    <span className={`px-3 py-1.5 backdrop-blur-md text-xs font-bold rounded-lg shadow-lg flex items-center gap-1.5 ${
+                      availableQuantity === 0 
+                        ? 'bg-gray-900/90 text-white' 
+                        : 'bg-green-500/90 text-white'
+                    }`}>
+                      {availableQuantity === 0 ? (
+                        <>
+                          <X className="w-3.5 h-3.5" strokeWidth={2.5} />
+                          ÉPUISÉ
+                        </>
+                      ) : (
+                        <>
+                          <Package className="w-3.5 h-3.5" strokeWidth={2.5} />
+                          {availableQuantity}
+                        </>
+                      )}
+                    </span>
                   </div>
                 </div>
 
-                {/* Contenu desktop et mobile - Design cohérent avec LotCard */}
-                <div className="p-3 bg-white">
-                  {/* Titre et commerçant */}
-                  <div className="mb-2">
-                    <h3 className="text-sm font-bold text-gray-900 line-clamp-1 mb-1">
-                      {lot.title}
-                    </h3>
-                  </div>
+                {/* Contenu de la carte */}
+                <div className="p-4">
+                  {/* Titre */}
+                  <h3 className="text-base font-bold text-gray-900 line-clamp-2 mb-3 leading-tight min-h-[2.5rem]">
+                    {lot.title}
+                  </h3>
 
                   {/* Prix */}
-                  <div className="mb-2">
+                  <div className="mb-3">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-gray-900">
+                      <span className="text-2xl font-black text-gray-900">
                         {lot.discounted_price}€
                       </span>
                       {lot.original_price > lot.discounted_price && (
-                        <span className="text-xs text-gray-400 line-through">
+                        <span className="text-sm text-gray-500 line-through font-medium">
                           {lot.original_price}€
                         </span>
                       )}
                     </div>
+                    {discountPercent > 0 && (
+                      <p className="text-xs text-green-600 font-semibold mt-1">
+                        Économisez {(lot.original_price - lot.discounted_price).toFixed(2)}€
+                      </p>
+                    )}
                   </div>
 
-                  {/* Quantité disponible et horaires */}
-                  <div className="flex items-center justify-between text-[10px] text-gray-500 mb-3 pb-3 border-b border-gray-100">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" strokeWidth={1.5} />
-                      <span>
-                        {format(new Date(lot.pickup_start), 'dd/MM', { locale: fr })} • {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
-                      </span>
-                    </div>
-                    <div className={`flex items-center gap-1 font-semibold ${
-                      availableQuantity > 3 ? 'text-green-600' : availableQuantity > 0 ? 'text-orange-600' : 'text-red-600'
-                    }`}>
-                      <Package className="w-3 h-3" strokeWidth={1.5} />
-                      <span>{availableQuantity} dispo</span>
-                    </div>
+                  {/* Horaires de retrait */}
+                  <div className="flex items-center gap-2 text-xs text-gray-600 mb-4 p-2 bg-gray-50 rounded-lg">
+                    <Clock className="w-4 h-4 text-primary-600" strokeWidth={2} />
+                    <span className="font-medium">
+                      {format(new Date(lot.pickup_start), 'dd/MM', { locale: fr })} • {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                    </span>
                   </div>
 
                   {/* Bouton réserver */}
@@ -547,14 +565,14 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails
                       onReserveLot(lot);
                     }}
                     disabled={availableQuantity === 0}
-                    className={`w-full py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 text-sm font-semibold ${
+                    className={`w-full py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm font-bold shadow-md ${
                       availableQuantity === 0
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 hover:from-blue-100 hover:to-indigo-100 border border-blue-200'
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:scale-105 active:scale-95'
                     }`}
                   >
-                    <ShoppingCart size={14} strokeWidth={2} />
-                    <span>{availableQuantity === 0 ? 'Épuisé' : 'Réserver'}</span>
+                    <ShoppingCart size={16} strokeWidth={2.5} />
+                    <span>{availableQuantity === 0 ? 'Épuisé' : 'Réserver maintenant'}</span>
                   </button>
                 </div>
               </div>
@@ -563,59 +581,66 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails
         </div>
       )}
 
-      {/* Modal Horaires d'ouverture - Compact et animé */}
+      {/* Modal Horaires d'ouverture - Design moderne */}
       {showHoursModal && businessHours && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           onClick={() => setShowHoursModal(false)}
         >
           <div 
-            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto animate-slide-in-up"
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden animate-fade-in-up"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header compact */}
-            <div className="flex items-center justify-between p-4 border-b border-neutral-200 bg-gradient-to-r from-primary-50 to-primary-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-md animate-pulse-soft">
-                  <Clock className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-neutral-900">Horaires d'ouverture</h3>
-                  <p className="text-xs text-neutral-600 line-clamp-1">{merchant.business_name || merchant.full_name}</p>
-                </div>
+            {/* Header avec dégradé */}
+            <div className="relative bg-gradient-to-br from-primary-600 to-secondary-600 p-6">
+              {/* Pattern décoratif */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
               </div>
-              <button
-                onClick={() => setShowHoursModal(false)}
-                className="p-1.5 hover:bg-white/80 rounded-lg transition-all duration-300 hover:scale-110 active:scale-95"
-                type="button"
-              >
-                <X className="w-5 h-5 text-neutral-600" />
-              </button>
+              
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                    <Clock className="w-6 h-6 text-white" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-white">Horaires d'ouverture</h3>
+                    <p className="text-sm text-white/80 font-medium">{merchant.business_name || merchant.full_name}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowHoursModal(false)}
+                  className="p-2 hover:bg-white/20 rounded-xl transition-all group"
+                  type="button"
+                >
+                  <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform" strokeWidth={2} />
+                </button>
+              </div>
             </div>
 
-            {/* Contenu compact */}
-            <div className="p-4">
+            {/* Contenu des horaires */}
+            <div className="p-5 max-h-[60vh] overflow-y-auto">
               <div className="space-y-2">
                 {businessHours.map((dayInfo, index) => (
                   <div
                     key={index}
-                    className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all duration-300 hover:scale-[1.02] ${
+                    className={`flex items-center justify-between p-4 rounded-xl transition-all ${
                       dayInfo.isToday
-                        ? 'bg-gradient-to-r from-primary-50 to-primary-100 border-primary-300 shadow-md scale-[1.02] animate-pulse-soft'
-                        : 'bg-neutral-50 border-neutral-200 hover:bg-neutral-100'
+                        ? 'bg-gradient-to-r from-primary-50 to-secondary-50 border-2 border-primary-300 shadow-md'
+                        : 'bg-gray-50 border-2 border-gray-100 hover:bg-gray-100'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs transition-all duration-300 ${
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shadow-md ${
                         dayInfo.isToday
-                          ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-md'
-                          : 'bg-neutral-200 text-neutral-700'
+                          ? 'bg-gradient-to-br from-primary-600 to-primary-700 text-white'
+                          : 'bg-gray-200 text-gray-700'
                       }`}>
                         {dayInfo.day}
                       </div>
                       <div>
-                        <div className={`text-xs font-bold ${
-                          dayInfo.isToday ? 'text-primary-700' : 'text-neutral-700'
+                        <div className={`text-sm font-bold ${
+                          dayInfo.isToday ? 'text-primary-900' : 'text-gray-900'
                         }`}>
                           {dayInfo.day === 'Lun' && 'Lundi'}
                           {dayInfo.day === 'Mar' && 'Mardi'}
@@ -624,17 +649,16 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails
                           {dayInfo.day === 'Ven' && 'Vendredi'}
                           {dayInfo.day === 'Sam' && 'Samedi'}
                           {dayInfo.day === 'Dim' && 'Dimanche'}
-                          {dayInfo.isToday && <span className="ml-1.5 text-primary-500 text-[10px]">• Aujourd'hui</span>}
                         </div>
-                        <div className={`text-[10px] font-medium ${
-                          dayInfo.isToday ? 'text-primary-600' : 'text-neutral-500'
-                        }`}>
-                          {dayInfo.isClosed ? 'Magasin fermé' : 'Ouvert'}
-                        </div>
+                        {dayInfo.isToday && (
+                          <span className="text-xs text-primary-600 font-semibold">Aujourd'hui</span>
+                        )}
                       </div>
                     </div>
-                    <div className={`text-right text-xs transition-all duration-300 ${
-                      dayInfo.isClosed ? 'text-neutral-400' : dayInfo.isToday ? 'text-primary-700 font-extrabold' : 'text-neutral-700 font-bold'
+                    <div className={`text-sm font-bold ${
+                      dayInfo.isClosed 
+                        ? 'text-red-600' 
+                        : dayInfo.isToday ? 'text-green-600' : 'text-gray-700'
                     }`}>
                       {dayInfo.hours}
                     </div>
@@ -642,22 +666,25 @@ export function MerchantLotsView({ merchant, onBack, onReserveLot, onViewDetails
                 ))}
               </div>
 
-              {/* Info supplémentaire compact */}
-              <div className="mt-4 p-3 bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl border border-primary-200 animate-fade-in-up">
-                <p className="text-xs text-primary-700 font-semibold leading-relaxed">
-                  💡 Les horaires de retrait des lots peuvent différer. Vérifiez les heures sur chaque lot.
+              {/* Info importante */}
+              <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
+                <p className="text-sm text-blue-900 font-medium leading-relaxed flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" strokeWidth={2} />
+                  <span>
+                    Les horaires de retrait des lots peuvent être différents. Vérifiez les horaires spécifiques de chaque lot.
+                  </span>
                 </p>
               </div>
             </div>
 
-            {/* Footer compact */}
-            <div className="p-4 border-t border-neutral-200 bg-neutral-50">
+            {/* Footer */}
+            <div className="p-5 border-t-2 border-gray-100 bg-gray-50">
               <button
                 onClick={() => setShowHoursModal(false)}
-                className="w-full btn-primary rounded-xl py-2.5 text-sm font-bold hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-3 rounded-xl font-bold hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
                 type="button"
               >
-                Fermer
+                Compris !
               </button>
             </div>
           </div>

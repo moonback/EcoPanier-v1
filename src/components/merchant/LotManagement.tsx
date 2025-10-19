@@ -48,17 +48,22 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     image_urls: [] as string[],
   });
 
+  // Créer un handler stable pour ouvrir le modal de création
+  const handleOpenCreateModal = useCallback(() => {
+    setEditingLot(null);
+    setShowModal(true);
+    setCurrentStep(1);
+  }, []);
+
   // Enregistrer le handler pour ouvrir le modal de création depuis le header
+  // N'exécuter qu'une seule fois au montage du composant
   useEffect(() => {
     if (onCreateLotClick) {
-      const handleCreate = () => {
-        setEditingLot(null);
-        setShowModal(true);
-        setCurrentStep(1);
-      };
-      onCreateLotClick(handleCreate);
+      onCreateLotClick(handleOpenCreateModal);
     }
-  }, [onCreateLotClick]);
+    // Pas de dépendances = exécuté une seule fois au montage
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Effet pour mettre à jour les dates de retrait selon la sélection
   useEffect(() => {

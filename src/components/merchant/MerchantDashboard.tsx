@@ -1,5 +1,5 @@
 // Imports externes
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus } from 'lucide-react';
 
 // Imports internes
@@ -26,6 +26,11 @@ export const MerchantDashboard = () => {
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
+
+  // Handler mémorisé pour recevoir la fonction de création de lot
+  const handleCreateLotClick = useCallback((handler: () => void) => {
+    setCreateLotHandler(() => handler);
+  }, []);
 
   // Configuration des onglets
   const tabs = [
@@ -88,7 +93,7 @@ export const MerchantDashboard = () => {
       <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
         {activeTab === 'lots' && (
           <LotManagement 
-            onCreateLotClick={(handler) => setCreateLotHandler(() => handler)}
+            onCreateLotClick={handleCreateLotClick}
           />
         )}
         {activeTab === 'reservations' && <MerchantReservations />}
