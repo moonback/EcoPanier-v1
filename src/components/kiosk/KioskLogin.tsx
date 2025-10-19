@@ -41,20 +41,21 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
       const beneficiaryId = result.trim();
 
       // Récupérer le profil
-      const { data: profile, error: profileError } = await supabase
+      const { data, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', beneficiaryId)
         .eq('role', 'beneficiary')
-        .maybeSingle();
+        .single();
 
-      if (profileError) throw profileError;
-
-      if (!profile) {
+      if (profileError || !data) {
         setError('Utilisateur non trouvé ou non autorisé');
         setLoading(false);
         return;
       }
+
+      // Typage explicite après vérification
+      const profile: Profile = data;
 
       if (!profile.verified) {
         setError('Compte non vérifié. Contactez le personnel du foyer.');
@@ -71,30 +72,40 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
     }
   };
 
-  const handleError = (err: Error) => {
+  const handleError = (err: unknown) => {
     console.error('Erreur du scanner:', err);
     setError('Impossible d\'accéder à la caméra. Vérifiez les permissions.');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-3">
-      <div className="max-w-2xl w-full">
+    <div className="relative min-h-screen flex items-center justify-center p-3">
+      {/* Image de fond */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(/slide-1.png)' }}
+      />
+      
+      {/* Overlay pour améliorer la lisibilité */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-900/60 via-primary-800/50 to-accent-900/60 backdrop-blur-sm" />
+      
+      {/* Contenu */}
+      <div className="relative z-10 max-w-2xl w-full">
         {/* En-tête */}
         <div className="text-center mb-4 animate-fade-in">
-          <div className="inline-flex p-3 bg-gradient-to-br from-primary-100 via-accent-100 to-secondary-100 rounded-full mb-3 shadow-soft border border-white">
+          <div className="inline-flex p-3 bg-white rounded-full mb-3 shadow-2xl border-4 border-white/50">
             <QrCode size={48} className="text-primary-600" strokeWidth={1.5} />
           </div>
-          <h1 className="text-2xl font-bold text-black mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">
             Kiosque EcoPanier
           </h1>
-          <p className="text-base text-gray-600 font-light mb-3">
+          <p className="text-lg text-white font-light mb-3 drop-shadow-md">
             Scannez votre carte pour les paniers solidaires 🎁
           </p>
           
           {/* Bouton aide */}
           <button
             onClick={() => setShowTutorial(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200 font-semibold text-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/95 text-primary-700 rounded-lg hover:bg-white transition-all border-2 border-white/50 font-semibold text-sm shadow-lg hover:shadow-xl"
           >
             <HelpCircle size={18} />
             <span>Comment ça marche ?</span>
@@ -103,7 +114,7 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
 
         {/* Scanner ou bouton */}
         {!scanning ? (
-          <div className="card p-4 animate-fade-in">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 p-4 animate-fade-in">
             <button
               onClick={() => setScanning(true)}
               className="btn-primary w-full py-4 rounded-xl text-lg shadow-soft-lg hover:shadow-glow-md"
@@ -131,7 +142,7 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
             </div>
           </div>
         ) : (
-          <div className="card p-4 animate-fade-in">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 p-4 animate-fade-in">
             <div className="mb-3 text-center">
               <p className="text-lg font-bold text-black mb-1">
                 Placez votre carte devant la caméra
@@ -159,9 +170,6 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
                 constraints={{
                   facingMode: 'environment'
                 }}
-                components={{
-                  audio: false
-                }}
               />
             </div>
 
@@ -180,7 +188,7 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
 
         {/* Messages d'erreur */}
         {error && (
-          <div className="mt-3 p-3 bg-red-50 rounded-lg border border-red-200 shadow-soft animate-fade-in">
+          <div className="mt-3 p-3 bg-red-50/95 backdrop-blur-md rounded-lg border border-red-200 shadow-xl animate-fade-in">
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-red-100 rounded-lg flex-shrink-0">
                 <AlertCircle size={18} className="text-red-600" strokeWidth={2} />
@@ -203,7 +211,7 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
 
         {/* Loading */}
         {loading && (
-          <div className="mt-3 p-3 bg-accent-50 rounded-lg border border-accent-200 shadow-soft animate-fade-in">
+          <div className="mt-3 p-3 bg-accent-50/95 backdrop-blur-md rounded-lg border border-accent-200 shadow-xl animate-fade-in">
             <div className="flex items-center gap-2">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-600"></div>
               <p className="text-sm font-bold text-accent-900">
