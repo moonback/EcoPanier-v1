@@ -58,7 +58,8 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
       };
       onCreateLotClick(handleCreate);
     }
-  }, [onCreateLotClick]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Ne s'exécute qu'au montage du composant
 
   // Effet pour mettre à jour les dates de retrait selon la sélection
   useEffect(() => {
