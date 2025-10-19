@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
-import { formatCurrency, categories, uploadImage, deleteImages } from '../../utils/helpers';
+import { formatCurrency, categories, uploadImage, deleteImages, getCategoryLabel } from '../../utils/helpers';
 import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
 import { Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
@@ -483,7 +483,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
                 <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
                   {/* Catégorie - Always visible */}
                   <span className="inline-flex items-center px-2 py-0.5 bg-white/75 backdrop-blur-sm text-[9px] font-bold text-gray-800 rounded shadow-md border border-white/30 uppercase tracking-wide">
-                    {lot.category}
+                    {getCategoryLabel(lot.category)}
                   </span>
                   
                   {/* Urgent - Icône seule */}
@@ -872,7 +872,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
                   >
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
-                        {cat}
+                        {getCategoryLabel(cat)}
                       </option>
                     ))}
                   </select>

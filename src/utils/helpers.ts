@@ -144,6 +144,15 @@ export const categories = [
   'produits_laitiers',
   'epicerie',
   'plats_prepares',
+  'boissons',
+  'desserts',
+  'traiteur',
+  'viennoiseries',
+  'charcuterie',
+  'fromages',
+  'bio',
+  'surgeles',
+  'conserves',
   'autres',
 ];
 
@@ -151,14 +160,23 @@ export const categories = [
  * Mappe les catégories de la base de données vers des noms affichables
  */
 export const categoryLabels: Record<string, string> = {
-  'fruits_legumes': 'Fruits & Légumes',
-  'boulangerie': 'Boulangerie',
-  'boucherie': 'Boucherie',
-  'poissonnerie': 'Poissonnerie',
-  'produits_laitiers': 'Produits Laitiers',
-  'epicerie': 'Épicerie',
-  'plats_prepares': 'Plats Préparés',
-  'autres': 'Autres',
+  'fruits_legumes': '🍎 Fruits & Légumes',
+  'boulangerie': '🥖 Boulangerie',
+  'boucherie': '🥩 Boucherie',
+  'poissonnerie': '🐟 Poissonnerie',
+  'produits_laitiers': '🥛 Produits Laitiers',
+  'epicerie': '🛒 Épicerie',
+  'plats_prepares': '🍽️ Plats Préparés',
+  'boissons': '🥤 Boissons',
+  'desserts': '🍰 Desserts',
+  'traiteur': '👨‍🍳 Traiteur',
+  'viennoiseries': '🥐 Viennoiseries',
+  'charcuterie': '🍖 Charcuterie',
+  'fromages': '🧀 Fromages',
+  'bio': '🌱 Bio',
+  'surgeles': '❄️ Surgelés',
+  'conserves': '🥫 Conserves',
+  'autres': '📦 Autres',
 };
 
 /**

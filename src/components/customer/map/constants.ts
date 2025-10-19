@@ -2,13 +2,23 @@ export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 export const CATEGORIES = [
   'Tous',
-  'Boulangerie-Pâtisserie',
-  'Fruits & Légumes',
-  'Viande & Poisson',
-  'Produits laitiers',
-  'Épicerie',
-  'Plats préparés',
-  'Boissons'
+  '🍎 Fruits & Légumes',
+  '🥖 Boulangerie',
+  '🥩 Boucherie',
+  '🐟 Poissonnerie',
+  '🥛 Produits Laitiers',
+  '🛒 Épicerie',
+  '🍽️ Plats Préparés',
+  '🥤 Boissons',
+  '🍰 Desserts',
+  '👨‍🍳 Traiteur',
+  '🥐 Viennoiseries',
+  '🍖 Charcuterie',
+  '🧀 Fromages',
+  '🌱 Bio',
+  '❄️ Surgelés',
+  '🥫 Conserves',
+  '📦 Autres'
 ] as const;
 
 export const DEFAULT_VIEW_STATE = {

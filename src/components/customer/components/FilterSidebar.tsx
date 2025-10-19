@@ -1,4 +1,4 @@
-import { X, RotateCcw, Filter, Apple, Croissant, Beef, Fish, Milk, ShoppingBag, ChefHat, Package, Euro, Zap, ArrowUpDown, TrendingUp, TrendingDown } from 'lucide-react';
+import { X, RotateCcw, Filter, Package, Euro, Zap, ArrowUpDown, TrendingUp, TrendingDown } from 'lucide-react';
 import { categories, getCategoryLabel } from '../../../utils/helpers';
 import type { AdvancedFilters } from './AdvancedFilterModal';
 
@@ -31,20 +31,6 @@ export function FilterSidebar({
     (filters.minQuantity > 1 ? 1 : 0) +
     ((filters.minPrice > 0 || filters.maxPrice < 100) ? 1 : 0);
 
-  // Mapping des catégories vers leurs icônes
-  const getCategoryIcon = (category: string) => {
-    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-      'fruits_legumes': Apple,
-      'boulangerie': Croissant,
-      'boucherie': Beef,
-      'poissonnerie': Fish,
-      'produits_laitiers': Milk,
-      'epicerie': ShoppingBag,
-      'plats_prepares': ChefHat,
-      'autres': Package,
-    };
-    return iconMap[category] || Package;
-  };
 
   return (
     <>
@@ -125,57 +111,46 @@ export function FilterSidebar({
               <Package className="w-5 h-5 text-primary-600" />
               Catégorie
             </label>
-            <div className="grid grid-cols-5 gap-3">
-              <div className="relative group/tooltip">
-                <button
-                  onClick={() => handleFilterChange({ category: '' })}
-                  aria-pressed={filters.category === ''}
-                  className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
-                    ${
-                      filters.category === ''
-                        ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
-                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                    }
-                  `}
-                >
-                  <Package className={`w-6 h-6 ${
-                    filters.category === '' ? 'text-white' : 'text-primary-600 group-hover/tooltip:text-primary-700'
-                  } transition-colors`} />
-                </button>
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
-                  <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap shadow-lg">
-                    Toutes les catégories
-                  </div>
-                </div>
-              </div>
+            <div className="space-y-2">
+              {/* Toutes les catégories */}
+              <button
+                onClick={() => handleFilterChange({ category: '' })}
+                aria-pressed={filters.category === ''}
+                className={`w-full flex items-center justify-between p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                  ${
+                    filters.category === ''
+                      ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                  }
+                `}
+              >
+                <span className="font-medium">Toutes les catégories</span>
+                <Package className={`w-5 h-5 ${
+                  filters.category === '' ? 'text-white' : 'text-primary-600'
+                } transition-colors`} />
+              </button>
+              
+              {/* Liste des catégories */}
               {categories.map((cat) => {
-                const IconComponent = getCategoryIcon(cat);
                 const selected = filters.category === cat;
                 return (
-                  <div key={cat} className="relative group/tooltip">
-                    <button
-                      onClick={() => handleFilterChange({ category: cat })}
-                      aria-pressed={selected}
-                      className={`w-full flex flex-col items-center justify-center p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
-                        ${
-                          selected
-                            ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
-                            : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                        }
-                      `}
-                    >
-                      <IconComponent className={`w-6 h-6 ${
-                        selected ? 'text-white' : 'text-primary-600 group-hover/tooltip:text-primary-700'
-                      } transition-colors`} />
-                    </button>
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
-                      <div className="bg-gray-900/95 backdrop-blur-sm text-white px-2 py-1 rounded text-[10px] font-semibold whitespace-nowrap shadow-lg">
-                        {getCategoryLabel(cat)}
-                      </div>
-                    </div>
-                  </div>
+                  <button
+                    key={cat}
+                    onClick={() => handleFilterChange({ category: cat })}
+                    aria-pressed={selected}
+                    className={`w-full flex items-center justify-between p-3 rounded-xl transition-all border focus:outline-none ring-2 ring-transparent focus:ring-primary-400
+                      ${
+                        selected
+                          ? 'bg-primary-600 text-white shadow-lg border-primary-600 hover:bg-primary-700'
+                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                      }
+                    `}
+                  >
+                    <span className="font-medium">{getCategoryLabel(cat)}</span>
+                    <Package className={`w-5 h-5 ${
+                      selected ? 'text-white' : 'text-primary-600'
+                    } transition-colors`} />
+                  </button>
                 );
               })}
             </div>
