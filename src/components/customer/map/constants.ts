@@ -19,7 +19,7 @@ export const DEFAULT_VIEW_STATE = {
 
 export const DEFAULT_FILTERS = {
   selectedCategory: 'Tous',
-  maxDistance: 10,
+  maxDistance: 20,
   onlyUrgent: false
 };
 
