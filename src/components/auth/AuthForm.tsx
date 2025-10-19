@@ -115,99 +115,126 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
         </video>
         
         {/* Overlay avec contenu */}
-        <div className="relative z-10 flex flex-col items-center justify-center w-full p-12 text-white">
-          <div className="w-full space-y-8">
+        <div className="relative z-10 flex flex-col items-center justify-center w-full px-8 py-6 text-white">
+          <div className="w-full max-w-2xl space-y-6">
             {/* Logo et titre */}
-            <div className="text-center space-y-3">
-              
-              <h1 className="text-5xl font-black leading-tight">
+            <div className="text-center space-y-2">
+              <h1 className="text-4xl font-black leading-tight">
                 Sauvez des repas,<br />Économisez, Aidez ! 🌍
               </h1>
-              <p className="text-lg text-white/90 font-light max-w-md mx-auto">
+              <p className="text-base text-white/90 font-light">
                 La plateforme anti-gaspillage qui profite à tous
               </p>
             </div>
 
-            {/* Avantages en 2 colonnes */}
-            <div className="grid grid-cols-2 gap-6 pt-4">
+            {/* Avantages en 2 colonnes compactes */}
+            <div className="grid grid-cols-2 gap-4">
               {/* Colonne CLIENTS */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold flex items-center gap-2 pb-2 border-b border-white/20">
-                  <span className="text-xl">🛒</span>
+              <div className="space-y-3">
+                <h3 className="text-base font-bold flex items-center gap-2 pb-1.5 border-b border-white/20">
+                  <span className="text-lg">🛒</span>
                   Clients
                 </h3>
                 
-                <div className="space-y-3">
-                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mb-2 shadow-lg">
-                      <span className="text-lg">💰</span>
+                <div className="space-y-2">
+                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md flex-shrink-0">
+                        <span className="text-base">💰</span>
+                      </div>
+                      <div className="font-bold text-sm">Jusqu'à -70%</div>
                     </div>
-                    <div className="font-bold text-sm mb-1">Jusqu'à -70%</div>
-                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                    <div className="text-xs text-white/75 font-light leading-snug">
                       Produits de qualité à petits prix
                     </div>
                   </div>
 
-                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center mb-2 shadow-lg">
-                      <span className="text-lg">🌍</span>
+                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-md flex-shrink-0">
+                        <span className="text-base">🌍</span>
+                      </div>
+                      <div className="font-bold text-sm">Impact écologique</div>
                     </div>
-                    <div className="font-bold text-sm mb-1">Impact écologique</div>
-                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                    <div className="text-xs text-white/75 font-light leading-snug">
                       0.9 kg CO₂ évités par panier
                     </div>
                   </div>
 
-                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mb-2 shadow-lg">
-                      <span className="text-lg">❤️</span>
+                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-md flex-shrink-0">
+                        <span className="text-base">❤️</span>
+                      </div>
+                      <div className="font-bold text-sm">Soyez solidaire</div>
                     </div>
-                    <div className="font-bold text-sm mb-1">Soyez solidaire</div>
-                    <div className="text-xs text-white/80 font-light leading-relaxed">
-                      Offrez des paniers aux plus démunis
+                    <div className="text-xs text-white/75 font-light leading-snug">
+                      Offrez des paniers aux démunis
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Colonne BÉNÉFICIAIRES */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold flex items-center gap-2 pb-2 border-b border-white/20">
-                  <span className="text-xl">🤝</span>
+              <div className="space-y-3">
+                <h3 className="text-base font-bold flex items-center gap-2 pb-1.5 border-b border-white/20">
+                  <span className="text-lg">🤝</span>
                   Bénéficiaires
                 </h3>
                 
-                <div className="space-y-3">
-                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center mb-2 shadow-lg">
-                      <span className="text-lg">🎁</span>
+                <div className="space-y-2">
+                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-md flex-shrink-0">
+                        <span className="text-base">🎁</span>
+                      </div>
+                      <div className="font-bold text-sm">2 paniers/jour</div>
                     </div>
-                    <div className="font-bold text-sm mb-1">2 paniers/jour gratuits</div>
-                    <div className="text-xs text-white/80 font-light leading-relaxed">
-                      Paniers suspendus + dons généreux
+                    <div className="text-xs text-white/75 font-light leading-snug">
+                      Paniers suspendus gratuits
                     </div>
                   </div>
 
-                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mb-2 shadow-lg">
-                      <span className="text-lg">✨</span>
+                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-md flex-shrink-0">
+                        <span className="text-base">✨</span>
+                      </div>
+                      <div className="font-bold text-sm">Accès simple</div>
                     </div>
-                    <div className="font-bold text-sm mb-1">Accès simple</div>
-                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                    <div className="text-xs text-white/75 font-light leading-snug">
                       Juste votre ID, aucun papier
                     </div>
                   </div>
 
-                  <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center mb-2 shadow-lg">
-                      <span className="text-lg">🏪</span>
+                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-md flex-shrink-0">
+                        <span className="text-base">🏪</span>
+                      </div>
+                      <div className="font-bold text-sm">Produits frais</div>
                     </div>
-                    <div className="font-bold text-sm mb-1">Produits frais</div>
-                    <div className="text-xs text-white/80 font-light leading-relaxed">
+                    <div className="text-xs text-white/75 font-light leading-snug">
                       Qualité des commerces locaux
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Stats d'impact compactes */}
+            <div className="grid grid-cols-3 gap-3 pt-3 border-t border-white/20">
+              <div className="text-center">
+                <div className="text-2xl font-black text-white mb-0.5">12K+</div>
+                <div className="text-xs text-white/70 font-light">Paniers sauvés</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-black text-white mb-0.5">10T</div>
+                <div className="text-xs text-white/70 font-light">CO₂ évités</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-black text-white mb-0.5">500+</div>
+                <div className="text-xs text-white/70 font-light">Commerçants</div>
               </div>
             </div>
           </div>
