@@ -19,7 +19,7 @@ import { ProfilePage } from '../shared/ProfilePage';
 import { InteractiveMap } from './InteractiveMap';
 import { DashboardHeader } from '../shared/DashboardHeader';
 
-import EcoPanierLogo from '/public/logo.png'; // Import du logo
+import EcoPanierLogo from '/logo.png'; // Import du logo
 
 // Type pour les onglets
 type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'qrcode' | 'profile';
