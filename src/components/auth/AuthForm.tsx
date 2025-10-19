@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText, FileCheck, Briefcase, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText, FileCheck, Briefcase, ArrowLeft, Eye, EyeOff, Shield, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 // Types de commerces disponibles
 const BUSINESS_TYPES = [
@@ -32,6 +32,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [role, setRole] = useState<UserRole>('customer');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
@@ -45,9 +46,42 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
   const { signIn, signUp } = useAuthStore();
+
+  // Validation de l'email
+  const isEmailValid = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Calcul de la force du mot de passe
+  const getPasswordStrength = (password: string): { score: number; label: string; color: string } => {
+    if (!password) return { score: 0, label: '', color: '' };
+    
+    let score = 0;
+    // Longueur
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    // Minuscules et majuscules
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+    // Chiffres
+    if (/\d/.test(password)) score++;
+    // Caractères spéciaux
+    if (/[^a-zA-Z0-9]/.test(password)) score++;
+
+    if (score <= 2) return { score, label: 'Faible', color: 'bg-red-500' };
+    if (score === 3) return { score, label: 'Moyen', color: 'bg-amber-500' };
+    if (score === 4) return { score, label: 'Bon', color: 'bg-blue-500' };
+    return { score, label: 'Excellent', color: 'bg-green-500' };
+  };
+
+  const passwordStrength = getPasswordStrength(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +90,34 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
     setLoading(true);
 
     try {
+      // Validations pour l'inscription
+      if (mode === 'signup') {
+        // Validation email
+        if (!isEmailValid(email)) {
+          throw new Error('Veuillez entrer une adresse email valide.');
+        }
+
+        // Validation mot de passe
+        if (password.length < 6) {
+          throw new Error('Le mot de passe doit contenir au moins 6 caractères.');
+        }
+
+        // Confirmation mot de passe
+        if (password !== confirmPassword) {
+          throw new Error('Les mots de passe ne correspondent pas.');
+        }
+
+        // Acceptation des CGU
+        if (!acceptTerms) {
+          throw new Error('Vous devez accepter les Conditions Générales d\'Utilisation.');
+        }
+
+        // Validation SIRET pour commerçants/associations
+        if ((role === 'merchant' || role === 'association') && siret && siret.length !== 14) {
+          throw new Error('Le numéro SIRET doit contenir exactement 14 chiffres.');
+        }
+      }
+
       if (mode === 'signin') {
         await signIn(email, password);
         onSuccess?.();
@@ -270,6 +332,8 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               setMode('signin');
               setError('');
               setSuccess('');
+              setConfirmPassword('');
+              setAcceptTerms(false);
             }}
             className={`flex-1 py-3 rounded-lg font-medium text-sm transition-all ${
               mode === 'signin'
@@ -285,6 +349,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               setMode('signup');
               setError('');
               setSuccess('');
+              setRememberMe(false);
             }}
             className={`flex-1 py-3 rounded-lg font-medium text-sm transition-all ${
               mode === 'signup'
@@ -420,7 +485,24 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 placeholder="votre@email.com"
                 required
               />
+              {/* Validation email en temps réel (inscription uniquement) */}
+              {mode === 'signup' && email && !isEmailValid(email) && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <AlertCircle size={18} className="text-red-500" />
+                </div>
+              )}
+              {mode === 'signup' && email && isEmailValid(email) && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <CheckCircle2 size={18} className="text-green-500" />
+                </div>
+              )}
             </div>
+            {mode === 'signup' && email && !isEmailValid(email) && (
+              <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1.5">
+                <AlertCircle size={12} />
+                <span>Veuillez entrer une adresse email valide</span>
+              </p>
+            )}
           </div>
 
           <div>
@@ -430,19 +512,93 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                className="w-full pl-10 pr-11 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
                 placeholder="••••••••"
                 required
                 minLength={6}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
+              </button>
             </div>
+            {/* Indicateur de force du mot de passe (inscription uniquement) */}
+            {mode === 'signup' && password && (
+              <div className="mt-2 space-y-1.5">
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-1 flex-1 rounded-full transition-all ${
+                        i < passwordStrength.score ? passwordStrength.color : 'bg-gray-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+                {passwordStrength.label && (
+                  <p className="text-xs flex items-center gap-1.5">
+                    <Shield size={12} className={passwordStrength.score >= 4 ? 'text-green-600' : 'text-gray-400'} />
+                    <span className="text-gray-600">
+                      Force du mot de passe : <span className="font-semibold">{passwordStrength.label}</span>
+                    </span>
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {mode === 'signup' && (
             <div className="space-y-4">
+              {/* Confirmation du mot de passe */}
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">
+                  Confirmer le mot de passe
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-10 pr-11 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                    placeholder="••••••••"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
+                  </button>
+                </div>
+                {/* Validation visuelle de la correspondance */}
+                {confirmPassword && (
+                  <p className={`text-xs mt-1.5 flex items-center gap-1.5 ${
+                    password === confirmPassword ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {password === confirmPassword ? (
+                      <>
+                        <CheckCircle2 size={14} />
+                        <span>Les mots de passe correspondent</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle size={14} />
+                        <span>Les mots de passe ne correspondent pas</span>
+                      </>
+                    )}
+                  </p>
+                )}
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-black mb-2">
                   Nom complet
@@ -683,6 +839,69 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
             </div>
           )}
 
+          {/* Se souvenir de moi + Mot de passe oublié (Connexion) */}
+          {mode === 'signin' && (
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-100 cursor-pointer"
+                />
+                <span className="text-gray-600 group-hover:text-black transition-colors">Se souvenir de moi</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => alert('Fonctionnalité de récupération de mot de passe à venir !')}
+                className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+          )}
+
+          {/* Checkbox CGU (Inscription) */}
+          {mode === 'signup' && (
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={acceptTerms}
+                  onChange={(e) => setAcceptTerms(e.target.checked)}
+                  className="w-5 h-5 mt-0.5 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-100 cursor-pointer flex-shrink-0"
+                  required
+                />
+                <span className="text-sm text-gray-600 group-hover:text-black transition-colors leading-relaxed">
+                  J'accepte les{' '}
+                  <button
+                    type="button"
+                    onClick={() => window.open('/cgu', '_blank')}
+                    className="text-primary-600 hover:text-primary-700 font-medium underline"
+                  >
+                    Conditions Générales d'Utilisation
+                  </button>
+                  {' '}et la{' '}
+                  <button
+                    type="button"
+                    onClick={() => window.open('/privacy', '_blank')}
+                    className="text-primary-600 hover:text-primary-700 font-medium underline"
+                  >
+                    Politique de Confidentialité
+                  </button>
+                </span>
+              </label>
+              
+              {/* Info RGPD */}
+              <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                <Shield size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-blue-800 leading-relaxed">
+                  <span className="font-semibold">Vos données sont protégées.</span> Nous respectons le RGPD et ne partageons jamais vos informations personnelles avec des tiers.
+                </p>
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl">
               <div className="flex items-start gap-3">
@@ -730,9 +949,16 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           <button
             type="button"
             onClick={() => {
-              setMode(mode === 'signin' ? 'signup' : 'signin');
+              const newMode = mode === 'signin' ? 'signup' : 'signin';
+              setMode(newMode);
               setError('');
               setSuccess('');
+              if (newMode === 'signin') {
+                setConfirmPassword('');
+                setAcceptTerms(false);
+              } else {
+                setRememberMe(false);
+              }
             }}
             className="text-sm text-gray-600 hover:text-black font-light"
           >

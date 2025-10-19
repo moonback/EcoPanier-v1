@@ -64,7 +64,7 @@ export const DashboardHeader = ({
         <img
           src={logo}
           alt={logoAlt}
-          className="h-12 w-12 rounded-xl object-cover border-2 border-gray-200 shadow-md flex-shrink-0"
+          className="h-10 w-10 rounded-xl object-cover border-2 border-gray-200 shadow-md flex-shrink-0"
         />
       );
     }
@@ -111,24 +111,25 @@ export const DashboardHeader = ({
   return (
     <header className={`bg-white sticky top-0 z-40 border-b border-gray-200 ${className}`}>
       <div className="max-w-12xl mx-auto px-4 sm:px-6 py-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Section gauche : Logo + Titre */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        {/* Layout Desktop : Grid 3 colonnes avec logo au centre */}
+        <div className="hidden md:grid md:grid-cols-3 gap-4 items-center">
+          {/* Section gauche : Titre et sous-titre */}
+          <div className="flex flex-col min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-black truncate">
+              {finalTitle}
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-600 font-light mt-0.5 truncate">
+              {finalSubtitle}
+            </p>
+          </div>
+
+          {/* Section centrale : Logo */}
+          <div className="flex items-center justify-center">
             {renderLogo()}
-            
-            {/* Textes */}
-            <div className="flex flex-col min-w-0 flex-1">
-              <h1 className="text-lg sm:text-xl font-bold text-black truncate">
-                {finalTitle}
-              </h1>
-              <p className="text-xs sm:text-sm text-gray-600 font-light mt-0.5 truncate">
-                {finalSubtitle}
-              </p>
-            </div>
           </div>
 
           {/* Section droite : Actions */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center justify-end gap-2 sm:gap-3">
             {/* Boutons d'action personnalisés */}
             {actions.map((action, index) => renderActionButton(action, index))}
 
@@ -141,6 +142,36 @@ export const DashboardHeader = ({
               >
                 <LogOut size={18} />
                 <span className="hidden sm:inline">Déconnexion</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Layout Mobile : Logo + Titre à gauche, Actions à droite */}
+        <div className="flex md:hidden items-center justify-between gap-3">
+          {/* Logo + Titre */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {renderLogo()}
+            <div className="flex flex-col min-w-0">
+              <h1 className="text-base font-bold text-black truncate">
+                {finalTitle}
+              </h1>
+              <p className="text-xs text-gray-600 font-light mt-0.5 truncate">
+                {finalSubtitle}
+              </p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {actions.map((action, index) => renderActionButton(action, index))}
+            {showLogout && (
+              <button
+                onClick={signOut}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 border border-red-600 rounded-xl hover:bg-red-50 transition-colors font-medium"
+                aria-label="Se déconnecter"
+              >
+                <LogOut size={18} />
               </button>
             )}
           </div>
