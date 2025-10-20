@@ -116,27 +116,23 @@ export const PricingStep = ({ formState }: PricingStepProps) => {
               min="0"
               step="0.01"
               value={formData.discounted_price}
-              onChange={(e) =>
-                setFormData({ ...formData, discounted_price: parseFloat(e.target.value) || 0 })
-              }
+              onChange={(e) => {
+                const newPrice = parseFloat(e.target.value) || 0;
+                // Automatiquement passer en mode gratuit si prix = 0
+                setFormData({
+                  ...formData,
+                  discounted_price: newPrice,
+                  is_free: newPrice === 0,
+                  original_price: newPrice === 0 ? 0 : formData.original_price,
+                });
+              }}
               className="w-full pl-10 pr-4 py-3 border-2 border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
               placeholder="0.00"
               disabled={formData.is_free}
               required={!formData.is_free}
             />
           </div>
-          {!formData.is_free && formData.discounted_price === 0 ? (
-            <div className="mt-2 p-3 bg-gradient-to-r from-accent-50 to-pink-50 rounded-lg border-2 border-accent-200">
-              <p className="text-xs text-accent-800 font-semibold flex items-center gap-2">
-                <span className="text-base">❤️</span>
-                <span>Don généreux exclusif pour les bénéficiaires !</span>
-              </p>
-              <p className="text-xs text-accent-700 mt-1">
-                Ce produit sera gratuit et accessible uniquement par les bénéficiaires du programme
-                solidaire.
-              </p>
-            </div>
-          ) : !formData.is_free ? (
+          {!formData.is_free ? (
             <p className="text-xs text-green-600 mt-1">
               {formData.original_price > 0 && formData.discounted_price > 0
                 ? `Réduction de ${Math.round((1 - formData.discounted_price / formData.original_price) * 100)}%`
