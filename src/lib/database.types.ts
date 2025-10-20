@@ -168,6 +168,7 @@ export interface Database {
           pickup_pin: string;
           status: ReservationStatus;
           is_donation: boolean;
+          cart_group_id: string | null;
           created_at: string;
           updated_at: string;
           completed_at: string | null;
@@ -181,6 +182,7 @@ export interface Database {
           pickup_pin: string;
           status?: ReservationStatus;
           is_donation?: boolean;
+          cart_group_id?: string | null;
           created_at?: string;
           updated_at?: string;
           completed_at?: string | null;
@@ -194,6 +196,7 @@ export interface Database {
           pickup_pin?: string;
           status?: ReservationStatus;
           is_donation?: boolean;
+          cart_group_id?: string | null;
           created_at?: string;
           updated_at?: string;
           completed_at?: string | null;
