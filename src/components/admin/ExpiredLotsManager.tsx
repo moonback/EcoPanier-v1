@@ -11,6 +11,7 @@ import {
   convertExpiredLotsToFree, 
   getExpiringLots, 
   getConversionStats,
+  getFreeLots,
   type ConvertedLotResult 
 } from '../../utils/expiredLotsService';
 import type { Database } from '../../lib/database.types';
