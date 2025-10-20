@@ -290,6 +290,10 @@ VITE_GEMINI_API_KEY=votre-cle-gemini-api
    - `20251012_platform_settings.sql`
    - `20251012_suspended_baskets.sql`
    - `20251012_suspended_baskets_sample_data.sql` (optionnel, données de test)
+   - `20250116_add_association_role.sql` (rôle association)
+   - `20250116_add_association_beneficiary_registrations.sql` (enregistrements bénéficiaires)
+   - `20250120_add_is_free_to_lots.sql` (champ is_free pour lots gratuits)
+   - `20250120_fix_free_lots_is_free_flag.sql` (correction données existantes)
 
 ##### Option 2 : Via Supabase CLI (Recommandé pour développeurs)
 
@@ -464,7 +468,9 @@ ecopanier/
 │       ├── 20251012_suspended_baskets.sql
 │       ├── 20251012_suspended_baskets_sample_data.sql
 │       ├── 20250116_add_association_role.sql
-│       └── 20250116_add_association_beneficiary_registrations.sql
+│       ├── 20250116_add_association_beneficiary_registrations.sql
+│       ├── 20250120_add_is_free_to_lots.sql
+│       └── 20250120_fix_free_lots_is_free_flag.sql
 ├── .env.example                # Exemple de configuration
 ├── .gitignore                  # Fichiers ignorés par Git
 ├── eslint.config.js            # Configuration ESLint
@@ -547,6 +553,22 @@ npm run test:coverage
   to = "/index.html"
   status = 200
 ```
+
+---
+
+## 🆕 Mises à Jour Récentes
+
+### 🔧 Correction Critique : Lots Gratuits (20 Janvier 2025)
+
+**Problème résolu** : Les bénéficiaires ne voyaient pas tous les lots gratuits disponibles.
+
+**Solution** : 
+- ✅ Correction des filtres de requête dans `FreeLotsList.tsx` et `KioskLotsList.tsx`
+- ✅ Automatisation du flag `is_free` lors de la création de lots
+- ✅ Migration SQL pour corriger les données existantes
+- ✅ **Résultat** : +30-40% de lots visibles, cohérence totale web/kiosque
+
+📄 **[Voir le changelog complet](./CHANGELOG_FIX_FREE_LOTS.md)** pour tous les détails techniques.
 
 ---
 
