@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, categories, uploadImage, deleteImages, getCategoryLabel } from '../../utils/helpers';
 import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
-import { Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar, Gift } from 'lucide-react';
+import { Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar, Gift, AlertCircle } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 import { format, addDays, startOfDay, setHours, setMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -24,6 +24,8 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
   const [analyzingImage, setAnalyzingImage] = useState(false);
   const [analysisConfidence, setAnalysisConfidence] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
+  const [showMakeFreeModal, setShowMakeFreeModal] = useState(false);
+  const [lotToMakeFree, setLotToMakeFree] = useState<Lot | null>(null);
   const { profile } = useAuthStore();
 
   const totalSteps = editingLot ? 4 : 5; // 5 étapes pour création (avec IA), 4 pour édition
@@ -195,6 +197,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
         quantity_total: analysis.quantity_total,
         requires_cold_chain: analysis.requires_cold_chain,
         is_urgent: analysis.is_urgent,
+        is_free: false,
         image_urls: [imageUrl, ...formData.image_urls],
       });
 
@@ -277,7 +280,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     }
   };
 
-  const handleMakeFree = async (lot: Lot) => {
+  const handleMakeFree = (lot: Lot) => {
     if (lot.is_free) {
       alert('✅ Ce lot est déjà gratuit !');
       return;
@@ -289,26 +292,32 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
       return;
     }
 
-    const confirmMsg = `🎁 Passer ce lot en GRATUIT pour les bénéficiaires ?\n\n` +
-      `📦 ${lot.title}\n` +
-      `🔢 ${remainingQty} unité(s) restante(s)\n` +
-      `💰 Prix actuel: ${lot.discounted_price}€\n\n` +
-      `➡️ Le lot deviendra gratuit et disponible pour les bénéficiaires.\n` +
-      `Cette action est définitive.`;
+    // Ouvrir le modal de confirmation
+    setLotToMakeFree(lot);
+    setShowMakeFreeModal(true);
+  };
 
-    if (!confirm(confirmMsg)) return;
+  const confirmMakeFree = async () => {
+    if (!lotToMakeFree) return;
+
+    const remainingQty = lotToMakeFree.quantity_total - lotToMakeFree.quantity_sold;
 
     try {
       // Annuler les réservations pending existantes
-      if (lot.quantity_reserved > 0) {
-        await supabase
+      if (lotToMakeFree.quantity_reserved > 0) {
+        const { error: cancelError } = await supabase
           .from('reservations')
+          // @ts-expect-error Bug connu: Supabase 2.57.4 infère incorrectement les types comme 'never'
           .update({ 
             status: 'cancelled',
             updated_at: new Date().toISOString()
           })
-          .eq('lot_id', lot.id)
+          .eq('lot_id', lotToMakeFree.id)
           .eq('status', 'pending');
+        
+        if (cancelError) {
+          console.warn('Erreur lors de l\'annulation des réservations:', cancelError);
+        }
       }
 
       // Mettre à jour le lot pour le rendre gratuit
@@ -326,14 +335,19 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
           is_urgent: true, // Marquer comme urgent
           updated_at: new Date().toISOString()
         })
-        .eq('id', lot.id);
+        .eq('id', lotToMakeFree.id);
 
       if (error) throw error;
 
-      alert(`✅ Lot passé en gratuit avec succès !\n\n🎁 ${remainingQty} repas sauvés du gaspillage et offerts aux bénéficiaires.`);
+      // Fermer le modal
+      setShowMakeFreeModal(false);
+      setLotToMakeFree(null);
       
       // Recharger la liste des lots
       fetchLots();
+      
+      // Afficher un message de succès
+      alert(`✅ Lot passé en gratuit avec succès !\n\n🎁 ${remainingQty} repas sauvés du gaspillage et offerts aux bénéficiaires.`);
     } catch (error) {
       console.error('Erreur lors de la conversion en gratuit:', error);
       alert('❌ Impossible de passer le lot en gratuit. Veuillez réessayer.');
@@ -382,6 +396,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
       pickup_end: '',
       requires_cold_chain: false,
       is_urgent: false,
+      is_free: false,
       image_urls: [],
     });
     setAnalysisConfidence(null);
@@ -1480,6 +1495,109 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
                 </button>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmation pour passer en gratuit */}
+      {showMakeFreeModal && lotToMakeFree && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-sm w-full shadow-2xl animate-fade-in-up overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <Gift className="w-7 h-7 text-green-600" strokeWidth={2} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">Passer en gratuit ?</h3>
+                  <p className="text-green-50 text-xs mt-0.5">Action solidaire</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contenu */}
+            <div className="p-4 space-y-3">
+              {/* Informations du lot */}
+              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <div className="flex items-center gap-2">
+                  {lotToMakeFree.image_urls && lotToMakeFree.image_urls.length > 0 ? (
+                    <img 
+                      src={lotToMakeFree.image_urls[0]} 
+                      alt={lotToMakeFree.title}
+                      className="w-14 h-14 rounded-lg object-cover border border-gray-300 flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300 flex-shrink-0">
+                      <Package className="w-7 h-7 text-gray-400" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-gray-900 text-sm truncate">
+                      {lotToMakeFree.title}
+                    </h4>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-xs text-gray-600">
+                        <strong className="text-green-700">{lotToMakeFree.quantity_total - lotToMakeFree.quantity_sold}</strong> restant(s)
+                      </span>
+                      <span className="text-xs text-gray-600">
+                        Prix: <strong className="text-gray-900">{formatCurrency(lotToMakeFree.discounted_price)}</strong>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Message explicatif compact */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-xs text-blue-900 font-semibold mb-2 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  Conséquences :
+                </p>
+                <ul className="space-y-1 text-xs text-blue-800">
+                  <li className="flex items-start gap-1.5">
+                    <span className="text-green-600 font-bold">✓</span>
+                    <span>Lot <strong>gratuit</strong> (0€) pour bénéficiaires</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span className="text-green-600 font-bold">✓</span>
+                    <span>Réservations en cours <strong>annulées</strong></span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span className="text-orange-600 font-bold">⚠</span>
+                    <span>Action <strong>irréversible</strong></span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Impact solidaire compact */}
+              <div className="bg-green-50 border border-green-300 rounded-lg p-2.5 flex items-center gap-2">
+                <span className="text-xl flex-shrink-0">🌍</span>
+                <p className="text-xs text-green-800">
+                  <strong className="text-green-900">{lotToMakeFree.quantity_total - lotToMakeFree.quantity_sold} repas</strong> sauvés du gaspillage !
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="px-4 pb-4 flex gap-2">
+              <button
+                onClick={() => {
+                  setShowMakeFreeModal(false);
+                  setLotToMakeFree(null);
+                }}
+                className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold transition-all text-sm"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={confirmMakeFree}
+                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 font-bold transition-all shadow-md flex items-center justify-center gap-1.5 text-sm"
+              >
+                <Gift className="w-4 h-4" strokeWidth={2.5} />
+                <span>Confirmer</span>
+              </button>
             </div>
           </div>
         </div>
