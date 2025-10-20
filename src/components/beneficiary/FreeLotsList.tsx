@@ -44,8 +44,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
         .eq('is_free', true) // Utiliser le nouveau champ is_free
         .eq('discounted_price', 0) // Double vérification
         .gt('quantity_total', 0)
-        .gte('pickup_end', new Date().toISOString()) // Seulement les lots pas encore expirés
-        .order('pickup_start', { ascending: true }); // Trier par date de retrait
+        .order('created_at', { ascending: false }); // Trier par date de création (plus récent d'abord)
 
       if (selectedCategory) {
         query = query.eq('category', selectedCategory);
