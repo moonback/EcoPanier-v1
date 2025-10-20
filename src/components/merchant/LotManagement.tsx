@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, categories, uploadImage, deleteImages, getCategoryLabel } from '../../utils/helpers';
 import { analyzeFoodImage, isGeminiConfigured } from '../../utils/geminiService';
-import { Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar } from 'lucide-react';
+import { Edit, Trash2, Package, Sparkles, ImagePlus, FileText, DollarSign, Clock, Settings, Check, ChevronRight, ChevronLeft, Image as ImageIcon, Calendar, Gift } from 'lucide-react';
 import type { Database } from '../../lib/database.types';
 import { format, addDays, startOfDay, setHours, setMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -45,6 +45,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     pickup_end: '',
     requires_cold_chain: false,
     is_urgent: false,
+    is_free: false,
     image_urls: [] as string[],
   });
 
@@ -231,6 +232,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
           pickup_end: formData.pickup_end,
           requires_cold_chain: formData.requires_cold_chain,
           is_urgent: formData.is_urgent,
+          is_free: formData.is_free,
           image_urls: formData.image_urls,
           updated_at: new Date().toISOString(),
         };
@@ -255,6 +257,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
           pickup_end: formData.pickup_end,
           requires_cold_chain: formData.requires_cold_chain,
           is_urgent: formData.is_urgent,
+          is_free: formData.is_free,
           image_urls: formData.image_urls,
         };
 
@@ -271,6 +274,69 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     } catch (error) {
       console.error('Error saving lot:', error);
       alert('Erreur lors de l\'enregistrement');
+    }
+  };
+
+  const handleMakeFree = async (lot: Lot) => {
+    if (lot.is_free) {
+      alert('✅ Ce lot est déjà gratuit !');
+      return;
+    }
+
+    const remainingQty = lot.quantity_total - lot.quantity_sold;
+    if (remainingQty <= 0) {
+      alert('❌ Ce lot n\'a plus de stock disponible');
+      return;
+    }
+
+    const confirmMsg = `🎁 Passer ce lot en GRATUIT pour les bénéficiaires ?\n\n` +
+      `📦 ${lot.title}\n` +
+      `🔢 ${remainingQty} unité(s) restante(s)\n` +
+      `💰 Prix actuel: ${lot.discounted_price}€\n\n` +
+      `➡️ Le lot deviendra gratuit et disponible pour les bénéficiaires.\n` +
+      `Cette action est définitive.`;
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      // Annuler les réservations pending existantes
+      if (lot.quantity_reserved > 0) {
+        await supabase
+          .from('reservations')
+          .update({ 
+            status: 'cancelled',
+            updated_at: new Date().toISOString()
+          })
+          .eq('lot_id', lot.id)
+          .eq('status', 'pending');
+      }
+
+      // Mettre à jour le lot pour le rendre gratuit
+      const { error } = await supabase
+        .from('lots')
+        // @ts-expect-error Bug connu: Supabase 2.57.4 infère incorrectement les types comme 'never'
+        .update({
+          is_free: true,
+          discounted_price: 0,
+          original_price: 0,
+          status: 'available',
+          quantity_total: remainingQty,
+          quantity_reserved: 0,
+          quantity_sold: 0,
+          is_urgent: true, // Marquer comme urgent
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', lot.id);
+
+      if (error) throw error;
+
+      alert(`✅ Lot passé en gratuit avec succès !\n\n🎁 ${remainingQty} repas sauvés du gaspillage et offerts aux bénéficiaires.`);
+      
+      // Recharger la liste des lots
+      fetchLots();
+    } catch (error) {
+      console.error('Erreur lors de la conversion en gratuit:', error);
+      alert('❌ Impossible de passer le lot en gratuit. Veuillez réessayer.');
     }
   };
 
@@ -386,6 +452,7 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
       pickup_end: lot.pickup_end.slice(0, 16),
       requires_cold_chain: lot.requires_cold_chain,
       is_urgent: lot.is_urgent,
+      is_free: lot.is_free,
       image_urls: lot.image_urls,
     });
 
@@ -627,6 +694,22 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
 
                 {/* Boutons d'action */}
                 <div className="flex gap-1.5">
+                  {!lot.is_free && availableQty > 0 && (
+                    <button
+                      onClick={() => handleMakeFree(lot)}
+                      className="flex-1 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded hover:from-green-100 hover:to-emerald-100 border border-green-200 transition-all flex items-center justify-center gap-1 text-xs font-semibold"
+                      title="Passer en gratuit pour les bénéficiaires"
+                    >
+                      <Gift size={12} strokeWidth={2} />
+                      <span>Gratuit</span>
+                    </button>
+                  )}
+                  {lot.is_free && (
+                    <div className="flex-1 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded border-2 border-green-300 flex items-center justify-center gap-1 text-xs font-bold">
+                      <Gift size={12} strokeWidth={2.5} />
+                      <span>GRATUIT</span>
+                    </div>
+                  )}
                   <button
                     onClick={() => openEditModal(lot)}
                     className="flex-1 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded hover:from-blue-100 hover:to-indigo-100 border border-blue-200 transition-all flex items-center justify-center gap-1 text-xs font-semibold"
@@ -888,8 +971,53 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
                       <p className="text-gray-600">Définissez vos tarifs anti-gaspi</p>
               </div>
 
+                    {/* Choix : Gratuit ou Payant */}
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
+                      <label className="block text-sm font-bold text-gray-800 mb-3">
+                        Type de lot
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, is_free: false, original_price: formData.is_free ? 0 : formData.original_price, discounted_price: formData.is_free ? 0 : formData.discounted_price })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all ${
+                            !formData.is_free
+                              ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
+                              : 'bg-white text-gray-600 border-2 border-gray-300 hover:border-blue-300'
+                          }`}
+                        >
+                          <DollarSign size={18} strokeWidth={2.5} />
+                          <span>Payant</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, is_free: true, original_price: 0, discounted_price: 0 })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all ${
+                            formData.is_free
+                              ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg scale-105'
+                              : 'bg-white text-gray-600 border-2 border-gray-300 hover:border-green-300'
+                          }`}
+                        >
+                          <Gift size={18} strokeWidth={2.5} />
+                          <span>Gratuit</span>
+                        </button>
+                      </div>
+                      {formData.is_free && (
+                        <div className="mt-3 p-3 bg-white rounded-lg border-2 border-green-300">
+                          <p className="text-sm text-green-800 font-semibold flex items-center gap-2">
+                            <span className="text-lg">🎁</span>
+                            <span>Lot solidaire gratuit</span>
+                          </p>
+                          <p className="text-xs text-green-700 mt-1">
+                            Ce lot sera visible uniquement par les bénéficiaires et sera entièrement gratuit.
+                            C'est un geste généreux contre le gaspillage alimentaire !
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div className={formData.is_free ? 'opacity-50 pointer-events-none' : ''}>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           <span className="text-red-500">*</span> Prix original (€)
                   </label>
@@ -905,13 +1033,16 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
                     }
                             className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                             placeholder="0.00"
-                    required
+                            disabled={formData.is_free}
+                    required={!formData.is_free}
                   />
                 </div>
-                        <p className="text-xs text-gray-500 mt-1">Prix de vente habituel</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {formData.is_free ? 'Gratuit - Prix désactivé' : 'Prix de vente habituel'}
+                        </p>
               </div>
 
-                <div>
+                <div className={formData.is_free ? 'opacity-50 pointer-events-none' : ''}>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           <span className="text-red-500">*</span> Prix réduit (€)
                   </label>
@@ -927,10 +1058,11 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
                     }
                             className="w-full pl-10 pr-4 py-3 border-2 border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                             placeholder="0.00"
-                    required
+                            disabled={formData.is_free}
+                    required={!formData.is_free}
                   />
                         </div>
-                        {formData.discounted_price === 0 ? (
+                        {!formData.is_free && formData.discounted_price === 0 ? (
                           <div className="mt-2 p-3 bg-gradient-to-r from-accent-50 to-pink-50 rounded-lg border-2 border-accent-200">
                             <p className="text-xs text-accent-800 font-semibold flex items-center gap-2">
                               <span className="text-base">❤️</span>
@@ -940,12 +1072,14 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
                               Ce produit sera gratuit et accessible uniquement par les bénéficiaires du programme solidaire.
                             </p>
                           </div>
-                        ) : (
+                        ) : !formData.is_free ? (
                           <p className="text-xs text-green-600 mt-1">
                             {formData.original_price > 0 && formData.discounted_price > 0
                               ? `Réduction de ${Math.round((1 - formData.discounted_price / formData.original_price) * 100)}%`
                               : 'Prix anti-gaspillage'}
                           </p>
+                        ) : (
+                          <p className="text-xs text-gray-500 mt-1">Gratuit - Prix désactivé</p>
                         )}
                 </div>
                 </div>

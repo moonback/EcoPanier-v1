@@ -109,6 +109,7 @@ export interface Database {
           pickup_end: string;
           requires_cold_chain: boolean;
           is_urgent: boolean;
+          is_free: boolean;
           status: LotStatus;
           image_urls: string[];
           created_at: string;
@@ -129,6 +130,7 @@ export interface Database {
           pickup_end: string;
           requires_cold_chain?: boolean;
           is_urgent?: boolean;
+          is_free?: boolean;
           status?: LotStatus;
           image_urls?: string[];
           created_at?: string;
@@ -149,6 +151,7 @@ export interface Database {
           pickup_end?: string;
           requires_cold_chain?: boolean;
           is_urgent?: boolean;
+          is_free?: boolean;
           status?: LotStatus;
           image_urls?: string[];
           created_at?: string;

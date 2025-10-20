@@ -1,6 +1,6 @@
 // Imports externes
 import { useState } from 'react';
-import { Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, ChevronLeft, ChevronRight, Home, Menu, X, MapPin, Package } from 'lucide-react';
+import { Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, ChevronLeft, ChevronRight, Home, Menu, X, MapPin, Package, Gift } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -14,9 +14,10 @@ import { ActivityLogs } from './ActivityLogs';
 import { ReportsGenerator } from './ReportsGenerator';
 import { GeocodeMerchants } from './GeocodeMerchants';
 import { LotModeration } from './LotModeration';
+import { ExpiredLotsManager } from './ExpiredLotsManager';
 
 // Type pour les onglets
-type TabId = 'stats' | 'users' | 'lots' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile' | 'geocode';
+type TabId = 'stats' | 'users' | 'lots' | 'expired-lots' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile' | 'geocode';
 
 /**
  * Dashboard principal pour les administrateurs
@@ -43,6 +44,7 @@ export const AdminDashboard = () => {
       items: [
         { id: 'users', label: 'Utilisateurs', icon: Users, color: 'secondary', emoji: '👥' },
         { id: 'lots', label: 'Modération Lots', icon: Package, color: 'warning', emoji: '📦' },
+        { id: 'expired-lots', label: 'Lots Expirés', icon: Gift, color: 'success', emoji: '🎁' },
         { id: 'geocode', label: 'Géocodage', icon: MapPin, color: 'primary', emoji: '🗺️' },
       ]
     },
@@ -270,6 +272,7 @@ export const AdminDashboard = () => {
             {activeTab === 'stats' && <AdminStats />}
             {activeTab === 'users' && <UserManagement />}
             {activeTab === 'lots' && <LotModeration />}
+            {activeTab === 'expired-lots' && <ExpiredLotsManager />}
             {activeTab === 'analytics' && <AdvancedAnalytics />}
             {activeTab === 'reports' && <ReportsGenerator />}
             {activeTab === 'logs' && <ActivityLogs />}
