@@ -18,6 +18,8 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
   const [editingLot, setEditingLot] = useState<Lot | null>(null);
   const [showMakeFreeModal, setShowMakeFreeModal] = useState(false);
   const [lotToMakeFree, setLotToMakeFree] = useState<Lot | null>(null);
+  const [showMakeAllFreeModal, setShowMakeAllFreeModal] = useState(false);
+  const [processingMassConversion, setProcessingMassConversion] = useState(false);
   const { profile } = useAuthStore();
 
   // Enregistrer le handler pour ouvrir le modal de création depuis le header
@@ -166,6 +168,97 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     }
   };
 
+  // Gérer l'ouverture du modal pour passer tous les lots en gratuit
+  const handleMakeAllFree = () => {
+    const eligibleLots = lots.filter(lot => {
+      const remainingQty = lot.quantity_total - lot.quantity_sold;
+      return !lot.is_free && remainingQty > 0;
+    });
+
+    if (eligibleLots.length === 0) {
+      alert('ℹ️ Aucun lot éligible pour être passé en gratuit.\n\nTous vos lots sont soit déjà gratuits, soit épuisés.');
+      return;
+    }
+
+    setShowMakeAllFreeModal(true);
+  };
+
+  // Confirmer le passage en gratuit de tous les lots
+  const confirmMakeAllFree = async () => {
+    setProcessingMassConversion(true);
+    
+    const eligibleLots = lots.filter(lot => {
+      const remainingQty = lot.quantity_total - lot.quantity_sold;
+      return !lot.is_free && remainingQty > 0;
+    });
+
+    let successCount = 0;
+    let errorCount = 0;
+    let totalMealsSaved = 0;
+
+    for (const lot of eligibleLots) {
+      try {
+        const remainingQty = lot.quantity_total - lot.quantity_sold;
+        
+        // Annuler les réservations pending
+        if (lot.quantity_reserved > 0) {
+          await supabase
+            .from('reservations')
+            // @ts-expect-error Bug connu: Supabase 2.57.4 infère incorrectement les types comme 'never'
+            .update({
+              status: 'cancelled',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('lot_id', lot.id)
+            .eq('status', 'pending');
+        }
+
+        // Mettre à jour le lot
+        const { error } = await supabase
+          .from('lots')
+          // @ts-expect-error Bug connu: Supabase 2.57.4 infère incorrectement les types comme 'never'
+          .update({
+            is_free: true,
+            discounted_price: 0,
+            original_price: 0,
+            status: 'available',
+            quantity_total: remainingQty,
+            quantity_reserved: 0,
+            quantity_sold: 0,
+            is_urgent: true,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', lot.id);
+
+        if (error) {
+          console.error(`Erreur pour le lot ${lot.id}:`, error);
+          errorCount++;
+        } else {
+          successCount++;
+          totalMealsSaved += remainingQty;
+        }
+      } catch (error) {
+        console.error(`Erreur lors de la conversion du lot ${lot.id}:`, error);
+        errorCount++;
+      }
+    }
+
+    setProcessingMassConversion(false);
+    setShowMakeAllFreeModal(false);
+    fetchLots();
+
+    if (successCount > 0) {
+      alert(
+        `✅ Conversion réussie !\n\n` +
+        `🎁 ${successCount} lot${successCount > 1 ? 's' : ''} passé${successCount > 1 ? 's' : ''} en gratuit\n` +
+        `🍽️ ${totalMealsSaved} repas sauvés et offerts aux bénéficiaires\n` +
+        (errorCount > 0 ? `\n⚠️ ${errorCount} lot${errorCount > 1 ? 's' : ''} en erreur` : '')
+      );
+    } else if (errorCount > 0) {
+      alert(`❌ Erreur lors de la conversion des lots. Veuillez réessayer.`);
+    }
+  };
+
   // Supprimer un lot
   const handleDelete = async (id: string) => {
     if (!confirm('Voulez-vous vraiment supprimer ce lot ?')) return;
@@ -208,8 +301,41 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     );
   }
 
+  // Calculer les lots éligibles pour le bouton
+  const eligibleLotsCount = lots.filter(lot => {
+    const remainingQty = lot.quantity_total - lot.quantity_sold;
+    return !lot.is_free && remainingQty > 0;
+  }).length;
+
   return (
     <div>
+      {/* Bouton pour passer tous les lots en gratuit */}
+      {eligibleLotsCount > 0 && (
+        <div className="mb-6 flex justify-end">
+          <button
+            onClick={handleMakeAllFree}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+              />
+            </svg>
+            <span className="font-semibold">
+              Tout passer en don ({eligibleLotsCount})
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* Grille de lots */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {lots.map((lot) => (
@@ -246,6 +372,96 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
             setLotToMakeFree(null);
           }}
         />
+      )}
+
+      {/* Modal de confirmation pour passer tous les lots en gratuit */}
+      {showMakeAllFreeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+                  />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  Passer tous les lots en don ?
+                </h3>
+                <div className="text-sm text-gray-600 space-y-2">
+                  <p>
+                    <strong className="text-green-600">{eligibleLotsCount} lot{eligibleLotsCount > 1 ? 's' : ''}</strong> sera{eligibleLotsCount > 1 ? 'ont' : ''} converti{eligibleLotsCount > 1 ? 's' : ''} en gratuit et mis à disposition des bénéficiaires.
+                  </p>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
+                    <p className="text-yellow-800 text-xs font-medium mb-1">
+                      ⚠️ Action importante
+                    </p>
+                    <ul className="text-xs text-yellow-700 space-y-1 list-disc list-inside">
+                      <li>Les réservations en cours seront annulées</li>
+                      <li>Les prix seront remis à zéro</li>
+                      <li>Les lots seront marqués comme urgents</li>
+                      <li>Cette action est irréversible</li>
+                    </ul>
+                  </div>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                    <p className="text-green-800 text-xs">
+                      💚 <strong>Impact solidaire :</strong> Vous allez sauver des repas du gaspillage et aider les personnes en précarité.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowMakeAllFreeModal(false)}
+                disabled={processingMassConversion}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={confirmMakeAllFree}
+                disabled={processingMassConversion}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {processingMassConversion ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Conversion...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>Confirmer le don</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
