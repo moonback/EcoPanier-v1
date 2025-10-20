@@ -101,17 +101,16 @@ export const KioskMode = () => {
         <div className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 shadow-soft z-50">
           <div className="max-w-7xl mx-auto px-3 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-lg">🤝</span>
+              <div className="w-100 h-12 flex items-center justify-center">
+                <img
+                  src="/logo-kiosk.png"
+                  alt="EcoPanier"
+                  className="h-12 w-auto object-contain"
+                  draggable={false}
+                  loading="eager"
+                />
               </div>
-              <div>
-                <h1 className="text-sm font-bold text-black leading-tight">
-                  Kiosque EcoPanier
-                </h1>
-                <p className="text-xs text-gray-600 font-light leading-tight">
-                  {authenticatedProfile.full_name?.split(' ')[0]}
-                </p>
-              </div>
+              
             </div>
             
             <div className="flex items-center gap-2">

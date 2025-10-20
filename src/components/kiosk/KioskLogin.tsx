@@ -92,11 +92,11 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
       <div className="relative z-10 max-w-2xl w-full">
         {/* En-tête */}
         <div className="text-center mb-4 animate-fade-in">
-          <div className="inline-flex p-3 bg-white rounded-xl mb-3 shadow-2xl border-4 border-white/50">
+          <div className="inline-flex p-3 mb-3 justify-center">
             <img
-              src="/logo.png"
+              src="/logo-kiosk.png"
               alt="EcoPanier"
-              className="w-24 object-contain"
+              className="w-70 h-12  rounded-xl object-cover border-2 border-white/50 shadow-md"
               draggable={false}
             />
           </div>

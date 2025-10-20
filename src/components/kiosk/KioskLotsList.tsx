@@ -40,7 +40,8 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
         .from('lots')
         .select('*, profiles(business_name, business_address)')
         .eq('status', 'available')
-        .eq('discounted_price', 0)
+        .eq('is_free', true) // Utiliser le champ is_free
+        .eq('discounted_price', 0) // Double vérification
         .gt('quantity_total', 0)
         .order('created_at', { ascending: false });
 
