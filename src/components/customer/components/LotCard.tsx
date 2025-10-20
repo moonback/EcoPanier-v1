@@ -1,4 +1,4 @@
-import { Package, MapPin, Clock, ShoppingCart } from 'lucide-react';
+import { Package, MapPin, Clock, ShoppingCart, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database } from '../../../lib/database.types';
@@ -16,13 +16,14 @@ interface LotCardProps {
   lot: Lot;
   onReserve: (lot: Lot) => void;
   onViewDetails?: (lot: Lot) => void;
+  onAddToCart?: (lot: Lot) => void;
 }
 
 /**
  * Composant carte pour afficher un lot disponible
  * Design cohérent avec les cartes marchands
  */
-export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
+export function LotCard({ lot, onReserve, onViewDetails, onAddToCart }: LotCardProps) {
   const availableQty =
     lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
   const discount = Math.round(
@@ -192,22 +193,58 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
           </div>
         </div>
 
-        {/* Bouton d'action */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onReserve(lot);
-          }}
-          disabled={isOutOfStock}
-          className={`w-full py-1.5 rounded-lg transition-all flex items-center justify-center gap-1 text-xs font-semibold ${
-            isOutOfStock
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-primary-600 text-white hover:bg-primary-700'
-          }`}
-        >
-          <ShoppingCart size={12} strokeWidth={2} />
-          <span>{isOutOfStock ? 'Épuisé' : 'Réserver'}</span>
-        </button>
+        {/* Boutons d'action */}
+        {onAddToCart ? (
+          <div className="flex gap-1.5">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart(lot);
+              }}
+              disabled={isOutOfStock}
+              className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center gap-1 text-xs font-semibold ${
+                isOutOfStock
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-primary-600 hover:bg-primary-50 border-2 border-primary-600'
+              }`}
+              title="Ajouter au panier"
+            >
+              <Plus size={12} strokeWidth={2.5} />
+              <span>Panier</span>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onReserve(lot);
+              }}
+              disabled={isOutOfStock}
+              className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center gap-1 text-xs font-semibold ${
+                isOutOfStock
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-primary-600 text-white hover:bg-primary-700'
+              }`}
+              title="Réserver maintenant"
+            >
+              <ShoppingCart size={12} strokeWidth={2} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onReserve(lot);
+            }}
+            disabled={isOutOfStock}
+            className={`w-full py-1.5 rounded-lg transition-all flex items-center justify-center gap-1 text-xs font-semibold ${
+              isOutOfStock
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-primary-600 text-white hover:bg-primary-700'
+            }`}
+          >
+            <ShoppingCart size={12} strokeWidth={2} />
+            <span>{isOutOfStock ? 'Épuisé' : 'Réserver'}</span>
+          </button>
+        )}
       </div>
     </div>
   );
