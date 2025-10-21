@@ -96,7 +96,7 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
             <img
               src="/logo-kiosk.png"
               alt="EcoPanier"
-              className="w-70 h-12  rounded-xl object-cover border-2 border-white/50 shadow-md"
+              className="w-70 h-12 bg-white rounded-xl object-cover border-2 border-white/50 shadow-md"
               draggable={false}
             />
           </div>
