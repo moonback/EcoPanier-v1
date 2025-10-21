@@ -1,4 +1,4 @@
-import { Gift, Package, AlertCircle } from 'lucide-react';
+import { Gift, Package, X, Heart } from 'lucide-react';
 import { formatCurrency } from '../../../utils/helpers';
 import type { Lot } from './types';
 
@@ -12,10 +12,17 @@ export const MakeFreeModal = ({ lot, onConfirm, onCancel }: MakeFreeModalProps) 
   const remainingQty = lot.quantity_total - lot.quantity_sold;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl animate-fade-in-up overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl animate-fade-in-up overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
+        <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white relative">
+          <button
+            onClick={onCancel}
+            className="absolute top-4 right-4 text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition-all"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          
           <div className="flex items-center justify-center mb-2">
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
               <Gift className="w-10 h-10 text-green-600" strokeWidth={2} />
@@ -61,51 +68,17 @@ export const MakeFreeModal = ({ lot, onConfirm, onCancel }: MakeFreeModalProps) 
             </div>
           </div>
 
-          {/* Message explicatif */}
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-            <h4 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
-              <span>Ce qui va se passer :</span>
-            </h4>
-            <ul className="space-y-2 text-sm text-blue-800">
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold mt-0.5">✓</span>
-                <span>
-                  Le lot deviendra <strong>entièrement gratuit</strong> (0€)
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold mt-0.5">✓</span>
-                <span>
-                  Visible uniquement pour les <strong>bénéficiaires</strong>
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold mt-0.5">✓</span>
-                <span>
-                  Les réservations en cours seront <strong>annulées</strong>
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold mt-0.5">✓</span>
-                <span>
-                  Action <strong>définitive</strong> et irréversible
-                </span>
-              </li>
-            </ul>
-          </div>
+          
 
           {/* Impact solidaire */}
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-2xl">🌍</span>
+          <div className="bg-gradient-to-r from-pink-50 to-red-50 border-2 border-pink-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <Heart className="w-5 h-5 text-pink-600" fill="currentColor" strokeWidth={2} />
               </div>
-              <div>
-                <p className="font-bold text-green-900 text-sm">Impact solidaire</p>
-                <p className="text-green-700 text-xs mt-0.5">
-                  Vous sauvez <strong>{remainingQty} repas</strong> du gaspillage et aidez les
-                  personnes dans le besoin !
+              <div className="flex-1">
+                <p className="text-sm text-pink-700 leading-relaxed">
+                  <strong className="text-pink-800">{remainingQty} repas</strong> seront sauvés du gaspillage et offerts gratuitement aux bénéficiaires. 💚
                 </p>
               </div>
             </div>

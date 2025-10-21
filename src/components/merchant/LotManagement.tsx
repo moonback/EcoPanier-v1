@@ -2,10 +2,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { deleteImages } from '../../utils/helpers';
-import { LotCard } from './lot-management/LotCard';
-import { LotFormModal } from './lot-management/LotFormModal';
-import { MakeFreeModal } from './lot-management/MakeFreeModal';
-import type { Lot } from './lot-management/types';
+import {
+  LotCard,
+  LotFormModal,
+  MakeFreeModal,
+  MakeAllFreeModal,
+  SuccessModal,
+  ErrorModal,
+  InfoModal,
+  type Lot,
+} from './lot-management';
 
 interface LotManagementProps {
   onCreateLotClick?: (handler: () => void) => void;
@@ -21,6 +27,12 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
   const [showMakeAllFreeModal, setShowMakeAllFreeModal] = useState(false);
   const [processingMassConversion, setProcessingMassConversion] = useState(false);
   const [hideSoldOut, setHideSoldOut] = useState(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successData, setSuccessData] = useState<{ quantity: number; message?: string } | null>(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [infoMessage, setInfoMessage] = useState('');
   const { profile } = useAuthStore();
 
   // Enregistrer le handler pour ouvrir le modal de création depuis le header
@@ -99,13 +111,15 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
   // Gérer l'ouverture du modal "Passer en gratuit"
   const handleMakeFree = (lot: Lot) => {
     if (lot.is_free) {
-      alert('✅ Ce lot est déjà gratuit !');
+      setInfoMessage('Ce lot est déjà gratuit et disponible pour les bénéficiaires.');
+      setShowInfoModal(true);
       return;
     }
 
     const remainingQty = lot.quantity_total - lot.quantity_sold;
     if (remainingQty <= 0) {
-      alert('❌ Ce lot n\'a plus de stock disponible');
+      setErrorMessage('Ce lot n\'a plus de stock disponible pour être passé en gratuit.');
+      setShowErrorModal(true);
       return;
     }
 
@@ -160,12 +174,13 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
       setLotToMakeFree(null);
       fetchLots();
 
-      alert(
-        `✅ Lot passé en gratuit avec succès !\n\n🎁 ${remainingQty} repas sauvés du gaspillage et offerts aux bénéficiaires.`
-      );
+      // Afficher le modal de succès
+      setSuccessData({ quantity: remainingQty });
+      setShowSuccessModal(true);
     } catch (error) {
       console.error('Erreur lors de la conversion en gratuit:', error);
-      alert('❌ Impossible de passer le lot en gratuit. Veuillez réessayer.');
+      setErrorMessage('Impossible de passer le lot en gratuit. Veuillez réessayer.');
+      setShowErrorModal(true);
     }
   };
 
@@ -177,7 +192,8 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     });
 
     if (eligibleLots.length === 0) {
-      alert('ℹ️ Aucun lot éligible pour être passé en gratuit.\n\nTous vos lots sont soit déjà gratuits, soit épuisés.');
+      setInfoMessage('Aucun lot éligible pour être passé en gratuit.\n\nTous vos lots sont soit déjà gratuits, soit épuisés.');
+      setShowInfoModal(true);
       return;
     }
 
@@ -249,14 +265,14 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     fetchLots();
 
     if (successCount > 0) {
-      alert(
-        `✅ Conversion réussie !\n\n` +
-        `🎁 ${successCount} lot${successCount > 1 ? 's' : ''} passé${successCount > 1 ? 's' : ''} en gratuit\n` +
-        `🍽️ ${totalMealsSaved} repas sauvés et offerts aux bénéficiaires\n` +
-        (errorCount > 0 ? `\n⚠️ ${errorCount} lot${errorCount > 1 ? 's' : ''} en erreur` : '')
-      );
+      const message = 
+        `${successCount} lot${successCount > 1 ? 's' : ''} passé${successCount > 1 ? 's' : ''} en gratuit avec succès !` +
+        (errorCount > 0 ? `\n\n⚠️ Attention : ${errorCount} lot${errorCount > 1 ? 's' : ''} n'${errorCount > 1 ? 'ont' : 'a'} pas pu être converti${errorCount > 1 ? 's' : ''}.` : '');
+      setSuccessData({ quantity: totalMealsSaved, message });
+      setShowSuccessModal(true);
     } else if (errorCount > 0) {
-      alert(`❌ Erreur lors de la conversion des lots. Veuillez réessayer.`);
+      setErrorMessage('Erreur lors de la conversion des lots. Veuillez réessayer.');
+      setShowErrorModal(true);
     }
   };
 
@@ -284,7 +300,8 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
       fetchLots();
     } catch (error) {
       console.error('Error deleting lot:', error);
-      alert('Erreur lors de la suppression');
+      setErrorMessage('Erreur lors de la suppression du lot. Veuillez réessayer.');
+      setShowErrorModal(true);
     }
   };
 
@@ -368,23 +385,35 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
         {eligibleLotsCount > 0 && (
           <button
             onClick={handleMakeAllFree}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg"
+            className="btn-primary flex items-center gap-2 px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+            aria-label={`Tout passer en don (${eligibleLotsCount})`}
+            type="button"
+            title="Passer tous les lots éligibles en don solidaire"
           >
+            {/* Icône cadeau Lucide */}
             <svg
-              className="w-5 h-5"
+              className="w-5 h-5 text-white"
               fill="none"
               stroke="currentColor"
+              strokeWidth={2}
               viewBox="0 0 24 24"
             >
+              <rect x="2" y="7" width="20" height="13" rx="2" className="stroke-current" />
               <path
+                d="M12 7v13M2 12h20"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+                className="stroke-current"
+              />
+              <path
+                d="M7.5 7A2.5 2.5 0 1 1 12 4.5 2.5 2.5 0 0 1 16.5 7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="stroke-current"
               />
             </svg>
             <span className="font-semibold">
-              Tout passer en don ({eligibleLotsCount})
+              {`Tout passer en don (${eligibleLotsCount})`}
             </span>
           </button>
         )}
@@ -429,94 +458,47 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
       )}
 
       {/* Modal de confirmation pour passer tous les lots en gratuit */}
-      {showMakeAllFreeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
-                  />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  Passer tous les lots en don ?
-                </h3>
-                <div className="text-sm text-gray-600 space-y-2">
-                  <p>
-                    <strong className="text-green-600">{eligibleLotsCount} lot{eligibleLotsCount > 1 ? 's' : ''}</strong> sera{eligibleLotsCount > 1 ? 'ont' : ''} converti{eligibleLotsCount > 1 ? 's' : ''} en gratuit et mis à disposition des bénéficiaires.
-                  </p>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
-                    <p className="text-yellow-800 text-xs font-medium mb-1">
-                      ⚠️ Action importante
-                    </p>
-                    <ul className="text-xs text-yellow-700 space-y-1 list-disc list-inside">
-                      <li>Les réservations en cours seront annulées</li>
-                      <li>Les prix seront remis à zéro</li>
-                      <li>Les lots seront marqués comme urgents</li>
-                      <li>Cette action est irréversible</li>
-                    </ul>
-                  </div>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
-                    <p className="text-green-800 text-xs">
-                      💚 <strong>Impact solidaire :</strong> Vous allez sauver des repas du gaspillage et aider les personnes en précarité.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <MakeAllFreeModal
+        isOpen={showMakeAllFreeModal}
+        eligibleLotsCount={eligibleLotsCount}
+        isProcessing={processingMassConversion}
+        onConfirm={confirmMakeAllFree}
+        onCancel={() => setShowMakeAllFreeModal(false)}
+      />
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowMakeAllFreeModal(false)}
-                disabled={processingMassConversion}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={confirmMakeAllFree}
-                disabled={processingMassConversion}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {processingMassConversion ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Conversion...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span>Confirmer le don</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal de succès */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        title="✅ Lot passé en gratuit avec succès !"
+        message={successData?.message || "Vos invendus sont maintenant disponibles gratuitement pour les bénéficiaires."}
+        quantity={successData?.quantity}
+        onClose={() => {
+          setShowSuccessModal(false);
+          setSuccessData(null);
+        }}
+      />
+
+      {/* Modal d'erreur */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        title="❌ Une erreur est survenue"
+        message={errorMessage}
+        onClose={() => {
+          setShowErrorModal(false);
+          setErrorMessage('');
+        }}
+      />
+
+      {/* Modal d'information */}
+      <InfoModal
+        isOpen={showInfoModal}
+        title="ℹ️ Information"
+        message={infoMessage}
+        onClose={() => {
+          setShowInfoModal(false);
+          setInfoMessage('');
+        }}
+      />
     </div>
   );
 };
