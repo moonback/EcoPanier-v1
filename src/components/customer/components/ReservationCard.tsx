@@ -1,4 +1,4 @@
-import { Package, MapPin, Clock, Key, X, AlertCircle } from 'lucide-react';
+import { Package, MapPin, Clock, Key, X } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
 import { formatCurrency, formatDateTime } from '../../../utils/helpers';
 import type { Database } from '../../../lib/database.types';
@@ -79,12 +79,6 @@ export function ReservationCard({
     : true;
   
   const canCancel = reservation.status === 'pending' && isDonationCancellable;
-  
-  // Message si le don ne peut plus être annulé
-  const isDonationExpired = 
-    reservation.is_donation && 
-    reservation.status === 'pending' && 
-    !isDonationCancellable;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
@@ -173,12 +167,12 @@ export function ReservationCard({
           )}
           {reservation.status === 'completed' && (
             <div className="flex-1 py-3 px-4 bg-gray-100 text-black rounded-lg text-sm font-medium text-center">
-              ✓ Lot récupéré
+              ✓ Panier récupéré
             </div>
           )}
           {reservation.status === 'cancelled' && (
             <div className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
-              Réservation annulée
+              Panier annulé
             </div>
           )}
         </div>
