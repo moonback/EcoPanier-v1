@@ -4,11 +4,9 @@ import { Package, Filter, X, Zap, Euro } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
-import { useCartStore } from '../../stores/cartStore';
 import { useLots } from '../../hooks/useLots';
 import { useAdvancedFilters } from '../../hooks/useAdvancedFilters';
 import { getCategoryLabel } from '../../utils/helpers';
-import { createGroupReservation } from '../../utils/cartHelpers';
 import {
   LotCard,
   ReservationModal,
@@ -17,8 +15,6 @@ import {
   FilterSidebar,
   SkeletonGrid,
 } from './components';
-import { CartButton } from './cart/CartButton';
-import { CartDrawer } from './cart/CartDrawer';
 import type { AdvancedFilters } from './components';
 
 // Imports types
@@ -52,13 +48,11 @@ export const LotBrowser = () => {
   const [reservationMode, setReservationMode] = useState<'reserve' | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showMerchantLotsModal, setShowMerchantLotsModal] = useState(false);
-  const [showCartDrawer, setShowCartDrawer] = useState(false);
   const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_FILTERS);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
-  const { addItem, canAddItem } = useCartStore();
-  const { lots, loading, error, reserveLot, refetch } = useLots(''); // Charger tous les lots
+  const { lots, loading, error, reserveLot } = useLots(''); // Charger tous les lots
   
   // Appliquer les filtres et tri côté client
   const filteredLots = useAdvancedFilters(lots, filters);
@@ -112,45 +106,6 @@ export const LotBrowser = () => {
 
   const handleResetFilters = () => {
     setFilters(DEFAULT_FILTERS);
-  };
-
-  const handleAddToCart = (lot: Lot) => {
-    try {
-      // Vérifier si on peut ajouter ce lot au panier
-      if (!canAddItem(lot.merchant_id)) {
-        alert('Vous ne pouvez ajouter que des produits du même commerçant dans votre panier. Videz d\'abord votre panier actuel.');
-        return;
-      }
-
-      // Ajouter au panier avec quantité 1 par défaut
-      addItem(lot, 1);
-      
-      // Message de confirmation
-      alert(`✅ "${lot.title}" ajouté au panier !`);
-    } catch (err) {
-      console.error('Erreur lors de l\'ajout au panier:', err);
-      alert(err instanceof Error ? err.message : 'Impossible d\'ajouter au panier');
-    }
-  };
-
-  const handleCheckout = async () => {
-    if (!profile) {
-      alert('Vous devez être connecté pour valider votre panier');
-      return;
-    }
-
-    const cartItems = useCartStore.getState().items;
-    
-    try {
-      const pin = await createGroupReservation(cartItems, profile.id);
-      alert(`✅ Panier validé avec succès !\n\nCode PIN: ${pin}\n\nVous pouvez maintenant récupérer tous vos produits avec un seul QR code.`);
-      
-      // Recharger les lots pour mettre à jour les quantités
-      await refetch();
-    } catch (err) {
-      console.error('Erreur lors de la validation du panier:', err);
-      throw err; // Re-throw pour que CartDrawer gère l'erreur
-    }
   };
 
   // Early returns (conditions de sortie)
@@ -321,7 +276,6 @@ export const LotBrowser = () => {
                 lot={lot}
                 onReserve={handleReserveLot}
                 onViewDetails={handleViewDetails}
-                onAddToCart={handleAddToCart}
               />
             ))}
           </div>
@@ -359,18 +313,6 @@ export const LotBrowser = () => {
         )}
         </div>
       </div>
-
-      {/* Bouton du panier flottant */}
-      <div className="fixed bottom-24 right-6 z-40">
-        <CartButton onClick={() => setShowCartDrawer(true)} />
-      </div>
-
-      {/* Tiroir du panier */}
-      <CartDrawer
-        isOpen={showCartDrawer}
-        onClose={() => setShowCartDrawer(false)}
-        onCheckout={handleCheckout}
-      />
     </div>
   );
 };

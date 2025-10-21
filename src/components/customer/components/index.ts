@@ -8,7 +8,6 @@ export { ImpactCard } from './ImpactCard';
 export { ReservationModal } from './ReservationModal';
 export { FilterModal } from './FilterModal';
 export { QRCodeModal } from './QRCodeModal';
-export { GroupQRCodeModal } from './GroupQRCodeModal';
 export { LotDetailsModal } from './LotDetailsModal';
 export { MerchantLotsModal } from './MerchantLotsModal';
 export { AdvancedFilterModal } from './AdvancedFilterModal';

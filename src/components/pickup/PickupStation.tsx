@@ -8,26 +8,21 @@ import type { Database } from '../../lib/database.types';
 
 type Reservation = Database['public']['Tables']['reservations']['Row'] & {
   lots: Database['public']['Tables']['lots']['Row'] & {
-    profiles: { business_name: string | null; business_address: string | null };
+    profiles: { business_name: string; business_address: string };
   };
-  profiles: { full_name: string | null };
+  profiles: { full_name: string };
 };
 
 interface QRData {
-  reservationId?: string;
-  cartGroupId?: string;
-  reservationIds?: string[];
+  reservationId: string;
   pin: string;
   userId: string;
-  type?: 'single' | 'group';
 }
 
 export const PickupStation = () => {
   const [scannerActive, setScannerActive] = useState(false);
   const [helpActive, setHelpActive] = useState(false);
   const [reservation, setReservation] = useState<Reservation | null>(null);
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [isGroup, setIsGroup] = useState(false);
   const [enteredPin, setEnteredPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,237 +32,97 @@ export const PickupStation = () => {
     setScannerActive(false);
     setLoading(true);
     setError(null);
-    setIsGroup(false);
-    setReservation(null);
-    setReservations([]);
 
     try {
-      console.log('📱 QR code scanné:', data);
       const qrData: QRData = JSON.parse(data);
-      console.log('📦 Données parsées:', qrData);
 
-      // Vérifier si c'est un panier groupé
-      if (qrData.type === 'group' && qrData.cartGroupId) {
-        console.log('🛒 Panier groupé détecté, cartGroupId:', qrData.cartGroupId);
-        // Récupérer toutes les réservations du groupe
-        const { data: reservationData, error: fetchError } = await supabase
-          .from('reservations')
-          .select(`
-            *,
-            lots!lot_id (
-              *,
-              profiles!merchant_id (
-                business_name,
-                business_address
-              )
-            ),
-            profiles!user_id (
-              full_name
-            )
-          `)
-          .eq('cart_group_id', qrData.cartGroupId);
+      // Fetch reservation details
+      const { data: reservationData, error: fetchError } = await supabase
+        .from('reservations')
+        .select('*, lots(*, profiles(business_name, business_address)), profiles(full_name)')
+        .eq('id', qrData.reservationId)
+        .single();
 
-        if (fetchError) throw new Error('Réservations introuvables');
-        if (!reservationData || reservationData.length === 0) {
-          throw new Error('Aucune réservation trouvée dans ce panier');
-        }
+      if (fetchError) throw new Error('Réservation introuvable');
 
-        const typedReservations = reservationData as Reservation[];
+      const typedReservation = reservationData as Reservation;
 
-        // Vérifier le statut de toutes les réservations
-        const completed = typedReservations.filter(r => r.status === 'completed');
-        if (completed.length === typedReservations.length) {
-          throw new Error('Ce panier a déjà été entièrement récupéré');
-        }
-
-        const cancelled = typedReservations.filter(r => r.status === 'cancelled');
-        if (cancelled.length === typedReservations.length) {
-          throw new Error('Ce panier a été annulé');
-        }
-
-        // Filtrer les réservations en attente uniquement
-        const pending = typedReservations.filter(r => r.status === 'pending');
-        if (pending.length === 0) {
-          throw new Error('Toutes les réservations de ce panier ont déjà été traitées');
-        }
-
-        setReservations(pending);
-        setIsGroup(true);
-        setEnteredPin('');
-      } else {
-        // Réservation simple
-        console.log('📦 Réservation simple détectée');
-        const reservationId = qrData.reservationId;
-        console.log('🔍 ReservationId:', reservationId);
-        
-        if (!reservationId) {
-          throw new Error('QR code invalide - aucun reservationId trouvé');
-        }
-
-        console.log('🔄 Récupération de la réservation depuis Supabase...');
-        const { data: reservationData, error: fetchError } = await supabase
-          .from('reservations')
-          .select(`
-            *,
-            lots!lot_id (
-              *,
-              profiles!merchant_id (
-                business_name,
-                business_address
-              )
-            ),
-            profiles!user_id (
-              full_name
-            )
-          `)
-          .eq('id', reservationId)
-          .single();
-
-        if (fetchError) {
-          console.error('❌ Erreur Supabase:', fetchError);
-          throw new Error(`Réservation introuvable: ${fetchError.message}`);
-        }
-
-        console.log('✅ Réservation récupérée:', reservationData);
-        const typedReservation = reservationData as Reservation;
-
-        // Verify reservation status
-        if (typedReservation.status === 'completed') {
-          throw new Error('Cette réservation a déjà été récupérée');
-        }
-
-        if (typedReservation.status === 'cancelled') {
-          throw new Error('Cette réservation a été annulée');
-        }
-
-        console.log('✅ Réservation valide, affichage de l\'interface');
-        setReservation(typedReservation);
-        setIsGroup(false);
-        setEnteredPin('');
+      // Verify reservation status
+      if (typedReservation.status === 'completed') {
+        throw new Error('Cette réservation a déjà été récupérée');
       }
+
+      if (typedReservation.status === 'cancelled') {
+        throw new Error('Cette réservation a été annulée');
+      }
+
+      setReservation(typedReservation);
+      setEnteredPin('');
     } catch (err) {
-      console.error('❌ Erreur dans handleScan:', err);
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la lecture du QR code';
       setError(errorMessage);
       setReservation(null);
-      setReservations([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleValidatePin = async () => {
-    if (isGroup) {
-      // Validation de panier groupé
-      if (reservations.length === 0) return;
+    if (!reservation) return;
 
-      const expectedPin = reservations[0].pickup_pin;
-      if (enteredPin !== expectedPin) {
-        setError('Code PIN incorrect');
-        return;
-      }
+    if (enteredPin !== reservation.pickup_pin) {
+      setError('Code PIN incorrect');
+      return;
+    }
 
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
-      try {
-        // Mettre à jour toutes les réservations du groupe
-        const completedAt = new Date().toISOString();
+    try {
+      // Update reservation status to completed
+      // NOTE: Using 'as unknown' to bypass Supabase v2 TypeScript bug with .update()
+      // Justification: Bug connu de @supabase/supabase-js v2.57.4 où les types Update
+      // sont résolus à 'never'. Workaround temporaire en attendant un fix officiel.
+      const { error: updateError } = await supabase
+        .from('reservations')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+        } as unknown as never)
+        .eq('id', reservation.id);
 
-        // Mettre à jour le statut de toutes les réservations
-        const { error: updateError } = await supabase
-          .from('reservations')
-          .update({
-            status: 'completed',
-            completed_at: completedAt,
-          } as unknown as never)
-          .in('id', reservations.map(r => r.id));
+      if (updateError) throw updateError;
 
-        if (updateError) throw updateError;
+      // Update lot quantities
+      const newQuantitySold = reservation.lots.quantity_sold + reservation.quantity;
+      const newQuantityReserved = reservation.lots.quantity_reserved - reservation.quantity;
 
-        // Mettre à jour les quantités de tous les lots
-        for (const reservation of reservations) {
-          const newQuantitySold = reservation.lots.quantity_sold + reservation.quantity;
-          const newQuantityReserved = reservation.lots.quantity_reserved - reservation.quantity;
+      // NOTE: Using 'as unknown' to bypass Supabase v2 TypeScript bug with .update()
+      const { error: lotError } = await supabase
+        .from('lots')
+        .update({
+          quantity_sold: newQuantitySold,
+          quantity_reserved: newQuantityReserved,
+        } as unknown as never)
+        .eq('id', reservation.lot_id);
 
-          const { error: lotError } = await supabase
-            .from('lots')
-            .update({
-              quantity_sold: newQuantitySold,
-              quantity_reserved: newQuantityReserved,
-            } as unknown as never)
-            .eq('id', reservation.lot_id);
+      if (lotError) throw lotError;
 
-          if (lotError) throw lotError;
-        }
-
-        setSuccess(true);
-        setTimeout(() => {
-          resetState();
-        }, 3000);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la validation';
-        setError(errorMessage);
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      // Validation de réservation simple
-      if (!reservation) return;
-
-      if (enteredPin !== reservation.pickup_pin) {
-        setError('Code PIN incorrect');
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        // Update reservation status to completed
-        const { error: updateError } = await supabase
-          .from('reservations')
-          .update({
-            status: 'completed',
-            completed_at: new Date().toISOString(),
-          } as unknown as never)
-          .eq('id', reservation.id);
-
-        if (updateError) throw updateError;
-
-        // Update lot quantities
-        const newQuantitySold = reservation.lots.quantity_sold + reservation.quantity;
-        const newQuantityReserved = reservation.lots.quantity_reserved - reservation.quantity;
-
-        const { error: lotError } = await supabase
-          .from('lots')
-          .update({
-            quantity_sold: newQuantitySold,
-            quantity_reserved: newQuantityReserved,
-          } as unknown as never)
-          .eq('id', reservation.lot_id);
-
-        if (lotError) throw lotError;
-
-        setSuccess(true);
-        setTimeout(() => {
-          resetState();
-        }, 3000);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la validation';
-        setError(errorMessage);
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+      setSuccess(true);
+      setTimeout(() => {
+        resetState();
+      }, 3000);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la validation';
+      setError(errorMessage);
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const resetState = () => {
     setReservation(null);
-    setReservations([]);
-    setIsGroup(false);
     setEnteredPin('');
     setError(null);
     setSuccess(false);
@@ -362,7 +217,7 @@ export const PickupStation = () => {
       )}
 
       {/* Contenu principal */}
-      {!reservation && !isGroup ? (
+      {!reservation ? (
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="w-full max-w-7xl">
             <div className="text-center mb-4">
@@ -451,129 +306,7 @@ export const PickupStation = () => {
             </div>
           </div>
         </div>
-      ) : isGroup ? (
-        <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-y-auto">
-          {/* Détails du panier groupé */}
-          <div className="lg:w-1/2 bg-white rounded-xl p-4 border border-gray-200 shadow-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-black flex items-center gap-2">
-                <div className="p-1.5 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg">
-                  <Package size={18} className="text-white" strokeWidth={2} />
-                </div>
-                <span>Panier Groupé</span>
-              </h3>
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold border bg-primary-100 text-primary-700 border-primary-300">
-                {reservations.length} produits
-              </span>
-            </div>
-
-            <div className="space-y-3 mb-4 max-h-96 overflow-y-auto">
-              {reservations.map((res, index) => (
-                <div key={res.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="flex items-start gap-2 mb-2">
-                    <span className="flex-shrink-0 w-6 h-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                      {index + 1}
-                    </span>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-black">{res.lots.title}</p>
-                      <p className="text-xs text-gray-600">Quantité: {res.quantity}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-t border-gray-200 pt-3 space-y-2">
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase mb-0.5">Client</p>
-                <p className="text-base font-semibold text-black">{reservations[0].profiles.full_name}</p>
-              </div>
-
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase mb-0.5">Commerçant</p>
-                <p className="text-sm font-semibold text-black mb-0.5">
-                  {reservations[0].lots.profiles.business_name}
-                </p>
-                <p className="text-xs text-gray-600 font-light">
-                  {reservations[0].lots.profiles.business_address}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase mb-0.5">Total</p>
-                <p className="text-2xl font-bold text-primary-600">
-                  {reservations.reduce((sum, r) => sum + r.total_price, 0).toFixed(2)}€
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Validation PIN pour groupe */}
-          <div className="lg:w-1/2 flex flex-col gap-3">
-            <div className="flex-1 bg-white rounded-xl p-6 border border-gray-200 shadow-md flex flex-col justify-center">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="p-2 bg-gradient-to-br from-warning-500 to-warning-600 rounded-lg">
-                  <Lock size={20} className="text-white" strokeWidth={2} />
-                </div>
-                <label className="text-xl font-bold text-black">
-                  Code PIN Unique
-                </label>
-              </div>
-              
-              <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-xs text-green-800 text-center font-medium">
-                  ✨ Un seul code PIN pour tous les produits
-                </p>
-              </div>
-              
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={6}
-                value={enteredPin}
-                onChange={(e) => setEnteredPin(e.target.value.replace(/\D/g, ''))}
-                className="w-full px-4 py-4 text-center text-4xl font-mono font-bold border-2 border-primary-300 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none bg-gradient-to-br from-white to-primary-50 transition-all tracking-[0.8rem] shadow-inner"
-                placeholder="● ● ● ● ● ●"
-                autoFocus
-              />
-              
-              <div className="mt-3 flex justify-center gap-1.5">
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-2.5 h-2.5 rounded-full transition-all ${
-                      i < enteredPin.length ? 'bg-gradient-to-r from-primary-500 to-primary-600 scale-110' : 'bg-gray-300'
-                    }`}
-                  ></div>
-                ))}
-              </div>
-              
-              <div className="mt-4 p-3 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-lg border border-primary-100">
-                <p className="text-xs text-gray-700 text-center font-medium">
-                  🔑 Demandez le code PIN à 6 chiffres
-                </p>
-              </div>
-            </div>
-
-            {/* Boutons d'action */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={resetState}
-                className="py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 border border-gray-200 transition-all font-semibold text-base"
-              >
-                ← Annuler
-              </button>
-              <button
-                onClick={handleValidatePin}
-                disabled={enteredPin.length !== 6 || loading}
-                className="py-3 bg-gradient-to-r from-success-600 to-success-700 text-white rounded-lg hover:from-success-700 hover:to-success-800 transition-all font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-md disabled:shadow-none"
-              >
-                ✅ Valider Tout
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : reservation ? (
+      ) : (
         <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-y-auto">
           {/* Détails de la réservation */}
           <div className="lg:w-1/2 bg-white rounded-xl p-4 border border-gray-200 shadow-md">
@@ -686,7 +419,7 @@ export const PickupStation = () => {
             </div>
           </div>
         </div>
-      ) : null}
+      )}
       </div>
 
       <QRScanner
