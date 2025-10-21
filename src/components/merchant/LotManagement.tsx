@@ -331,13 +331,24 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     return remainingQty <= 0;
   }).length;
 
-  // Filtrer les lots à afficher
-  const displayedLots = hideSoldOut
-    ? lots.filter(lot => {
+  // Séparer les lots gratuits (dons) et les lots payants
+  const freeLots = lots.filter(lot => lot.is_free);
+  const paidLots = lots.filter(lot => !lot.is_free);
+
+  // Filtrer les lots à afficher selon le filtre "masquer épuisés"
+  const displayedFreeLots = hideSoldOut
+    ? freeLots.filter(lot => {
         const remainingQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
         return remainingQty > 0;
       })
-    : lots;
+    : freeLots;
+
+  const displayedPaidLots = hideSoldOut
+    ? paidLots.filter(lot => {
+        const remainingQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+        return remainingQty > 0;
+      })
+    : paidLots;
 
   return (
     <div>
@@ -419,18 +430,121 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
         )}
       </div>
 
-      {/* Grille de lots */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {displayedLots.map((lot) => (
-          <LotCard
-            key={lot.id}
-            lot={lot}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onMakeFree={handleMakeFree}
-          />
-        ))}
-      </div>
+      {/* Section des dons solidaires */}
+      {displayedFreeLots.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="2" y="7" width="20" height="13" rx="2" className="stroke-current" />
+                  <path d="M12 7v13M2 12h20" strokeLinecap="round" strokeLinejoin="round" className="stroke-current" />
+                  <path d="M7.5 7A2.5 2.5 0 1 1 12 4.5 2.5 2.5 0 0 1 16.5 7" strokeLinecap="round" strokeLinejoin="round" className="stroke-current" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">🎁 Dons Solidaires</h2>
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-green-200 to-transparent"></div>
+            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+              {displayedFreeLots.length} don{displayedFreeLots.length > 1 ? 's' : ''}
+            </span>
+          </div>
+          
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">💚</span>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-green-800">Impact Solidaire</p>
+                <p className="text-xs text-green-700">
+                  Ces produits sont offerts gratuitement aux bénéficiaires pour lutter contre le gaspillage alimentaire
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {displayedFreeLots.map((lot) => (
+              <LotCard
+                key={lot.id}
+                lot={lot}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onMakeFree={handleMakeFree}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Section des produits en vente */}
+      {displayedPaidLots.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">💰 Produits en Vente</h2>
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-blue-200 to-transparent"></div>
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+              {displayedPaidLots.length} produit{displayedPaidLots.length > 1 ? 's' : ''}
+            </span>
+          </div>
+
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">💼</span>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-blue-800">Vente Anti-Gaspi</p>
+                <p className="text-xs text-blue-700">
+                  Ces produits sont vendus à prix réduits pour valoriser vos invendus tout en réduisant le gaspillage
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {displayedPaidLots.map((lot) => (
+              <LotCard
+                key={lot.id}
+                lot={lot}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onMakeFree={handleMakeFree}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Message si aucun lot */}
+      {displayedFreeLots.length === 0 && displayedPaidLots.length === 0 && (
+        <div className="text-center py-12">
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Aucun produit disponible</h3>
+          <p className="text-gray-600 mb-6">Commencez par créer votre premier panier anti-gaspi !</p>
+          <button
+            onClick={() => {
+              setEditingLot(null);
+              setShowModal(true);
+            }}
+            className="btn-primary px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all"
+          >
+            Créer un panier
+          </button>
+        </div>
+      )}
 
       {/* Modal de formulaire */}
       {showModal && profile && (
