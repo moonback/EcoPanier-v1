@@ -1,6 +1,6 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus } from 'lucide-react';
+import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2 } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -10,6 +10,7 @@ import { SalesStats } from './SalesStats';
 import { MissionsManagement } from './MissionsManagement';
 import { ProfilePage } from '../shared/ProfilePage';
 import { DashboardHeader } from '../shared/DashboardHeader';
+import { generateFictionalLots } from '../../utils/generateFictionalLots';
 
 // Type pour les onglets
 type TabId = 'lots' | 'reservations' | 'missions' | 'stats' | 'profile';
@@ -23,9 +24,46 @@ export const MerchantDashboard = () => {
   // État local
   const [activeTab, setActiveTab] = useState<TabId>('lots');
   const [createLotHandler, setCreateLotHandler] = useState<(() => void) | null>(null);
+  const [isGeneratingLots, setIsGeneratingLots] = useState(false);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
+
+  // Handler pour générer 30 lots fictifs
+  const handleGenerateFictionalLots = async () => {
+    if (!profile?.id) {
+      alert('Erreur : Profil non trouvé');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      '⚠️ Voulez-vous créer 30 produits de démonstration ?\n\n' +
+      'Cette action créera 30 lots fictifs variés avec des images.\n' +
+      'Parfait pour tester la plateforme !'
+    );
+
+    if (!confirmed) return;
+
+    setIsGeneratingLots(true);
+
+    try {
+      const result = await generateFictionalLots(profile.id);
+
+      if (result.success) {
+        alert(`✅ Succès !\n\n${result.count} produits de démonstration créés avec succès.`);
+        // Rafraîchir l'onglet des lots
+        setActiveTab('lots');
+        window.location.reload();
+      } else {
+        alert(`❌ Erreur lors de la création des produits :\n\n${result.error}`);
+      }
+    } catch (error) {
+      console.error('Erreur génération lots:', error);
+      alert('❌ Erreur lors de la création des produits. Veuillez réessayer.');
+    } finally {
+      setIsGeneratingLots(false);
+    }
+  };
 
   // Configuration des onglets
   const tabs = [
@@ -73,6 +111,14 @@ export const MerchantDashboard = () => {
             },
             variant: 'primary',
             mobileLabel: 'Créer',
+          },
+          {
+            label: isGeneratingLots ? 'Création...' : '30 Démos',
+            icon: Wand2,
+            onClick: handleGenerateFictionalLots,
+            variant: 'secondary',
+            mobileLabel: 'Démo',
+            disabled: isGeneratingLots,
           },
           {
             label: 'Station Retrait',

@@ -12,6 +12,7 @@ interface ActionButton {
   onClick: () => void;
   variant?: 'primary' | 'secondary' | 'danger';
   mobileLabel?: string;
+  disabled?: boolean;
 }
 
 interface DashboardHeaderProps {
@@ -93,12 +94,14 @@ export const DashboardHeader = ({
     };
 
     const classes = variantClasses[action.variant || 'primary'];
+    const disabledClasses = action.disabled ? 'opacity-50 cursor-not-allowed' : '';
 
     return (
       <button
         key={index}
-        onClick={action.onClick}
-        className={`flex items-center gap-2 px-4 py-2 text-sm rounded-xl transition-all font-semibold ${classes}`}
+        onClick={action.disabled ? undefined : action.onClick}
+        disabled={action.disabled}
+        className={`flex items-center gap-2 px-4 py-2 text-sm rounded-xl transition-all font-semibold ${classes} ${disabledClasses}`}
         aria-label={action.label}
       >
         {Icon && <Icon size={18} strokeWidth={2} />}
