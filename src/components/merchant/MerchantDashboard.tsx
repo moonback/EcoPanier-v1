@@ -1,6 +1,6 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2 } from 'lucide-react';
+import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2, Gift } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -8,12 +8,13 @@ import { LotManagement } from './LotManagement';
 import { MerchantReservations } from './MerchantReservations';
 import { SalesStats } from './SalesStats';
 import { MissionsManagement } from './MissionsManagement';
+import { LoyaltyManagement } from './loyalty';
 import { ProfilePage } from '../shared/ProfilePage';
 import { DashboardHeader } from '../shared/DashboardHeader';
 import { generateFictionalLots } from '../../utils/generateFictionalLots';
 
 // Type pour les onglets
-type TabId = 'lots' | 'reservations' | 'missions' | 'stats' | 'profile';
+type TabId = 'lots' | 'reservations' | 'missions' | 'stats' | 'loyalty' | 'profile';
 
 /**
  * Dashboard principal pour les commerçants
@@ -71,6 +72,7 @@ export const MerchantDashboard = () => {
     { id: 'reservations' as TabId, label: 'Commandes', icon: ClipboardList, emoji: '📋' },
     { id: 'missions' as TabId, label: 'Missions', icon: Truck, emoji: '🚚' },
     { id: 'stats' as TabId, label: 'Stats', icon: TrendingUp, emoji: '📊' },
+    { id: 'loyalty' as TabId, label: 'Fidélité', icon: Gift, emoji: '🎁' },
     { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
 
@@ -140,6 +142,7 @@ export const MerchantDashboard = () => {
         {activeTab === 'reservations' && <MerchantReservations />}
         {activeTab === 'missions' && <MissionsManagement />}
         {activeTab === 'stats' && <SalesStats />}
+        {activeTab === 'loyalty' && <LoyaltyManagement />}
         {activeTab === 'profile' && <ProfilePage />}
       </main>
 
