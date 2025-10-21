@@ -16,25 +16,64 @@ export const ImpactCalculatorSection = () => {
   const yearlyMealsSaved = basketsPerYear * mealsPerBasket;
 
   return (
-    <section className="py-32 bg-black text-white relative overflow-hidden">
-      {/* Arrière-plan animé */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-success-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+    <section className="relative min-h-screen flex items-center justify-center py-24 md:py-32 bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white overflow-hidden">
+      {/* Orbs lumineux animés */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, 80, 0],
+            y: [0, -40, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-success-500/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 40, 0],
+            scale: [1.2, 1, 1.2],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16 md:mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
-            Et si vous calculiez votre impact ?
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl text-white px-5 py-2.5 rounded-full font-bold border border-white/20 mb-8 shadow-xl"
+          >
+            <TrendingUp className="w-5 h-5" />
+            <span>Calculateur d'impact</span>
+          </motion.div>
+
+          <h2 className="text-4xl sm:text-5xl md:text-7xl font-black mb-6 tracking-tight leading-tight">
+            Et si vous calculiez
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-success-400 to-emerald-400 animate-gradient">
+              votre impact ?
+            </span>
           </h2>
-          <p className="text-xl text-white/70 font-light max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl md:text-2xl text-white/80 font-light max-w-4xl mx-auto leading-relaxed">
             Découvrez combien vous pourriez économiser et quel impact vous auriez sur la planète 
             en sauvant des paniers chaque mois.
           </p>
