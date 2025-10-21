@@ -178,7 +178,7 @@ export const PickupStation = () => {
         <div className="flex items-center justify-between">
           {/* Logo à gauche */}
           <div className="flex items-center gap-3 w-1/3">
-            <img src="/logo.png" alt="EcoPanier" className="h-10 rounded-xl object-contain shadow-md" />
+            <img src="/logo-retrait.png" alt="EcoPanier" className="h-10 rounded-xl object-contain shadow-md" />
           </div>
           
           {/* Titre centré */}
