@@ -4,7 +4,6 @@ import {
   ShoppingBag,
   History,
   TrendingUp,
-  QrCode,
   User,
   MapPin,
 } from 'lucide-react';
@@ -14,7 +13,6 @@ import { useAuthStore } from '../../stores/authStore';
 import { LotBrowser } from './LotBrowser';
 import { ReservationsList } from './ReservationsList';
 import { ImpactDashboard } from './ImpactDashboard';
-import { QRCodeDisplay } from '../shared/QRCodeDisplay';
 import { ProfilePage } from '../shared/ProfilePage';
 import { InteractiveMap } from './InteractiveMap';
 import { DashboardHeader } from '../shared/DashboardHeader';
@@ -22,12 +20,12 @@ import { DashboardHeader } from '../shared/DashboardHeader';
 import EcoPanierLogo from '/logo.png'; // Import du logo
 
 // Type pour les onglets
-type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'qrcode' | 'profile';
+type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'profile';
 
 /**
  * Dashboard principal pour les clients
  * Gère la navigation entre les différentes sections : parcourir les lots,
- * gérer les réservations, voir l'impact, QR code personnel et profil
+ * gérer les réservations, voir l'impact et profil
  */
 export const CustomerDashboard = () => {
   // État local
@@ -42,7 +40,6 @@ export const CustomerDashboard = () => {
     { id: 'map' as TabId, label: 'Carte', icon: MapPin, emoji: '🗺️' },
     { id: 'reservations' as TabId, label: 'Mes paniers', icon: History, emoji: '📦' },
     { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp, emoji: '🌍' },
-    { id: 'qrcode' as TabId, label: 'QR Code', icon: QrCode, emoji: '📱' },
     { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
 
@@ -63,16 +60,6 @@ export const CustomerDashboard = () => {
         {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}
         {activeTab === 'impact' && <ImpactDashboard />}
-        {activeTab === 'qrcode' && (
-          <div className="flex justify-center">
-            <div className="w-full max-w-sm">
-              <QRCodeDisplay
-                value={profile?.id || ''}
-                title="Votre QR Code Personnel"
-              />
-            </div>
-          </div>
-        )}
         {activeTab === 'profile' && <ProfilePage />}
       </main>
 
