@@ -1,17 +1,17 @@
 import { supabase } from '../lib/supabase';
 
 /**
- * Catégories de produits disponibles
+ * Catégories de produits disponibles (en français comme dans l'app)
  */
 const CATEGORIES = [
-  'bakery',
-  'fruits_vegetables',
-  'dairy',
-  'meat_fish',
-  'prepared_meals',
-  'grocery',
-  'frozen',
-  'other',
+  'boulangerie',
+  'fruits_legumes',
+  'produits_laitiers',
+  'boucherie',
+  'plats_prepares',
+  'epicerie',
+  'surgeles',
+  'autres',
 ];
 
 /**
@@ -22,7 +22,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Panier Boulangerie du Jour',
     description: 'Sélection de pains et viennoiseries fraîches de la journée. Contient : baguettes, croissants, pains au chocolat et pains aux raisins.',
-    category: 'bakery',
+    category: 'boulangerie',
     originalPrice: 15.0,
     discountedPrice: 5.0,
     quantity: 8,
@@ -33,7 +33,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Assortiment Viennoiseries Premium',
     description: 'Viennoiseries artisanales fraîches du matin : croissants au beurre, pains au chocolat, brioches et chaussons aux pommes.',
-    category: 'bakery',
+    category: 'boulangerie',
     originalPrice: 12.0,
     discountedPrice: 4.0,
     quantity: 10,
@@ -44,7 +44,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Mix Pains Spéciaux',
     description: 'Assortiment de pains spéciaux artisanaux : pain aux céréales, pain de campagne, pain complet et baguette tradition.',
-    category: 'bakery',
+    category: 'boulangerie',
     originalPrice: 10.0,
     discountedPrice: 3.5,
     quantity: 12,
@@ -57,7 +57,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Panier Fruits de Saison',
     description: 'Fruits frais de saison légèrement marqués mais excellents. Pommes, poires, oranges, bananes et kiwis.',
-    category: 'fruits_vegetables',
+    category: 'fruits_legumes',
     originalPrice: 18.0,
     discountedPrice: 6.0,
     quantity: 15,
@@ -68,7 +68,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Lot Légumes Frais Bio',
     description: 'Légumes bio de saison : carottes, courgettes, tomates, poivrons, salade et pommes de terre.',
-    category: 'fruits_vegetables',
+    category: 'fruits_legumes',
     originalPrice: 20.0,
     discountedPrice: 7.0,
     quantity: 10,
@@ -79,7 +79,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Mix Agrumes Vitaminés',
     description: 'Sélection d\'agrumes frais : oranges, citrons, pamplemousses et clémentines. Parfait pour les jus et vitamines.',
-    category: 'fruits_vegetables',
+    category: 'fruits_legumes',
     originalPrice: 14.0,
     discountedPrice: 4.5,
     quantity: 20,
@@ -92,7 +92,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Assortiment Produits Laitiers',
     description: 'Sélection de produits laitiers frais : yaourts nature et aux fruits, fromages blancs et crème fraîche. DLC courte.',
-    category: 'dairy',
+    category: 'produits_laitiers',
     originalPrice: 16.0,
     discountedPrice: 5.5,
     quantity: 12,
@@ -103,7 +103,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Plateau Fromages Variés',
     description: 'Assortiment de fromages français : camembert, brie, comté, chèvre et roquefort. À consommer rapidement.',
-    category: 'dairy',
+    category: 'produits_laitiers',
     originalPrice: 22.0,
     discountedPrice: 8.0,
     quantity: 6,
@@ -114,7 +114,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Pack Yaourts Artisanaux',
     description: 'Yaourts artisanaux fabriqués sur place. Différents parfums : vanille, fraise, fruits des bois et nature.',
-    category: 'dairy',
+    category: 'produits_laitiers',
     originalPrice: 12.0,
     discountedPrice: 4.0,
     quantity: 15,
@@ -127,7 +127,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Lot Viandes Fraîches',
     description: 'Sélection de viandes fraîches du boucher : poulet, bœuf et porc. Qualité premium à consommer sous 48h.',
-    category: 'meat_fish',
+    category: 'boucherie',
     originalPrice: 25.0,
     discountedPrice: 9.0,
     quantity: 5,
@@ -138,7 +138,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Poissons Frais du Marché',
     description: 'Poissons frais de la criée : dorade, saumon, cabillaud et crevettes. Pêche responsable du jour.',
-    category: 'meat_fish',
+    category: 'boucherie',
     originalPrice: 30.0,
     discountedPrice: 11.0,
     quantity: 4,
@@ -149,7 +149,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Charcuterie Artisanale',
     description: 'Assortiment de charcuteries artisanales : jambon, saucisson, pâté et rillettes. DLC courte.',
-    category: 'meat_fish',
+    category: 'boucherie',
     originalPrice: 18.0,
     discountedPrice: 6.5,
     quantity: 8,
@@ -162,7 +162,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Plat Cuisiné Maison',
     description: 'Plat fait maison du jour : lasagnes, quiches, tartes salées ou gratins. Recettes traditionnelles.',
-    category: 'prepared_meals',
+    category: 'plats_prepares',
     originalPrice: 12.0,
     discountedPrice: 4.5,
     quantity: 10,
@@ -173,7 +173,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Menu Complet du Jour',
     description: 'Menu complet équilibré : entrée, plat principal et dessert. Cuisine française traditionnelle.',
-    category: 'prepared_meals',
+    category: 'plats_prepares',
     originalPrice: 15.0,
     discountedPrice: 5.5,
     quantity: 8,
@@ -184,7 +184,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Salades Fraîches Composées',
     description: 'Salades composées du jour : César, niçoise, chèvre chaud et poulet curry. Fraîches et savoureuses.',
-    category: 'prepared_meals',
+    category: 'plats_prepares',
     originalPrice: 10.0,
     discountedPrice: 3.5,
     quantity: 12,
@@ -197,7 +197,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Lot Épicerie Sèche',
     description: 'Assortiment de produits d\'épicerie : pâtes, riz, conserves, huiles et condiments. DLC longue.',
-    category: 'grocery',
+    category: 'epicerie',
     originalPrice: 20.0,
     discountedPrice: 7.0,
     quantity: 15,
@@ -208,7 +208,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Pack Petit Déjeuner',
     description: 'Kit complet petit déjeuner : céréales, confitures, miel, thé, café et biscuits.',
-    category: 'grocery',
+    category: 'epicerie',
     originalPrice: 16.0,
     discountedPrice: 5.5,
     quantity: 10,
@@ -219,7 +219,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Lot Conserves Premium',
     description: 'Sélection de conserves de qualité : légumes, poissons, fruits et plats cuisinés. DLC proche.',
-    category: 'grocery',
+    category: 'epicerie',
     originalPrice: 18.0,
     discountedPrice: 6.0,
     quantity: 12,
@@ -232,7 +232,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Assortiment Surgelés',
     description: 'Produits surgelés variés : légumes, poissons, viandes et plats préparés. Chaîne du froid respectée.',
-    category: 'frozen',
+    category: 'surgeles',
     originalPrice: 24.0,
     discountedPrice: 8.5,
     quantity: 8,
@@ -243,7 +243,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Glaces et Desserts Glacés',
     description: 'Sélection de glaces et desserts glacés : pots de glace, esquimaux et sorbets artisanaux.',
-    category: 'frozen',
+    category: 'surgeles',
     originalPrice: 15.0,
     discountedPrice: 5.0,
     quantity: 10,
@@ -254,7 +254,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Mix Pizzas et Snacks',
     description: 'Pizzas surgelées et snacks : pizzas margarita, 4 fromages, frites et nuggets. Idéal pour repas rapide.',
-    category: 'frozen',
+    category: 'surgeles',
     originalPrice: 20.0,
     discountedPrice: 7.0,
     quantity: 12,
@@ -267,7 +267,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Panier Anti-Gaspi Surprise',
     description: 'Panier surprise avec assortiment varié de produits divers : un peu de tout pour découvrir !',
-    category: 'other',
+    category: 'autres',
     originalPrice: 20.0,
     discountedPrice: 6.5,
     quantity: 15,
@@ -278,7 +278,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Lot Pâtisseries Fines',
     description: 'Pâtisseries artisanales du jour : éclairs, tartelettes, macarons et mille-feuilles.',
-    category: 'bakery',
+    category: 'boulangerie',
     originalPrice: 18.0,
     discountedPrice: 6.0,
     quantity: 6,
@@ -289,7 +289,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Boissons Fraîches Variées',
     description: 'Assortiment de boissons : jus de fruits, sodas, eaux aromatisées et boissons énergisantes.',
-    category: 'other',
+    category: 'autres',
     originalPrice: 14.0,
     discountedPrice: 4.5,
     quantity: 20,
@@ -300,7 +300,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Sandwiches et Wraps',
     description: 'Sandwiches et wraps frais du jour : jambon-beurre, poulet curry, thon crudités et végétarien.',
-    category: 'prepared_meals',
+    category: 'plats_prepares',
     originalPrice: 12.0,
     discountedPrice: 4.0,
     quantity: 15,
@@ -311,7 +311,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Fruits Exotiques Mix',
     description: 'Sélection de fruits exotiques : mangues, ananas, fruits de la passion, litchis et noix de coco.',
-    category: 'fruits_vegetables',
+    category: 'fruits_legumes',
     originalPrice: 16.0,
     discountedPrice: 5.5,
     quantity: 10,
@@ -322,7 +322,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Herbes et Aromates Frais',
     description: 'Bouquets d\'herbes fraîches : basilic, persil, coriandre, menthe, thym et romarin.',
-    category: 'fruits_vegetables',
+    category: 'fruits_legumes',
     originalPrice: 8.0,
     discountedPrice: 2.5,
     quantity: 25,
@@ -333,7 +333,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Produits Végétariens Bio',
     description: 'Sélection de produits végétariens bio : tofu, seitan, steaks végétaux et lait d\'amande.',
-    category: 'other',
+    category: 'autres',
     originalPrice: 15.0,
     discountedPrice: 5.0,
     quantity: 8,
@@ -344,7 +344,7 @@ const LOT_TEMPLATES = [
   {
     title: 'Chocolats et Confiseries',
     description: 'Assortiment de chocolats fins et confiseries : tablettes, pralinés, truffes et bonbons.',
-    category: 'other',
+    category: 'autres',
     originalPrice: 12.0,
     discountedPrice: 4.0,
     quantity: 18,
