@@ -140,11 +140,11 @@ export const MerchantReservations = () => {
           <Package size={64} className="text-secondary-400" strokeWidth={1} />
         </div>
         <h3 className="text-2xl font-bold text-black mb-3">
-          Vos commandes apparaîtront ici 📋
+          Les commandes réservées par vos clients apparaîtront ici 📋
         </h3>
         <p className="text-gray-600 font-light mb-6 max-w-md mx-auto leading-relaxed">
-          Créez vos premiers paniers d'invendus et commencez à valoriser vos produits 
-          tout en réduisant le gaspillage ! 🌱
+          Commencez à valoriser vos produits 
+          tout en réduisant le gaspillage alimentaire ! 🌱
         </p>
         <button
           onClick={() => window.location.reload()}
