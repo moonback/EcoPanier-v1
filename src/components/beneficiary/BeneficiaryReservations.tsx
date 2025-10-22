@@ -188,7 +188,7 @@ export const BeneficiaryReservations = () => {
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="px-6 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl font-semibold hover:from-accent-700 hover:to-accent-800 transition-all shadow-lg"
+          className="px-6 py-3 bg-accent-600 text-white rounded-lg font-semibold hover:bg-accent-700 hover:shadow-sm transition-all"
         >
           Découvrir les paniers solidaires
         </button>
@@ -267,7 +267,7 @@ export const BeneficiaryReservations = () => {
               {reservation.status === 'pending' && (
                 <button
                   onClick={() => setSelectedReservation(reservation)}
-                  className="w-full mt-4 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl hover:from-accent-700 hover:to-accent-800 transition-all font-semibold shadow-lg hover:shadow-xl"
+                  className="w-full mt-4 py-3 bg-accent-600 text-white rounded-lg hover:bg-accent-700 hover:shadow-sm transition-all font-semibold"
                 >
                   📱 Voir mon QR Code
                 </button>
@@ -361,7 +361,7 @@ export const BeneficiaryReservations = () => {
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleDownloadQR}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl hover:from-accent-700 hover:to-accent-800 transition-all shadow-md hover:shadow-lg font-semibold"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-accent-600 text-white rounded-lg hover:bg-accent-700 hover:shadow-sm transition-all font-semibold"
               >
                 <Download size={20} />
                 <span>Télécharger</span>

@@ -260,7 +260,7 @@ export function QRCodeModal({
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6">
           <button
             onClick={handleDownloadQR}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 active:from-primary-800 active:to-primary-900 transition-all shadow-md hover:shadow-lg active:shadow-sm active:scale-95 font-semibold text-sm sm:text-base"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 hover:shadow-sm active:bg-primary-800 transition-all active:scale-95 font-semibold text-sm sm:text-base"
           >
             <Download size={18} className="sm:w-5 sm:h-5" />
             <span>Télécharger</span>

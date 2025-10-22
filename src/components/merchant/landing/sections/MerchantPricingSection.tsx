@@ -32,7 +32,7 @@ export const MerchantPricingSection = () => {
         >
           {/* Badge "Populaire" */}
           <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-secondary-600 to-secondary-700 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-secondary-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
               <span>⭐</span>
               <span>Offre de lancement</span>
             </div>

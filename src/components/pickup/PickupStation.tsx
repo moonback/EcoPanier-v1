@@ -162,7 +162,7 @@ export const PickupStation = () => {
           
           <button
             onClick={resetState}
-            className="w-full py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all font-semibold text-lg shadow-lg"
+            className="w-full py-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 hover:shadow-sm transition-all font-semibold text-lg"
           >
             Nouveau retrait →
           </button>
@@ -280,8 +280,8 @@ export const PickupStation = () => {
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl border border-primary-200 hover:shadow-md transition-all">
-                      <div className="w-12 h-12 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <div className="flex items-start gap-4 p-4 bg-primary-50 rounded-xl border border-primary-200 hover:shadow-md transition-all">
+                      <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
                         <Scan size={20} className="text-white" strokeWidth={2.5} />
                       </div>
                       <div className="flex-1">

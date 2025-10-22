@@ -263,7 +263,7 @@ export const UserManagement = () => {
         </div>
         <button
           onClick={exportToCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl hover:from-accent-700 hover:to-accent-800 transition-all font-semibold shadow-lg"
+          className="flex items-center gap-2 px-4 py-2 bg-accent-600 text-white rounded-lg hover:bg-accent-700 hover:shadow-sm transition-all font-semibold"
         >
           <Download size={18} strokeWidth={2} />
           <span>Exporter CSV</span>

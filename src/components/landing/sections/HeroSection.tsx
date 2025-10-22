@@ -115,19 +115,13 @@ export const HeroSection = () => {
           >
             <motion.button
               onClick={() => navigate('/dashboard')}
-              className="group relative inline-flex items-center justify-center gap-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-10 py-5 rounded-xl text-lg font-bold overflow-hidden shadow-2xl hover:shadow-primary-500/50 transition-all"
+              className="group inline-flex items-center justify-center gap-3 bg-primary-600 text-white px-10 py-5 rounded-lg text-lg font-bold hover:bg-primary-700 hover:shadow-lg transition-all shadow-md"
               type="button"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-500"
-                initial={{ x: '-100%' }}
-                whileHover={{ x: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-              <span className="relative z-10">Découvrir la plateforme</span>
-              <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+              <span>Découvrir la plateforme</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </motion.button>
             
             <motion.button

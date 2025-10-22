@@ -221,7 +221,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                       <Package size={32} className="text-accent-300" strokeWidth={1.5} />
                     </div>
                   )}
-                  <div className="absolute top-1 right-1 bg-gradient-to-r from-accent-600 to-accent-700 text-white px-1.5 py-0.5 rounded-full font-bold text-xs flex items-center gap-1">
+                  <div className="absolute top-1 right-1 bg-accent-600 text-white px-1.5 py-0.5 rounded-full font-bold text-xs flex items-center gap-1">
                     <Heart size={10} strokeWidth={2} />
                     <span>GRATUIT</span>
                   </div>
@@ -300,7 +300,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                   <Package size={48} className="text-accent-300" strokeWidth={1.5} />
                 </div>
               )}
-              <div className="absolute top-2 right-2 bg-gradient-to-r from-accent-600 to-accent-700 text-white px-2 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg border-2 border-white">
+              <div className="absolute top-2 right-2 bg-accent-600 text-white px-2 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg border-2 border-white">
                 <Heart size={12} strokeWidth={2} />
                 <span>GRATUIT</span>
               </div>

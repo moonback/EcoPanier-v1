@@ -88,8 +88,8 @@ export const DashboardHeader = ({
     const Icon = action.icon;
     
     const variantClasses = {
-      primary: 'bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 shadow-md hover:shadow-lg',
-      secondary: 'bg-gradient-to-r from-secondary-600 to-secondary-700 text-white hover:from-secondary-700 hover:to-secondary-800 shadow-md hover:shadow-lg',
+      primary: 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-sm',
+      secondary: 'bg-secondary-600 text-white hover:bg-secondary-700 hover:shadow-sm',
       danger: 'text-red-600 border border-red-600 hover:bg-red-50',
     };
 

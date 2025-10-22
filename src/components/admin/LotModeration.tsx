@@ -246,7 +246,7 @@ export function LotModeration() {
       available: { label: '✅ Disponible', color: 'bg-gradient-to-r from-success-100 to-success-200 text-success-700 border-success-300' },
       reserved: { label: '⏳ Réservé', color: 'bg-gradient-to-r from-warning-100 to-warning-200 text-warning-700 border-warning-300' },
       sold_out: { label: '🚫 Épuisé', color: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-gray-300' },
-      expired: { label: '⚠️ Expiré', color: 'bg-gradient-to-r from-accent-100 to-accent-200 text-accent-700 border-accent-300' }
+      expired: { label: '⚠️ Expiré', color: 'bg-accent-100 text-accent-700 border-accent-300' }
     };
     const badge = badges[status];
     return (
@@ -288,7 +288,7 @@ export function LotModeration() {
         </div>
         <button
           onClick={fetchLots}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all font-semibold shadow-lg"
+          className="flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 hover:shadow-sm transition-all font-semibold"
         >
           <TrendingUp size={18} strokeWidth={2} />
           <span>Actualiser</span>
@@ -508,7 +508,7 @@ export function LotModeration() {
             </p>
             <button
               onClick={resetFilters}
-              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg"
+              className="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 hover:shadow-sm transition-all"
             >
               Réinitialiser les filtres
             </button>
@@ -557,7 +557,7 @@ export function LotModeration() {
                         <div className="flex flex-col items-end gap-2 flex-shrink-0">
                           {getStatusBadge(lot.status)}
                           {lot.is_urgent && (
-                            <span className="px-3 py-1 bg-gradient-to-r from-accent-500 to-accent-600 text-white text-xs font-bold rounded-full shadow-sm">
+                            <span className="px-3 py-1 bg-accent-600 text-white text-xs font-bold rounded-full shadow-sm">
                               🔥 Urgent
                             </span>
                           )}
