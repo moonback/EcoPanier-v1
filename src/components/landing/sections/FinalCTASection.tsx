@@ -27,11 +27,11 @@ export const FinalCTASection = () => {
           className="text-center max-w-4xl mx-auto"
         >
           {/* Titre principal */}
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-8 tracking-tight leading-tight">
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-8 tracking-tight leading-tight">
             <span className="block">
               Prêt à faire la
             </span>
-            <span className="text-primary-400 block">
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent block">
               différence ensemble ?
             </span>
           </h2>
@@ -59,23 +59,33 @@ export const FinalCTASection = () => {
 
           {/* Boutons CTA - même style que Hero */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
+            <motion.button
               onClick={() => navigate('/dashboard')}
-              className="btn-primary text-lg px-10 py-5 rounded-lg shadow-xl hover:shadow-2xl transition-all group flex items-center gap-3 justify-center"
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:shadow-primary-500/50"
               type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span>Commencer maintenant</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-500"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="relative z-10">Commencer maintenant</span>
+              <ArrowRight className="relative z-10 w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </motion.button>
             
-            <button
+            <motion.button
               onClick={() => navigate('/commercants')}
-              className="btn-secondary text-lg px-8 py-5 rounded-lg flex items-center justify-center gap-2 border border-white/20"
+              className="inline-flex items-center justify-center rounded-xl border-2 border-white/40 bg-white/15 px-10 py-5 text-lg font-semibold text-white shadow-xl backdrop-blur-md transition-all hover:bg-white/25"
               type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
               <span>Devenir partenaire</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </motion.button>
           </div>
 
           {/* Mention légère en bas */}

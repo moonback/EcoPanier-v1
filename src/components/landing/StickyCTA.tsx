@@ -34,11 +34,19 @@ export const StickyCTA = () => {
           className="fixed bottom-6 left-0 right-0 z-50 px-6"
         >
           <div className="max-w-2xl mx-auto">
-            <button
+            <motion.button
               onClick={() => navigate('/dashboard')}
-              className="group w-full flex items-center justify-between bg-gradient-to-r from-primary-600 via-primary-700 to-primary-600 text-white px-6 py-5 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-[1.02]"
+              className="group w-full flex items-center justify-between bg-gradient-to-r from-primary-600 via-primary-700 to-primary-600 text-white px-6 py-5 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-[1.02] relative overflow-hidden"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <div className="flex items-center gap-4">
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-500"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <div className="flex items-center gap-4 relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
                   <span className="text-2xl">🛒</span>
                 </div>
@@ -49,8 +57,8 @@ export const StickyCTA = () => {
                   </div>
                 </div>
               </div>
-              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-            </button>
+              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform flex-shrink-0 relative z-10" />
+            </motion.button>
           </div>
         </motion.div>
       )}

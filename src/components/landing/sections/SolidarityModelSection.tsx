@@ -44,12 +44,16 @@ export const SolidarityModelSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 bg-accent-100 text-accent-700 px-4 py-2 rounded-full font-medium mb-6">
+          <div className="inline-flex items-center gap-2 bg-accent-50 text-accent-700 px-4 py-2 rounded-full font-medium mb-6">
             <Heart className="w-5 h-5" />
             <span>Solidarité intégrée</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Un modèle de solidarité unique
+          <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
+            Un modèle de solidarité
+            <br />
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">
+              unique
+            </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
             Les lots solidaires : une aide digne et transparente, soutenue par la communauté, pour les personnes en situation de précarité
@@ -135,9 +139,16 @@ export const SolidarityModelSection = () => {
         >
           <button
             onClick={() => window.location.href = '/help'}
-            className="inline-flex items-center gap-2 bg-black text-white px-8 py-4 rounded-xl font-medium hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
+            className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-accent-600 to-accent-700 px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:shadow-accent-500/50"
+            type="button"
           >
-            Comprendre le programme solidaire
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-accent-400 to-accent-500"
+              initial={{ x: '-100%' }}
+              whileHover={{ x: 0 }}
+              transition={{ duration: 0.3 }}
+            />
+            <span className="relative z-10">Comprendre le programme solidaire</span>
           </button>
         </motion.div>
       </div>

@@ -20,10 +20,16 @@ export const WhyEcoPanierSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
+          <div className="inline-flex items-center gap-2 bg-success-50 text-success-700 px-4 py-2 rounded-full font-medium mb-6">
+            <span className="text-lg">🌱</span>
+            <span>Solution locale et solidaire</span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
             Une solution concrète,
             <br />
-            <span className="text-primary-600">locale et solidaire</span>
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">
+              locale et solidaire
+            </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
             Tech et humanité réunies pour un impact mesurable
@@ -77,9 +83,16 @@ export const WhyEcoPanierSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="bg-black rounded-3xl p-12 text-white"
+          className="bg-gradient-to-br from-black via-gray-900 to-black rounded-3xl p-12 text-white relative overflow-hidden"
         >
-          <div className="text-center mb-12">
+          {/* Effet de lumière animé */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-accent-500/10 to-secondary-500/10"
+            animate={{ opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          />
+          
+          <div className="relative z-10 text-center mb-12">
             <h3 className="text-3xl md:text-4xl font-bold mb-3">Notre impact collectif</h3>
             <p className="text-white/70 text-lg font-light">En temps réel, l'impact de notre communauté</p>
           </div>
