@@ -1,53 +1,53 @@
 import { motion } from 'framer-motion';
-import { BarChart3, Camera, Smartphone, Clock, Bell, Shield, MapPin, Download } from 'lucide-react';
+import { BarChart3, Camera, Smartphone, Clock, Bell, Shield, MapPin, Download, Brain, QrCode } from 'lucide-react';
 
 const features = [
   {
-    icon: Smartphone,
-    title: 'Interface intuitive',
-    description: 'Créez et gérez vos lots en quelques clics depuis votre smartphone ou ordinateur.',
-    color: 'from-primary-500 to-primary-600'
-  },
-  {
-    icon: Camera,
-    title: 'IA d\'analyse d\'image',
-    description: 'Prenez une photo de vos produits et l\'IA génère automatiquement la description et le prix.',
+    icon: Brain,
+    title: 'IA Gemini intégrée',
+    description: 'Analyse automatique de vos photos pour extraire titre, description, catégorie et prix estimé avec un niveau de confiance.',
     color: 'from-secondary-500 to-purple-600'
   },
   {
-    icon: BarChart3,
-    title: 'Statistiques en temps réel',
-    description: 'Suivez vos ventes, revenus et impact environnemental avec des graphiques détaillés.',
+    icon: Camera,
+    title: 'Création en 5 étapes',
+    description: 'Formulaire progressif guidé : IA → Infos → Prix → Horaires → Options. Interface intuitive et rapide.',
+    color: 'from-primary-500 to-primary-600'
+  },
+  {
+    icon: QrCode,
+    title: 'Station de retrait',
+    description: 'Scanner QR code intégré avec validation PIN. Interface dédiée pour valider les retraits en 30 secondes.',
     color: 'from-success-500 to-success-600'
   },
   {
-    icon: Clock,
-    title: 'Horaires flexibles',
-    description: 'Définissez vos propres horaires de retrait selon votre disponibilité.',
+    icon: BarChart3,
+    title: 'Statistiques avancées',
+    description: 'Dashboard complet : lots créés, CA généré, articles vendus, impact environnemental et tendances.',
     color: 'from-warning-500 to-warning-600'
   },
   {
     icon: Bell,
-    title: 'Notifications instantanées',
-    description: 'Recevez une notification pour chaque nouvelle réservation en temps réel.',
+    title: 'Notifications temps réel',
+    description: 'Alertes instantanées pour chaque réservation, changement de statut et activité sur vos lots.',
     color: 'from-accent-500 to-pink-600'
   },
   {
     icon: Shield,
-    title: 'Paiement sécurisé',
-    description: 'Les clients paient en ligne. Vous recevez vos revenus automatiquement chaque semaine.',
+    title: 'Paiements sécurisés',
+    description: 'Clients paient en ligne, vous recevez vos revenus automatiquement chaque semaine. Commission transparente.',
     color: 'from-primary-500 to-primary-600'
   },
   {
     icon: MapPin,
     title: 'Géolocalisation',
-    description: 'Votre commerce est visible sur la carte pour attirer les clients à proximité.',
+    description: 'Votre commerce visible sur la carte interactive pour attirer les clients à proximité.',
     color: 'from-success-500 to-success-600'
   },
   {
     icon: Download,
     title: 'Export de données',
-    description: 'Exportez vos statistiques et rapports pour votre comptabilité.',
+    description: 'Exportez vos statistiques et rapports en CSV/JSON pour votre comptabilité et analyses.',
     color: 'from-secondary-500 to-purple-600'
   }
 ];

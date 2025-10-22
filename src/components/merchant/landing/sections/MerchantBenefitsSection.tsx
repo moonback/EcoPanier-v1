@@ -3,39 +3,39 @@ import { Check } from 'lucide-react';
 
 const benefits = [
   {
+    title: 'Création ultra-rapide',
+    items: [
+      'IA Gemini : analyse automatique en 30s',
+      'Formulaire en 5 étapes guidées',
+      'Interface mobile et desktop optimisée',
+      'Validation en temps réel'
+    ]
+  },
+  {
     title: 'Gestion simplifiée',
     items: [
-      'Créez un lot en moins de 2 minutes',
-      'Interface intuitive et rapide',
-      'Gestion des stocks en temps réel',
-      'QR code pour validation instantanée'
+      'Station de retrait intégrée',
+      'QR code + PIN pour validation',
+      'Notifications temps réel',
+      'Suivi des réservations en direct'
     ]
   },
   {
-    title: 'Zéro frais cachés',
+    title: 'Modèle économique transparent',
     items: [
       'Inscription 100% gratuite',
-      'Aucun engagement, aucun abonnement',
-      'Commission transparente uniquement sur les ventes',
-      'Pas de matériel à acheter'
+      'Commission unique de 15%',
+      'Virement automatique hebdomadaire',
+      'Aucun frais caché ni abonnement'
     ]
   },
   {
-    title: 'Visibilité maximale',
+    title: 'Impact et visibilité',
     items: [
       'Profil visible sur la carte interactive',
-      'Notifications push aux clients à proximité',
-      'Communication sur votre engagement',
-      'Statistiques détaillées en temps réel'
-    ]
-  },
-  {
-    title: 'Support dédié',
-    items: [
-      'Accompagnement à l\'inscription',
-      'Équipe disponible 7j/7',
-      'Guides et tutoriels vidéo',
-      'Conseils pour optimiser vos ventes'
+      'Statistiques d\'impact environnemental',
+      'Participation à la solidarité alimentaire',
+      'Communication sur votre engagement'
     ]
   }
 ];

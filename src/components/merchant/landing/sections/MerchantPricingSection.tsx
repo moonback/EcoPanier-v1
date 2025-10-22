@@ -66,6 +66,8 @@ export const MerchantPricingSection = () => {
                 </div>
                 <p className="text-gray-700 text-sm">
                   Vous vendez un lot à <strong>10€</strong> → Vous recevez <strong>8,50€</strong> dans votre compte.
+                  <br />
+                  <span className="text-xs text-gray-500">Commission : 1,50€ (15%)</span>
                 </p>
               </div>
             </div>
@@ -78,14 +80,13 @@ export const MerchantPricingSection = () => {
               <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                 {[
                   'Création de lots illimitée',
-                  'Interface complète et intuitive',
-                  'IA d\'analyse d\'image',
-                  'Statistiques en temps réel',
-                  'QR code pour validation',
-                  'Notifications instantanées',
+                  'IA Gemini intégrée',
+                  'Station de retrait QR code',
+                  'Statistiques avancées',
+                  'Notifications temps réel',
                   'Support client dédié',
                   'Visibilité sur la carte',
-                  'Export de données',
+                  'Export de données CSV/JSON',
                   'Virement automatique hebdomadaire'
                 ].map((feature, index) => (
                   <div key={index} className="flex items-center gap-3">

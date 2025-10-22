@@ -11,6 +11,7 @@ import {
   MerchantBenefitsSection,
   MerchantHowItWorksSection,
   MerchantFeaturesSection,
+  MerchantAdvancedFeaturesSection,
   MerchantTestimonialsSection,
   MerchantPricingSection,
   MerchantFAQSection,
@@ -55,6 +56,9 @@ export const MerchantLanding = () => {
       
       {/* Section Fonctionnalités */}
       <MerchantFeaturesSection />
+      
+      {/* Section Fonctionnalités Avancées */}
+      <MerchantAdvancedFeaturesSection />
       
       {/* Section Témoignages */}
       <MerchantTestimonialsSection />

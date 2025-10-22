@@ -19,11 +19,12 @@ landing/
 ├── MerchantLanding.tsx          # Page principale
 ├── MerchantStickyCTA.tsx        # CTA flottant sticky
 ├── sections/
-│   ├── MerchantHeroSection.tsx          # Hero avec gradient violet
+│   ├── MerchantHeroSection.tsx          # Hero avec IA et stats mises à jour
 │   ├── MerchantWhySection.tsx           # Pourquoi rejoindre (4 raisons)
 │   ├── MerchantBenefitsSection.tsx      # Avantages concrets (4 colonnes)
-│   ├── MerchantHowItWorksSection.tsx    # 4 étapes pour réussir
-│   ├── MerchantFeaturesSection.tsx      # Fonctionnalités (8 features)
+│   ├── MerchantHowItWorksSection.tsx    # 4 étapes avec IA Gemini
+│   ├── MerchantFeaturesSection.tsx      # Fonctionnalités principales (8 features)
+│   ├── MerchantAdvancedFeaturesSection.tsx # Fonctionnalités avancées (6 features)
 │   ├── MerchantTestimonialsSection.tsx  # Témoignages commerçants
 │   ├── MerchantPricingSection.tsx       # Tarification (gratuit + 15%)
 │   ├── MerchantFAQSection.tsx           # FAQ dédiée commerçants

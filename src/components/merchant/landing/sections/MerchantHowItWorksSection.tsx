@@ -1,34 +1,34 @@
 import { motion } from 'framer-motion';
-import { UserPlus, Package, Smartphone, TrendingUp } from 'lucide-react';
+import { UserPlus, Package, Smartphone, TrendingUp, Camera, QrCode } from 'lucide-react';
 
 const steps = [
   {
     step: 1,
     title: 'Inscrivez-vous gratuitement',
-    description: 'Créez votre compte commerçant en 5 minutes. Renseignez vos informations (SIRET, coordonnées bancaires) et configurez votre profil.',
+    description: 'Créez votre compte commerçant en 5 minutes. Renseignez vos informations professionnelles (SIRET, nom du commerce, adresse) et configurez votre profil.',
     icon: UserPlus,
-    details: ['Inscription 100% gratuite', 'Validation sous 24h', 'Pas de matériel requis']
+    details: ['Inscription 100% gratuite', 'Validation sous 24h', 'Pas de matériel requis', 'Configuration en quelques clics']
   },
   {
     step: 2,
-    title: 'Créez vos lots d\'invendus',
-    description: 'En fin de journée, créez vos lots en quelques clics. Indiquez les produits, le prix réduit et la plage horaire de retrait.',
-    icon: Package,
-    details: ['Création en 2 minutes', 'Photos avec IA', 'Prix flexible']
+    title: 'Créez vos lots avec l\'IA',
+    description: 'Prenez une photo de vos invendus et l\'IA Gemini analyse automatiquement le produit pour générer titre, description, catégorie et prix estimé.',
+    icon: Camera,
+    details: ['Analyse IA en 30 secondes', 'Extraction automatique des données', 'Niveau de confiance affiché', 'Gain de temps considérable']
   },
   {
     step: 3,
-    title: 'Les clients réservent',
-    description: 'Recevez des notifications pour chaque réservation. Les clients paient en ligne et reçoivent un QR code pour le retrait.',
+    title: 'Les clients réservent en ligne',
+    description: 'Recevez des notifications instantanées pour chaque réservation. Les clients paient en ligne et reçoivent un QR code avec PIN pour le retrait.',
     icon: Smartphone,
-    details: ['Paiement sécurisé', 'QR code automatique', 'Notifications temps réel']
+    details: ['Paiement sécurisé automatique', 'QR code + PIN à 6 chiffres', 'Notifications temps réel', 'Suivi des réservations']
   },
   {
     step: 4,
-    title: 'Validez et récupérez vos revenus',
-    description: 'Scannez le QR code du client pour valider le retrait. Vos revenus sont versés automatiquement chaque semaine.',
-    icon: TrendingUp,
-    details: ['Virement automatique', 'Suivi des ventes', 'Statistiques détaillées']
+    title: 'Validez les retraits facilement',
+    description: 'Scannez le QR code du client via la station de retrait intégrée, vérifiez le PIN et validez. Vos revenus sont versés automatiquement chaque semaine.',
+    icon: QrCode,
+    details: ['Station de retrait intégrée', 'Validation en 30 secondes', 'Virement automatique hebdomadaire', 'Statistiques détaillées']
   }
 ];
 
