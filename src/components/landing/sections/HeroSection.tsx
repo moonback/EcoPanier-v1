@@ -1,52 +1,73 @@
+// 1. Imports externes
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Users } from 'lucide-react';
+// Icône 'ArrowDown' ajoutée pour la cohérence
+import { ArrowRight, Sparkles, Users, ArrowDown } from 'lucide-react';
 
-export const HeroSection = () => {
+// 2. Imports internes (stores, contexts, components)
+// (aucun dans cet exemple)
+
+// 3. Imports types
+// (aucun dans cet exemple)
+
+// 4. Définition des types/interfaces
+// (aucun dans cet exemple)
+
+// --- Constantes du composant (bon pour les performances de F-Motion) ---
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut" as const
+    }
+  }
+};
+
+const badgeVariants = {
+  hidden: { scale: 0, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 200,
+      damping: 15
+    }
+  }
+};
+
+// 5. Composant
+export function HeroSection() {
+  // B. Hooks (stores, contexts, router)
   const navigate = useNavigate();
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2
-      }
-    }
+  // D. Handlers
+  const handleScrollDown = () => {
+    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
   };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut" as const
-      }
-    }
-  };
-
-  const badgeVariants = {
-    hidden: { scale: 0, opacity: 0 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 200,
-        damping: 15
-      }
-    }
-  };
-
+  
+  // F. Render principal
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
       {/* Background image avec overlay */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(/slide-7.png)' }}
+        // ❌ SUPPRESSION du style inline
+        // ✅ UTILISATION de la classe Tailwind personnalisée (Layout -> Sizing -> Image)
+        className="absolute inset-0 bg-hero-background bg-cover bg-center bg-no-repeat"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70"></div>
         
@@ -64,21 +85,21 @@ export const HeroSection = () => {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-20 relative z-10">
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-20">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
           className="text-center"
         >
-          {/* Badge animé */}
+          {/* Badge animé (Ordre des classes vérifié) */}
           <motion.div variants={badgeVariants} className="mb-8">
-            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md text-white px-6 py-3 rounded-full font-semibold border-2 border-white/30 shadow-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border-2 border-white/30 bg-white/15 px-6 py-3 font-semibold text-white shadow-2xl backdrop-blur-md">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
               >
-                <Sparkles className="w-5 h-5" />
+                <Sparkles className="h-5 w-5" />
               </motion.div>
               <span>Plateforme Anti-Gaspillage & Solidaire</span>
             </div>
@@ -87,11 +108,11 @@ export const HeroSection = () => {
           {/* Titre principal avec gradient */}
           <motion.h1 
             variants={itemVariants}
-            className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-tight"
+            className="mb-6 text-5xl font-black leading-tight text-white md:text-7xl lg:text-8xl"
           >
             Ensemble contre le
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 animate-gradient">
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">
               gaspillage alimentaire
             </span>
           </motion.h1>
@@ -99,23 +120,21 @@ export const HeroSection = () => {
           {/* Sous-titre */}
           <motion.p 
             variants={itemVariants}
-            className="text-xl md:text-2xl text-white/95 font-light max-w-3xl mx-auto mb-12 leading-relaxed"
+            className="mx-auto mb-12 max-w-3xl text-xl font-light leading-relaxed text-white/95 md:text-2xl"
           >
             Sauvez des invendus à <strong className="text-accent-400">prix réduits</strong>, 
             soutenez les <strong className="text-primary-400">commerçants locaux</strong> et 
             aidez les <strong className="text-secondary-400">personnes en précarité</strong>
           </motion.p>
 
-          
-
           {/* Boutons CTA */}
           <motion.div 
             variants={itemVariants}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
             <motion.button
               onClick={() => navigate('/dashboard')}
-              className="group relative inline-flex items-center justify-center gap-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-10 py-5 rounded-xl text-lg font-bold overflow-hidden shadow-2xl hover:shadow-primary-500/50 transition-all"
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:shadow-primary-500/50"
               type="button"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
@@ -127,47 +146,49 @@ export const HeroSection = () => {
                 transition={{ duration: 0.3 }}
               />
               <span className="relative z-10">Découvrir la plateforme</span>
-              <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </motion.button>
             
             <motion.button
               onClick={() => navigate('/commercants')}
-              className="inline-flex items-center justify-center bg-white/15 backdrop-blur-md text-white px-10 py-5 rounded-xl text-lg font-semibold hover:bg-white/25 transition-all border-2 border-white/40 shadow-xl"
+              className="inline-flex items-center justify-center rounded-xl border-2 border-white/40 bg-white/15 px-10 py-5 text-lg font-semibold text-white shadow-xl backdrop-blur-md transition-all hover:bg-white/25"
               type="button"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Users className="w-5 h-5 mr-2" />
+              <Users className="mr-2 h-5 w-5" />
               <span>Je suis commerçant</span>
             </motion.button>
           </motion.div>
 
-          {/* Indicateur de scroll */}
-          <motion.div
+          {/* ✅ AMÉLIORATION ACCESSIBILITÉ & COHÉRENCE
+            Remplacement du 'div' par un 'button' sémantique et focusable.
+            Remplacement du SVG par l'icône Lucide 'ArrowDown'.
+          */}
+          <motion.button
             variants={itemVariants}
-            className="mt-16"
+            className="mt-16 inline-flex flex-col items-center gap-2 text-white/70"
+            onClick={handleScrollDown}
+            aria-label="Faire défiler vers le bas pour découvrir plus"
           >
             <motion.div
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="inline-flex flex-col items-center gap-2 text-white/70 cursor-pointer"
-              onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+              className="inline-flex flex-col items-center gap-2"
             >
               <span className="text-sm font-medium">Découvrir plus</span>
-              <svg className="w-6 h-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-              </svg>
+              <ArrowDown className="h-6 w-6" />
             </motion.div>
-          </motion.div>
+          </motion.button>
         </motion.div>
       </div>
 
       {/* Particules flottantes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-white/20 rounded-full"
+            className="absolute h-2 w-2 rounded-full bg-white/20"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -189,4 +210,3 @@ export const HeroSection = () => {
     </section>
   );
 };
-

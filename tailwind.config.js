@@ -144,6 +144,7 @@ export default {
         'float': 'float 6s ease-in-out infinite',
         'pulse-soft': 'pulse-soft 3s ease-in-out infinite',
         'shimmer': 'shimmer 2s linear infinite',
+        'gradient': 'gradient 3s ease infinite',
       },
       keyframes: {
         'fade-in': {
@@ -170,6 +171,10 @@ export default {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' },
         },
+        'gradient': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -177,6 +182,7 @@ export default {
         'gradient-primary': 'linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 50%, #d946ef 100%)',
         'gradient-success': 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
         'gradient-warm': 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+        'hero-background': "url('/slide-1.png')",
       },
     },
   },

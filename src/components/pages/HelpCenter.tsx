@@ -232,39 +232,51 @@ export const HelpCenter = () => {
       />
       <Header />
 
-      {/* Hero */}
-      <section className="py-32 text-center bg-gray-50 bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/slide-3.png)' }}>
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="max-w-4xl mx-auto px-6 relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full font-medium mb-6 border border-white/20">
-            <HelpCircle className="w-5 h-5" />
-            <span>Support & Assistance</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Nous sommes là pour vous ! 
-            <br />
-            <span className="text-primary-400">Quelle est votre question ?</span>
-          </h1>
-          <p className="text-xl text-white/90 mb-8 font-light max-w-2xl mx-auto">
-            Trouvez instantanément les réponses dont vous avez besoin ou contactez notre équipe dédiée
-          </p>
-          
-          {/* Search bar */}
-          <div className="max-w-2xl mx-auto">
-            <div className="relative group">
-              <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-primary-600 transition-colors" strokeWidth={2} />
-              <input
-                type="text"
-                placeholder="Posez votre question... (ex: Comment réserver un panier ?)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-5 rounded-xl text-black border-2 border-white/50 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none font-light shadow-2xl placeholder:text-gray-400"
-              />
+      {/* Hero (design unifié) */}
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/slide-3.png)' }}>
+          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70"></div>
+        </div>
+        <div className="relative z-10 mx-auto max-w-7xl px-6 py-20">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border-2 border-white/30 bg-white/15 px-6 py-3 font-semibold text-white shadow-2xl backdrop-blur-md mb-6">
+              <HelpCircle className="w-5 h-5" />
+              <span>Support & Assistance</span>
             </div>
-            <p className="text-white/70 text-sm mt-3">
-              💡 Tapez quelques mots-clés pour trouver rapidement votre réponse
+            <h1 className="mb-6 text-5xl font-black leading-tight text-white md:text-7xl lg:text-8xl">
+              Nous sommes là pour vous !
+              <br />
+              <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">Quelle est votre question ?</span>
+            </h1>
+            <p className="mx-auto mb-8 max-w-3xl text-xl font-light leading-relaxed text-white/95 md:text-2xl">
+              Trouvez instantanément les réponses dont vous avez besoin ou contactez notre équipe dédiée
             </p>
+            {/* Search bar */}
+            <div className="max-w-2xl mx-auto">
+              <div className="relative group">
+                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-600 transition-colors" strokeWidth={2} />
+                <input
+                  type="text"
+                  placeholder="Posez votre question... (ex: Comment réserver un panier ?)"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-5 rounded-xl text-black border-2 border-white/50 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none font-light shadow-2xl placeholder:text-gray-400"
+                />
+              </div>
+              <p className="text-white/70 text-sm mt-3">
+                💡 Tapez quelques mots-clés pour trouver rapidement votre réponse
+              </p>
+            </div>
           </div>
+        </div>
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute h-2 w-2 rounded-full bg-white/20"
+              style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
+            />
+          ))}
         </div>
       </section>
 

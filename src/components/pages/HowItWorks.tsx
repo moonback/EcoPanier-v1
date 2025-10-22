@@ -287,22 +287,33 @@ export const HowItWorks = () => {
       />
       <Header />
 
-      {/* Hero */}
-      <section className="py-32 text-center bg-gray-50 bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/slide-7.png)' }}>
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="max-w-4xl mx-auto px-6 relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full font-medium mb-6 border border-white/20">
+      {/* Hero (design unifié) */}
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/slide-7.png)' }}>
+          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70"></div>
+        </div>
+        <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border-2 border-white/30 bg-white/15 px-6 py-3 font-semibold text-white shadow-2xl backdrop-blur-md mb-8">
             <Zap className="w-5 h-5" />
             <span>Simple, Rapide, Efficace</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+          <h1 className="mb-6 text-5xl font-black leading-tight text-white md:text-7xl lg:text-8xl">
             Votre parcours anti-gaspi
             <br />
-            <span className="text-primary-400">en 4 étapes</span>
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">en 4 étapes</span>
           </h1>
-          <p className="text-xl text-white/90 font-light max-w-2xl mx-auto">
+          <p className="mx-auto max-w-3xl text-xl font-light leading-relaxed text-white/95 md:text-2xl">
             De la découverte à l'impact : rejoignez des milliers de personnes qui font leurs courses autrement
           </p>
+        </div>
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute h-2 w-2 rounded-full bg-white/20"
+              style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
+            />
+          ))}
         </div>
       </section>
 
