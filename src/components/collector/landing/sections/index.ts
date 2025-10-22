@@ -1,0 +1,9 @@
+export { CollectorHeroSection } from './CollectorHeroSection';
+export { CollectorWhySection } from './CollectorWhySection';
+export { CollectorBenefitsSection } from './CollectorBenefitsSection';
+export { CollectorHowItWorksSection } from './CollectorHowItWorksSection';
+export { CollectorFeaturesSection } from './CollectorFeaturesSection';
+export { CollectorTestimonialsSection } from './CollectorTestimonialsSection';
+export { CollectorPricingSection } from './CollectorPricingSection';
+export { CollectorFAQSection } from './CollectorFAQSection';
+export { CollectorFinalCTASection } from './CollectorFinalCTASection';

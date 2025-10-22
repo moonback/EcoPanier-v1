@@ -1,38 +1,38 @@
 import { motion } from 'framer-motion';
-import { DollarSign, Heart, Leaf, TrendingUp } from 'lucide-react';
+import { DollarSign, Clock, MapPin, Heart } from 'lucide-react';
 
 const reasons = [
   {
     icon: DollarSign,
-    title: 'Récupérez vos pertes',
-    description: 'Valorisez jusqu\'à 30% du prix initial de vos invendus au lieu de les jeter. Chaque produit sauvé devient un revenu complémentaire pour votre commerce.',
-    stats: 'Jusqu\'à 500€/mois récupérés',
-    color: 'from-warning-500 to-warning-600'
-  },
-  {
-    icon: TrendingUp,
-    title: 'Attirez de nouveaux clients',
-    description: 'Touchez une clientèle engagée et fidèle qui découvrira votre commerce via ÉcoPanier. 70% de nos utilisateurs deviennent clients réguliers.',
-    stats: '+30% de nouveaux clients',
-    color: 'from-primary-500 to-primary-600'
-  },
-  {
-    icon: Leaf,
-    title: 'Impact environnemental',
-    description: 'Participez activement à la lutte contre le gaspillage alimentaire. Chaque produit sauvé évite 0.9kg de CO₂ dans l\'atmosphère.',
-    stats: '15 tonnes de CO₂ évitées',
+    title: 'Revenus complémentaires',
+    description: 'Gagnez 7€ par livraison effectuée. Avec 2-3 livraisons par jour, vous pouvez générer 300-450€ supplémentaires par mois.',
+    stats: '300-450€/mois',
     color: 'from-success-500 to-success-600'
   },
   {
+    icon: Clock,
+    title: 'Horaires flexibles',
+    description: 'Travaillez quand vous voulez : matin, midi, soir ou week-end. Adaptez vos livraisons à votre emploi du temps.',
+    stats: '100% flexible',
+    color: 'from-primary-500 to-primary-600'
+  },
+  {
+    icon: MapPin,
+    title: 'Zones proches de chez vous',
+    description: 'Livrez uniquement dans votre secteur géographique. Pas de longs trajets, optimisez votre temps et vos coûts.',
+    stats: 'Rayon de 5km',
+    color: 'from-warning-500 to-warning-600'
+  },
+  {
     icon: Heart,
-    title: 'Solidarité locale',
-    description: 'Participez au programme d\'aide alimentaire solidaire et soutenez les personnes en précarité de votre quartier. Renforcez votre ancrage local.',
-    stats: '5000+ personnes aidées',
+    title: 'Impact social positif',
+    description: 'Chaque livraison aide une personne en précarité. Vous participez concrètement à la lutte contre le gaspillage alimentaire.',
+    stats: 'Impact mesurable',
     color: 'from-accent-500 to-accent-600'
   }
 ];
 
-export const MerchantWhySection = () => {
+export const CollectorWhySection = () => {
   return (
     <section className="py-32 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -43,19 +43,19 @@ export const MerchantWhySection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <div className="inline-flex items-center gap-2 bg-warning-50 text-warning-700 px-4 py-2 rounded-full font-medium mb-6">
+          <div className="inline-flex items-center gap-2 bg-success-50 text-success-700 px-4 py-2 rounded-full font-medium mb-6">
             <span className="text-lg">💰</span>
-            <span>Triple impact pour votre commerce</span>
+            <span>Revenus + Impact social</span>
           </div>
           <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
-            Pourquoi rejoindre
+            Pourquoi devenir
             <br />
             <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">
-              ÉcoPanier ?
+              collecteur ?
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            Un triple impact pour votre commerce : économique, écologique et social
+            Une activité rémunérée qui a du sens : gagnez de l'argent tout en aidant les plus précaires
           </p>
         </motion.div>
 
@@ -98,4 +98,3 @@ export const MerchantWhySection = () => {
     </section>
   );
 };
-

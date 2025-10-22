@@ -55,14 +55,14 @@ export const RestaurantUseCasesSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-4 py-2 rounded-full font-medium mb-6">
+          <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-4 py-2 rounded-full font-medium mb-6">
             <span className="text-lg">📋</span>
             <span>Cas d'usage concrets</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
+          <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
             Vos situations,
             <br />
-            <span className="text-orange-600">nos solutions</span>
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">nos solutions</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
             Que vous soyez restaurateur ou traiteur, EcoPanier s'adapte à vos événements et vos invendus quotidiens
@@ -139,9 +139,9 @@ export const RestaurantUseCasesSection = () => {
             </p>
             <button
               onClick={() => window.location.href = '/help'}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all"
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-orange-600 to-red-600 px-8 py-4 text-white font-semibold shadow-2xl transition-all"
             >
-              Nous contacter
+              <span>Nous contacter</span>
             </button>
           </div>
         </motion.div>

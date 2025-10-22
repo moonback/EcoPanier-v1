@@ -12,7 +12,11 @@ export const TestimonialsSection = () => {
           transition={{ duration: 0.6 }}
           className="mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight max-w-3xl">
+          <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-full font-medium mb-6">
+            <span className="text-lg">💬</span>
+            <span>Témoignages authentiques</span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight max-w-3xl">
             Ce qu'ils en disent
           </h2>
           <p className="text-xl text-gray-600 font-light">

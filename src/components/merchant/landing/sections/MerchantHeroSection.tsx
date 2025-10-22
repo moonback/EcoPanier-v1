@@ -1,60 +1,200 @@
+// 1. Imports externes
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Store } from 'lucide-react';
+import { ArrowRight, Store, Sparkles } from 'lucide-react';
 
+// 2. Imports internes (stores, contexts, components)
+// (aucun dans cet exemple)
+
+// 3. Imports types
+// (aucun dans cet exemple)
+
+// 4. Définition des types/interfaces
+// (aucun dans cet exemple)
+
+// --- Constantes du composant (bon pour les performances de F-Motion) ---
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut" as const
+    }
+  }
+};
+
+const badgeVariants = {
+  hidden: { scale: 0, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 200,
+      damping: 15
+    }
+  }
+};
+
+// 5. Composant
 export const MerchantHeroSection = () => {
+  // B. Hooks (stores, contexts, router)
   const navigate = useNavigate();
 
+  // F. Render principal
   return (
-    <section className="py-32 text-center bg-gray-50 bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/slide-3.png)' }}>
-      <div className="absolute inset-0 bg-black/50"></div>
-      <div className="max-w-4xl mx-auto px-6 relative z-10">
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+      {/* Background image avec overlay */}
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/slide-3.png)' }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70"></div>
+        
+        {/* Effet de lumière animé */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full font-medium mb-6 border border-white/20">
-            <Store className="w-5 h-5" />
-            <span>Rejoignez +200 commerçants engagés</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Transformez vos invendus
-            <br />
-            en <span className="text-primary-400">revenus</span> et en <span className="text-success-400">impact</span>
-          </h1>
-          
-          <p className="text-xl text-white/90 font-light max-w-2xl mx-auto mb-10">
-            Rejoignez ÉcoPanier et valorisez vos produits invendus tout en participant à la lutte contre le gaspillage alimentaire. Gratuit, simple et solidaire.
-          </p>
+          className="absolute inset-0 bg-gradient-to-r from-primary-500/20 via-accent-500/20 to-secondary-500/20"
+          animate={{
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <button
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-20">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="text-center"
+        >
+          {/* Badge animé */}
+          <motion.div variants={badgeVariants} className="mb-8">
+            <div className="inline-flex items-center gap-2 rounded-full border-2 border-white/30 bg-white/15 px-6 py-3 font-semibold text-white shadow-2xl backdrop-blur-md">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              >
+                <Store className="h-5 w-5" />
+              </motion.div>
+              <span>Rejoignez +200 commerçants engagés</span>
+            </div>
+          </motion.div>
+          
+          {/* Titre principal avec gradient */}
+          <motion.h1 
+            variants={itemVariants}
+            className="mb-6 text-5xl font-black leading-tight text-white md:text-7xl lg:text-8xl"
+          >
+            Transformez vos
+            <br />
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">
+              invendus en revenus
+            </span>
+          </motion.h1>
+          
+          {/* Sous-titre */}
+          <motion.p 
+            variants={itemVariants}
+            className="mx-auto mb-12 max-w-3xl text-xl font-light leading-relaxed text-white/95 md:text-2xl"
+          >
+            Valorisez vos produits invendus à <strong className="text-accent-400">prix réduits</strong>, 
+            participez à la <strong className="text-primary-400">lutte contre le gaspillage</strong> et 
+            générez un <strong className="text-secondary-400">impact social positif</strong>
+          </motion.p>
+
+          {/* Boutons CTA */}
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-col items-center justify-center gap-4 sm:flex-row mb-16"
+          >
+            <motion.button
               onClick={() => navigate('/dashboard')}
-              className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-10 py-5 text-lg font-bold text-white shadow-2xl transition-all hover:shadow-primary-500/50"
+              type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span>Commencer gratuitement</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-500"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="relative z-10">Commencer gratuitement</span>
+              <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </motion.button>
+            
+            <motion.button
+              onClick={() => navigate('/commercants')}
+              className="inline-flex items-center justify-center rounded-xl border-2 border-white/40 bg-white/15 px-10 py-5 text-lg font-semibold text-white shadow-xl backdrop-blur-md transition-all hover:bg-white/25"
+              type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Store className="mr-2 h-5 w-5" />
+              <span>En savoir plus</span>
+            </motion.button>
+          </motion.div>
 
           {/* Stats rapides */}
-          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-              <div className="text-3xl font-bold text-white mb-1">0€</div>
+          <motion.div 
+            variants={itemVariants}
+            className="grid grid-cols-3 gap-6 max-w-2xl mx-auto"
+          >
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all">
+              <div className="text-3xl font-bold text-white mb-2">0€</div>
               <div className="text-sm text-white/70">Coût d'inscription</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-              <div className="text-3xl font-bold text-white mb-1">2 min</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all">
+              <div className="text-3xl font-bold text-white mb-2">2 min</div>
               <div className="text-sm text-white/70">Pour créer un lot</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-              <div className="text-3xl font-bold text-white mb-1">30%</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all">
+              <div className="text-3xl font-bold text-white mb-2">30%</div>
               <div className="text-sm text-white/70">Valorisation moyenne</div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
+      </div>
+
+      {/* Particules flottantes */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute h-2 w-2 rounded-full bg-white/20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.2, 0.5, 0.2],
+              scale: [1, 1.5, 1]
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
       </div>
     </section>
   );

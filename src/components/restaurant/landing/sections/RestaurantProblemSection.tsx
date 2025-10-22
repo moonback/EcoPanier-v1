@@ -33,10 +33,14 @@ export const RestaurantProblemSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
+          <div className="inline-flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2 rounded-full font-medium mb-6">
+            <AlertTriangle className="w-5 h-5" />
+            <span>Un vrai problème pour la restauration</span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
             Le gaspillage coûte cher,
             <br />
-            <span className="text-red-600">à vous et à la planète</span>
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">à vous et à la planète</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
             Chaque jour, des tonnes de nourriture parfaitement consommable finissent à la poubelle

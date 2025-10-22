@@ -3,44 +3,44 @@ import { Check } from 'lucide-react';
 
 const benefits = [
   {
-    title: 'Gestion simplifiée',
+    title: 'Inscription gratuite',
     items: [
-      'Créez un lot en moins de 2 minutes',
-      'Interface intuitive et rapide',
-      'Gestion des stocks en temps réel',
-      'QR code pour validation instantanée'
+      'Aucun frais d\'inscription',
+      'Pas d\'abonnement mensuel',
+      'Validation rapide du profil',
+      'Accès immédiat aux missions'
     ]
   },
   {
-    title: 'Zéro frais cachés',
+    title: 'Paiements sécurisés',
     items: [
-      'Inscription 100% gratuite',
-      'Aucun engagement, aucun abonnement',
-      'Commission transparente uniquement sur les ventes',
-      'Pas de matériel à acheter'
-    ]
-  },
-  {
-    title: 'Visibilité maximale',
-    items: [
-      'Profil visible sur la carte interactive',
-      'Notifications push aux clients à proximité',
-      'Communication sur votre engagement',
-      'Statistiques détaillées en temps réel'
+      'Virement automatique hebdomadaire',
+      'Suivi des gains en temps réel',
+      'Factures automatiques',
+      'Pas de frais cachés'
     ]
   },
   {
     title: 'Support dédié',
     items: [
-      'Accompagnement à l\'inscription',
       'Équipe disponible 7j/7',
-      'Guides et tutoriels vidéo',
-      'Conseils pour optimiser vos ventes'
+      'Formation à la plateforme',
+      'Assistance technique',
+      'Conseils pour optimiser vos gains'
+    ]
+  },
+  {
+    title: 'Flexibilité totale',
+    items: [
+      'Horaires libres',
+      'Zones géographiques choisies',
+      'Acceptation libre des missions',
+      'Arrêt possible à tout moment'
     ]
   }
 ];
 
-export const MerchantBenefitsSection = () => {
+export const CollectorBenefitsSection = () => {
   return (
     <section className="py-32 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -53,17 +53,17 @@ export const MerchantBenefitsSection = () => {
         >
           <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-full font-medium mb-6">
             <span className="text-lg">✅</span>
-            <span>Avantages concrets</span>
+            <span>Avantages collecteurs</span>
           </div>
           <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
             Des avantages concrets
             <br />
             <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">
-              pour votre commerce
+              pour vous
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            Tout ce dont vous avez besoin pour réussir sur ÉcoPanier
+            Tout ce dont vous avez besoin pour réussir en tant que collecteur
           </p>
         </motion.div>
 
@@ -77,8 +77,8 @@ export const MerchantBenefitsSection = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="group"
             >
-              <div className="h-full bg-gray-50 rounded-2xl p-8 hover:bg-secondary-50 transition-all">
-                <h3 className="text-xl font-bold text-black mb-6 group-hover:text-secondary-600 transition-colors">
+              <div className="h-full bg-gray-50 rounded-2xl p-8 hover:bg-success-50 transition-all">
+                <h3 className="text-xl font-bold text-black mb-6 group-hover:text-success-600 transition-colors">
                   {benefit.title}
                 </h3>
                 <ul className="space-y-4">
@@ -101,4 +101,3 @@ export const MerchantBenefitsSection = () => {
     </section>
   );
 };
-

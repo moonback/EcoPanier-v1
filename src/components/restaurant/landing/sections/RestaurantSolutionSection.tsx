@@ -35,8 +35,14 @@ export const RestaurantSolutionSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            EcoPanier s'occupe de tout
+          <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-4 py-2 rounded-full font-medium mb-6">
+            <span className="text-lg">🧰</span>
+            <span>Solution clé en main</span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
+            EcoPanier
+            <br />
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">s'occupe de tout</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
             De la création du lot à la distribution : une solution clé en main pour valoriser vos invendus

@@ -1,38 +1,38 @@
 import { motion } from 'framer-motion';
-import { UserPlus, Package, Smartphone, TrendingUp } from 'lucide-react';
+import { Smartphone, MapPin, Package, TrendingUp } from 'lucide-react';
 
 const steps = [
   {
     step: 1,
     title: 'Inscrivez-vous gratuitement',
-    description: 'Créez votre compte commerçant en 5 minutes. Renseignez vos informations (SIRET, coordonnées bancaires) et configurez votre profil.',
-    icon: UserPlus,
+    description: 'Créez votre profil collecteur en 5 minutes. Renseignez vos informations et votre zone géographique.',
+    icon: Smartphone,
     details: ['Inscription 100% gratuite', 'Validation sous 24h', 'Pas de matériel requis']
   },
   {
     step: 2,
-    title: 'Créez vos lots d\'invendus',
-    description: 'En fin de journée, créez vos lots en quelques clics. Indiquez les produits, le prix réduit et la plage horaire de retrait.',
-    icon: Package,
-    details: ['Création en 2 minutes', 'Photos avec IA', 'Prix flexible']
+    title: 'Recevez les missions',
+    description: 'Consultez les livraisons disponibles dans votre secteur. Acceptez celles qui vous conviennent.',
+    icon: MapPin,
+    details: ['Notifications push', 'Géolocalisation précise', 'Détails de la mission']
   },
   {
     step: 3,
-    title: 'Les clients réservent',
-    description: 'Recevez des notifications pour chaque réservation. Les clients paient en ligne et reçoivent un QR code pour le retrait.',
-    icon: Smartphone,
-    details: ['Paiement sécurisé', 'QR code automatique', 'Notifications temps réel']
+    title: 'Effectuez la livraison',
+    description: 'Récupérez les repas chez le commerçant et livrez-les aux bénéficiaires selon les instructions.',
+    icon: Package,
+    details: ['QR code de validation', 'Instructions détaillées', 'Suivi GPS']
   },
   {
     step: 4,
-    title: 'Validez et récupérez vos revenus',
-    description: 'Scannez le QR code du client pour valider le retrait. Vos revenus sont versés automatiquement chaque semaine.',
+    title: 'Recevez vos gains',
+    description: 'Validez la livraison et recevez automatiquement 7€ sur votre compte. Virement hebdomadaire.',
     icon: TrendingUp,
-    details: ['Virement automatique', 'Suivi des ventes', 'Statistiques détaillées']
+    details: ['Paiement automatique', 'Suivi des gains', 'Factures incluses']
   }
 ];
 
-export const MerchantHowItWorksSection = () => {
+export const CollectorHowItWorksSection = () => {
   return (
     <section className="py-32 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -51,7 +51,7 @@ export const MerchantHowItWorksSection = () => {
             Comment ça marche ?
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            4 étapes simples pour valoriser vos invendus
+            4 étapes simples pour commencer à livrer et gagner
           </p>
         </motion.div>
 
@@ -60,10 +60,10 @@ export const MerchantHowItWorksSection = () => {
             const Icon = step.icon;
             const isEven = index % 2 === 0;
             const gradients = [
-              'from-primary-500 to-primary-600',
               'from-success-500 to-success-600',
+              'from-primary-500 to-primary-600',
               'from-warning-500 to-warning-600',
-              'from-secondary-500 to-secondary-600'
+              'from-accent-500 to-accent-600'
             ];
             
             return (
@@ -118,4 +118,3 @@ export const MerchantHowItWorksSection = () => {
     </section>
   );
 };
-

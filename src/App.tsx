@@ -7,6 +7,7 @@ import { LandingPage } from './components/landing/LandingPage';
 import { MerchantLanding } from './components/merchant/landing/MerchantLanding';
 import { AssociationLanding } from './components/association/landing/AssociationLanding';
 import { RestaurantLanding } from './components/restaurant/landing';
+import { CollectorLanding } from './components/collector/landing';
 import { HowItWorks } from './components/pages/HowItWorks';
 import { HelpCenter } from './components/pages/HelpCenter';
 import { AuthForm } from './components/auth/AuthForm';
@@ -124,6 +125,7 @@ function App() {
           <Route path="/commercants" element={<MerchantLanding />} />
           <Route path="/associations" element={<AssociationLanding />} />
           <Route path="/restaurateurs" element={<RestaurantLanding />} />
+          <Route path="/collecteurs" element={<CollectorLanding />} />
           
           {/* Pages informatives publiques */}
           <Route path="/how-it-works" element={<HowItWorks />} />

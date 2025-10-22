@@ -43,8 +43,16 @@ export const AssociationWhySection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Pourquoi rejoindre ÉcoPanier ?
+          <div className="inline-flex items-center gap-2 bg-purple-50 text-purple-700 px-4 py-2 rounded-full font-medium mb-6">
+            <span className="text-lg">🏛️</span>
+            <span>Plateforme pour associations</span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
+            Pourquoi rejoindre
+            <br />
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">
+              ÉcoPanier ?
+            </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
             Une plateforme moderne pour une aide alimentaire plus efficace et digne
