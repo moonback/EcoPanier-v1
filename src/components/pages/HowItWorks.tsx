@@ -9,9 +9,7 @@ import {
   QrCode, 
   Heart,
   UserPlus,
-  Store,
   Package,
-  Smartphone,
   CreditCard,
   CheckCircle,
   Gift,
@@ -24,13 +22,11 @@ import {
 
 export const HowItWorks = () => {
   const navigate = useNavigate();
-  const [activeRole, setActiveRole] = useState<'customer' | 'merchant' | 'beneficiary' | 'association'>('customer');
+  const [activeRole, setActiveRole] = useState<'customer' | 'beneficiary'>('customer');
 
   const roles = [
     { id: 'customer', name: 'Je suis Client', icon: ShoppingCart },
-    { id: 'merchant', name: 'Je suis Commerçant', icon: Store },
     { id: 'beneficiary', name: 'Je suis Bénéficiaire', icon: Users },
-    { id: 'association', name: 'Je suis Association', icon: Heart },
   ];
 
   const customerSteps = [
@@ -84,56 +80,6 @@ export const HowItWorks = () => {
     },
   ];
 
-  const merchantSteps = [
-    {
-      number: 1,
-      title: 'Rejoignez la communauté',
-      description: 'Inscription gratuite et sans engagement pour votre commerce',
-      icon: Store,
-      details: [
-        '🏪 Créez votre profil commerçant en 5 minutes',
-        '📍 Configurez votre point de retrait et horaires',
-        '💼 Accédez à votre tableau de bord professionnel',
-        '🎯 Définissez vos catégories de produits',
-      ],
-    },
-    {
-      number: 2,
-      title: 'Créez vos lots en 2 minutes',
-      description: 'Valorisez vos invendus plutôt que de les jeter',
-      icon: Package,
-      details: [
-        '📝 Décrivez rapidement vos produits invendus',
-        '📸 Ajoutez des photos ou utilisez l\'IA pour analyser',
-        '💵 Fixez votre prix (récupérez jusqu\'à 30% du prix initial)',
-        '🚀 Publiez et touchez des clients instantanément',
-      ],
-    },
-    {
-      number: 3,
-      title: 'Suivez vos ventes en direct',
-      description: 'Tableau de bord avec statistiques en temps réel',
-      icon: Smartphone,
-      details: [
-        '🔔 Notifications instantanées pour chaque réservation',
-        '📊 Consultez vos statistiques de vente et d\'impact',
-        '📦 Préparez les commandes à l\'avance',
-        '💰 Suivez vos revenus récupérés',
-      ],
-    },
-    {
-      number: 4,
-      title: 'Validez les retraits simplement',
-      description: 'Station de retrait intégrée ultra-simple',
-      icon: QrCode,
-      details: [
-        '📱 Scannez le QR code du client en un clic',
-        '✅ Vérification automatique du code PIN',
-        '🤝 Remettez le panier avec le sourire',
-        '⭐ Collectez des avis positifs de vos clients',
-      ],
-    },
-  ];
 
   const beneficiarySteps = [
     {
@@ -186,65 +132,11 @@ export const HowItWorks = () => {
     },
   ];
 
-  const associationSteps = [
-    {
-      number: 1,
-      title: 'Créez votre compte association',
-      description: 'Inscription solidaire pour votre organisation solidaire',
-      icon: UserPlus,
-      details: [
-        '🏛️ Inscrivez votre association en quelques minutes',
-        '📋 Renseignez vos informations (nom, adresse, responsable)',
-        '✅ Validation instantanée de votre compte',
-        '🎯 Accédez à votre espace de gestion dédié',
-      ],
-    },
-    {
-      number: 2,
-      title: 'Enregistrez vos bénéficiaires',
-      description: 'Formulaire solidaire pour créer des comptes en quelques clics',
-      icon: Users,
-      details: [
-        '📝 Remplissez le formulaire d\'enregistrement',
-        '🎫 ID unique auto-généré (YYYY-BEN-XXXXX)',
-        '📧 Email de confirmation envoyé automatiquement',
-        '✨ Le bénéficiaire peut utiliser la plateforme solidaire immédiatement',
-      ],
-    },
-    {
-      number: 3,
-      title: 'Suivez l\'activité en temps réel',
-      description: 'Tableaux de bord solidaires et statistiques complètes',
-      icon: Smartphone,
-      details: [
-        '📊 Visualisez les statistiques de vos bénéficiaires',
-        '📈 Graphiques d\'évolution sur 6 mois',
-        '👥 Consultez l\'historique des réservations',
-        '🔍 Suivi détaillé de chaque bénéficiaire',
-      ],
-    },
-    {
-      number: 4,
-      title: 'Exportez vos données',
-      description: 'Rapports CSV/JSON pour votre conformité RGPD',
-      icon: CheckCircle,
-      details: [
-        '📥 Export en un clic (CSV ou JSON)',
-        '📄 Données complètes pour vos rapports',
-        '🔒 Conformité RGPD garantie',
-        '📊 Statistiques d\'activité incluses',
-      ],
-    },
-  ];
 
   const getSteps = () => {
     switch (activeRole) {
-      case 'merchant':
-        return merchantSteps;
       case 'beneficiary':
         return beneficiarySteps;
-      case 'association':
-        return associationSteps;
       default:
         return customerSteps;
     }
@@ -312,13 +204,13 @@ export const HowItWorks = () => {
           <h2 className="text-3xl font-bold text-center text-black mb-8">
             Choisissez votre profil
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
             {roles.map((role) => {
               const Icon = role.icon;
               return (
                 <button
                   key={role.id}
-                  onClick={() => setActiveRole(role.id as 'customer' | 'merchant' | 'beneficiary' | 'association')}
+                  onClick={() => setActiveRole(role.id as 'customer' | 'beneficiary')}
                   className={`p-8 rounded-2xl font-medium text-lg transition-all shadow-sm hover:shadow-lg ${
                     activeRole === role.id
                       ? 'bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-xl scale-105'
@@ -391,12 +283,12 @@ export const HowItWorks = () => {
       <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-bold text-black text-center mb-4">
-            Pourquoi des milliers d'utilisateurs nous font confiance
+            Pourquoi nous faire confiance ?
           </h2>
           <p className="text-xl text-gray-600 text-center mb-16 font-light">
-            Une expérience pensée pour vous
+            Une expérience simple et sécurisée
           </p>
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
@@ -429,13 +321,13 @@ export const HowItWorks = () => {
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <div className="bg-white rounded-3xl p-12 md:p-16 shadow-2xl border border-gray-100">
             <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
-              C'est simple, non ? 
+              Prêt à commencer ? 
               <br />
-              <span className="text-primary-600">Lancez-vous maintenant !</span>
+              <span className="text-primary-600">C'est gratuit et simple !</span>
             </h2>
             <p className="text-xl text-gray-600 mb-10 font-light max-w-2xl mx-auto">
-              Rejoignez des milliers de personnes qui économisent sur leurs courses 
-              tout en sauvant la planète. Votre premier panier vous attend ! 
+              Que vous soyez client ou bénéficiaire, rejoignez notre communauté 
+              qui lutte contre le gaspillage alimentaire. Votre premier panier vous attend ! 
             </p>
             
             {/* Stats rapides */}
@@ -449,8 +341,8 @@ export const HowItWorks = () => {
                 <div className="text-sm text-gray-600">d'économies max</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-warning-600">10k+</div>
-                <div className="text-sm text-gray-600">repas sauvés</div>
+                <div className="text-3xl font-bold text-warning-600">2</div>
+                <div className="text-sm text-gray-600">rôles simples</div>
               </div>
             </div>
             

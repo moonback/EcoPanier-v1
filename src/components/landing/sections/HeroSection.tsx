@@ -33,7 +33,7 @@ export const HeroSection = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/how-it-works')}
               className="group inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
             >
               <span>Je découvre ÉcoPanier</span>
