@@ -13,7 +13,6 @@ export { MerchantLotsModal } from './MerchantLotsModal';
 export { AdvancedFilterModal } from './AdvancedFilterModal';
 export type { AdvancedFilters } from './AdvancedFilterModal';
 export { FilterSidebar } from './FilterSidebar';
-export { EmptyState } from './EmptyState';
 export { InlineSpinner } from './InlineSpinner';
 export { SkeletonLotCard } from './SkeletonLotCard';
 export { SkeletonGrid } from './SkeletonGrid';
