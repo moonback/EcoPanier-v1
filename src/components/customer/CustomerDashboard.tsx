@@ -16,32 +16,68 @@ import { ImpactDashboard } from './ImpactDashboard';
 import { ProfilePage } from '../shared/ProfilePage';
 import { InteractiveMap } from './InteractiveMap';
 import { DashboardHeader } from '../shared/DashboardHeader';
+import { CustomerImpactStats } from './CustomerImpactStats';
+import { CustomerActiveReservation } from './CustomerActiveReservation';
+import { CustomerActions } from './CustomerActions';
+import { CustomerReservationHistory } from './CustomerReservationHistory';
 
 import EcoPanierLogo from '/logo.png'; // Import du logo
 
 // Type pour les onglets
-type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'profile';
+type TabId = 'home' | 'browse' | 'map' | 'reservations' | 'impact' | 'profile';
 
 /**
  * Dashboard principal pour les clients
- * Gère la navigation entre les différentes sections : parcourir les lots,
- * gérer les réservations, voir l'impact et profil
+ * Interface moderne avec widgets et navigation par onglets
+ * Affiche les informations prioritaires : réservations actives, impact, actions
  */
 export const CustomerDashboard = () => {
   // État local
-  const [activeTab, setActiveTab] = useState<TabId>('browse');
+  const [activeTab, setActiveTab] = useState<TabId>('home');
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
 
   // Configuration des onglets
   const tabs = [
-    { id: 'browse' as TabId, label: 'Découvrir', icon: ShoppingBag, emoji: '🛒' },
+    { id: 'home' as TabId, label: 'Accueil', icon: ShoppingBag, emoji: '🏠' },
     { id: 'map' as TabId, label: 'Carte', icon: MapPin, emoji: '🗺️' },
     { id: 'reservations' as TabId, label: 'Mes paniers', icon: History, emoji: '📦' },
     { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp, emoji: '🌍' },
     { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
+
+  // Render de l'onglet Home (Dashboard avec widgets)
+  const renderHomeTab = () => {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6">
+        {/* Widget 1 : Réservation Active (Urgent) - Pleine largeur */}
+        <div className="lg:col-span-3">
+          <CustomerActiveReservation onNavigateToBrowse={() => setActiveTab('browse')} />
+        </div>
+
+        {/* Widget 2 : Impact Personnel (Stats) - 2 colonnes */}
+        <div className="lg:col-span-2">
+          <CustomerImpactStats />
+        </div>
+
+        {/* Widget 3 : Actions (CTA) - 1 colonne */}
+        <div className="lg:col-span-1">
+          <CustomerActions
+            onNavigateToBrowse={() => setActiveTab('browse')}
+            onNavigateToMap={() => setActiveTab('map')}
+            onNavigateToReservations={() => setActiveTab('reservations')}
+            onNavigateToImpact={() => setActiveTab('impact')}
+          />
+        </div>
+
+        {/* Widget 4 : Historique - Pleine largeur */}
+        <div className="lg:col-span-3">
+          <CustomerReservationHistory onNavigateToReservations={() => setActiveTab('reservations')} />
+        </div>
+      </div>
+    );
+  };
 
   // Render principal
   return (
@@ -56,6 +92,7 @@ export const CustomerDashboard = () => {
 
       {/* Contenu principal */}
       <main className="w-full pb-24">
+        {activeTab === 'home' && renderHomeTab()}
         {activeTab === 'browse' && <LotBrowser />}
         {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}
