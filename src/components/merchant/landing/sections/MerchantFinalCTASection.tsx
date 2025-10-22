@@ -22,8 +22,12 @@ export const MerchantFinalCTASection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-8 tracking-tight">
-            Prêt à valoriser vos invendus ?
+          <h2 className="text-5xl md:text-6xl font-black text-white mb-8 tracking-tight">
+            Prêt à valoriser
+            <br />
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">
+              vos invendus ?
+            </span>
           </h2>
           <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto font-light">
             Rejoignez les commerçants engagés qui ont choisi de transformer leurs invendus en impact positif
@@ -58,13 +62,22 @@ export const MerchantFinalCTASection = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="mb-8"
           >
-            <button
+            <motion.button
               onClick={() => navigate('/auth?role=merchant')}
-              className="group inline-flex items-center justify-center gap-3 bg-white text-secondary-900 px-10 py-6 rounded-xl text-xl font-medium hover:bg-gray-100 transition-all shadow-2xl hover:shadow-3xl hover:scale-105"
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-white to-gray-100 px-10 py-6 text-xl font-bold text-secondary-900 shadow-2xl transition-all hover:shadow-3xl"
+              type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span>Commencer gratuitement</span>
-              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-            </button>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-500"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="relative z-10">Commencer gratuitement</span>
+              <ArrowRight className="relative z-10 w-6 h-6 transition-transform group-hover:translate-x-1" />
+            </motion.button>
           </motion.div>
 
           {/* Trust indicators */}

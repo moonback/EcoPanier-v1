@@ -51,8 +51,16 @@ export const MerchantBenefitsSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Des avantages concrets pour votre commerce
+          <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-full font-medium mb-6">
+            <span className="text-lg">✅</span>
+            <span>Avantages concrets</span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
+            Des avantages concrets
+            <br />
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent">
+              pour votre commerce
+            </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
             Tout ce dont vous avez besoin pour réussir sur ÉcoPanier

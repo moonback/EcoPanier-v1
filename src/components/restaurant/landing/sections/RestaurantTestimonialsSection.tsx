@@ -35,7 +35,11 @@ export const RestaurantTestimonialsSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
+          <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-4 py-2 rounded-full font-medium mb-6">
+            <span className="text-lg">💬</span>
+            <span>Témoignages restaurateurs</span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black text-black mb-6 tracking-tight">
             Ils ont rejoint EcoPanier
           </h2>
           <p className="text-xl text-gray-600 font-light">
