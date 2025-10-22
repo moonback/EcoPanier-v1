@@ -22,11 +22,11 @@ export const RestaurantFinalCTASection = () => {
           transition={{ duration: 0.8 }}
           className="text-center max-w-4xl mx-auto"
         >
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-8 tracking-tight leading-tight">
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-8 tracking-tight leading-tight">
             <span className="block">
               Transformez vos invendus
             </span>
-            <span className="text-warning-400 block">
+            <span className="animate-gradient bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent block">
               en impact solidaire
             </span>
           </h2>
@@ -51,21 +51,33 @@ export const RestaurantFinalCTASection = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
+            <motion.button
               onClick={() => navigate('/dashboard')}
-              className="group inline-flex items-center justify-center gap-3 bg-white text-orange-900 px-10 py-5 rounded-lg text-lg font-bold hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-white to-gray-100 px-10 py-5 text-lg font-bold text-orange-900 shadow-2xl transition-all"
+              type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span>Rejoindre EcoPanier</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-500"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="relative z-10">Rejoindre EcoPanier</span>
+              <ArrowRight className="relative z-10 w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </motion.button>
             
-            <button
+            <motion.button
               onClick={() => navigate('/help')}
-              className="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm text-white px-8 py-5 rounded-lg text-lg font-semibold hover:bg-white/20 transition-all border border-white/20"
+              className="inline-flex items-center justify-center rounded-xl border-2 border-white/40 bg-white/15 px-10 py-5 text-lg font-semibold text-white shadow-xl backdrop-blur-md transition-all hover:bg-white/25"
+              type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
               <span>Nous contacter</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </motion.button>
           </div>
 
           <p className="text-sm text-white/60 mt-8 font-light">
