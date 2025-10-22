@@ -148,7 +148,7 @@ export const KioskMode = () => {
 
       {/* Badge "Mode Kiosque" */}
       {!authenticatedProfile && (
-        <div className="fixed bottom-2 right-2 px-3 py-1.5 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-full shadow-soft border border-white">
+        <div className="fixed bottom-2 right-2 px-3 py-1.5 bg-accent-600 text-white rounded-full shadow-soft border border-white">
           <p className="text-xs font-bold flex items-center gap-1.5">
             <span className="animate-pulse">🔒</span>
             <span>Kiosque Sécurisé</span>

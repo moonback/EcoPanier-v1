@@ -36,7 +36,7 @@ export const StickyCTA = () => {
           <div className="max-w-2xl mx-auto">
             <button
               onClick={() => navigate('/dashboard')}
-              className="group w-full flex items-center justify-between bg-gradient-to-r from-primary-600 via-primary-700 to-primary-600 text-white px-6 py-5 rounded-2xl shadow-2xl hover:shadow-3xl transition-all hover:scale-[1.02]"
+              className="group w-full flex items-center justify-between bg-primary-600 text-white px-6 py-5 rounded-xl shadow-2xl hover:bg-primary-700 hover:shadow-3xl transition-all hover:scale-[1.02]"
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">

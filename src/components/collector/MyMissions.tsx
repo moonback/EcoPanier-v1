@@ -134,7 +134,7 @@ export const MyMissions = () => {
                     mission.status === 'accepted'
                       ? 'bg-gradient-to-r from-warning-100 to-warning-200 text-warning-700 border-warning-300'
                       : mission.status === 'in_progress'
-                      ? 'bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 border-primary-300'
+                      ? 'bg-primary-100 text-primary-700 border-primary-300'
                       : mission.status === 'completed'
                       ? 'bg-gradient-to-r from-success-100 to-success-200 text-success-700 border-success-300'
                       : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-gray-300'
@@ -182,7 +182,7 @@ export const MyMissions = () => {
                 {mission.status === 'accepted' && (
                   <button
                     onClick={() => updateStatus(mission.id, 'in_progress')}
-                    className="w-full py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all font-semibold shadow-lg"
+                    className="w-full py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 hover:shadow-sm transition-all font-semibold"
                   >
                     🚀 Démarrer la mission
                   </button>

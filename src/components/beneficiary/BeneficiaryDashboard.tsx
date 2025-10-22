@@ -115,7 +115,7 @@ export const BeneficiaryDashboard = () => {
               </span>
             </div>
             {dailyCount >= settings.maxDailyBeneficiaryReservations && (
-              <span className="text-xs px-2 py-0.5 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-full font-semibold shadow-sm">
+              <span className="text-xs px-2 py-0.5 bg-accent-600 text-white rounded-full font-semibold shadow-sm">
                 ✓ Complet
               </span>
             )}
@@ -163,7 +163,7 @@ export const BeneficiaryDashboard = () => {
                   aria-current={isActive ? 'page' : undefined}
                 >
                   {isActive && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-accent-500 to-accent-600 rounded-b-full" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-accent-600 rounded-b-full" />
                   )}
                   <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
                     <Icon

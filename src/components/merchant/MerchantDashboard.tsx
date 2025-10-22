@@ -164,7 +164,7 @@ export const MerchantDashboard = () => {
                   aria-current={isActive ? 'page' : undefined}
                 >
                   {isActive && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-b-full" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-secondary-600 rounded-b-full" />
                   )}
                   <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
                     <Icon

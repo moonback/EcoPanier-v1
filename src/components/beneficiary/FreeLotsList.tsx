@@ -254,7 +254,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
           {selectedCategory && (
             <button
               onClick={() => setSelectedCategory('')}
-              className="px-6 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl font-semibold hover:from-accent-700 hover:to-accent-800 transition-all shadow-lg"
+              className="px-6 py-3 bg-accent-600 text-white rounded-lg font-semibold hover:bg-accent-700 hover:shadow-sm transition-all"
             >
               Voir tous les paniers
             </button>
@@ -282,7 +282,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
                       <Package size={56} className="text-accent-300" strokeWidth={1} />
                     </div>
                   )}
-                  <div className="absolute top-3 right-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-xl border-2 border-white">
+                  <div className="absolute top-3 right-3 bg-accent-600 text-white px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-xl border-2 border-white">
                     <Heart size={14} strokeWidth={2} />
                     <span>GRATUIT</span>
                   </div>
@@ -312,7 +312,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
                       setSelectedLot(lot);
                       setQuantity(1);
                     }}
-                    className="w-full py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl hover:from-accent-700 hover:to-accent-800 transition-all font-semibold shadow-lg hover:shadow-xl"
+                    className="w-full py-3 bg-accent-600 text-white rounded-lg hover:bg-accent-700 hover:shadow-sm transition-all font-semibold"
                   >
                     🎁 Réserver gratuitement
                   </button>
@@ -450,7 +450,7 @@ export const FreeLotsList = ({ dailyCount, onReservationMade }: FreeLotsListProp
               </button>
               <button
                 onClick={() => handleReserve(selectedLot)}
-                className="flex-1 py-3 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-xl hover:from-accent-700 hover:to-accent-800 transition-all font-semibold shadow-lg hover:shadow-xl"
+                className="flex-1 py-3 bg-accent-600 text-white rounded-lg hover:bg-accent-700 hover:shadow-sm transition-all font-semibold"
               >
                 ✅ Confirmer ma réservation
               </button>

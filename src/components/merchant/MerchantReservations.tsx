@@ -82,7 +82,7 @@ export const MerchantReservations = () => {
       case 'confirmed':
         return {
           bg: 'bg-gradient-to-br from-primary-50 to-white',
-          badge: 'bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 border-primary-300',
+          badge: 'bg-primary-100 text-primary-700 border-primary-300',
           label: '✓ Confirmé',
           emoji: '✅',
         };
@@ -148,7 +148,7 @@ export const MerchantReservations = () => {
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="px-6 py-3 bg-gradient-to-r from-secondary-600 to-secondary-700 text-white rounded-xl font-semibold hover:from-secondary-700 hover:to-secondary-800 transition-all shadow-lg"
+          className="px-6 py-3 bg-secondary-600 text-white rounded-lg font-semibold hover:bg-secondary-700 hover:shadow-sm transition-all"
         >
           Créer mon premier panier
         </button>

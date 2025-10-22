@@ -481,7 +481,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                 placeholder="votre@email.com"
                 required
               />
@@ -515,7 +515,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-11 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                className="w-full pl-10 pr-11 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                 placeholder="••••••••"
                 required
                 minLength={6}
@@ -566,7 +566,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-11 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                    className="w-full pl-10 pr-11 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                     placeholder="••••••••"
                     required
                     minLength={6}
@@ -609,7 +609,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                     placeholder="Jean Dupont"
                     required
                   />
@@ -626,7 +626,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                     placeholder="06 12 34 56 78"
                   />
                 </div>
@@ -642,7 +642,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     type="text"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                     placeholder="12 rue de Paris, 75001"
                   />
                 </div>
@@ -672,7 +672,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         type="text"
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                         placeholder={role === 'merchant' ? 'Ma Boulangerie' : 'Restos du Cœur'}
                         required
                       />
@@ -691,7 +691,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         <select
                           value={businessType}
                           onChange={(e) => setBusinessType(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black focus:border-secondary-500 focus:ring-2 focus:ring-secondary-100 transition-all outline-none font-medium appearance-none cursor-pointer"
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-500 transition-all outline-none font-medium appearance-none cursor-pointer"
                           required
                         >
                           <option value="" disabled>Sélectionnez votre type d'activité</option>
@@ -744,7 +744,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         type="text"
                         value={businessAddress}
                         onChange={(e) => setBusinessAddress(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                         placeholder="15 avenue de la République"
                         required
                       />
@@ -765,7 +765,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                           const value = e.target.value.replace(/\D/g, '');
                           setSiret(value.slice(0, 14));
                         }}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                         placeholder="12345678901234 (14 chiffres)"
                         maxLength={14}
                         required
@@ -793,7 +793,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         type="email"
                         value={businessEmail}
                         onChange={(e) => setBusinessEmail(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                         placeholder="contact@moncommerce.fr"
                       />
                     </div>
@@ -807,7 +807,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     <textarea
                       value={businessDescription}
                       onChange={(e) => setBusinessDescription(e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light resize-none"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light resize-none"
                       placeholder={role === 'merchant' ? 'Boulangerie artisanale depuis 1985, spécialisée dans le pain bio...' : 'Association de lutte contre le gaspillage alimentaire...'}
                       rows={3}
                       maxLength={300}
@@ -828,7 +828,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         type="text"
                         value={vatNumber}
                         onChange={(e) => setVatNumber(e.target.value.toUpperCase())}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all outline-none font-light"
                         placeholder="FR12345678901"
                         maxLength={13}
                       />
@@ -847,7 +847,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-100 cursor-pointer"
+                  className="w-4 h-4 rounded border-neutral-300 text-primary-600 focus:ring-2 focus:ring-primary-500 cursor-pointer"
                 />
                 <span className="text-gray-600 group-hover:text-black transition-colors">Se souvenir de moi</span>
               </label>
@@ -869,7 +869,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   type="checkbox"
                   checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
-                  className="w-5 h-5 mt-0.5 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-100 cursor-pointer flex-shrink-0"
+                  className="w-5 h-5 mt-0.5 rounded border-neutral-300 text-primary-600 focus:ring-2 focus:ring-primary-500 cursor-pointer flex-shrink-0"
                   required
                 />
                 <span className="text-sm text-gray-600 group-hover:text-black transition-colors leading-relaxed">
@@ -923,7 +923,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-xl font-semibold text-base transition-all focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 focus:ring-primary-100 mt-2 shadow-lg hover:shadow-xl"
+            className="w-full py-4 rounded-lg font-semibold text-base transition-all focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed bg-primary-600 text-white hover:bg-primary-700 hover:shadow-sm focus:ring-primary-200 mt-2"
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">

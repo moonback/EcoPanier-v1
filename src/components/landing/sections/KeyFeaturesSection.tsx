@@ -79,7 +79,7 @@ export const KeyFeaturesSection = () => {
         >
           <button
             onClick={() => window.location.href = '/dashboard'}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-8 py-4 rounded-xl font-medium hover:shadow-xl transition-all"
+            className="inline-flex items-center gap-2 bg-primary-600 text-white px-8 py-4 rounded-lg font-medium hover:bg-primary-700 hover:shadow-lg transition-all"
           >
             Explorer les fonctionnalités
           </button>

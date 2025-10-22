@@ -17,7 +17,7 @@
   }
 
   body {
-    @apply bg-neutral-50 text-neutral-900;
+    @apply bg-neutral-50 text-neutral-900 font-sans antialiased;
     font-feature-settings: 'cv11', 'ss01';
   }
 
@@ -55,38 +55,38 @@
     }
   }
 
-  /* Boutons modernes */
+  /* Boutons modernes - EcoPanier v2 */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-primary {
-    @apply btn bg-gradient-to-r from-primary-500 via-primary-600 to-secondary-600 text-white shadow-soft-lg hover:shadow-soft-xl hover:scale-[1.02] focus:ring-primary-200;
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 hover:shadow-sm focus:ring-primary-200;
   }
 
   .btn-secondary {
-    @apply btn bg-white text-neutral-700 border-2 border-neutral-200 shadow-soft hover:shadow-soft-md hover:border-primary-300 hover:text-primary-600 focus:ring-primary-100;
+    @apply btn bg-secondary-600 text-white hover:bg-secondary-700 hover:shadow-sm focus:ring-secondary-200;
   }
 
   .btn-success {
-    @apply btn bg-gradient-to-r from-success-500 to-success-600 text-white shadow-soft-lg hover:shadow-soft-xl hover:scale-[1.02] focus:ring-success-200;
+    @apply btn bg-success-600 text-white hover:bg-success-700 hover:shadow-sm focus:ring-success-200;
   }
 
   .btn-outline {
-    @apply btn bg-transparent border-2 border-primary-500 text-primary-600 hover:bg-primary-500 hover:text-white hover:shadow-glow-md focus:ring-primary-200;
+    @apply btn bg-transparent border-2 border-primary-500 text-primary-600 hover:bg-primary-500 hover:text-white hover:shadow-sm focus:ring-primary-200;
   }
 
   .btn-accent {
-    @apply btn bg-gradient-to-r from-accent-500 to-accent-600 text-white shadow-soft-lg hover:shadow-soft-xl hover:scale-[1.02] focus:ring-accent-200;
+    @apply btn bg-accent-600 text-white hover:bg-accent-700 hover:shadow-sm focus:ring-accent-200;
   }
 
-  /* Cartes modernes */
+  /* Cartes modernes - EcoPanier v2 */
   .card {
-    @apply bg-white rounded-large shadow-soft-md hover:shadow-soft-lg transition-all duration-300 border border-neutral-100;
+    @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-neutral-100;
   }
 
   .card-interactive {
-    @apply card hover:scale-[1.02] hover:border-primary-200 cursor-pointer;
+    @apply card hover:border-primary-200 cursor-pointer;
   }
 
   .card-gradient {
@@ -114,35 +114,39 @@
     @apply badge bg-accent-100 text-accent-700;
   }
 
-  /* Champs de formulaire modernes */
+  /* Champs de formulaire modernes - EcoPanier v2 */
   .input {
-    @apply w-full px-4 py-3 rounded-xl border-2 border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all duration-300 outline-none;
+    @apply w-full px-4 py-3 rounded-lg border-2 border-neutral-300 bg-white text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-all duration-300 outline-none;
   }
 
   .input-icon {
     @apply input pl-11;
   }
 
-  /* Texte gradient */
+  /* Texte gradient - EcoPanier v2 */
   .text-gradient {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary-500 via-primary-600 to-secondary-600;
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-primary-700;
   }
 
   .text-gradient-warm {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-warning-500 to-accent-500;
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-secondary-500 to-secondary-600;
   }
 
   .text-gradient-success {
     @apply text-transparent bg-clip-text bg-gradient-to-r from-success-500 to-success-600;
   }
 
-  /* Sections avec fond */
+  .text-gradient-accent {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-accent-500 to-accent-600;
+  }
+
+  /* Sections avec fond - EcoPanier v2 */
   .section-gradient {
     @apply bg-gradient-to-br from-primary-50 via-secondary-50/30 to-accent-50/20;
   }
 
   .section-gradient-dark {
-    @apply bg-gradient-to-br from-primary-600 via-secondary-600 to-secondary-700;
+    @apply bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900;
   }
 
   .animate-gradient {
@@ -236,10 +240,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); /* primary-500 emerald */
   }
   50% {
-    box-shadow: 0 0 30px rgba(14, 165, 233, 0.6);
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); /* primary-500 emerald */
   }
 }
 
@@ -332,9 +336,9 @@
   animation: glow 3s ease-in-out infinite;
 }
 
-/* Effets de survol élégants */
+/* Effets de survol élégants - EcoPanier v2 */
 .hover-lift {
-  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg;
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
 }
 
 .hover-glow {
@@ -346,7 +350,7 @@
 }
 
 .shadow-glow-md {
-  box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); /* primary-500 emerald */
 }
 
 .shadow-soft-xl {

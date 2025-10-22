@@ -127,11 +127,11 @@ export function FilterSidebar({
               <button
                 onClick={() => handleFilterChange({ category: '' })}
                 aria-pressed={filters.category === ''}
-                className={`group relative w-full flex items-center justify-between p-3 rounded-2xl transition-all duration-300 border-2 focus:outline-none ring-2 ring-transparent focus:ring-primary-400 overflow-hidden
+                className={`group relative w-full flex items-center justify-between p-3 rounded-xl transition-all duration-300 border-2 focus:outline-none ring-2 ring-transparent focus:ring-primary-400 overflow-hidden
                   ${
                     filters.category === ''
-                      ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-xl shadow-primary-200/50 border-primary-600 hover:shadow-2xl hover:shadow-primary-300/50 scale-[1.02]'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white hover:border-primary-200 hover:shadow-md hover:scale-[1.01]'
+                      ? 'bg-primary-600 text-white shadow-md border-primary-600 hover:bg-primary-700 hover:shadow-lg scale-[1.02]'
+                      : 'bg-white border-neutral-200 text-neutral-700 hover:border-primary-200 hover:shadow-md hover:scale-[1.01]'
                   }
                 `}
               >

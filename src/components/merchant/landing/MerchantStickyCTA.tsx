@@ -36,7 +36,7 @@ export const MerchantStickyCTA = () => {
           <div className="max-w-md mx-auto">
             <button
               onClick={() => navigate('/auth?role=merchant')}
-              className="group w-full flex items-center justify-between bg-gradient-to-r from-secondary-600 to-secondary-700 text-white px-6 py-4 rounded-2xl shadow-2xl hover:shadow-3xl hover:from-secondary-700 hover:to-secondary-800 transition-all"
+              className="group w-full flex items-center justify-between bg-secondary-600 text-white px-6 py-4 rounded-xl shadow-2xl hover:bg-secondary-700 hover:shadow-3xl transition-all"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🏪</span>
