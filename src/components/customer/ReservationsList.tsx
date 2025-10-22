@@ -92,7 +92,7 @@ export const ReservationsList = () => {
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg"
+          className="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 hover:shadow-sm transition-all"
         >
           Découvrir les paniers
         </button>

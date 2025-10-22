@@ -176,7 +176,7 @@ export const LotBrowser = () => {
             <Filter className="w-5 h-5 text-gray-600 group-hover:text-primary-600 transition-colors" strokeWidth={1.5} />
             <span className="group-hover:text-primary-600 transition-colors">Filtres</span>
             {activeFiltersCount > 0 && (
-              <span className="ml-1 px-2 py-0.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-full text-xs font-bold shadow-sm animate-pulse">
+              <span className="ml-1 px-2 py-0.5 bg-primary-600 text-white rounded-full text-xs font-bold shadow-sm animate-pulse">
                 {activeFiltersCount}
               </span>
             )}
