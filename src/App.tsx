@@ -21,9 +21,21 @@ import { KioskMode } from './components/kiosk/KioskMode';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { ScrollToTop } from './components/shared/ScrollToTop';
+import { useAutoCleanup } from './hooks/useAutoCleanup';
 
 function DashboardRouter() {
   const { user, profile, loading, initialized, initialize, fetchProfile } = useAuthStore();
+
+  // Nettoyer automatiquement les lots non récupérés toutes les heures
+  useAutoCleanup({
+    enabled: true,
+    interval: 60 * 60 * 1000, // 1 heure
+    onCleanup: (result) => {
+      if (result.deletedLots > 0 || result.cancelledReservations > 0) {
+        console.log(`🧹 Nettoyage automatique: ${result.deletedLots} lot(s) supprimé(s), ${result.cancelledReservations} réservation(s) annulée(s)`);
+      }
+    }
+  });
 
   useEffect(() => {
     // Initialiser l'authentification au montage

@@ -6,12 +6,13 @@
  */
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Gift, TrendingUp, Users, Package, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { RefreshCw, Gift, TrendingUp, Users, Package, AlertCircle, CheckCircle, Clock, Trash2 } from 'lucide-react';
 import { 
   convertExpiredLotsToFree, 
   getExpiringLots, 
   getConversionStats,
   getFreeLots,
+  cleanupUnclaimedLots,
   type ConvertedLotResult 
 } from '../../utils/expiredLotsService';
 import type { Database } from '../../lib/database.types';
@@ -23,6 +24,8 @@ type Lot = Database['public']['Tables']['lots']['Row'];
 export function ExpiredLotsManager() {
   // État local
   const [loading, setLoading] = useState(false);
+  const [cleaningUp, setCleaningUp] = useState(false);
+  const [cleaningResult, setCleaningResult] = useState<{deletedLots: number; cancelledReservations: number} | null>(null);
   const [freeLots, setFreeLots] = useState<Lot[]>([]);
   const [stats, setStats] = useState({
     totalConverted: 0,
@@ -52,6 +55,26 @@ export function ExpiredLotsManager() {
       console.error('Erreur lors du chargement:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCleanup = async () => {
+    setCleaningUp(true);
+    setCleaningResult(null);
+    
+    try {
+      const result = await cleanupUnclaimedLots();
+      setCleaningResult({
+        deletedLots: result.deletedLots,
+        cancelledReservations: result.cancelledReservations
+      });
+      
+      // Rafraîchir les données après le nettoyage
+      await loadData();
+    } catch (error) {
+      console.error('Erreur lors du nettoyage:', error);
+    } finally {
+      setCleaningUp(false);
     }
   };
 
@@ -86,16 +109,38 @@ export function ExpiredLotsManager() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={loadData}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg hover:border-gray-300 transition-all disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              <span className="text-sm font-medium">Actualiser</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleCleanup}
+                disabled={cleaningUp}
+                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 border-2 border-red-200 rounded-lg hover:bg-red-100 transition-all disabled:opacity-50"
+              >
+                <Trash2 className={`w-4 h-4 ${cleaningUp ? 'animate-spin' : ''}`} />
+                <span className="text-sm font-medium">Nettoyer les lots non récupérés</span>
+              </button>
+              <button
+                onClick={loadData}
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg hover:border-gray-300 transition-all disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <span className="text-sm font-medium">Actualiser</span>
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Message de résultat du nettoyage */}
+        {cleaningResult && (cleaningResult.deletedLots > 0 || cleaningResult.cancelledReservations > 0) && (
+          <div className="mb-6 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+            <div className="flex items-center gap-2 text-green-800">
+              <CheckCircle className="w-5 h-5" />
+              <span className="font-bold">
+                Nettoyage terminé ! {cleaningResult.deletedLots} lot(s) supprimé(s), {cleaningResult.cancelledReservations} réservation(s) annulée(s)
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

@@ -197,3 +197,131 @@ export async function getConversionStats(days: number = 7): Promise<{
   }
 }
 
+/**
+ * Supprime automatiquement les lots non retirés 24h après la date de remise
+ * 
+ * Cette fonction identifie les lots où :
+ * - pickup_end est passé de plus de 24h
+ * - Il reste des quantités réservées mais pas complétées (completed)
+ * - Les reservations en attente qui n'ont pas été complétées
+ * 
+ * Elle supprime ces lots de la base de données et annule les réservations associées.
+ * 
+ * @returns Promise avec le nombre de lots supprimés
+ */
+export async function cleanupUnclaimedLots(): Promise<{
+  success: boolean;
+  deletedLots: number;
+  cancelledReservations: number;
+  error?: string;
+}> {
+  try {
+    const now = new Date();
+    // 24 heures avant maintenant
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    // Identifier les lots dont pickup_end est passé de plus de 24h
+    const { data: expiredLots, error: lotsError } = await supabase
+      .from('lots')
+      .select('id, title, pickup_end, quantity_reserved')
+      .lt('pickup_end', twentyFourHoursAgo.toISOString())
+      .in('status', ['available', 'reserved']);
+
+    if (lotsError) throw lotsError;
+
+    if (!expiredLots || expiredLots.length === 0) {
+      return {
+        success: true,
+        deletedLots: 0,
+        cancelledReservations: 0
+      };
+    }
+
+    let deletedLotsCount = 0;
+    let cancelledReservationsCount = 0;
+
+    // Pour chaque lot expiré non récupéré
+    for (const lot of expiredLots) {
+      try {
+        // Vérifier s'il y a des réservations non complétées
+        const { data: reservations, error: resError } = await supabase
+          .from('reservations')
+          .select('id, status')
+          .eq('lot_id', lot.id)
+          .neq('status', 'completed')
+          .neq('status', 'cancelled');
+
+        if (resError) {
+          console.error(`Erreur lors de la récupération des réservations pour le lot ${lot.id}:`, resError);
+          continue;
+        }
+
+        // Annuler toutes les réservations non complétées
+        if (reservations && reservations.length > 0) {
+          const { error: updateError } = await supabase
+            .from('reservations')
+            .update({ 
+              status: 'cancelled',
+              updated_at: new Date().toISOString()
+            })
+            .eq('lot_id', lot.id)
+            .neq('status', 'completed');
+
+          if (updateError) {
+            console.error(`Erreur lors de l'annulation des réservations pour le lot ${lot.id}:`, updateError);
+            continue;
+          }
+
+          cancelledReservationsCount += reservations.length;
+        }
+
+        // Supprimer les images associées si elles existent
+        const { data: lotData, error: fetchError } = await supabase
+          .from('lots')
+          .select('image_urls')
+          .eq('id', lot.id)
+          .single();
+
+        if (!fetchError && lotData?.image_urls && lotData.image_urls.length > 0) {
+          // Supprimer les images du storage (la fonction deleteImages gère déjà les erreurs)
+          const { deleteImages } = await import('./helpers');
+          await deleteImages(lotData.image_urls);
+        }
+
+        // Supprimer le lot
+        const { error: deleteError } = await supabase
+          .from('lots')
+          .delete()
+          .eq('id', lot.id);
+
+        if (deleteError) {
+          console.error(`Erreur lors de la suppression du lot ${lot.id}:`, deleteError);
+          continue;
+        }
+
+        deletedLotsCount++;
+        console.log(`✅ Lot "${lot.title}" supprimé (non récupéré 24h après pickup_end)`);
+      } catch (error) {
+        console.error(`Erreur lors du traitement du lot ${lot.id}:`, error);
+        // Continue avec les autres lots
+      }
+    }
+
+    console.log(`✅ Nettoyage terminé : ${deletedLotsCount} lot(s) supprimé(s), ${cancelledReservationsCount} réservation(s) annulée(s)`);
+
+    return {
+      success: true,
+      deletedLots: deletedLotsCount,
+      cancelledReservations: cancelledReservationsCount
+    };
+  } catch (error) {
+    console.error('Erreur lors du nettoyage des lots non récupérés:', error);
+    return {
+      success: false,
+      deletedLots: 0,
+      cancelledReservations: 0,
+      error: error instanceof Error ? error.message : 'Erreur inconnue'
+    };
+  }
+}
+
