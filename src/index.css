@@ -478,3 +478,239 @@ button {
     }
   }
 }
+
+/* ============================================
+   NOUVELLES ANIMATIONS & MICRO-INTERACTIONS
+   ============================================ */
+
+@layer components {
+  /* Interaction feedback - Active state */
+  .btn:active {
+    @apply scale-95;
+  }
+
+  .card-interactive:active {
+    @apply scale-98;
+  }
+
+  /* Toast notifications */
+  .toast-enter {
+    @apply animate-slide-in-right;
+  }
+
+  .toast-exit {
+    animation: fade-out 0.3s ease-out forwards;
+  }
+
+  /* Success check animation */
+  .check-animation {
+    animation: check-pop 0.6s ease-out;
+  }
+
+  /* Scale animation pour les cartes */
+  .scale-up-on-hover {
+    @apply transition-all duration-300;
+  }
+
+  .scale-up-on-hover:hover {
+    @apply scale-[1.02];
+  }
+
+  /* Glow effect pour les éléments interactifs */
+  .glow-on-hover {
+    @apply transition-all duration-300;
+  }
+
+  .glow-on-hover:hover {
+    @apply shadow-glow-md;
+  }
+
+  /* Text gradient animations */
+  .text-gradient-animate {
+    background-size: 200% 200%;
+    animation: text-gradient-shift 3s ease infinite;
+  }
+
+  /* Pulse douce pour les alertes */
+  .pulse-soft-alert {
+    animation: pulse-soft-alert 2s ease-in-out infinite;
+  }
+
+  /* Bounce animation pour les éléments CTA */
+  .bounce-cta {
+    animation: bounce-cta 2s ease-in-out infinite;
+  }
+
+  /* Slide down animation pour les dropdowns */
+  .slide-down {
+    animation: slide-down 0.3s ease-out;
+  }
+
+  /* Fade in with scale */
+  .fade-scale-in {
+    animation: fade-scale-in 0.4s ease-out;
+  }
+}
+
+/* Nouvelles keyframes */
+@keyframes check-pop {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes text-gradient-shift {
+  0% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+  100% {
+    background-position: 0% center;
+  }
+}
+
+@keyframes pulse-soft-alert {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes bounce-cta {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ============================================
+   AMÉLIORATIONS RESPONSIVE & MOBILE
+   ============================================ */
+
+@media (max-width: 640px) {
+  /* Typographie réduite sur mobile */
+  h1 {
+    @apply text-2xl;
+  }
+  
+  h2 {
+    @apply text-xl;
+  }
+  
+  h3 {
+    @apply text-lg;
+  }
+
+  /* Cartes avec padding réduit */
+  .card {
+    @apply p-4;
+  }
+
+  /* Boutons avec padding adapté */
+  .btn {
+    @apply px-4 py-2.5 text-sm;
+  }
+
+  /* Section spacing */
+  section {
+    @apply px-4;
+  }
+}
+
+/* ============================================
+   UTILITAIRES AVANCÉS
+   ============================================ */
+
+/* Glow effect pour les badges urgence */
+.urgency-glow {
+  animation: urgency-glow 2s ease-in-out infinite;
+}
+
+@keyframes urgency-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+}
+
+/* State transitions fluides */
+.transition-smooth {
+  @apply transition-all duration-300 ease-out;
+}
+
+/* Désactiver les interactions pendant le chargement */
+.loading-disabled {
+  @apply opacity-60 pointer-events-none cursor-not-allowed;
+}
+
+/* Highlight animation pour les nouvelles notifications */
+.highlight-flash {
+  animation: highlight-flash 0.6s ease-out;
+}
+
+@keyframes highlight-flash {
+  from {
+    background-color: rgba(34, 197, 94, 0.2);
+  }
+  to {
+    background-color: transparent;
+  }
+}
