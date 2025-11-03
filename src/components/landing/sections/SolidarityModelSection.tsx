@@ -6,24 +6,24 @@ import { SectionHeader } from '../../shared/layout/SectionHeader';
 
 const solidarityFeatures = [
   {
-    icon: Users,
-    title: 'Deux paniers solidaires par jour',
-    description: 'Un plafond clair pour garantir un partage équitable entre bénéficiaires accompagnés par nos associations partenaires.',
+    icon: Heart,
+    title: 'Un geste simple et direct',
+    description: 'Ajoutez un panier suspendu lors de votre achat. En quelques clics, vous soutenez directement une personne dans le besoin.',
   },
   {
-    icon: QrCode,
-    title: 'Même parcours de retrait',
-    description: 'QR code + code PIN identiques aux clients payants. Aucune file dédiée, pas de signe distinctif au comptoir.',
+    icon: Users,
+    title: 'Impact visible et mesurable',
+    description: 'Suivez dans votre tableau de bord le nombre de paniers offerts, de repas partagés et l'impact solidaire de vos gestes.',
   },
   {
     icon: Shield,
-    title: 'Dignité et confidentialité',
-    description: 'Les commerçants ne voient que le statut de retrait. Les associations gèrent l’éligibilité côté back-office.',
+    title: 'Dignité garantie',
+    description: 'Les bénéficiaires retirent les paniers suspendus exactement comme vous : même QR code, même parcours, aucune distinction.',
   },
   {
-    icon: Heart,
-    title: 'Traçabilité transparente',
-    description: 'Tableaux de bord temps réel pour suivre les paniers offerts, consommés et l’impact social local.',
+    icon: QrCode,
+    title: 'Traçabilité complète',
+    description: 'Chaque panier suspendu est tracé de l'offre à la distribution. Vous savez où va votre don et son impact réel.',
   },
 ];
 
@@ -33,8 +33,8 @@ export const SolidarityModelSection = () => {
       <div className="flex flex-col gap-14">
         <SectionHeader
           eyebrow="Solidarité intégrée"
-          title="Un programme d’aide alimentaire digne et simple à opérer"
-          description="Le dispositif des paniers solidaires est directement intégré dans la plateforme. Commerçants, associations et bénéficiaires partagent les mêmes outils, sans stigmatisation."
+          title="Offrez un panier suspendu, créez du lien dans votre quartier"
+          description="Inspiré du "caffè sospeso" italien, offrez un panier en plus du vôtre à une personne dans le besoin. Un geste simple qui fait la différence."
         />
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
@@ -47,13 +47,13 @@ export const SolidarityModelSection = () => {
           >
             <div className="space-y-4">
               <h3 className="text-2xl font-semibold text-neutral-900">
-                Comment fonctionne un panier solidaire ?
+                Comment offrir un panier suspendu ?
               </h3>
               <p className="text-base leading-relaxed text-neutral-600">
-                Les commerçants créent des paniers dédiés, financés soit par la communauté (paniers suspendus), soit par leurs propres dons. Les bénéficiaires référencés par les associations voisines réservent via leur espace sécurisé et retirent le panier comme n’importe quel client.
+                Lors de votre achat, vous pouvez choisir d'ajouter un panier suspendu. Ce panier sera offert à une personne dans le besoin, référencée par une association partenaire. Le bénéficiaire pourra le réserver et le retirer comme n'importe quel client, en toute dignité.
               </p>
               <p className="text-base leading-relaxed text-neutral-600">
-                Chaque étape est tracée dans la plateforme afin de mesurer l’usage réel, éviter les abus et simplifier la coordination entre acteurs locaux.
+                Vous suivez l'impact de vos dons dans votre tableau de bord personnel : nombre de paniers offerts, repas partagés, et impact solidaire de vos gestes.
               </p>
             </div>
 

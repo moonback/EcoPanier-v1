@@ -1,20 +1,21 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, Heart, ShieldCheck, TrendingDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { PageSection } from '../../shared/layout/PageSection';
 
 const heroHighlights = [
   {
-    icon: Sparkles,
-    label: 'Plateforme solidaire anti-gaspi',
+    icon: TrendingDown,
+    label: 'Jusqu\'à -70% sur vos courses',
   },
-  ];
+  
+];
 
 const heroStats = [
-  { value: '-70%', label: 'd’économies en moyenne' },
-  { value: '15T', label: 'de CO₂ évitées' },
-  { value: '1 980', label: 'bénéficiaires accompagnés' },
+  { value: '100€', label: 'économisés en moyenne par mois' },
+  { value: '-70%', label: 'de réduction sur vos courses' },
+  { value: '0.9kg', label: 'de CO₂ évité par panier' },
 ];
 
 export const HeroSection = () => {
@@ -49,11 +50,11 @@ export const HeroSection = () => {
           </div>
 
           <div className="space-y-6">
-            <h1 className="text-4xl font-semibold text-neutral-900 sm:text-5xl">
-              Sauvez des repas, soutenez votre quartier et renforcez la solidarité locale.
+            <h1 className="text-4xl font-semibold text-neutral-900 sm:text-5xl lg:text-6xl">
+              Économisez jusqu'à <span className="text-primary-600">-70%</span> sur vos courses tout en agissant pour la planète.
             </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-neutral-600">
-              ÉcoPanier connecte commerçants, clients, associations et bénéficiaires autour d'une plateforme unique pour valoriser les invendus et offrir des paniers solidaires.
+            <p className="max-w-xl text-lg leading-relaxed text-neutral-600 sm:text-xl">
+              Découvrez des paniers surprises de qualité à prix réduits chez vos commerçants locaux. <strong className="text-neutral-900">Économisez intelligemment</strong>, <strong className="text-neutral-900">sauvez des repas du gaspillage</strong>, et <strong className="text-primary-600">offrez des paniers suspendus</strong> aux personnes dans le besoin. Chaque achat compte pour votre portefeuille et pour la planète.
             </p>
           </div>
 
@@ -63,7 +64,7 @@ export const HeroSection = () => {
               className="btn-primary w-full sm:w-auto"
             >
               <span className="flex items-center gap-2">
-                Commencer gratuitement
+                Trouver mon premier panier
                 <ArrowRight className="h-4 w-4" />
               </span>
             </button>
@@ -71,18 +72,22 @@ export const HeroSection = () => {
               onClick={() => navigate('/how-it-works')}
               className="btn-secondary w-full sm:w-auto"
             >
-              Découvrir le fonctionnement
+              Comment ça marche ?
             </button>
           </div>
 
           <div className="flex flex-wrap gap-6 text-sm text-neutral-600">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary-500" />
-              <span>Inscription gratuite, sans engagement</span>
+              <ShieldCheck className="h-4 w-4 text-primary-500" />
+              <span><strong className="text-neutral-900">Inscription gratuite</strong>, sans engagement ni frais cachés</span>
             </div>
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-primary-500" />
-              <span>Interface dédiée pour chaque acteur</span>
+              <Heart className="h-4 w-4 text-primary-500" />
+              <span><strong className="text-neutral-900">Chaque achat</strong> soutient directement un bénéficiaire</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendingDown className="h-4 w-4 text-primary-500" />
+              <span><strong className="text-neutral-900">Suivez votre impact</strong> : économies réalisées, repas sauvés, CO₂ évité</span>
             </div>
           </div>
         </motion.div>
@@ -95,13 +100,13 @@ export const HeroSection = () => {
         >
           <div className="space-y-3">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600">
-              En chiffres
+              Vos bénéfices concrets
             </p>
             <p className="text-2xl font-semibold text-neutral-900">
-              Un impact mesurable pour l’écologie et la solidarité, partout en France.
+              Des économies réelles et un impact positif mesurable à chaque achat.
             </p>
             <p className="text-sm leading-relaxed text-neutral-600">
-              Données issues des tests avec nos premiers partenaires pilotes en 2025.
+              Rejoignez des milliers de clients qui économisent tout en agissant pour l'environnement et la solidarité.
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-3">

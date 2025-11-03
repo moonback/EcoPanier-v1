@@ -25,8 +25,8 @@ export const WhyEcoPanierSection = () => {
         <SectionHeader
           align="center"
           eyebrow="Pourquoi ÉcoPanier ?"
-          title="Une solution concrète, locale et solidaire"
-          description="Nous combinons outils numériques, logistique solidaire et accompagnement des commerces pour transformer les invendus en repas accessibles."
+          title="Trois raisons de choisir ÉcoPanier"
+          description="Économisez sur vos courses tout en agissant concrètement pour l'environnement et la solidarité locale."
         />
 
         <motion.div
@@ -65,10 +65,10 @@ export const WhyEcoPanierSection = () => {
               Notre impact collectif (tests 2025)
             </p>
             <h3 className="text-2xl font-semibold text-neutral-900">
-              Chaque panier compte pour l’écologie, l’économie et la solidarité.
+              L'impact de notre communauté de clients engagés.
             </h3>
             <p className="text-sm text-neutral-600">
-              Chiffres issus de nos évaluations pilotes avec des commerces franciliens et nantais.
+              Chiffres issus de l'activité réelle de nos clients qui économisent et agissent pour la planète.
             </p>
           </div>
 

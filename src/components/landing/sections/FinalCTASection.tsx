@@ -20,10 +20,10 @@ export const FinalCTASection = () => {
       >
         <div className="space-y-4">
           <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-            Prêt·e à rejoindre l’écosystème ÉcoPanier ?
+            Prêt·e à économiser tout en agissant pour la planète ?
           </h2>
           <p className="text-base text-neutral-100 sm:text-lg">
-            Commerce, association ou citoyen : sauvegardons ensemble les invendus et soutenons les personnes fragilisées de nos quartiers.
+            Rejoignez des milliers de clients qui économisent jusqu'à 70% sur leurs courses tout en sauvant des repas du gaspillage et en offrant des paniers suspendus.
           </p>
         </div>
 
@@ -50,11 +50,11 @@ export const FinalCTASection = () => {
             </span>
           </button>
           <button
-            onClick={() => navigate('/commercants')}
+            onClick={() => navigate('/how-it-works')}
             className="btn-secondary"
             type="button"
           >
-            Devenir partenaire
+            En savoir plus
           </button>
         </div>
 
