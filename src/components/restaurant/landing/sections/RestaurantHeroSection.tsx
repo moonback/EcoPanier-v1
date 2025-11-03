@@ -38,9 +38,10 @@ export const RestaurantHeroSection = () => {
           </h1>
 
           <p className="mx-auto max-w-2xl text-lg text-neutral-600">
-            Restaurateurs, traiteurs : transformez vos restes de repas, buffets et événements en aide alimentaire.{' '}
-            <strong className="font-semibold text-neutral-900">EcoPanier s'occupe de tout</strong>, de la mise en
-            portions à la distribution aux bénéficiaires.
+            Restaurateurs, traiteurs : transformez vos restes de repas, buffets et événements en aide alimentaire. Pas
+            de place de stockage ? Déposez vos invendus dans le{' '}
+            <strong className="font-semibold text-neutral-900">locker EcoPanier le plus proche</strong>, disponible
+            24/7.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

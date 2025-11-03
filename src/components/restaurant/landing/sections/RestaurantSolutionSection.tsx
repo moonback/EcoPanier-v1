@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CheckCircle, Truck, Users, Package } from 'lucide-react';
+import { CheckCircle, Users, Package, Box } from 'lucide-react';
 
 import { PageSection } from '../../../shared/layout/PageSection';
 import { SectionHeader } from '../../../shared/layout/SectionHeader';
@@ -11,9 +11,9 @@ const solutions = [
     description: 'En 2 minutes, ajoutez vos invendus sur la plateforme (avec IA pour vous aider)',
   },
   {
-    icon: Truck,
-    title: "On s'occupe de la logistique",
-    description: 'EcoPanier organise la récupération et la livraison aux associations partenaires',
+    icon: Box,
+    title: 'Déposez dans un locker EcoPanier',
+    description: 'Pas de stockage ? Déposez vos invendus dans le locker EcoPanier le plus proche, disponible 24/7.',
   },
   {
     icon: Users,
@@ -33,8 +33,8 @@ export const RestaurantSolutionSection = () => {
       <div className="flex flex-col gap-10">
         <SectionHeader
           align="center"
-          title="EcoPanier s'occupe de tout"
-          description="De la création du lot à la distribution : une solution clé en main pour valoriser vos invendus"
+          title="Une solution simple pour tous les établissements"
+          description="Créez vos lots et déposez-les dans un locker EcoPanier le plus proche, disponible 24/7"
         />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

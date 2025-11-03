@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Users, Utensils, PartyPopper, Coffee, Building, CheckCircle } from 'lucide-react';
+import { Users, Utensils, PartyPopper, Coffee, Building, CheckCircle, Box } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { PageSection } from '../../../shared/layout/PageSection';
@@ -21,6 +21,14 @@ const useCases = [
     solution: 'Les viennoiseries, sandwichs et salades non consommés sont transformés en lots gratuits pour les associations partenaires.',
     impact: '30-50 repas sauvés',
     emoji: '🏢',
+  },
+  {
+    icon: Box,
+    title: 'Restaurant sans stockage',
+    scenario: 'Pas d\'espace de stockage dans votre établissement',
+    solution: 'Déposez vos invendus dans le locker EcoPanier le plus proche. Vos produits sont ensuite récupérés et distribués aux associations partenaires.',
+    impact: '100% valorisé sans contrainte',
+    emoji: '📦',
   },
   {
     icon: Utensils,

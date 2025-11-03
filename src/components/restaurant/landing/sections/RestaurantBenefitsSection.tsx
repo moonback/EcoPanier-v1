@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
-import { Leaf, Heart, TrendingUp, Shield, Award, Zap } from 'lucide-react';
+import { Leaf, Heart, TrendingUp, Shield, Award, Zap, Box } from 'lucide-react';
 
 import { PageSection } from '../../../shared/layout/PageSection';
 import { SectionHeader } from '../../../shared/layout/SectionHeader';
 
 const benefits = [
   { icon: Leaf, title: 'Zéro gaspillage', description: '100% de vos invendus valorisés' },
+  { icon: Box, title: 'Lockers EcoPanier', description: 'Pas de stockage ? Déposez vos invendus dans le locker le plus proche, disponible 24/7' },
   { icon: Heart, title: 'Impact solidaire', description: 'Aidez les plus précaires de votre quartier' },
   { icon: TrendingUp, title: 'Image renforcée', description: 'Montrez votre engagement RSE' },
   { icon: Shield, title: 'Conformité légale', description: 'Respectez la loi anti-gaspillage' },
@@ -23,7 +24,7 @@ export const RestaurantBenefitsSection = () => {
           description="Au-delà de l'impact solidaire, rejoignez EcoPanier pour"
         />
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {benefits.map((benefit, index) => {
             const Icon = benefit.icon;
             return (

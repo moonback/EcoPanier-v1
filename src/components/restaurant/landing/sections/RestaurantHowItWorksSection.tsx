@@ -1,13 +1,12 @@
 import { motion } from 'framer-motion';
-import { Camera, Clock, Truck, BarChart } from 'lucide-react';
+import { Camera, BarChart, Box } from 'lucide-react';
 
 import { PageSection } from '../../../shared/layout/PageSection';
 import { SectionHeader } from '../../../shared/layout/SectionHeader';
 
 const steps = [
   { icon: Camera, title: 'Photographiez vos invendus', description: "L'IA remplit automatiquement les informations" },
-  { icon: Clock, title: "Définissez l'heure de récupération", description: 'Choisissez quand la récupération doit avoir lieu' },
-  { icon: Truck, title: 'On récupère et distribue', description: "EcoPanier s'occupe de la logistique de récupération" },
+  { icon: Box, title: 'Déposez dans un locker EcoPanier', description: 'Pas de stockage ? Trouvez le locker EcoPanier le plus proche et déposez vos invendus, disponible 24/7.' },
   { icon: BarChart, title: 'Suivez votre impact', description: 'Dashboard avec statistiques en temps réel' },
 ];
 
@@ -18,10 +17,10 @@ export const RestaurantHowItWorksSection = () => {
         <SectionHeader
           align="center"
           title="Simple et rapide"
-          description="4 étapes pour transformer vos invendus en impact solidaire"
+          description="3 étapes pour transformer vos invendus en impact solidaire"
         />
 
-        <div className="grid gap-6 md:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-3">
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (
