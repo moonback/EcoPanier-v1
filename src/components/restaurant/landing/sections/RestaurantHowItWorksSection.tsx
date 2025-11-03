@@ -1,56 +1,52 @@
 import { motion } from 'framer-motion';
 import { Camera, Clock, Truck, BarChart } from 'lucide-react';
 
+import { PageSection } from '../../../shared/layout/PageSection';
+import { SectionHeader } from '../../../shared/layout/SectionHeader';
+
+const steps = [
+  { icon: Camera, title: 'Photographiez vos invendus', description: "L'IA remplit automatiquement les informations" },
+  { icon: Clock, title: "Définissez l'heure de récupération", description: 'Choisissez quand les collecteurs passent' },
+  { icon: Truck, title: 'On récupère et distribue', description: 'Nos collecteurs s\'occupent de la logistique' },
+  { icon: BarChart, title: 'Suivez votre impact', description: 'Dashboard avec statistiques en temps réel' },
+];
+
 export const RestaurantHowItWorksSection = () => {
-  const steps = [
-    { icon: Camera, title: 'Photographiez vos invendus', description: 'L\'IA remplit automatiquement les informations' },
-    { icon: Clock, title: 'Définissez l\'heure de récupération', description: 'Choisissez quand les collecteurs passent' },
-    { icon: Truck, title: 'On récupère et distribue', description: 'Nos collecteurs s\'occupent de la logistique' },
-    { icon: BarChart, title: 'Suivez votre impact', description: 'Dashboard avec statistiques en temps réel' }
-  ];
-
   return (
-    <section className="py-32 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Simple et rapide
-          </h2>
-          <p className="text-xl text-gray-600 font-light">
-            4 étapes pour transformer vos invendus en impact solidaire
-          </p>
-        </motion.div>
+    <PageSection background="subtle" padding="lg">
+      <div className="flex flex-col gap-10">
+        <SectionHeader
+          align="center"
+          title="Simple et rapide"
+          description="4 étapes pour transformer vos invendus en impact solidaire"
+        />
 
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid gap-6 md:grid-cols-4">
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 40 }}
+                key={step.title}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.15 }}
-                className="text-center"
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="surface flex flex-col items-center gap-4 p-6 text-center"
               >
-                <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-red-600 text-white text-2xl font-bold mb-6 shadow-lg">
+                <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary-600 text-xl font-bold text-white shadow-md">
                   {index + 1}
                 </div>
-                <Icon className="w-12 h-12 mx-auto mb-4 text-orange-600" strokeWidth={1.5} />
-                <h3 className="text-xl font-bold text-black mb-3">{step.title}</h3>
-                <p className="text-gray-600 font-light">{step.description}</p>
+                <Icon className="h-8 w-8 text-primary-600" strokeWidth={1.5} />
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold text-neutral-900">{step.title}</h3>
+                  <p className="text-sm text-neutral-600">{step.description}</p>
+                </div>
               </motion.div>
             );
           })}
         </div>
       </div>
-    </section>
+    </PageSection>
   );
 };
 

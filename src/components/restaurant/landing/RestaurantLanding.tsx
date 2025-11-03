@@ -27,7 +27,7 @@ export const RestaurantLanding = () => {
   }, [initialized, user, profile, navigate]);
 
   return (
-    <div className="min-h-screen bg-white overflow-hidden">
+    <div className="min-h-screen bg-neutral-100">
       <SEOHead
         title="EcoPanier Restaurateurs - Transformez vos invendus en impact solidaire"
         description="Restaurateurs, traiteurs : valorisez vos restes de repas, buffets, mariages. EcoPanier s'occupe de tout pour distribuer vos invendus aux bénéficiaires. Zéro gaspillage, impact positif."

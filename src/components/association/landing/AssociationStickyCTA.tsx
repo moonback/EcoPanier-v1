@@ -36,7 +36,7 @@ export const AssociationStickyCTA = () => {
           <div className="max-w-md mx-auto">
             <button
               onClick={() => navigate('/auth?role=association')}
-              className="group w-full flex items-center justify-between bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-4 rounded-2xl shadow-2xl hover:shadow-3xl hover:from-purple-700 hover:to-purple-800 transition-all"
+              className="btn w-full flex items-center justify-between bg-secondary-600 text-white hover:bg-secondary-700 shadow-2xl hover:shadow-3xl"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🏛️</span>
@@ -45,7 +45,7 @@ export const AssociationStickyCTA = () => {
                   <div className="text-xs text-white/80">Simplifiez la gestion de vos bénéficiaires</div>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+              <ArrowRight className="h-4 w-4 flex-shrink-0" />
             </button>
           </div>
         </motion.div>

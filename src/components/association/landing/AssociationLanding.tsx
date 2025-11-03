@@ -28,7 +28,7 @@ export const AssociationLanding = () => {
   }, [initialized, user, profile, navigate]);
 
   return (
-    <div className="min-h-screen bg-white overflow-hidden">
+    <div className="min-h-screen bg-neutral-100">
       <SEOHead
         title="Associations - Gestion de l'aide alimentaire | ÉcoPanier"
         description="Facilitez l'accès à l'aide alimentaire pour vos bénéficiaires. Plateforme complète de gestion, suivi et export de données pour les associations solidaires."

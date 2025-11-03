@@ -1,147 +1,91 @@
 import { motion } from 'framer-motion';
-import { Check, Heart, Shield, Users, QrCode } from 'lucide-react';
+import { Check, Heart, QrCode, Shield, Users } from 'lucide-react';
+
+import { PageSection } from '../../shared/layout/PageSection';
+import { SectionHeader } from '../../shared/layout/SectionHeader';
+
+const solidarityFeatures = [
+  {
+    icon: Users,
+    title: 'Deux paniers solidaires par jour',
+    description: 'Un plafond clair pour garantir un partage équitable entre bénéficiaires accompagnés par nos associations partenaires.',
+  },
+  {
+    icon: QrCode,
+    title: 'Même parcours de retrait',
+    description: 'QR code + code PIN identiques aux clients payants. Aucune file dédiée, pas de signe distinctif au comptoir.',
+  },
+  {
+    icon: Shield,
+    title: 'Dignité et confidentialité',
+    description: 'Les commerçants ne voient que le statut de retrait. Les associations gèrent l’éligibilité côté back-office.',
+  },
+  {
+    icon: Heart,
+    title: 'Traçabilité transparente',
+    description: 'Tableaux de bord temps réel pour suivre les paniers offerts, consommés et l’impact social local.',
+  },
+];
 
 export const SolidarityModelSection = () => {
-  const solidarityFeatures = [
-    {
-      icon: Users,
-      title: 'Maximum 2 lots solidaires par jour',
-      description: 'Soutenus par la communauté pour garantir un accès équitable à tous les bénéficiaires'
-    },
-    {
-      icon: QrCode,
-      title: 'Retrait identique aux autres clients',
-      description: 'Même processus QR code + PIN, sans distinction visible'
-    },
-    {
-      icon: Shield,
-      title: 'Aucun marquage "spécial bénéficiaire"',
-      description: 'Préservation totale de la dignité et de la confidentialité'
-    },
-    {
-      icon: Heart,
-      title: 'Suivi en toute transparence',
-      description: 'Associations et commerçants suivent l\'impact en temps réel'
-    }
-  ];
-
   return (
-    <section className="relative py-32 bg-gradient-to-br from-accent-50 via-pink-50 to-accent-50 overflow-hidden">
-      {/* Image de fond */}
-      <img
-        src="/slide-2.png"
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none select-none"
-        draggable={false}
-      />
+    <PageSection background="default">
+      <div className="flex flex-col gap-14">
+        <SectionHeader
+          eyebrow="Solidarité intégrée"
+          title="Un programme d’aide alimentaire digne et simple à opérer"
+          description="Le dispositif des paniers solidaires est directement intégré dans la plateforme. Commerçants, collecteurs, associations et bénéficiaires partagent les mêmes outils, sans stigmatisation."
+        />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <div className="inline-flex items-center gap-2 bg-accent-100 text-accent-700 px-4 py-2 rounded-full font-medium mb-6">
-            <Heart className="w-5 h-5" />
-            <span>Solidarité intégrée</span>
-          </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Un modèle de solidarité unique
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            Les lots solidaires : une aide digne et transparente, soutenue par la communauté, pour les personnes en situation de précarité
-          </p>
-        </motion.div>
-
-        {/* Section explicative */}
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-          {/* Texte */}
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="surface space-y-6 p-8"
           >
-            <div className="bg-white rounded-3xl p-10 shadow-xl">
-              <h3 className="text-3xl font-bold text-black mb-6">
-                Comment ça marche ?
+            <div className="space-y-4">
+              <h3 className="text-2xl font-semibold text-neutral-900">
+                Comment fonctionne un panier solidaire ?
               </h3>
-              <p className="text-lg text-gray-600 font-light leading-relaxed mb-6">
-                Les commerçants créent des lots <strong className="font-semibold text-black">solidaires soutenus par la communauté</strong>, 
-                réservés aux bénéficiaires vérifiés par les associations partenaires. Grâce aux dons et à la solidarité locale, 
-                ces personnes peuvent accéder à de bons produits <strong className="font-semibold text-black">sans frais</strong>.
+              <p className="text-base leading-relaxed text-neutral-600">
+                Les commerçants créent des paniers dédiés, financés soit par la communauté (paniers suspendus), soit par leurs propres dons. Les bénéficiaires référencés par les associations voisines réservent via leur espace sécurisé et retirent le panier comme n’importe quel client.
               </p>
-              <p className="text-lg text-gray-600 font-light leading-relaxed mb-8">
-                Le système garantit <strong className="font-semibold text-black">dignité</strong> et <strong className="font-semibold text-black">confidentialité</strong> : 
-                aucune différence visible entre un client payant et un bénéficiaire lors du retrait.
+              <p className="text-base leading-relaxed text-neutral-600">
+                Chaque étape est tracée dans la plateforme afin de mesurer l’usage réel, éviter les abus et simplifier la coordination entre acteurs locaux.
               </p>
+            </div>
 
-              <div className="inline-flex items-center gap-3 bg-success-100 text-success-700 px-6 py-3 rounded-xl font-medium">
-                <Check className="w-5 h-5" />
-                <span>Système déjà actif sur la plateforme</span>
-              </div>
+            <div className="inline-flex items-center gap-3 rounded-xl border border-success-200 bg-success-50 px-4 py-3 text-sm font-semibold text-success-700">
+              <Check className="h-4 w-4" />
+              Programme déployé dans nos pilotes 2025
             </div>
           </motion.div>
 
-          {/* Caractéristiques */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="space-y-4"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
+            className="grid gap-4 sm:grid-cols-2"
           >
-            {solidarityFeatures.map((feature, index) => {
+            {solidarityFeatures.map((feature) => {
               const Icon = feature.icon;
               return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all group"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-accent-100 rounded-xl group-hover:bg-accent-200 transition-colors">
-                      <Icon className="w-6 h-6 text-accent-600" strokeWidth={2} />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-lg font-bold text-black mb-2">
-                        {feature.title}
-                      </h4>
-                      <p className="text-gray-600 font-light">
-                        {feature.description}
-                      </p>
-                    </div>
-                    <div className="text-2xl opacity-30">✓</div>
+                <div key={feature.title} className="surface h-full space-y-3 p-6">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-50 text-accent-600">
+                    <Icon className="h-6 w-6" />
                   </div>
-                </motion.div>
+                  <h4 className="text-base font-semibold text-neutral-900">{feature.title}</h4>
+                  <p className="text-sm leading-relaxed text-neutral-600">{feature.description}</p>
+                </div>
               );
             })}
           </motion.div>
         </div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center"
-        >
-          <button
-            onClick={() => window.location.href = '/help'}
-            className="inline-flex items-center gap-2 bg-black text-white px-8 py-4 rounded-xl font-medium hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
-          >
-            Comprendre le programme solidaire
-          </button>
-        </motion.div>
       </div>
-    </section>
+    </PageSection>
   );
 };
 

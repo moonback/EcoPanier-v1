@@ -1,8 +1,12 @@
 import { useState } from 'react';
+
 import { Header } from '../shared/Header';
 import { Footer } from '../shared/Footer';
 import { SEOHead } from '../shared/SEOHead';
-import { 
+import { PageSection } from '../shared/layout/PageSection';
+import { SectionHeader } from '../shared/layout/SectionHeader';
+import { cn } from '../../utils/cn';
+import {
   Search,
   HelpCircle,
   MessageCircle,
@@ -20,13 +24,13 @@ import {
   AlertCircle,
   Heart,
   Settings,
-  Shield
+  Shield,
 } from 'lucide-react';
 
 export const HelpCenter = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
 
   const categories = [
     { id: 'all', name: 'Tout', icon: HelpCircle },
@@ -223,7 +227,7 @@ export const HelpCenter = () => {
   });
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-neutral-100">
       <SEOHead
         title="Centre d'Aide ÉcoPanier - Toutes vos Réponses en Un Clic | FAQ & Support"
         description="Questions sur les réservations, retraits, paniers solidaires ou paiements ? Trouvez instantanément vos réponses dans notre FAQ complète. Support réactif 24/7."
@@ -232,299 +236,240 @@ export const HelpCenter = () => {
       />
       <Header />
 
-      {/* Hero */}
-      <section className="py-32 text-center bg-gray-50 bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/slide-3.png)' }}>
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="max-w-4xl mx-auto px-6 relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full font-medium mb-6 border border-white/20">
-            <HelpCircle className="w-5 h-5" />
-            <span>Support & Assistance</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Nous sommes là pour vous ! 
-            <br />
-            <span className="text-primary-400">Quelle est votre question ?</span>
+      <PageSection background="muted" padding="lg">
+        <div className="mx-auto flex max-w-3xl flex-col gap-6 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-600">
+            <HelpCircle className="h-4 w-4 text-primary-500" />
+            Support & assistance
+          </span>
+          <h1 className="text-4xl font-semibold text-neutral-900 sm:text-5xl">
+            Nous sommes là pour répondre à toutes vos questions
           </h1>
-          <p className="text-xl text-white/90 mb-8 font-light max-w-2xl mx-auto">
-            Trouvez instantanément les réponses dont vous avez besoin ou contactez notre équipe dédiée
+          <p className="text-lg text-neutral-600">
+            Explorez notre FAQ, filtrez par rôle ou contactez directement notre équipe. Nous vous répondons rapidement et avec précision.
           </p>
-          
-          {/* Search bar */}
-          <div className="max-w-2xl mx-auto">
-            <div className="relative group">
-              <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-primary-600 transition-colors" strokeWidth={2} />
+          <div className="surface mx-auto w-full max-w-2xl space-y-2 p-6">
+            <div className="relative flex items-center">
+              <Search className="pointer-events-none absolute left-4 h-5 w-5 text-neutral-400" />
               <input
                 type="text"
-                placeholder="Posez votre question... (ex: Comment réserver un panier ?)"
+                placeholder="Posez votre question (ex : Comment réserver un panier ?)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-5 rounded-xl text-black border-2 border-white/50 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none font-light shadow-2xl placeholder:text-gray-400"
+                className="input pl-12"
               />
             </div>
-            <p className="text-white/70 text-sm mt-3">
-              💡 Tapez quelques mots-clés pour trouver rapidement votre réponse
+            <p className="text-left text-xs text-neutral-500">
+              💡 Tapez quelques mots-clés pour trouver instantanément la bonne réponse.
             </p>
           </div>
         </div>
-      </section>
+      </PageSection>
 
-      {/* Categories */}
-      <section className="py-12 bg-white border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-2xl font-bold text-center text-black mb-6">
-            Filtrer par catégorie
-          </h2>
-          <div className="flex flex-wrap gap-3 justify-center">
+      <PageSection background="default">
+        <div className="flex flex-col gap-6">
+          <SectionHeader
+            align="center"
+            eyebrow="Filtrer par rôle"
+            title="Un centre d’aide pensé pour chaque acteur"
+            description="Clients, commerçants, bénéficiaires, associations ou questions techniques : sélectionnez votre catégorie pour des réponses ciblées."
+          />
+          <div className="flex flex-wrap justify-center gap-3">
             {categories.map((category) => {
               const Icon = category.icon;
               const isActive = activeCategory === category.id;
               return (
                 <button
                   key={category.id}
+                  type="button"
                   onClick={() => setActiveCategory(category.id)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all shadow-sm hover:shadow-md ${
+                  className={cn(
+                    'surface flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-colors',
                     isActive
-                      ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg scale-105'
-                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-primary-300'
-                  }`}
+                      ? 'border-primary-300 bg-primary-50 text-primary-700 shadow-sm'
+                      : 'hover:border-primary-200 hover:text-primary-700'
+                  )}
                 >
-                  <Icon size={18} strokeWidth={2} />
+                  <Icon className="h-4 w-4" />
                   {category.name}
-                  {isActive && <span className="text-xs">✓</span>}
                 </button>
               );
             })}
           </div>
-          {activeCategory !== 'all' && (
-            <div className="text-center mt-4">
-              <button
-                onClick={() => setActiveCategory('all')}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium underline"
-              >
-                Voir toutes les questions
-              </button>
-            </div>
-          )}
+          {activeCategory !== 'all' ? (
+            <button
+              type="button"
+              onClick={() => setActiveCategory('all')}
+              className="mx-auto text-sm font-semibold text-primary-600 hover:text-primary-700"
+            >
+              Voir toutes les questions
+            </button>
+          ) : null}
         </div>
-      </section>
+      </PageSection>
 
-      {/* FAQ */}
-      <section className="py-32 bg-gradient-to-b from-white to-gray-50">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
-              Les réponses à vos questions
-            </h2>
-            <p className="text-lg text-gray-600 font-light">
-              {filteredFaqs.length} {filteredFaqs.length > 1 ? 'questions' : 'question'} {activeCategory !== 'all' && `dans la catégorie ${categories.find(c => c.id === activeCategory)?.name}`}
-            </p>
-          </div>
-          
+      <PageSection background="subtle" padding="lg">
+        <div className="flex flex-col gap-8">
+          <SectionHeader
+            align="center"
+            eyebrow="FAQ"
+            title="Les réponses les plus fréquentes"
+            description={`${filteredFaqs.length} ${filteredFaqs.length > 1 ? 'questions' : 'question'} correspondante${
+              filteredFaqs.length > 1 ? 's' : ''
+            }${
+              activeCategory !== 'all'
+                ? ` dans la catégorie ${categories.find((c) => c.id === activeCategory)?.name}`
+                : ''
+            }.`}
+          />
+
           {filteredFaqs.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-3xl shadow-lg border border-gray-100">
-              <div className="inline-flex p-6 bg-gray-50 rounded-full mb-6">
-                <AlertCircle size={64} className="text-gray-300" strokeWidth={1} />
-              </div>
-              <p className="text-2xl text-black font-semibold mb-2">Aucune question trouvée</p>
-              <p className="text-gray-600 mb-6">Essayez avec d'autres mots-clés ou catégories</p>
+            <div className="surface flex flex-col items-center gap-4 p-10 text-center">
+              <AlertCircle className="h-10 w-10 text-neutral-400" />
+              <h3 className="text-lg font-semibold text-neutral-900">Aucune question trouvée</h3>
+              <p className="text-sm text-neutral-600">Essayez avec d’autres mots-clés ou réinitialisez les filtres.</p>
               <button
+                type="button"
                 onClick={() => {
                   setSearchQuery('');
                   setActiveCategory('all');
                 }}
-                className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-all"
+                className="btn-secondary"
               >
                 Réinitialiser les filtres
               </button>
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredFaqs.map((faq, index) => {
-                const isExpanded = expandedFaq === index;
+              {filteredFaqs.map((faq) => {
                 const Icon = faq.icon;
-                
+                const isExpanded = expandedFaq === faq.question;
+
                 return (
-                  <div
-                    key={index}
-                    className={`bg-white rounded-2xl border-2 transition-all ${
-                      isExpanded 
-                        ? 'border-primary-300 shadow-lg' 
-                        : 'border-gray-100 hover:border-gray-200 hover:shadow-md'
-                    }`}
-                  >
+                  <div key={faq.question} className="surface overflow-hidden">
                     <button
-                      onClick={() => setExpandedFaq(isExpanded ? null : index)}
-                      className="w-full p-6 flex items-center justify-between text-left group"
+                      type="button"
+                      onClick={() => setExpandedFaq(isExpanded ? null : faq.question)}
+                      className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
                     >
-                      <div className="flex items-start gap-4 flex-1 pr-4">
-                        <div className={`p-3 rounded-xl flex-shrink-0 transition-all ${
-                          isExpanded 
-                            ? 'bg-gradient-to-br from-primary-500 to-primary-600' 
-                            : 'bg-gray-100 group-hover:bg-primary-50'
-                        }`}>
-                          <Icon 
-                            size={20} 
-                            className={isExpanded ? 'text-white' : 'text-gray-600 group-hover:text-primary-600'} 
-                            strokeWidth={2} 
-                          />
-                        </div>
-                        <h3 className={`text-lg font-semibold transition-colors ${
-                          isExpanded ? 'text-primary-700' : 'text-black group-hover:text-primary-600'
-                        }`}>
+                      <div className="flex items-start gap-4">
+                        <span
+                          className={cn(
+                            'flex h-10 w-10 items-center justify-center rounded-xl border bg-neutral-50 text-neutral-500',
+                            isExpanded && 'border-primary-300 bg-primary-50 text-primary-600'
+                          )}
+                        >
+                          <Icon className="h-5 w-5" />
+                        </span>
+                        <h3
+                          className={cn(
+                            'text-sm font-semibold text-neutral-900',
+                            isExpanded && 'text-primary-700'
+                          )}
+                        >
                           {faq.question}
                         </h3>
                       </div>
-                      <div className={`p-2 rounded-lg transition-all flex-shrink-0 ${
-                        isExpanded ? 'bg-primary-100' : 'bg-gray-50 group-hover:bg-gray-100'
-                      }`}>
-                        {isExpanded ? (
-                          <ChevronUp size={20} className="text-primary-600" strokeWidth={2} />
-                        ) : (
-                          <ChevronDown size={20} className="text-gray-600 group-hover:text-primary-600" strokeWidth={2} />
-                        )}
-                      </div>
+                      <span className="rounded-full border border-neutral-200 p-1 text-neutral-500">
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </span>
                     </button>
-                    
-                    {isExpanded && (
-                      <div className="px-6 pb-6">
-                        <div className="pl-16 pr-4">
-                          <div className="bg-gray-50 rounded-xl p-6 border-l-4 border-primary-500">
-                            <p className="text-gray-700 leading-relaxed font-light text-base">
-                              {faq.answer}
-                            </p>
-                          </div>
-                        </div>
+                    {isExpanded ? (
+                      <div className="border-t border-neutral-200 bg-neutral-50 px-5 py-4">
+                        <p className="text-sm leading-relaxed text-neutral-600">{faq.answer}</p>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 );
               })}
             </div>
           )}
         </div>
-      </section>
+      </PageSection>
 
-      {/* Contact methods */}
-      <section className="py-32 bg-white relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-20 left-10 w-96 h-96 bg-primary-500 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-success-500 rounded-full blur-3xl" />
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-full font-medium mb-4">
-              <MessageCircle className="w-5 h-5" />
-              <span>Contactez-nous</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
-              Vous n'avez pas trouvé ?
-              <br />
-              <span className="text-primary-600">Parlons-en directement !</span>
-            </h2>
-            <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto">
-              Notre équipe est à votre écoute pour répondre à toutes vos questions
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {contactMethods.map((method, index) => {
+      <PageSection background="default">
+        <div className="flex flex-col gap-10">
+          <SectionHeader
+            align="center"
+            eyebrow="Contact"
+            title="Toujours besoin d’aide ?"
+            description="Notre équipe est disponible par email, téléphone ou chat pour vous accompagner."
+          />
+          <div className="grid gap-4 sm:grid-cols-3">
+            {contactMethods.map((method) => {
               const Icon = method.icon;
-              const colors = [
-                { bg: 'from-primary-500 to-primary-600', hover: 'hover:from-primary-600 hover:to-primary-700' },
-                { bg: 'from-success-500 to-success-600', hover: 'hover:from-success-600 hover:to-success-700' },
-                { bg: 'from-secondary-500 to-secondary-600', hover: 'hover:from-secondary-600 hover:to-secondary-700' },
-              ];
-              
               return (
                 <button
-                  key={index}
+                  key={method.title}
+                  type="button"
                   onClick={method.action}
-                  className="group bg-white rounded-2xl p-8 text-center hover:shadow-2xl transition-all border-2 border-gray-100 hover:border-gray-200"
+                  className="surface flex flex-col gap-3 rounded-2xl p-6 text-left transition-transform hover:-translate-y-1"
                 >
-                  <div className={`w-20 h-20 bg-gradient-to-br ${colors[index].bg} ${colors[index].hover} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
-                    <Icon size={32} className="text-white" strokeWidth={2} />
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-neutral-900">{method.title}</p>
+                    <p className="text-sm text-primary-600">{method.value}</p>
+                    <p className="text-xs text-neutral-500">{method.description}</p>
                   </div>
-                  <h3 className="text-xl font-bold text-black mb-3 group-hover:text-primary-600 transition-colors">
-                    {method.title}
-                  </h3>
-                  <p className="text-lg text-primary-600 font-semibold mb-2">
-                    {method.value}
-                  </p>
-                  <p className="text-sm text-gray-600 font-light">
-                    {method.description}
-                  </p>
-                  <div className="mt-4 text-sm text-primary-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    Cliquez pour contacter →
-                  </div>
+                  <span className="text-xs font-semibold text-primary-600">Cliquer pour contacter →</span>
                 </button>
               );
             })}
           </div>
         </div>
-      </section>
+      </PageSection>
 
-      {/* CTA */}
-      <section className="py-32 bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-success-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        </div>
-        
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-          <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-12 md:p-16 border border-white/10">
-            <div className="inline-flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-full font-medium mb-6">
-              <HelpCircle className="w-5 h-5" />
-              <span>Support Personnalisé</span>
+      <PageSection background="contrast" padding="lg">
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-100">
+            Support personnalisé
+          </span>
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Une équipe dédiée répond en moins de deux heures
+          </h2>
+          <p className="text-base text-neutral-100/80">
+            Besoin d’une assistance plus précise ? Envoyez-nous un message ou appelez-nous : nous sommes disponibles 7j/7 pour accompagner la communauté ÉcoPanier.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-white/15 bg-white/10 p-4">
+              <p className="text-2xl font-semibold text-white">{"< 2 h"}</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-neutral-100/70">Temps de réponse moyen</p>
             </div>
-            
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Toujours une question ? 
-              <br />
-              <span className="text-primary-400">On est là pour vous !</span>
-            </h2>
-            <p className="text-xl text-white/80 mb-10 font-light max-w-2xl mx-auto">
-              Notre équipe répond en moyenne en moins de 2 heures. 
-              Écrivez-nous, on adore discuter avec notre communauté ! 💬
-            </p>
-            
-            {/* Quick stats */}
-            <div className="grid grid-cols-3 gap-6 mb-10 py-6 border-y border-white/10">
-              <div>
-                <div className="text-3xl font-bold text-primary-400">{"<2h"}</div>
-                <div className="text-sm text-white/70">Temps de réponse moyen</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-success-400">98%</div>
-                <div className="text-sm text-white/70">Satisfaction client</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-warning-400">7j/7</div>
-                <div className="text-sm text-white/70">Support disponible</div>
-              </div>
+            <div className="rounded-xl border border-white/15 bg-white/10 p-4">
+              <p className="text-2xl font-semibold text-white">98 %</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-neutral-100/70">Satisfaction client</p>
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => window.location.href = 'mailto:support@EcoPanier.com'}
-                className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-black rounded-xl font-medium text-lg hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl"
-              >
-                <Mail size={24} strokeWidth={2} />
-                <span>Envoyer un email</span>
-              </button>
-              <button
-                onClick={() => window.location.href = 'tel:0123456789'}
-                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-medium text-lg hover:bg-white/20 transition-all border border-white/20"
-              >
-                <Phone size={24} strokeWidth={2} />
-                <span>Nous appeler</span>
-              </button>
+            <div className="rounded-xl border border-white/15 bg-white/10 p-4">
+              <p className="text-2xl font-semibold text-white">7 j/7</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-neutral-100/70">Disponibilité</p>
             </div>
           </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => window.location.href = 'mailto:support@EcoPanier.com'}
+              className="btn-primary"
+            >
+              <span className="flex items-center gap-2">
+                Envoyer un email
+                <Mail className="h-4 w-4" />
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => window.location.href = 'tel:0123456789'}
+              className="btn-secondary"
+            >
+              <span className="flex items-center gap-2">
+                Nous appeler
+                <Phone className="h-4 w-4" />
+              </span>
+            </button>
+          </div>
         </div>
-      </section>
+      </PageSection>
 
       <Footer />
     </div>

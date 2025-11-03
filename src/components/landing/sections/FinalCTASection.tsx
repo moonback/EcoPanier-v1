@@ -1,96 +1,68 @@
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+import { PageSection } from '../../shared/layout/PageSection';
+
+const highlights = ['Inscription gratuite', 'Sans engagement', 'Suivi d’impact intégré'];
 
 export const FinalCTASection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="relative py-32 bg-black overflow-hidden">
-      {/* Image Background - même style que Hero */}
-      <div className="absolute inset-0 overflow-hidden">
-        <img 
-          src="/slide-5.png"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover opacity-50 pointer-events-none select-none"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center max-w-4xl mx-auto"
-        >
-          {/* Titre principal */}
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-8 tracking-tight leading-tight">
-            <span className="block">
-              Prêt à faire la
-            </span>
-            <span className="text-primary-400 block">
-              différence ensemble ?
-            </span>
+    <PageSection background="contrast" padding="lg">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="mx-auto flex max-w-4xl flex-col items-center gap-8 text-center"
+      >
+        <div className="space-y-4">
+          <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+            Prêt·e à rejoindre l’écosystème ÉcoPanier ?
           </h2>
-
-          {/* Description */}
-          <p className="text-lg md:text-2xl text-white/90 mb-10 max-w-2xl mx-auto font-light">
-            Rejoignez une communauté engagée qui sauve des repas, soutient les plus précaires et combat le gaspillage au quotidien.
+          <p className="text-base text-neutral-100 sm:text-lg">
+            Commerce, association, collecteur ou citoyen : sauvegardons ensemble les invendus et soutenons les personnes fragilisées de nos quartiers.
           </p>
+        </div>
 
-          {/* Badges d'avantages - même style que Hero */}
-          <div className="flex flex-wrap gap-3 mb-12 justify-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow">
-              <span className="text-lg">✨</span>
-              <span>Inscription gratuite</span>
-            </div>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow">
-              <span className="text-lg">⚡</span>
-              <span>Sans engagement</span>
-            </div>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/20 shadow">
-              <span className="text-lg">🚀</span>
-              <span>Impact immédiat</span>
-            </div>
-          </div>
-
-          {/* Boutons CTA - même style que Hero */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="btn-primary text-lg px-10 py-5 rounded-lg shadow-xl hover:shadow-2xl transition-all group flex items-center gap-3 justify-center"
-              type="button"
+        <div className="flex flex-wrap justify-center gap-3 text-sm text-neutral-100/80">
+          {highlights.map((item) => (
+            <span
+              key={item}
+              className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5"
             >
-              <span>Commencer maintenant</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-            
-            <button
-              onClick={() => navigate('/commercants')}
-              className="btn-secondary text-lg px-8 py-5 rounded-lg flex items-center justify-center gap-2 border border-white/20"
-              type="button"
-            >
-              <span>Devenir partenaire</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
+              {item}
+            </span>
+          ))}
+        </div>
 
-          {/* Mention légère en bas */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-sm text-white/60 mt-8 font-light"
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="btn-primary"
+            type="button"
           >
-            Aucun engagement • 100% gratuit • Sans publicité
-          </motion.p>
-        </motion.div>
-      </div>
-    </section>
+            <span className="flex items-center gap-2">
+              Créer mon compte
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          </button>
+          <button
+            onClick={() => navigate('/commercants')}
+            className="btn-secondary"
+            type="button"
+          >
+            Devenir partenaire
+          </button>
+        </div>
+
+        <p className="text-xs uppercase tracking-[0.2em] text-neutral-100/60">
+          Aucun abonnement • Données exportables • Support réactif
+        </p>
+      </motion.div>
+    </PageSection>
   );
 };
 
