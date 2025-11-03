@@ -1,55 +1,47 @@
 import { motion } from 'framer-motion';
+
 import { testimonials } from '../../../data/landingData';
+import { PageSection } from '../../shared/layout/PageSection';
+import { SectionHeader } from '../../shared/layout/SectionHeader';
 
 export const TestimonialsSection = () => {
   return (
-    <section className="py-32 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-20"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight max-w-3xl">
-            Ce qu'ils en disent
-          </h2>
-          <p className="text-xl text-gray-600 font-light">
-            Des milliers d'utilisateurs nous font confiance
-          </p>
-        </motion.div>
+    <PageSection background="default">
+      <div className="flex flex-col gap-12">
+        <SectionHeader
+          title="Ils et elles racontent leur expérience"
+          description="Commerçants, clients et associations partagent l’impact concret d’ÉcoPanier sur leur quotidien."
+        />
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white rounded-2xl p-8"
-            >
-              <div className="flex items-center gap-4 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="grid gap-6 md:grid-cols-3"
+        >
+          {testimonials.map((testimonial) => (
+            <div key={testimonial.name} className="surface h-full space-y-5 p-6">
+              <div className="flex items-center gap-4">
                 <img
                   src={testimonial.avatar}
                   alt={testimonial.name}
-                  className="w-14 h-14 rounded-full object-cover bg-gray-100"
+                  className="h-12 w-12 rounded-full object-cover"
                   loading="lazy"
                 />
-                <div>
-                  <div className="font-semibold text-black">{testimonial.name}</div>
-                  <div className="text-sm text-gray-600 font-light">{testimonial.role}</div>
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-neutral-900">{testimonial.name}</p>
+                  <p className="text-xs text-neutral-500">{testimonial.role}</p>
                 </div>
               </div>
-              <p className="text-gray-700 font-light leading-relaxed">
-                "{testimonial.text}"
+              <p className="text-sm leading-relaxed text-neutral-600">
+                « {testimonial.text} »
               </p>
-            </motion.div>
+            </div>
           ))}
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </PageSection>
   );
 };
 

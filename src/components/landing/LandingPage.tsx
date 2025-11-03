@@ -27,7 +27,7 @@ export const LandingPage = () => {
   }, [initialized, user, profile, navigate]);
 
   return (
-    <div className="min-h-screen bg-white overflow-hidden">
+    <div className="min-h-screen bg-neutral-100">
       <SEOHead
         title="ÉcoPanier - Combattez le gaspillage alimentaire, nourrissez l'espoir | Plateforme solidaire"
         description="Plateforme qui connecte commerçants, clients, bénéficiaires, associations et collecteurs pour sauver des invendus et renforcer la solidarité locale. Économisez jusqu'à -70% et agissez concrètement."
