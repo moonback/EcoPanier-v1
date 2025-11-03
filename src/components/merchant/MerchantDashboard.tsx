@@ -1,6 +1,6 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2 } from 'lucide-react';
+import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2, Gift } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -9,7 +9,7 @@ import { MerchantReservations } from './MerchantReservations';
 import { SalesStats } from './SalesStats';
 import { MissionsManagement } from './MissionsManagement';
 import { ProfilePage } from '../shared/ProfilePage';
-import { DashboardHeader } from '../shared/DashboardHeader';
+import { MerchantHeader } from './MerchantHeader';
 import { generateFictionalLots } from '../../utils/generateFictionalLots';
 
 // Type pour les onglets
@@ -24,6 +24,8 @@ export const MerchantDashboard = () => {
   // État local
   const [activeTab, setActiveTab] = useState<TabId>('lots');
   const [createLotHandler, setCreateLotHandler] = useState<(() => void) | null>(null);
+  const [makeAllFreeHandler, setMakeAllFreeHandler] = useState<(() => void) | null>(null);
+  const [eligibleLotsCount, setEligibleLotsCount] = useState(0);
   const [isGeneratingLots, setIsGeneratingLots] = useState(false);
 
   // Hooks (stores, contexts, router)
@@ -77,20 +79,21 @@ export const MerchantDashboard = () => {
   // Render principal
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* En-tête */}
-      <DashboardHeader
+      {/* En-tête amélioré */}
+      <MerchantHeader
         logo={
           profile?.business_logo_url ? (
             <img
               src={profile.business_logo_url}
               alt={profile.business_name || 'Logo du commerce'}
-              className="w-12 h-12 rounded-xl object-cover border-2 border-gray-200 shadow-md"
+              className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-lg"
             />
           ) : undefined
         }
         title={profile?.business_name || profile?.full_name || 'Commerçant'}
         subtitle="Valorisez vos invendus, réduisez le gaspillage ! 💚"
         defaultIcon="🏪"
+        showStats={true}
         actions={[
           {
             label: 'Créer un panier',
@@ -127,6 +130,25 @@ export const MerchantDashboard = () => {
             variant: 'secondary',
             mobileLabel: 'Station',
           },
+          ...(eligibleLotsCount > 0 && makeAllFreeHandler ? [{
+            label: `Tout passer en don (${eligibleLotsCount})`,
+            icon: Gift,
+            onClick: () => {
+              // Basculer vers l'onglet "lots" si nécessaire
+              if (activeTab !== 'lots') {
+                setActiveTab('lots');
+                setTimeout(() => {
+                  if (makeAllFreeHandler) {
+                    makeAllFreeHandler();
+                  }
+                }, 100);
+              } else if (makeAllFreeHandler) {
+                makeAllFreeHandler();
+              }
+            },
+            variant: 'secondary' as const,
+            mobileLabel: `Don (${eligibleLotsCount})`,
+          }] : []),
         ]}
       />
 
@@ -135,6 +157,10 @@ export const MerchantDashboard = () => {
         {activeTab === 'lots' && (
           <LotManagement 
             onCreateLotClick={(handler) => setCreateLotHandler(() => handler)}
+            onMakeAllFreeClick={(handler, count) => {
+              setMakeAllFreeHandler(() => handler);
+              setEligibleLotsCount(count);
+            }}
           />
         )}
         {activeTab === 'reservations' && <MerchantReservations />}

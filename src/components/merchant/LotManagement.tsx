@@ -15,9 +15,10 @@ import {
 
 interface LotManagementProps {
   onCreateLotClick?: (handler: () => void) => void;
+  onMakeAllFreeClick?: (handler: () => void, count: number) => void;
 }
 
-export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => {
+export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManagementProps = {}) => {
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -46,6 +47,19 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Enregistrer le handler pour passer tous les lots en don depuis le header
+  useEffect(() => {
+    if (onMakeAllFreeClick) {
+      const eligibleLotsCount = lots.filter(lot => {
+        const remainingQty = lot.quantity_total - lot.quantity_sold;
+        return !lot.is_free && remainingQty > 0;
+      }).length;
+      
+      onMakeAllFreeClick(handleMakeAllFree, eligibleLotsCount);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lots, onMakeAllFreeClick]);
 
   // Nettoyage automatique des lots épuisés depuis plus de 24h
   const cleanupOldSoldOutLots = useCallback(async (lots: Lot[]) => {
@@ -392,42 +406,6 @@ export const LotManagement = ({ onCreateLotClick }: LotManagementProps = {}) => 
           </button>
         )}
 
-        {/* Bouton pour passer tous les lots en gratuit */}
-        {eligibleLotsCount > 0 && (
-          <button
-            onClick={handleMakeAllFree}
-            className="btn-primary flex items-center gap-2 px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-            aria-label={`Tout passer en don (${eligibleLotsCount})`}
-            type="button"
-            title="Passer tous les lots éligibles en don solidaire"
-          >
-            {/* Icône cadeau Lucide */}
-            <svg
-              className="w-5 h-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-            >
-              <rect x="2" y="7" width="20" height="13" rx="2" className="stroke-current" />
-              <path
-                d="M12 7v13M2 12h20"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="stroke-current"
-              />
-              <path
-                d="M7.5 7A2.5 2.5 0 1 1 12 4.5 2.5 2.5 0 0 1 16.5 7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="stroke-current"
-              />
-            </svg>
-            <span className="font-semibold">
-              {`Tout passer en don (${eligibleLotsCount})`}
-            </span>
-          </button>
-        )}
       </div>
 
       {/* Section des dons solidaires */}
