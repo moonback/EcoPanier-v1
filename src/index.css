@@ -36,6 +36,71 @@
   h3 {
     @apply text-2xl md:text-3xl;
   }
+
+  /* Mode contraste élevé pour l'accessibilité */
+  .high-contrast {
+    --tw-text-opacity: 1;
+  }
+
+  .high-contrast .bg-white,
+  .high-contrast .bg-neutral-50 {
+    background-color: rgb(255 255 255) !important;
+    color: rgb(0 0 0) !important;
+  }
+
+  .high-contrast .text-gray-600,
+  .high-contrast .text-gray-700,
+  .high-contrast .text-gray-800,
+  .high-contrast .text-gray-900 {
+    color: rgb(0 0 0) !important;
+    font-weight: 600;
+  }
+
+  .high-contrast .border-gray-200,
+  .high-contrast .border-gray-300 {
+    border-color: rgb(0 0 0) !important;
+    border-width: 2px !important;
+  }
+
+  .high-contrast button,
+  .high-contrast .btn {
+    border: 2px solid rgb(0 0 0) !important;
+    font-weight: 700 !important;
+  }
+
+  .high-contrast .bg-primary-600 {
+    background-color: rgb(0 0 255) !important;
+    color: rgb(255 255 255) !important;
+  }
+
+  .high-contrast .bg-accent-600 {
+    background-color: rgb(255 0 0) !important;
+    color: rgb(255 255 255) !important;
+  }
+
+  /* Classes utilitaires pour les lecteurs d'écran */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Focus visible amélioré pour l'accessibilité */
+  *:focus-visible {
+    outline: 4px solid rgb(59 130 246);
+    outline-offset: 2px;
+  }
+
+  .high-contrast *:focus-visible {
+    outline: 4px solid rgb(255 0 0);
+    outline-offset: 3px;
+  }
 }
 
 @layer components {

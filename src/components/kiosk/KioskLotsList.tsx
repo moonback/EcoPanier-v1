@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatDateTime, generatePIN } from '../../utils/helpers';
 import { Package, MapPin, Clock, Heart, CheckCircle, XCircle, Download } from 'lucide-react';
+import { useAccessibility } from '../../contexts/AccessibilityContext';
 import type { Database } from '../../lib/database.types';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
@@ -29,6 +30,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
     pickupTime: string;
   } | null>(null);
   const [showAddressTooltip, setShowAddressTooltip] = useState<string | null>(null);
+  const { announce, largeText, fontSize } = useAccessibility();
 
   useEffect(() => {
     fetchFreeLots();
@@ -142,6 +144,8 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
       setSelectedLot(null);
       fetchFreeLots();
       onReservationMade();
+      // Annoncer vocalement le succès et le code PIN
+      announce(`Réservation réussie ! Votre code PIN est ${pin.split('').join(' ')}. Notez-le bien`, 'assertive');
     } catch (error) {
       console.error('Error creating reservation:', error);
       alert('Erreur lors de la réservation. Veuillez réessayer.');
@@ -230,8 +234,12 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                 {/* Contenu */}
                 <div className="p-2">
                   <h3 
-                    onClick={() => handleSelectLot(lot)}
-                    className="text-xs font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-accent-600 transition-colors leading-tight cursor-pointer"
+                    onClick={() => {
+                      handleSelectLot(lot);
+                      announce(`Panier ${lot.title} sélectionné`);
+                    }}
+                    className={`${largeText ? 'text-sm' : 'text-xs'} font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-accent-600 transition-colors leading-tight cursor-pointer`}
+                    aria-label={`Panier ${lot.title}`}
                   >
                     {lot.title}
                   </h3>
@@ -266,10 +274,14 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                   </div>
 
                   <button
-                    onClick={() => handleSelectLot(lot)}
-                    className="w-full py-1.5 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-1 group-hover:from-accent-700 group-hover:to-pink-700 transition-all"
+                    onClick={() => {
+                      handleSelectLot(lot);
+                      announce(`Panier ${lot.title} sélectionné. Confirmez la réservation`);
+                    }}
+                    className={`w-full py-1.5 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg font-bold ${largeText ? 'text-sm' : 'text-xs'} flex items-center justify-center gap-1 group-hover:from-accent-700 group-hover:to-pink-700 transition-all focus:outline-none focus:ring-4 focus:ring-accent-300`}
+                    aria-label={`Réserver le panier ${lot.title}`}
                   >
-                    <Heart size={12} strokeWidth={2} />
+                    <Heart size={12} strokeWidth={2} aria-hidden="true" />
                     <span>Réserver</span>
                   </button>
                 </div>
@@ -329,16 +341,18 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
               <button
                 onClick={handleReserve}
                 disabled={reserving}
-                className="flex-1 py-3 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg hover:from-accent-700 hover:to-pink-700 transition-all font-semibold text-sm shadow-soft-md disabled:opacity-50 flex items-center justify-center gap-1.5"
+                className={`flex-1 py-3 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg hover:from-accent-700 hover:to-pink-700 transition-all font-semibold ${largeText ? 'text-base' : 'text-sm'} shadow-soft-md disabled:opacity-50 flex items-center justify-center gap-1.5 focus:outline-none focus:ring-4 focus:ring-accent-300`}
+                aria-label="Confirmer la réservation"
+                aria-busy={reserving}
               >
                 {reserving ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" aria-hidden="true"></div>
                     <span>Réservation...</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle size={16} />
+                    <CheckCircle size={16} aria-hidden="true" />
                     <span>Confirmer</span>
                   </>
                 )}
@@ -376,18 +390,28 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
               </p>
             </div>
 
-            {/* Code PIN */}
+            {/* Code PIN - TRÈS GRAND pour mal-voyants */}
             <div className="mb-4 p-4 bg-gradient-to-br from-accent-50 to-pink-50 rounded-xl border-3 border-accent-300 shadow-lg">
-              <p className="text-base font-bold text-accent-900 mb-3 flex items-center justify-center gap-2">
-                <span className="text-xl">🔑</span>
+              <p className={`${largeText ? 'text-xl' : 'text-base'} font-bold text-accent-900 mb-3 flex items-center justify-center gap-2`}>
+                <span className="text-xl" aria-hidden="true">🔑</span>
                 <span>Votre Code PIN</span>
               </p>
-              <div className="p-3 bg-white rounded-lg border-2 border-accent-400 mb-2">
-                <p className="font-mono font-bold text-5xl text-accent-700 tracking-wider animate-pulse">
+              <div className="p-3 bg-white rounded-lg border-4 border-accent-400 mb-2">
+                <p 
+                  className="font-mono font-bold text-accent-700 tracking-wider animate-pulse"
+                  style={{ 
+                    fontSize: `${(largeText ? 80 : 72) * (fontSize > 1 ? fontSize : 1)}px`,
+                    lineHeight: '1.2'
+                  }}
+                  aria-label={`Code PIN : ${successMessage.pin}`}
+                  role="text"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
                   {successMessage.pin}
                 </p>
               </div>
-              <p className="text-xs text-accent-800 font-bold">
+              <p className={`${largeText ? 'text-sm' : 'text-xs'} text-accent-800 font-bold`}>
                 À présenter au commerçant : {successMessage.merchant}
               </p>
             </div>

@@ -3,6 +3,7 @@ import { Scanner } from '@yudiel/react-qr-scanner';
 import { supabase } from '../../lib/supabase';
 import { QrCode, AlertCircle, HelpCircle } from 'lucide-react';
 import { KioskTutorial } from './KioskTutorial';
+import { useAccessibility } from '../../contexts/AccessibilityContext';
 import type { Database } from '../../lib/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -16,6 +17,7 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const { announce } = useAccessibility();
 
   // Afficher le tutoriel au premier chargement
   useEffect(() => {
@@ -49,7 +51,9 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
         .single();
 
       if (profileError || !data) {
-        setError('Utilisateur non trouvé ou non autorisé');
+        const errorMessage = 'Utilisateur non trouvé ou non autorisé';
+        setError(errorMessage);
+        announce(errorMessage, 'assertive');
         setLoading(false);
         return;
       }
@@ -58,16 +62,21 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
       const profile: Profile = data;
 
       if (!profile.verified) {
-        setError('Compte non vérifié. Contactez le personnel du foyer.');
+        const errorMessage = 'Compte non vérifié. Contactez le personnel du foyer.';
+        setError(errorMessage);
+        announce(errorMessage, 'assertive');
         setLoading(false);
         return;
       }
 
       // Connexion réussie
+      announce(`Connexion réussie. Bienvenue ${profile.full_name?.split(' ')[0] || 'Bénéficiaire'}`, 'assertive');
       onLogin(profile);
     } catch (err) {
       console.error('Erreur lors de la connexion:', err);
-      setError('Erreur lors de la connexion. Veuillez réessayer.');
+      const errorMessage = 'Erreur lors de la connexion. Veuillez réessayer.';
+      setError(errorMessage);
+      announce(errorMessage, 'assertive');
       setLoading(false);
     }
   };
@@ -101,16 +110,20 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
             />
           </div>
           
-          <p className="text-lg text-white font-light mb-3 drop-shadow-md">
+          <h1 className="text-2xl md:text-3xl text-white font-bold mb-3 drop-shadow-md">
             Scannez votre carte pour les paniers solidaires !
-          </p>
+          </h1>
           
           {/* Bouton aide */}
           <button
-            onClick={() => setShowTutorial(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/95 text-primary-700 rounded-lg hover:bg-white transition-all border-2 border-white/50 font-semibold text-sm shadow-lg hover:shadow-xl"
+            onClick={() => {
+              setShowTutorial(true);
+              announce('Tutoriel ouvert');
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/95 text-primary-700 rounded-lg hover:bg-white transition-all border-2 border-white/50 font-semibold text-sm shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white/50"
+            aria-label="Afficher le tutoriel d'utilisation"
           >
-            <HelpCircle size={18} />
+            <HelpCircle size={18} aria-hidden="true" />
             <span>Comment ça marche ?</span>
           </button>
         </div>
@@ -119,10 +132,14 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
         {!scanning ? (
           <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 p-4 animate-fade-in">
             <button
-              onClick={() => setScanning(true)}
-              className="btn-primary w-full py-4 rounded-xl text-lg shadow-soft-lg hover:shadow-glow-md"
+              onClick={() => {
+                setScanning(true);
+                announce('Scanner activé. Placez votre carte devant la caméra');
+              }}
+              className="btn-primary w-full py-4 rounded-xl text-lg shadow-soft-lg hover:shadow-glow-md focus:outline-none focus:ring-4 focus:ring-primary-200"
+              aria-label="Démarrer le scan de la carte"
             >
-              <QrCode size={28} strokeWidth={2} />
+              <QrCode size={28} strokeWidth={2} aria-hidden="true" />
               <span>Scanner ma carte</span>
             </button>
 
@@ -147,16 +164,20 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
         ) : (
           <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 p-4 animate-fade-in">
             <div className="mb-3 text-center">
-              <p className="text-lg font-bold text-black mb-1">
+              <h2 className="text-lg font-bold text-black mb-1">
                 Placez votre carte devant la caméra
-              </p>
+              </h2>
               <p className="text-sm text-gray-600">
                 Le scan sera automatique
               </p>
             </div>
 
             {/* Scanner QR */}
-            <div className="rounded-lg overflow-hidden border border-primary-300 shadow-soft">
+            <div 
+              className="rounded-lg overflow-hidden border border-primary-300 shadow-soft"
+              role="region"
+              aria-label="Scanner de carte QR code"
+            >
               <Scanner
                 onScan={(result) => {
                   if (result && result.length > 0) {
@@ -181,8 +202,10 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
               onClick={() => {
                 setScanning(false);
                 setError(null);
+                announce('Scanner annulé');
               }}
-              className="btn-secondary w-full mt-3 py-3 text-base"
+              className="btn-secondary w-full mt-3 py-3 text-base focus:outline-none focus:ring-4 focus:ring-primary-200"
+              aria-label="Annuler le scan"
             >
               Annuler
             </button>
@@ -191,10 +214,15 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
 
         {/* Messages d'erreur */}
         {error && (
-          <div className="mt-3 p-3 bg-red-50/95 backdrop-blur-md rounded-lg border border-red-200 shadow-xl animate-fade-in">
+          <div 
+            className="mt-3 p-3 bg-red-50/95 backdrop-blur-md rounded-lg border border-red-200 shadow-xl animate-fade-in"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-red-100 rounded-lg flex-shrink-0">
-                <AlertCircle size={18} className="text-red-600" strokeWidth={2} />
+                <AlertCircle size={18} className="text-red-600" strokeWidth={2} aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-bold text-red-900">{error}</p>
@@ -203,8 +231,10 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
                 onClick={() => {
                   setError(null);
                   setScanning(false);
+                  announce('Vous pouvez réessayer');
                 }}
-                className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-semibold text-xs"
+                className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-semibold text-xs focus:outline-none focus:ring-4 focus:ring-red-300"
+                aria-label="Réessayer la connexion"
               >
                 Réessayer
               </button>
@@ -214,9 +244,14 @@ export const KioskLogin = ({ onLogin }: KioskLoginProps) => {
 
         {/* Loading */}
         {loading && (
-          <div className="mt-3 p-3 bg-accent-50/95 backdrop-blur-md rounded-lg border border-accent-200 shadow-xl animate-fade-in">
+          <div 
+            className="mt-3 p-3 bg-accent-50/95 backdrop-blur-md rounded-lg border border-accent-200 shadow-xl animate-fade-in"
+            role="status"
+            aria-live="polite"
+            aria-label="Connexion en cours"
+          >
             <div className="flex items-center gap-2">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-600" aria-hidden="true"></div>
               <p className="text-sm font-bold text-accent-900">
                 Connexion en cours...
               </p>

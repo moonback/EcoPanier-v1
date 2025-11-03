@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useSettings } from '../../contexts/SettingsContext';
+import { useAccessibility } from '../../contexts/AccessibilityContext';
 import { KioskLotsList } from './KioskLotsList';
 import { KioskReservations } from './KioskReservations';
 import { KioskHistory } from './KioskHistory';
@@ -18,6 +19,7 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
   const [activeTab, setActiveTab] = useState<'browse' | 'reservations' | 'history'>('browse');
   const [dailyCount, setDailyCount] = useState(0);
   const { settings } = useSettings();
+  const { announce, largeText } = useAccessibility();
 
   const checkDailyLimit = useCallback(async () => {
     if (!profile) return;
@@ -49,6 +51,12 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
 
   const handleTabChange = (tab: 'browse' | 'reservations' | 'history') => {
     setActiveTab(tab);
+    const tabNames: Record<string, string> = {
+      browse: 'Paniers disponibles',
+      reservations: 'Mes réservations',
+      history: 'Historique'
+    };
+    announce(`Onglet ${tabNames[tab]} sélectionné`);
     onActivity();
   };
 
@@ -63,10 +71,10 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
                 <Heart size={20} className="text-accent-600" strokeWidth={2} />
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-base font-bold text-black leading-tight truncate">
-                  Bonjour {profile.full_name?.split(' ')[0] || 'Bénéficiaire'} ! 👋
+                <h2 className={`${largeText ? 'text-xl' : 'text-base'} font-bold text-black leading-tight truncate`}>
+                  Bonjour {profile.full_name?.split(' ')[0] || 'Bénéficiaire'} ! <span aria-hidden="true">👋</span>
                 </h2>
-                <p className="text-xs text-gray-600 font-light leading-tight truncate">
+                <p className={`${largeText ? 'text-sm' : 'text-xs'} text-gray-600 font-light leading-tight truncate`}>
                   ID: <span className="font-mono font-bold text-accent-700">{profile.beneficiary_id}</span>
                 </p>
               </div>
@@ -93,64 +101,85 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
         <div className="flex gap-1.5">
           <button
             onClick={() => handleTabChange('browse')}
-            className={`flex-1 py-2.5 rounded-lg font-bold text-xs transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1 ${
+            className={`flex-1 py-2.5 rounded-lg font-bold ${largeText ? 'text-sm' : 'text-xs'} transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1 focus:outline-none focus:ring-4 focus:ring-primary-200 ${
               activeTab === 'browse'
                 ? 'bg-gradient-to-r from-accent-600 to-accent-700 text-white border-accent-700'
                 : 'bg-white text-gray-700 border-gray-200 hover:border-accent-300'
             }`}
+            aria-label="Onglet Paniers disponibles"
+            aria-pressed={activeTab === 'browse'}
+            role="tab"
+            aria-controls="tabpanel-browse"
+            id="tab-browse"
           >
-            <Heart size={14} strokeWidth={2} />
+            <Heart size={14} strokeWidth={2} aria-hidden="true" />
             <span>Paniers</span>
           </button>
 
           <button
             onClick={() => handleTabChange('reservations')}
-            className={`flex-1 py-2.5 rounded-lg font-bold text-xs transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1 ${
+            className={`flex-1 py-2.5 rounded-lg font-bold ${largeText ? 'text-sm' : 'text-xs'} transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1 focus:outline-none focus:ring-4 focus:ring-primary-200 ${
               activeTab === 'reservations'
                 ? 'bg-gradient-to-r from-accent-600 to-accent-700 text-white border-accent-700'
                 : 'bg-white text-gray-700 border-gray-200 hover:border-accent-300'
             }`}
+            aria-label="Onglet Mes réservations actives"
+            aria-pressed={activeTab === 'reservations'}
+            role="tab"
+            aria-controls="tabpanel-reservations"
+            id="tab-reservations"
           >
-            <Package size={14} strokeWidth={2} />
+            <Package size={14} strokeWidth={2} aria-hidden="true" />
             <span>Actifs</span>
           </button>
 
           <button
             onClick={() => handleTabChange('history')}
-            className={`flex-1 py-2.5 rounded-lg font-bold text-xs transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1 ${
+            className={`flex-1 py-2.5 rounded-lg font-bold ${largeText ? 'text-sm' : 'text-xs'} transition-all shadow-soft hover:shadow-soft-md border flex items-center justify-center gap-1 focus:outline-none focus:ring-4 focus:ring-primary-200 ${
               activeTab === 'history'
                 ? 'bg-gradient-to-r from-accent-600 to-accent-700 text-white border-accent-700'
                 : 'bg-white text-gray-700 border-gray-200 hover:border-accent-300'
             }`}
+            aria-label="Onglet Historique des réservations"
+            aria-pressed={activeTab === 'history'}
+            role="tab"
+            aria-controls="tabpanel-history"
+            id="tab-history"
           >
-            <History size={14} strokeWidth={2} />
+            <History size={14} strokeWidth={2} aria-hidden="true" />
             <span>Historique</span>
           </button>
         </div>
       </div>
 
       {/* Contenu */}
-      <div className="max-w-7xl mx-auto px-3">
+      <div className="max-w-7xl mx-auto px-3" role="tabpanel">
         {activeTab === 'browse' && (
-          <KioskLotsList 
-            profile={profile} 
-            dailyCount={dailyCount} 
-            onReservationMade={checkDailyLimit}
-            onActivity={onActivity}
-          />
+          <div id="tabpanel-browse" aria-labelledby="tab-browse">
+            <KioskLotsList 
+              profile={profile} 
+              dailyCount={dailyCount} 
+              onReservationMade={checkDailyLimit}
+              onActivity={onActivity}
+            />
+          </div>
         )}
         {activeTab === 'reservations' && (
-          <KioskReservations 
-            profile={profile}
-            onActivity={onActivity}
-            showOnlyPending={true}
-          />
+          <div id="tabpanel-reservations" aria-labelledby="tab-reservations">
+            <KioskReservations 
+              profile={profile}
+              onActivity={onActivity}
+              showOnlyPending={true}
+            />
+          </div>
         )}
         {activeTab === 'history' && (
-          <KioskHistory 
-            profile={profile}
-            onActivity={onActivity}
-          />
+          <div id="tabpanel-history" aria-labelledby="tab-history">
+            <KioskHistory 
+              profile={profile}
+              onActivity={onActivity}
+            />
+          </div>
         )}
       </div>
     </div>
