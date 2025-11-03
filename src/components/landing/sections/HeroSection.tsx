@@ -21,8 +21,12 @@ export const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
-    <PageSection background="muted" padding="lg">
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center">
+    <PageSection background="muted" padding="lg" className="relative overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+        style={{ backgroundImage: 'url(/slide-7.png)' }}
+      />
+      <div className="relative z-10 grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
