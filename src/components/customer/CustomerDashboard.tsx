@@ -5,7 +5,6 @@ import {
   History,
   TrendingUp,
   User,
-  MapPin,
 } from 'lucide-react';
 
 // Imports internes
@@ -14,13 +13,12 @@ import { LotBrowser } from './LotBrowser';
 import { ReservationsList } from './ReservationsList';
 import { ImpactDashboard } from './ImpactDashboard';
 import { ProfilePage } from '../shared/ProfilePage';
-import { InteractiveMap } from './InteractiveMap';
 import { CustomerHeader } from './CustomerHeader';
 
 import EcoPanierLogo from '/logo.png'; // Import du logo
 
 // Type pour les onglets
-type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'profile';
+type TabId = 'browse' | 'reservations' | 'impact' | 'profile';
 
 /**
  * Dashboard principal pour les clients
@@ -37,7 +35,6 @@ export const CustomerDashboard = () => {
   // Configuration des onglets
   const tabs = [
     { id: 'browse' as TabId, label: 'Découvrir', icon: ShoppingBag, emoji: '🛒' },
-    { id: 'map' as TabId, label: 'Carte', icon: MapPin, emoji: '🗺️' },
     { id: 'reservations' as TabId, label: 'Mes paniers', icon: History, emoji: '📦' },
     { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp, emoji: '🌍' },
     { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
@@ -58,7 +55,6 @@ export const CustomerDashboard = () => {
       {/* Contenu principal */}
       <main className="w-full pb-24">
         {activeTab === 'browse' && <LotBrowser />}
-        {activeTab === 'map' && <InteractiveMap />}
         {activeTab === 'reservations' && <ReservationsList />}
         {activeTab === 'impact' && <ImpactDashboard />}
         {activeTab === 'profile' && <ProfilePage />}
