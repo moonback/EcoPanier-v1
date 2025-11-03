@@ -17,9 +17,9 @@ export const HowItWorksRolesSection = () => {
     <PageSection>
       <div className="flex flex-col gap-12">
         <SectionHeader
-          eyebrow="Les 5 acteurs d’ÉcoPanier"
-          title="Une plateforme, cinq rôles complémentaires"
-          description="Chaque rôle dispose d’une interface dédiée mais tous partagent la même mission : éviter le gaspillage alimentaire et soutenir les personnes qui en ont besoin."
+          eyebrow="Les 4 acteurs d'ÉcoPanier"
+          title="Une plateforme, quatre rôles complémentaires"
+          description="Chaque rôle dispose d'une interface dédiée mais tous partagent la même mission : éviter le gaspillage alimentaire et soutenir les personnes qui en ont besoin."
         />
 
         <motion.div
@@ -27,7 +27,7 @@ export const HowItWorksRolesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
         >
           {actorRoles.map((actor) => {
             const Icon = actor.icon;

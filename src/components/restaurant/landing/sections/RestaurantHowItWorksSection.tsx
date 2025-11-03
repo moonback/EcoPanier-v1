@@ -6,8 +6,8 @@ import { SectionHeader } from '../../../shared/layout/SectionHeader';
 
 const steps = [
   { icon: Camera, title: 'Photographiez vos invendus', description: "L'IA remplit automatiquement les informations" },
-  { icon: Clock, title: "Définissez l'heure de récupération", description: 'Choisissez quand les collecteurs passent' },
-  { icon: Truck, title: 'On récupère et distribue', description: 'Nos collecteurs s\'occupent de la logistique' },
+  { icon: Clock, title: "Définissez l'heure de récupération", description: 'Choisissez quand la récupération doit avoir lieu' },
+  { icon: Truck, title: 'On récupère et distribue', description: "EcoPanier s'occupe de la logistique de récupération" },
   { icon: BarChart, title: 'Suivez votre impact', description: 'Dashboard avec statistiques en temps réel' },
 ];
 

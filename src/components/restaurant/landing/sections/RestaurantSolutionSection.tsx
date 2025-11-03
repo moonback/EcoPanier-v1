@@ -13,7 +13,7 @@ const solutions = [
   {
     icon: Truck,
     title: "On s'occupe de la logistique",
-    description: 'Nos collecteurs récupèrent et livrent aux associations partenaires',
+    description: 'EcoPanier organise la récupération et la livraison aux associations partenaires',
   },
   {
     icon: Users,

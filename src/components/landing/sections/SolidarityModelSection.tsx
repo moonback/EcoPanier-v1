@@ -34,7 +34,7 @@ export const SolidarityModelSection = () => {
         <SectionHeader
           eyebrow="Solidarité intégrée"
           title="Un programme d’aide alimentaire digne et simple à opérer"
-          description="Le dispositif des paniers solidaires est directement intégré dans la plateforme. Commerçants, collecteurs, associations et bénéficiaires partagent les mêmes outils, sans stigmatisation."
+          description="Le dispositif des paniers solidaires est directement intégré dans la plateforme. Commerçants, associations et bénéficiaires partagent les mêmes outils, sans stigmatisation."
         />
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">

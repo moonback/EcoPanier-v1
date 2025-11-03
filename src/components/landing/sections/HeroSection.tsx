@@ -53,7 +53,7 @@ export const HeroSection = () => {
               Sauvez des repas, soutenez votre quartier et renforcez la solidarité locale.
             </h1>
             <p className="max-w-xl text-lg leading-relaxed text-neutral-600">
-              ÉcoPanier connecte commerçants, clients, associations, collecteurs et bénéficiaires autour d’une plateforme unique pour valoriser les invendus et offrir des paniers solidaires.
+              ÉcoPanier connecte commerçants, clients, associations et bénéficiaires autour d'une plateforme unique pour valoriser les invendus et offrir des paniers solidaires.
             </p>
           </div>
 

@@ -9,7 +9,6 @@ import {
   DollarSign,
   Store,
   Building2,
-  Truck,
   Sparkles,
   QrCode,
   TrendingUp,
@@ -279,7 +278,7 @@ export const faqItems: FAQItem[] = [
 // NOUVELLE STRUCTURE DE LANDING PAGE
 // ========================================
 
-// Les 5 acteurs de l'écosystème EcoPanier
+// Les 4 acteurs de l'écosystème EcoPanier
 export const actorRoles: ActorRole[] = [
   {
     icon: Store,
@@ -312,14 +311,6 @@ export const actorRoles: ActorRole[] = [
     description: 'Gère ses bénéficiaires et suit leur activité en temps réel via un tableau de bord complet.',
     color: 'purple',
     emoji: '🏛️'
-  },
-  {
-    icon: Truck,
-    title: 'Collecteur',
-    role: 'Livreur solidaire',
-    description: 'Livre les paniers solidaires entre commerces et associations. Rémunération immédiate pour chaque mission.',
-    color: 'success',
-    emoji: '🚚'
   }
 ];
 
@@ -380,7 +371,7 @@ export const keyFeatures: KeyFeature[] = [
   {
     icon: Users,
     title: 'Multi-rôles & centralisé',
-    description: 'Une seule plateforme pour gérer 5 types d\'acteurs différents avec des interfaces dédiées.',
+    description: 'Une seule plateforme pour gérer 4 types d\'acteurs différents avec des interfaces dédiées.',
     color: 'accent'
   }
 ];

@@ -28,7 +28,6 @@ export const Footer = () => {
       title: 'Pour les professionnels',
       links: [
         { name: 'Devenir commerçant', path: '/dashboard' },
-        { name: 'Espace collecteur', path: '/dashboard' },
         { name: 'Partenariats', path: '/help' },
         { name: 'Tarifs', path: '/help' },
       ],

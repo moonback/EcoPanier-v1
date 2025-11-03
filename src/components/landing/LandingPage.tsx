@@ -30,7 +30,7 @@ export const LandingPage = () => {
     <div className="min-h-screen bg-neutral-100">
       <SEOHead
         title="ÉcoPanier - Combattez le gaspillage alimentaire, nourrissez l'espoir | Plateforme solidaire"
-        description="Plateforme qui connecte commerçants, clients, bénéficiaires, associations et collecteurs pour sauver des invendus et renforcer la solidarité locale. Économisez jusqu'à -70% et agissez concrètement."
+        description="Plateforme qui connecte commerçants, clients, bénéficiaires et associations pour sauver des invendus et renforcer la solidarité locale. Économisez jusqu'à -70% et agissez concrètement."
         keywords="anti-gaspillage alimentaire, solidarité alimentaire, commerce local, invendus, paniers suspendus, aide alimentaire, commerçants engagés, économie circulaire, impact social, plateforme solidaire France"
         url="https://ecopanier.fr"
       />

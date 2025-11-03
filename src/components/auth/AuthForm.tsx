@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, Truck, FileText, FileCheck, Briefcase, ArrowLeft, Eye, EyeOff, Shield, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, FileText, FileCheck, Briefcase, ArrowLeft, Eye, EyeOff, Shield, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 // Types de commerces disponibles
 const BUSINESS_TYPES = [
@@ -426,26 +426,6 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     Aide gratuite
                   </div>
                   {role === 'beneficiary' && <span className="absolute top-2 right-2 text-xs">✓</span>}
-                </button>
-
-                {/* Collecteur */}
-                <button
-                  type="button"
-                  onClick={() => setRole('collector')}
-                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
-                    role === 'collector'
-                      ? 'border-success-600 bg-gradient-to-br from-success-600 to-success-700 text-white shadow-lg'
-                      : 'border-gray-200 bg-white text-black hover:border-success-300 hover:shadow-md'
-                  }`}
-                >
-                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'collector' ? 'bg-white/20' : 'bg-success-50'}`}>
-                    <Truck size={20} strokeWidth={2} className={role === 'collector' ? 'text-white' : 'text-success-600'} />
-                  </div>
-                  <div className="font-semibold text-sm">🚴 Collecteur</div>
-                  <div className={`text-xs mt-1 ${role === 'collector' ? 'text-white/80' : 'text-gray-500'}`}>
-                    Revenus flexibles
-                  </div>
-                  {role === 'collector' && <span className="absolute top-2 right-2 text-xs">✓</span>}
                 </button>
 
                 {/* Association */}

@@ -23,7 +23,7 @@ export const FinalCTASection = () => {
             Prêt·e à rejoindre l’écosystème ÉcoPanier ?
           </h2>
           <p className="text-base text-neutral-100 sm:text-lg">
-            Commerce, association, collecteur ou citoyen : sauvegardons ensemble les invendus et soutenons les personnes fragilisées de nos quartiers.
+            Commerce, association ou citoyen : sauvegardons ensemble les invendus et soutenons les personnes fragilisées de nos quartiers.
           </p>
         </div>
 
