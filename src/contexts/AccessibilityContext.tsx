@@ -15,6 +15,9 @@ interface AccessibilityContextType {
   // Taille de police personnalisée (1.0 = normal, 1.5 = 150%, etc.)
   fontSize: number;
   setFontSize: (size: number) => void;
+  
+  // Support multilingue - utilisé pour les annonces vocales
+  translate?: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);

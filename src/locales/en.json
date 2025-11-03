@@ -1,0 +1,191 @@
+{
+  "kiosk": {
+    "login": {
+      "title": "Scan your card for solidarity baskets!",
+      "scanButton": "Scan my card",
+      "help": "How does it work?",
+      "instructions": {
+        "present": "Present your card to the scanner",
+        "choose": "Choose your baskets (max 2/day)",
+        "note": "Note your PIN code"
+      },
+      "placeCard": "Place your card in front of the camera",
+      "autoScan": "Scanning will be automatic",
+      "cancel": "Cancel",
+      "connecting": "Connecting...",
+      "error": {
+        "notFound": "User not found or not authorized",
+        "notVerified": "Account not verified. Contact the center staff.",
+        "connection": "Connection error. Please try again.",
+        "camera": "Unable to access camera. Check permissions."
+      },
+      "retry": "Retry",
+      "success": "Connection successful. Welcome {name}",
+      "scannerActive": "Scanner activated. Place your card in front of the camera",
+      "scannerCancelled": "Scanner cancelled"
+    },
+    "dashboard": {
+      "welcome": "Hello {name}!",
+      "today": "Today",
+      "available": "{remaining} available",
+      "complete": "Complete ✓",
+      "tabs": {
+        "browse": "Baskets",
+        "reservations": "Active",
+        "history": "History"
+      },
+      "tabSelected": "{tab} tab selected"
+    },
+    "lots": {
+      "empty": "No baskets available 🔍",
+      "emptySubtitle": "Come back soon! ⏰",
+      "limitReached": "You have your 2 baskets for today! 🎉",
+      "limitReachedSubtitle": "Come back tomorrow for new baskets 🌅",
+      "help": "👆 Click on a basket to reserve it for free • Maximum 2 baskets per day",
+      "select": "Basket {title} selected",
+      "confirmReservation": "Basket {title} selected. Confirm reservation",
+      "reserve": "Reserve",
+      "modal": {
+        "confirmTitle": "Confirm reservation?",
+        "merchant": "Merchant:",
+        "pickup": "Pickup:",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "reserving": "Reserving..."
+      },
+      "success": {
+        "title": "🎉 Reservation confirmed!",
+        "noteTitle": "⚠️ NOTE THIS CODE!",
+        "noteText": "Take a photo or download it.\nWithout this code, you will NOT be able to retrieve your basket.",
+        "pinTitle": "🔑 Your PIN Code",
+        "pinLabel": "To present to merchant: {merchant}",
+        "download": "Download",
+        "noted": "I noted it",
+        "announce": "Reservation successful! Your PIN code is {pin}. Note it well"
+      },
+      "error": "Error during reservation. Please try again."
+    },
+    "reservations": {
+      "empty": "No active reservations 📦",
+      "emptySubtitle": "Reserve a basket to see it here!",
+      "allEmpty": "No reservations 🎁",
+      "allEmptySubtitle": "Reserve your first basket!",
+      "help": "📱 Click on \"QR Code\" to see your pickup code • Click on the name to see the address",
+      "qrTitle": "Pickup QR Code",
+      "qrHelp": "💡 Click on the QR to enlarge it",
+      "pinLabel": "PIN Code",
+      "pinHint": "To present",
+      "merchant": "Merchant:",
+      "pickup": "Pickup:",
+      "quantity": "Quantity:",
+      "download": "Download",
+      "close": "Close",
+      "status": {
+        "pending": "Pending",
+        "completed": "Retrieved",
+        "cancelled": "Cancelled"
+      }
+    },
+    "history": {
+      "empty": "No history 📜",
+      "emptySubtitle": "Your past reservations will appear here",
+      "help": "📜 History of all your reservations • Click on the name to see the merchant's address",
+      "total": "{count} reservation{plural}"
+    },
+    "common": {
+      "back": "Back",
+      "close": "Close",
+      "loading": "Loading...",
+      "error": "Error",
+      "success": "Success",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete",
+      "edit": "Edit",
+      "view": "View",
+      "next": "Next",
+      "previous": "Previous",
+      "free": "FREE",
+      "available": "available",
+      "notAvailable": "This basket is no longer available"
+    },
+    "accessibility": {
+      "title": "Accessibility Settings",
+      "largeText": "Large text",
+      "largeTextDesc": "Increases the size of all texts",
+      "highContrast": "High contrast",
+      "highContrastDesc": "Improves element visibility",
+      "fontSize": "Font size",
+      "fontSizeDesc": "Custom adjustment: {percent}%",
+      "language": "Language",
+      "languageDesc": "Choose your preferred language",
+      "reset": "Reset",
+      "shortcuts": "💡 Tip: Use keyboard shortcuts:",
+      "shortcutsZoom": "• + to enlarge",
+      "shortcutsReduce": "• - to reduce",
+      "enabled": "{feature} enabled",
+      "disabled": "{feature} disabled",
+      "fontSizeChange": "Font size: {percent}%",
+      "languageChange": "Language changed to {language}"
+    },
+    "header": {
+      "accessibility": "Accessibility",
+      "accessibilityShortcut": "Accessibility settings (Alt + S)",
+      "logout": "Quit",
+      "logoutConfirm": "You have been disconnected",
+      "timeRemaining": "Time remaining before logout: {time}",
+      "timeWarning": "Warning: {minutes} minute{plural} and {seconds} second{plural} remaining before logout"
+    },
+    "mode": {
+      "secureBadge": "Secure kiosk mode activated",
+      "secureText": "Secure Kiosk"
+    },
+    "tutorial": {
+      "title": "Tutorial opened",
+      "close": "Close",
+      "skip": "Skip tutorial",
+      "previous": "Previous",
+      "next": "Next",
+      "start": "Start!",
+      "steps": {
+        "welcome": {
+          "title": "Welcome to the Kiosk! 👋",
+          "description": "We will guide you step by step to reserve your food baskets."
+        },
+        "scan": {
+          "title": "1️⃣ Scan your card",
+          "description": "Click on \"Scan my card\" then present your beneficiary card to the camera. Scanning is automatic!"
+        },
+        "choose": {
+          "title": "2️⃣ Choose your baskets",
+          "description": "Browse available baskets. You can reserve a maximum of 2 per day."
+        },
+        "pin": {
+          "title": "3️⃣ Note your PIN code",
+          "description": "After reservation, a PIN code displays LARGE. Note it well or print it! You will need it to retrieve your baskets."
+        },
+        "pickup": {
+          "title": "4️⃣ Pick up your baskets",
+          "description": "Go to the merchant with your PIN code. The address is indicated by clicking on the merchant's name."
+        },
+        "enjoy": {
+          "title": "Enjoy your offered baskets 🎁",
+          "description": "Benefit from baskets offered by solidarity merchants and reduce waste!"
+        }
+      }
+    },
+    "messages": {
+      "retry": "You can try again",
+      "tutorialOpened": "Tutorial opened"
+    },
+    "tooltips": {
+      "address": "📍 Address:"
+    },
+    "labels": {
+      "quantity": "Qty:",
+      "id": "ID:"
+    }
+  }
+}
+

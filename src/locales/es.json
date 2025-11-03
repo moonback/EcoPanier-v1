@@ -1,0 +1,191 @@
+{
+  "kiosk": {
+    "login": {
+      "title": "¡Escanea tu tarjeta para las cestas solidarias!",
+      "scanButton": "Escanear mi tarjeta",
+      "help": "¿Cómo funciona?",
+      "instructions": {
+        "present": "Presenta tu tarjeta al escáner",
+        "choose": "Elige tus cestas (máx 2/día)",
+        "note": "Anota tu código PIN"
+      },
+      "placeCard": "Coloca tu tarjeta frente a la cámara",
+      "autoScan": "El escaneo será automático",
+      "cancel": "Cancelar",
+      "connecting": "Conectando...",
+      "error": {
+        "notFound": "Usuario no encontrado o no autorizado",
+        "notVerified": "Cuenta no verificada. Contacta al personal del centro.",
+        "connection": "Error de conexión. Por favor, inténtalo de nuevo.",
+        "camera": "No se puede acceder a la cámara. Verifica los permisos."
+      },
+      "retry": "Reintentar",
+      "success": "Conexión exitosa. Bienvenido {name}",
+      "scannerActive": "Escáner activado. Coloca tu tarjeta frente a la cámara",
+      "scannerCancelled": "Escáner cancelado"
+    },
+    "dashboard": {
+      "welcome": "¡Hola {name}!",
+      "today": "Hoy",
+      "available": "{remaining} disponible",
+      "complete": "Completo ✓",
+      "tabs": {
+        "browse": "Cestas",
+        "reservations": "Activas",
+        "history": "Historial"
+      },
+      "tabSelected": "Pestaña {tab} seleccionada"
+    },
+    "lots": {
+      "empty": "No hay cestas disponibles 🔍",
+      "emptySubtitle": "¡Vuelve pronto! ⏰",
+      "limitReached": "¡Tienes tus 2 cestas del día! 🎉",
+      "limitReachedSubtitle": "¡Vuelve mañana para nuevas cestas 🌅",
+      "help": "👆 Haz clic en una cesta para reservarla gratis • Máximo 2 cestas por día",
+      "select": "Cesta {title} seleccionada",
+      "confirmReservation": "Cesta {title} seleccionada. Confirma la reserva",
+      "reserve": "Reservar",
+      "modal": {
+        "confirmTitle": "¿Confirmar la reserva?",
+        "merchant": "Comerciante:",
+        "pickup": "Recogida:",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "reserving": "Reservando..."
+      },
+      "success": {
+        "title": "🎉 ¡Reserva confirmada!",
+        "noteTitle": "⚠️ ¡ANOTA ESTE CÓDIGO!",
+        "noteText": "Toma una foto o descárgalo.\nSin este código, NO podrás recuperar tu cesta.",
+        "pinTitle": "🔑 Tu Código PIN",
+        "pinLabel": "Para presentar al comerciante: {merchant}",
+        "download": "Descargar",
+        "noted": "Lo anoté",
+        "announce": "¡Reserva exitosa! Tu código PIN es {pin}. Anótalo bien"
+      },
+      "error": "Error durante la reserva. Por favor, inténtalo de nuevo."
+    },
+    "reservations": {
+      "empty": "No hay reservas activas 📦",
+      "emptySubtitle": "¡Reserva una cesta para verla aquí!",
+      "allEmpty": "No hay reservas 🎁",
+      "allEmptySubtitle": "¡Reserva tu primera cesta!",
+      "help": "📱 Haz clic en \"Código QR\" para ver tu código de recogida • Haz clic en el nombre para ver la dirección",
+      "qrTitle": "Código QR de Recogida",
+      "qrHelp": "💡 Haz clic en el QR para ampliarlo",
+      "pinLabel": "Código PIN",
+      "pinHint": "Para presentar",
+      "merchant": "Comerciante:",
+      "pickup": "Recogida:",
+      "quantity": "Cantidad:",
+      "download": "Descargar",
+      "close": "Cerrar",
+      "status": {
+        "pending": "Pendiente",
+        "completed": "Recogido",
+        "cancelled": "Cancelado"
+      }
+    },
+    "history": {
+      "empty": "Sin historial 📜",
+      "emptySubtitle": "Tus reservas pasadas aparecerán aquí",
+      "help": "📜 Historial de todas tus reservas • Haz clic en el nombre para ver la dirección del comerciante",
+      "total": "{count} reserva{plural}"
+    },
+    "common": {
+      "back": "Volver",
+      "close": "Cerrar",
+      "loading": "Cargando...",
+      "error": "Error",
+      "success": "Éxito",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "view": "Ver",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "free": "GRATIS",
+      "available": "disponible",
+      "notAvailable": "Esta cesta ya no está disponible"
+    },
+    "accessibility": {
+      "title": "Configuración de accesibilidad",
+      "largeText": "Texto grande",
+      "largeTextDesc": "Aumenta el tamaño de todos los textos",
+      "highContrast": "Alto contraste",
+      "highContrastDesc": "Mejora la visibilidad de los elementos",
+      "fontSize": "Tamaño de fuente",
+      "fontSizeDesc": "Ajuste personalizado: {percent}%",
+      "language": "Idioma",
+      "languageDesc": "Elige tu idioma preferido",
+      "reset": "Restablecer",
+      "shortcuts": "💡 Consejo: Usa los atajos de teclado:",
+      "shortcutsZoom": "• + para ampliar",
+      "shortcutsReduce": "• - para reducir",
+      "enabled": "{feature} activado",
+      "disabled": "{feature} desactivado",
+      "fontSizeChange": "Tamaño de fuente: {percent}%",
+      "languageChange": "Idioma cambiado a {language}"
+    },
+    "header": {
+      "accessibility": "Accesibilidad",
+      "accessibilityShortcut": "Configuración de accesibilidad (Alt + S)",
+      "logout": "Salir",
+      "logoutConfirm": "Has sido desconectado",
+      "timeRemaining": "Tiempo restante antes de cerrar sesión: {time}",
+      "timeWarning": "Advertencia: {minutes} minuto{plural} y {seconds} segundo{plural} restantes antes de cerrar sesión"
+    },
+    "mode": {
+      "secureBadge": "Modo kiosco seguro activado",
+      "secureText": "Kiosco Seguro"
+    },
+    "tutorial": {
+      "title": "Tutorial abierto",
+      "close": "Cerrar",
+      "skip": "Saltar tutorial",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "start": "¡Empezar!",
+      "steps": {
+        "welcome": {
+          "title": "¡Bienvenido al Kiosco! 👋",
+          "description": "Te guiaremos paso a paso para reservar tus cestas alimentarias."
+        },
+        "scan": {
+          "title": "1️⃣ Escanea tu tarjeta",
+          "description": "Haz clic en \"Escanear mi tarjeta\" luego presenta tu tarjeta de beneficiario a la cámara. ¡El escaneo es automático!"
+        },
+        "choose": {
+          "title": "2️⃣ Elige tus cestas",
+          "description": "Navega por las cestas disponibles. Puedes reservar un máximo de 2 por día."
+        },
+        "pin": {
+          "title": "3️⃣ Anota tu código PIN",
+          "description": "Después de la reserva, un código PIN se muestra EN GRANDE. ¡Anótalo bien o imprímelo! Lo necesitarás para recuperar tus cestas."
+        },
+        "pickup": {
+          "title": "4️⃣ Recoge tus cestas",
+          "description": "Ve al comerciante con tu código PIN. La dirección se indica haciendo clic en el nombre del comerciante."
+        },
+        "enjoy": {
+          "title": "Disfruta de tus cestas ofrecidas 🎁",
+          "description": "Aprovecha las cestas ofrecidas por comerciantes solidarios y reduce el desperdicio!"
+        }
+      }
+    },
+    "messages": {
+      "retry": "Puedes intentarlo de nuevo",
+      "tutorialOpened": "Tutorial abierto"
+    },
+    "tooltips": {
+      "address": "📍 Dirección:"
+    },
+    "labels": {
+      "quantity": "Cant.:",
+      "id": "ID:"
+    }
+  }
+}
+

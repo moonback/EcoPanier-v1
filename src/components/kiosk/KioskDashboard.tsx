@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useSettings } from '../../contexts/SettingsContext';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { KioskLotsList } from './KioskLotsList';
 import { KioskReservations } from './KioskReservations';
 import { KioskHistory } from './KioskHistory';
@@ -20,6 +21,7 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
   const [dailyCount, setDailyCount] = useState(0);
   const { settings } = useSettings();
   const { announce, largeText } = useAccessibility();
+  const { t } = useLanguage();
 
   const checkDailyLimit = useCallback(async () => {
     if (!profile) return;
@@ -52,11 +54,11 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
   const handleTabChange = (tab: 'browse' | 'reservations' | 'history') => {
     setActiveTab(tab);
     const tabNames: Record<string, string> = {
-      browse: 'Paniers disponibles',
-      reservations: 'Mes réservations',
-      history: 'Historique'
+      browse: t('kiosk.dashboard.tabs.browse'),
+      reservations: t('kiosk.dashboard.tabs.reservations'),
+      history: t('kiosk.dashboard.tabs.history')
     };
-    announce(`Onglet ${tabNames[tab]} sélectionné`);
+    announce(t('kiosk.dashboard.tabSelected', { tab: tabNames[tab] }));
     onActivity();
   };
 
@@ -72,24 +74,24 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className={`${largeText ? 'text-xl' : 'text-base'} font-bold text-black leading-tight truncate`}>
-                  Bonjour {profile.full_name?.split(' ')[0] || 'Bénéficiaire'} ! <span aria-hidden="true">👋</span>
+                  {t('kiosk.dashboard.welcome', { name: profile.full_name?.split(' ')[0] || 'Bénéficiaire' })} <span aria-hidden="true">👋</span>
                 </h2>
                 <p className={`${largeText ? 'text-sm' : 'text-xs'} text-gray-600 font-light leading-tight truncate`}>
-                  ID: <span className="font-mono font-bold text-accent-700">{profile.beneficiary_id}</span>
+                  {t('kiosk.labels.id')} <span className="font-mono font-bold text-accent-700">{profile.beneficiary_id}</span>
                 </p>
               </div>
             </div>
 
             {/* Compteur quotidien */}
             <div className="badge-accent rounded-lg p-2 border border-accent-200 shadow-soft flex-shrink-0">
-              <p className="text-xs font-semibold text-accent-800 leading-tight">Aujourd'hui</p>
+              <p className="text-xs font-semibold text-accent-800 leading-tight">{t('kiosk.dashboard.today')}</p>
               <p className="text-2xl font-bold text-accent-700 leading-tight">
                 {dailyCount}<span className="text-base">/{settings.maxDailyBeneficiaryReservations}</span>
               </p>
               <p className="text-xs text-accent-700 font-medium leading-tight">
                 {dailyCount < settings.maxDailyBeneficiaryReservations
-                  ? `+${settings.maxDailyBeneficiaryReservations - dailyCount} dispo`
-                  : 'Complet ✓'}
+                  ? t('kiosk.dashboard.available', { remaining: settings.maxDailyBeneficiaryReservations - dailyCount })
+                  : t('kiosk.dashboard.complete')}
               </p>
             </div>
           </div>
@@ -106,14 +108,14 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
                 ? 'bg-gradient-to-r from-accent-600 to-accent-700 text-white border-accent-700'
                 : 'bg-white text-gray-700 border-gray-200 hover:border-accent-300'
             }`}
-            aria-label="Onglet Paniers disponibles"
+            aria-label={`${t('kiosk.dashboard.tabs.browse')}`}
             aria-pressed={activeTab === 'browse'}
             role="tab"
             aria-controls="tabpanel-browse"
             id="tab-browse"
           >
             <Heart size={14} strokeWidth={2} aria-hidden="true" />
-            <span>Paniers</span>
+            <span>{t('kiosk.dashboard.tabs.browse')}</span>
           </button>
 
           <button
@@ -123,14 +125,14 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
                 ? 'bg-gradient-to-r from-accent-600 to-accent-700 text-white border-accent-700'
                 : 'bg-white text-gray-700 border-gray-200 hover:border-accent-300'
             }`}
-            aria-label="Onglet Mes réservations actives"
+            aria-label={`${t('kiosk.dashboard.tabs.reservations')}`}
             aria-pressed={activeTab === 'reservations'}
             role="tab"
             aria-controls="tabpanel-reservations"
             id="tab-reservations"
           >
             <Package size={14} strokeWidth={2} aria-hidden="true" />
-            <span>Actifs</span>
+            <span>{t('kiosk.dashboard.tabs.reservations')}</span>
           </button>
 
           <button
@@ -140,14 +142,14 @@ export const KioskDashboard = ({ profile, onActivity }: KioskDashboardProps) => 
                 ? 'bg-gradient-to-r from-accent-600 to-accent-700 text-white border-accent-700'
                 : 'bg-white text-gray-700 border-gray-200 hover:border-accent-300'
             }`}
-            aria-label="Onglet Historique des réservations"
+            aria-label={`${t('kiosk.dashboard.tabs.history')}`}
             aria-pressed={activeTab === 'history'}
             role="tab"
             aria-controls="tabpanel-history"
             id="tab-history"
           >
             <History size={14} strokeWidth={2} aria-hidden="true" />
-            <span>Historique</span>
+            <span>{t('kiosk.dashboard.tabs.history')}</span>
           </button>
         </div>
       </div>

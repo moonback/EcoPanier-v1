@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { formatDateTime, generatePIN } from '../../utils/helpers';
 import { Package, MapPin, Clock, Heart, CheckCircle, XCircle, Download } from 'lucide-react';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import type { Database } from '../../lib/database.types';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
@@ -31,6 +32,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
   } | null>(null);
   const [showAddressTooltip, setShowAddressTooltip] = useState<string | null>(null);
   const { announce, largeText, fontSize } = useAccessibility();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchFreeLots();
@@ -76,7 +78,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
     try {
       const availableQty = selectedLot.quantity_total - selectedLot.quantity_reserved - selectedLot.quantity_sold;
       if (availableQty < 1) {
-        alert('Ce panier n\'est plus disponible');
+        alert(t('kiosk.common.notAvailable'));
         setSelectedLot(null);
         setReserving(false);
         return;
@@ -145,10 +147,10 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
       fetchFreeLots();
       onReservationMade();
       // Annoncer vocalement le succès et le code PIN
-      announce(`Réservation réussie ! Votre code PIN est ${pin.split('').join(' ')}. Notez-le bien`, 'assertive');
+      announce(t('kiosk.lots.success.announce', { pin: pin.split('').join(' ') }), 'assertive');
     } catch (error) {
       console.error('Error creating reservation:', error);
-      alert('Erreur lors de la réservation. Veuillez réessayer.');
+      alert(t('kiosk.lots.error'));
     } finally {
       setReserving(false);
     }
@@ -169,10 +171,10 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
           <Heart size={48} className="text-success-500" strokeWidth={1.5} />
         </div>
         <h3 className="text-xl font-bold text-black mb-2">
-          Vous avez vos 2 paniers du jour ! 🎉
+          {t('kiosk.lots.limitReached')}
         </h3>
         <p className="text-sm text-gray-600">
-          Revenez demain pour de nouveaux paniers 🌅
+          {t('kiosk.lots.limitReachedSubtitle')}
         </p>
       </div>
     );
@@ -183,7 +185,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
       {/* Message d'aide en haut */}
       <div className="mb-3 p-3 bg-gradient-to-r from-blue-50 to-accent-50 rounded-lg border border-blue-200 animate-fade-in">
         <p className="text-sm text-center font-semibold text-blue-900">
-          👆 <strong>Cliquez sur un panier</strong> pour le réserver gratuitement • Maximum <strong>2 paniers par jour</strong>
+          {t('kiosk.lots.help')}
         </p>
       </div>
 
@@ -193,10 +195,10 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
             <Package size={48} className="text-gray-300" strokeWidth={1.5} />
           </div>
           <h3 className="text-xl font-bold text-black mb-2">
-            Aucun panier disponible 🔍
+            {t('kiosk.lots.empty')}
           </h3>
           <p className="text-sm text-gray-600">
-            Revenez bientôt ! ⏰
+            {t('kiosk.lots.emptySubtitle')}
           </p>
         </div>
       ) : (
@@ -227,7 +229,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                   )}
                   <div className="absolute top-1 right-1 bg-gradient-to-r from-accent-600 to-accent-700 text-white px-1.5 py-0.5 rounded-full font-bold text-xs flex items-center gap-1">
                     <Heart size={10} strokeWidth={2} />
-                    <span>GRATUIT</span>
+                    <span>{t('kiosk.common.free')}</span>
                   </div>
                 </div>
 
@@ -236,10 +238,10 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                   <h3 
                     onClick={() => {
                       handleSelectLot(lot);
-                      announce(`Panier ${lot.title} sélectionné`);
+                      announce(t('kiosk.lots.select', { title: lot.title }));
                     }}
                     className={`${largeText ? 'text-sm' : 'text-xs'} font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-accent-600 transition-colors leading-tight cursor-pointer`}
-                    aria-label={`Panier ${lot.title}`}
+                    aria-label={t('kiosk.lots.select', { title: lot.title })}
                   >
                     {lot.title}
                   </h3>
@@ -269,20 +271,20 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                     </div>
                     <div className="flex items-center gap-1">
                       <Package size={10} className="flex-shrink-0" />
-                      <span className="font-bold text-pink-600 text-xs">{availableQty} dispo</span>
+                      <span className="font-bold text-pink-600 text-xs">{availableQty} {t('kiosk.common.available')}</span>
                     </div>
                   </div>
 
                   <button
                     onClick={() => {
                       handleSelectLot(lot);
-                      announce(`Panier ${lot.title} sélectionné. Confirmez la réservation`);
+                      announce(t('kiosk.lots.confirmReservation', { title: lot.title }));
                     }}
                     className={`w-full py-1.5 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg font-bold ${largeText ? 'text-sm' : 'text-xs'} flex items-center justify-center gap-1 group-hover:from-accent-700 group-hover:to-pink-700 transition-all focus:outline-none focus:ring-4 focus:ring-accent-300`}
-                    aria-label={`Réserver le panier ${lot.title}`}
+                    aria-label={t('kiosk.lots.reserve', { title: lot.title })}
                   >
                     <Heart size={12} strokeWidth={2} aria-hidden="true" />
-                    <span>Réserver</span>
+                    <span>{t('kiosk.lots.reserve')}</span>
                   </button>
                 </div>
               </div>
@@ -296,7 +298,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-3 z-50 animate-fade-in">
           <div className="bg-white rounded-xl max-w-md w-full p-4 max-h-[90vh] overflow-y-auto animate-fade-in-up shadow-soft-xl border-2 border-accent-200">
             <h3 className="text-base font-bold mb-3 text-gray-900 text-center">
-              Confirmer la réservation ?
+              {t('kiosk.lots.modal.confirmTitle')}
             </h3>
 
             {/* Image du produit */}
@@ -314,15 +316,15 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
               )}
               <div className="absolute top-2 right-2 bg-gradient-to-r from-accent-600 to-accent-700 text-white px-2 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg border-2 border-white">
                 <Heart size={12} strokeWidth={2} />
-                <span>GRATUIT</span>
+                <span>{t('kiosk.common.free')}</span>
               </div>
             </div>
 
             <div className="mb-4 p-3 bg-accent-50 rounded-lg border border-accent-200">
               <h4 className="text-sm font-bold text-accent-900 mb-1 line-clamp-2">{selectedLot.title}</h4>
               <div className="space-y-0.5 text-xs text-accent-700">
-                <p><strong>Commerçant:</strong> {selectedLot.profiles.business_name}</p>
-                <p><strong>Retrait:</strong> {formatDateTime(selectedLot.pickup_start)}</p>
+                <p><strong>{t('kiosk.lots.modal.merchant')}</strong> {selectedLot.profiles.business_name}</p>
+                <p><strong>{t('kiosk.lots.modal.pickup')}</strong> {formatDateTime(selectedLot.pickup_start)}</p>
               </div>
             </div>
 
@@ -336,24 +338,24 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                 className="flex-1 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all font-semibold text-sm border border-gray-300 flex items-center justify-center gap-1.5"
               >
                 <XCircle size={16} />
-                <span>Annuler</span>
+                <span>{t('kiosk.lots.modal.cancel')}</span>
               </button>
               <button
                 onClick={handleReserve}
                 disabled={reserving}
                 className={`flex-1 py-3 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg hover:from-accent-700 hover:to-pink-700 transition-all font-semibold ${largeText ? 'text-base' : 'text-sm'} shadow-soft-md disabled:opacity-50 flex items-center justify-center gap-1.5 focus:outline-none focus:ring-4 focus:ring-accent-300`}
-                aria-label="Confirmer la réservation"
+                aria-label={t('kiosk.lots.modal.confirm')}
                 aria-busy={reserving}
               >
                 {reserving ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" aria-hidden="true"></div>
-                    <span>Réservation...</span>
+                    <span>{t('kiosk.lots.modal.reserving')}</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle size={16} aria-hidden="true" />
-                    <span>Confirmer</span>
+                    <span>{t('kiosk.lots.modal.confirm')}</span>
                   </>
                 )}
               </button>
@@ -371,7 +373,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
             </div>
 
             <h3 className="text-xl font-bold text-success-900 mb-2">
-              🎉 Réservation confirmée !
+              {t('kiosk.lots.success.title')}
             </h3>
 
             <p className="text-sm text-gray-700 mb-3 line-clamp-2">
@@ -382,11 +384,15 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
             <div className="mb-3 p-4 bg-gradient-to-r from-warning-100 to-warning-200 rounded-xl border-3 border-warning-400 shadow-lg animate-pulse">
               <p className="text-base font-bold text-warning-900 mb-2 flex items-center justify-center gap-2">
                 <span className="text-2xl">⚠️</span>
-                <span>NOTEZ BIEN CE CODE !</span>
+                <span>{t('kiosk.lots.success.noteTitle')}</span>
               </p>
               <p className="text-sm text-warning-900 font-semibold leading-relaxed">
-                Prenez une photo ou téléchargez-le.<br />
-                Sans ce code, vous ne pourrez PAS récupérer votre panier.
+                {t('kiosk.lots.success.noteText').split('\n').map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    {i < t('kiosk.lots.success.noteText').split('\n').length - 1 && <br />}
+                  </span>
+                ))}
               </p>
             </div>
 
@@ -394,7 +400,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
             <div className="mb-4 p-4 bg-gradient-to-br from-accent-50 to-pink-50 rounded-xl border-3 border-accent-300 shadow-lg">
               <p className={`${largeText ? 'text-xl' : 'text-base'} font-bold text-accent-900 mb-3 flex items-center justify-center gap-2`}>
                 <span className="text-xl" aria-hidden="true">🔑</span>
-                <span>Votre Code PIN</span>
+                <span>{t('kiosk.lots.success.pinTitle')}</span>
               </p>
               <div className="p-3 bg-white rounded-lg border-4 border-accent-400 mb-2">
                 <p 
@@ -412,7 +418,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                 </p>
               </div>
               <p className={`${largeText ? 'text-sm' : 'text-xs'} text-accent-800 font-bold`}>
-                À présenter au commerçant : {successMessage.merchant}
+                {t('kiosk.lots.success.pinLabel', { merchant: successMessage.merchant })}
               </p>
             </div>
 
@@ -442,7 +448,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                   ctx.fillStyle = '#ffffff';
                   ctx.font = 'bold 32px Arial';
                   ctx.textAlign = 'center';
-                  ctx.fillText('EcoPanier - Code de Retrait', 300, 50);
+                  ctx.fillText(t('kiosk.reservations.qrTitle'), 300, 50);
 
                   // Panier
                   ctx.fillStyle = '#1f2937';
@@ -458,7 +464,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
 
                   ctx.fillStyle = '#78350f';
                   ctx.font = 'bold 24px Arial';
-                  ctx.fillText('CODE PIN', 300, 220);
+                  ctx.fillText(t('kiosk.reservations.pinLabel'), 300, 220);
 
                   ctx.fillStyle = '#92400e';
                   ctx.font = 'bold 72px monospace';
@@ -467,12 +473,12 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                   // Infos
                   ctx.fillStyle = '#6b7280';
                   ctx.font = '16px Arial';
-                  ctx.fillText(`Commercant: ${successMessage.merchant}`, 300, 380);
-                  ctx.fillText(`Retrait: ${successMessage.pickupTime}`, 300, 410);
+                  ctx.fillText(`${t('kiosk.lots.modal.merchant')} ${successMessage.merchant}`, 300, 380);
+                  ctx.fillText(`${t('kiosk.lots.modal.pickup')} ${successMessage.pickupTime}`, 300, 410);
 
                   ctx.fillStyle = '#dc2626';
                   ctx.font = 'bold 18px Arial';
-                  ctx.fillText('CONSERVEZ CE CODE !', 300, 460);
+                  ctx.fillText(t('kiosk.lots.success.noteTitle'), 300, 460);
 
                   // Download
                   const dataUrl = canvas.toDataURL('image/png');
@@ -486,7 +492,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                 className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-bold text-sm shadow-soft-md"
               >
                 <Download size={18} />
-                <span>Télécharger</span>
+                <span>{t('kiosk.lots.success.download')}</span>
               </button>
               <button
                 onClick={() => {
@@ -495,7 +501,7 @@ export const KioskLotsList = ({ profile, dailyCount, onReservationMade, onActivi
                 }}
                 className="flex-1 py-3 bg-gradient-to-r from-accent-600 to-pink-600 text-white rounded-lg hover:from-accent-700 hover:to-pink-700 transition-all font-bold text-sm shadow-soft-md"
               >
-                J'ai noté
+                {t('kiosk.lots.success.noted')}
               </button>
             </div>
           </div>

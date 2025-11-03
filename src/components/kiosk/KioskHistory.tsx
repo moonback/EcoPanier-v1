@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatDateTime } from '../../utils/helpers';
 import { Package, MapPin, Clock, CheckCircle, XCircle, Hourglass } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 import type { Database } from '../../lib/database.types';
 
 type Reservation = Database['public']['Tables']['reservations']['Row'] & {
@@ -21,6 +22,7 @@ export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddressTooltip, setShowAddressTooltip] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchHistory();
@@ -49,19 +51,19 @@ export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
       case 'pending':
         return {
           icon: <Hourglass size={10} />,
-          text: 'En attente',
+          text: t('kiosk.reservations.status.pending'),
           className: 'bg-warning-100 text-warning-800 border-warning-300'
         };
       case 'completed':
         return {
           icon: <CheckCircle size={10} />,
-          text: 'Récupéré',
+          text: t('kiosk.reservations.status.completed'),
           className: 'bg-success-100 text-success-800 border-success-300'
         };
       case 'cancelled':
         return {
           icon: <XCircle size={10} />,
-          text: 'Annulé',
+          text: t('kiosk.reservations.status.cancelled'),
           className: 'bg-gray-100 text-gray-800 border-gray-300'
         };
       default:
@@ -88,10 +90,10 @@ export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
           <Package size={48} className="text-accent-400" strokeWidth={1.5} />
         </div>
         <h3 className="text-xl font-bold text-black mb-2">
-          Aucun historique 📜
+          {t('kiosk.history.empty')}
         </h3>
         <p className="text-sm text-gray-600">
-          Vos réservations passées apparaîtront ici
+          {t('kiosk.history.emptySubtitle')}
         </p>
       </div>
     );
@@ -102,7 +104,7 @@ export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
       {/* Message d'aide */}
       <div className="mb-3 p-3 bg-gradient-to-r from-blue-50 to-accent-50 rounded-lg border border-blue-200 animate-fade-in">
         <p className="text-sm text-center font-semibold text-blue-900">
-          📜 Historique de toutes vos réservations • <strong>Cliquez sur le nom</strong> pour voir l'adresse du commerçant
+          {t('kiosk.history.help')}
         </p>
       </div>
 
@@ -161,7 +163,7 @@ export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
                       {/* Tooltip avec adresse */}
                       {showAddressTooltip === reservation.id && (
                         <div className="absolute left-0 top-full mt-1 z-10 bg-gray-900 text-white text-xs rounded-lg px-2 py-1.5 shadow-lg min-w-[200px] animate-fade-in">
-                          <p className="font-semibold mb-0.5">📍 Adresse :</p>
+                          <p className="font-semibold mb-0.5">{t('kiosk.tooltips.address')}</p>
                           <p className="leading-tight">{reservation.lots.profiles.business_address}</p>
                           <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
                         </div>
@@ -204,7 +206,7 @@ export const KioskHistory = ({ profile, onActivity }: KioskHistoryProps) => {
       {/* Info bas de page */}
       <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
         <p className="text-xs text-blue-800 text-center">
-          📊 {reservations.length} réservation{reservations.length > 1 ? 's' : ''} au total
+          {t('kiosk.history.total', { count: reservations.length, plural: reservations.length > 1 ? 's' : '' })}
         </p>
       </div>
     </div>

@@ -1,0 +1,191 @@
+{
+  "kiosk": {
+    "login": {
+      "title": "Scannez votre carte pour les paniers solidaires !",
+      "scanButton": "Scanner ma carte",
+      "help": "Comment ça marche ?",
+      "instructions": {
+        "present": "Présentez votre carte au scanner",
+        "choose": "Choisissez vos paniers (max 2/jour)",
+        "note": "Notez votre code PIN"
+      },
+      "placeCard": "Placez votre carte devant la caméra",
+      "autoScan": "Le scan sera automatique",
+      "cancel": "Annuler",
+      "connecting": "Connexion en cours...",
+      "error": {
+        "notFound": "Utilisateur non trouvé ou non autorisé",
+        "notVerified": "Compte non vérifié. Contactez le personnel du foyer.",
+        "connection": "Erreur lors de la connexion. Veuillez réessayer.",
+        "camera": "Impossible d'accéder à la caméra. Vérifiez les permissions."
+      },
+      "retry": "Réessayer",
+      "success": "Connexion réussie. Bienvenue {name}",
+      "scannerActive": "Scanner activé. Placez votre carte devant la caméra",
+      "scannerCancelled": "Scanner annulé"
+    },
+    "dashboard": {
+      "welcome": "Bonjour {name} !",
+      "today": "Aujourd'hui",
+      "available": "{remaining} dispo",
+      "complete": "Complet ✓",
+      "tabs": {
+        "browse": "Paniers",
+        "reservations": "Actifs",
+        "history": "Historique"
+      },
+      "tabSelected": "Onglet {tab} sélectionné"
+    },
+    "lots": {
+      "empty": "Aucun panier disponible 🔍",
+      "emptySubtitle": "Revenez bientôt ! ⏰",
+      "limitReached": "Vous avez vos 2 paniers du jour ! 🎉",
+      "limitReachedSubtitle": "Revenez demain pour de nouveaux paniers 🌅",
+      "help": "👆 Cliquez sur un panier pour le réserver gratuitement • Maximum 2 paniers par jour",
+      "select": "Panier {title} sélectionné",
+      "confirmReservation": "Panier {title} sélectionné. Confirmez la réservation",
+      "reserve": "Réserver",
+      "modal": {
+        "confirmTitle": "Confirmer la réservation ?",
+        "merchant": "Commerçant:",
+        "pickup": "Retrait:",
+        "cancel": "Annuler",
+        "confirm": "Confirmer",
+        "reserving": "Réservation..."
+      },
+      "success": {
+        "title": "🎉 Réservation confirmée !",
+        "noteTitle": "⚠️ NOTEZ BIEN CE CODE !",
+        "noteText": "Prenez une photo ou téléchargez-le.\nSans ce code, vous ne pourrez PAS récupérer votre panier.",
+        "pinTitle": "🔑 Votre Code PIN",
+        "pinLabel": "À présenter au commerçant : {merchant}",
+        "download": "Télécharger",
+        "noted": "J'ai noté",
+        "announce": "Réservation réussie ! Votre code PIN est {pin}. Notez-le bien"
+      },
+      "error": "Erreur lors de la réservation. Veuillez réessayer."
+    },
+    "reservations": {
+      "empty": "Aucune réservation active 📦",
+      "emptySubtitle": "Réservez un panier pour le voir ici !",
+      "allEmpty": "Aucune réservation 🎁",
+      "allEmptySubtitle": "Réservez votre premier panier !",
+      "help": "📱 Cliquez sur \"QR Code\" pour voir votre code de retrait • Cliquez sur le nom pour voir l'adresse",
+      "qrTitle": "QR Code de Retrait",
+      "qrHelp": "💡 Cliquez sur le QR pour l'agrandir",
+      "pinLabel": "Code PIN",
+      "pinHint": "À présenter",
+      "merchant": "Commerçant:",
+      "pickup": "Retrait:",
+      "quantity": "Quantité:",
+      "download": "Télécharger",
+      "close": "Fermer",
+      "status": {
+        "pending": "En attente",
+        "completed": "Récupéré",
+        "cancelled": "Annulé"
+      }
+    },
+    "history": {
+      "empty": "Aucun historique 📜",
+      "emptySubtitle": "Vos réservations passées apparaîtront ici",
+      "help": "📜 Historique de toutes vos réservations • Cliquez sur le nom pour voir l'adresse du commerçant",
+      "total": "{count} réservation{plural}"
+    },
+    "common": {
+      "back": "Retour",
+      "close": "Fermer",
+      "loading": "Chargement...",
+      "error": "Erreur",
+      "success": "Succès",
+      "confirm": "Confirmer",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "view": "Voir",
+      "next": "Suivant",
+      "previous": "Précédent",
+      "free": "GRATUIT",
+      "available": "dispo",
+      "notAvailable": "Ce panier n'est plus disponible"
+    },
+    "accessibility": {
+      "title": "Paramètres d'accessibilité",
+      "largeText": "Texte agrandi",
+      "largeTextDesc": "Augmente la taille de tous les textes",
+      "highContrast": "Contraste élevé",
+      "highContrastDesc": "Améliore la visibilité des éléments",
+      "fontSize": "Taille de police",
+      "fontSizeDesc": "Réglage personnalisé : {percent}%",
+      "language": "Langue",
+      "languageDesc": "Choisissez votre langue préférée",
+      "reset": "Réinitialiser",
+      "shortcuts": "💡 Astuce : Utilisez les raccourcis clavier :",
+      "shortcutsZoom": "• + pour agrandir",
+      "shortcutsReduce": "• - pour réduire",
+      "enabled": "{feature} activé",
+      "disabled": "{feature} désactivé",
+      "fontSizeChange": "Taille de police : {percent}%",
+      "languageChange": "Langue changée pour {language}"
+    },
+    "header": {
+      "accessibility": "Accessibilité",
+      "accessibilityShortcut": "Paramètres d'accessibilité (Alt + S)",
+      "logout": "Quitter",
+      "logoutConfirm": "Vous avez été déconnecté",
+      "timeRemaining": "Temps restant avant déconnexion : {time}",
+      "timeWarning": "Attention : {minutes} minute{plural} et {seconds} seconde{plural} restantes avant déconnexion"
+    },
+    "mode": {
+      "secureBadge": "Mode kiosque sécurisé activé",
+      "secureText": "Kiosque Sécurisé"
+    },
+    "tutorial": {
+      "title": "Tutoriel ouvert",
+      "close": "Fermer",
+      "skip": "Passer le tutoriel",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "start": "Commencer !",
+      "steps": {
+        "welcome": {
+          "title": "Bienvenue au Kiosque ! 👋",
+          "description": "Nous allons vous guider pas à pas pour réserver vos paniers alimentaires."
+        },
+        "scan": {
+          "title": "1️⃣ Scannez votre carte",
+          "description": "Cliquez sur \"Scanner ma carte\" puis présentez votre carte bénéficiaire devant la caméra. Le scan est automatique !"
+        },
+        "choose": {
+          "title": "2️⃣ Choisissez vos paniers",
+          "description": "Parcourez les paniers disponibles. Vous pouvez en réserver 2 maximum par jour."
+        },
+        "pin": {
+          "title": "3️⃣ Notez votre code PIN",
+          "description": "Après la réservation, un code PIN s'affiche EN GROS. Notez-le bien ou imprimer le ! Vous en aurez besoin pour récupérer vos paniers."
+        },
+        "pickup": {
+          "title": "4️⃣ Récupérez vos paniers",
+          "description": "Allez chez le commerçant avec votre code PIN. L'adresse est indiquée en cliquant sur le nom du commerçant."
+        },
+        "enjoy": {
+          "title": "Profitez de vos paniers offerts 🎁",
+          "description": "Bénéficiez des paniers proposés par les commerçants solidaires et réduisez le gaspillage !"
+        }
+      }
+    },
+    "messages": {
+      "retry": "Vous pouvez réessayer",
+      "tutorialOpened": "Tutoriel ouvert"
+    },
+    "tooltips": {
+      "address": "📍 Adresse :"
+    },
+    "labels": {
+      "quantity": "Qté:",
+      "id": "ID:"
+    }
+  }
+}
+

@@ -4,6 +4,7 @@ import { KioskDashboard } from './KioskDashboard';
 import { KioskAccessibilitySettings } from './KioskAccessibilitySettings';
 import { LogOut, Clock, Settings } from 'lucide-react';
 import { AccessibilityProvider, useAccessibility } from '../../contexts/AccessibilityContext';
+import { LanguageProvider, useLanguage } from '../../contexts/LanguageContext';
 import type { Database } from '../../lib/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -16,28 +17,47 @@ function KioskModeContent() {
   const [timeRemaining, setTimeRemaining] = useState<number>(INACTIVITY_TIMEOUT);
   const [showAccessibilitySettings, setShowAccessibilitySettings] = useState(false);
   const { announce, fontSize, setFontSize } = useAccessibility();
+  const { t } = useLanguage();
 
-  // Activer le mode plein écran au chargement
+  // Activer le mode plein écran après première interaction utilisateur
   useEffect(() => {
+    let fullscreenActivated = false;
+
     const enterFullscreen = async () => {
+      if (fullscreenActivated) return;
       try {
         const elem = document.documentElement;
         if (elem.requestFullscreen) {
           await elem.requestFullscreen();
+          fullscreenActivated = true;
         }
       } catch (error) {
+        // Fullscreen nécessite un geste utilisateur, on ignore l'erreur
         console.log('Fullscreen non disponible:', error);
       }
     };
-
-    enterFullscreen();
 
     // Empêcher le clic droit et la sélection de texte
     const preventContext = (e: MouseEvent) => e.preventDefault();
     document.addEventListener('contextmenu', preventContext);
 
+    // Activer le fullscreen après la première interaction
+    const handleFirstInteraction = () => {
+      enterFullscreen();
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('touchstart', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
+
+    document.addEventListener('click', handleFirstInteraction, { once: true });
+    document.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    document.addEventListener('keydown', handleFirstInteraction, { once: true });
+
     return () => {
       document.removeEventListener('contextmenu', preventContext);
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('touchstart', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
     };
   }, []);
 
@@ -69,7 +89,7 @@ function KioskModeContent() {
       if (e.altKey && e.key === 's') {
         e.preventDefault();
         setShowAccessibilitySettings(true);
-        announce('Paramètres d\'accessibilités ouverts');
+        announce(t('kiosk.accessibility.title'));
         resetActivity();
         return;
       }
@@ -79,7 +99,7 @@ function KioskModeContent() {
         e.preventDefault();
         const newSize = Math.min(fontSize + 0.1, 2.0);
         setFontSize(newSize);
-        announce(`Taille de police : ${Math.round(newSize * 100)}%`);
+        announce(t('kiosk.accessibility.fontSizeChange', { percent: Math.round(newSize * 100) }));
         resetActivity();
         return;
       }
@@ -89,7 +109,7 @@ function KioskModeContent() {
         e.preventDefault();
         const newSize = Math.max(fontSize - 0.1, 0.8);
         setFontSize(newSize);
-        announce(`Taille de police : ${Math.round(newSize * 100)}%`);
+        announce(t('kiosk.accessibility.fontSizeChange', { percent: Math.round(newSize * 100) }));
         resetActivity();
         return;
       }
@@ -131,7 +151,7 @@ function KioskModeContent() {
     setAuthenticatedProfile(null);
     setLastActivity(Date.now());
     setTimeRemaining(INACTIVITY_TIMEOUT);
-    announce('Vous avez été déconnecté');
+    announce(t('kiosk.header.logoutConfirm'));
   };
 
   const formatTime = (ms: number) => {
@@ -147,10 +167,15 @@ function KioskModeContent() {
       const minutes = Math.floor(timeRemaining / 60000);
       const seconds = Math.floor((timeRemaining % 60000) / 1000);
       if (seconds === 0 || (seconds % 15 === 0 && seconds < 60)) {
-        announce(`Attention : ${minutes} minute${minutes > 1 ? 's' : ''} et ${seconds} seconde${seconds > 1 ? 's' : ''} restantes avant déconnexion`, 'assertive');
+        announce(t('kiosk.header.timeWarning', { 
+          minutes, 
+          seconds,
+          plural: minutes > 1 ? 's' : '',
+          plural2: seconds > 1 ? 's' : ''
+        }), 'assertive');
       }
     }
-  }, [authenticatedProfile, timeRemaining, announce]);
+  }, [authenticatedProfile, timeRemaining, announce, t]);
 
   return (
     <div className="min-h-screen section-gradient">
@@ -176,14 +201,14 @@ function KioskModeContent() {
               <button
                 onClick={() => {
                   setShowAccessibilitySettings(true);
-                  announce('Paramètres d\'accessibilité ouverts');
+                  announce(t('kiosk.accessibility.title'));
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all font-semibold text-xs focus:outline-none focus:ring-4 focus:ring-primary-200"
-                aria-label="Ouvrir les paramètres d'accessibilité"
-                title="Paramètres d'accessibilité (Alt + S)"
+                aria-label={t('kiosk.header.accessibilityShortcut')}
+                title={t('kiosk.header.accessibilityShortcut')}
               >
                 <Settings size={14} strokeWidth={2} />
-                <span className="hidden sm:inline">Accessibilité</span>
+                <span className="hidden sm:inline">{t('kiosk.header.accessibility')}</span>
               </button>
 
               {/* Timer de déconnexion */}
@@ -196,7 +221,7 @@ function KioskModeContent() {
                 role="timer"
                 aria-live="polite"
                 aria-atomic="true"
-                aria-label={`Temps restant avant déconnexion : ${formatTime(timeRemaining)}`}
+                aria-label={t('kiosk.header.timeRemaining', { time: formatTime(timeRemaining) })}
               >
                 <Clock size={14} strokeWidth={2} aria-hidden="true" />
                 <p className="text-sm font-bold font-mono">{formatTime(timeRemaining)}</p>
@@ -206,10 +231,10 @@ function KioskModeContent() {
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all font-semibold text-xs focus:outline-none focus:ring-4 focus:ring-gray-300"
-                aria-label="Se déconnecter"
+                aria-label={t('kiosk.header.logout')}
               >
                 <LogOut size={14} strokeWidth={2} aria-hidden="true" />
-                <span>Quitter</span>
+                <span>{t('kiosk.header.logout')}</span>
               </button>
             </div>
           </div>
@@ -230,11 +255,11 @@ function KioskModeContent() {
         <div 
           className="fixed bottom-2 right-2 px-3 py-1.5 bg-gradient-to-r from-accent-600 to-accent-700 text-white rounded-full shadow-soft border border-white"
           role="status"
-          aria-label="Mode kiosque sécurisé activé"
+          aria-label={t('kiosk.mode.secureBadge')}
         >
           <p className="text-xs font-bold flex items-center gap-1.5">
             <span className="animate-pulse" aria-hidden="true">🔒</span>
-            <span>Kiosque Sécurisé</span>
+            <span>{t('kiosk.mode.secureText')}</span>
           </p>
         </div>
       )}
@@ -249,9 +274,11 @@ function KioskModeContent() {
 
 export const KioskMode = () => {
   return (
-    <AccessibilityProvider>
-      <KioskModeContent />
-    </AccessibilityProvider>
+    <LanguageProvider>
+      <AccessibilityProvider>
+        <KioskModeContent />
+      </AccessibilityProvider>
+    </LanguageProvider>
   );
 };
 
