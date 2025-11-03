@@ -124,10 +124,13 @@
       "shortcuts": "💡 نصيحة: استخدم اختصارات لوحة المفاتيح:",
       "shortcutsZoom": "• + للتكبير",
       "shortcutsReduce": "• - للتصغير",
+      "shortcutsSettings": "• Alt + S لفتح الإعدادات",
       "enabled": "تم تفعيل {feature}",
       "disabled": "تم تعطيل {feature}",
       "fontSizeChange": "حجم الخط: {percent}%",
-      "languageChange": "تم تغيير اللغة إلى {language}"
+      "languageChange": "تم تغيير اللغة إلى {language}",
+      "increaseFontSize": "زيادة حجم الخط",
+      "decreaseFontSize": "تقليل حجم الخط"
     },
     "header": {
       "accessibility": "إمكانية الوصول",

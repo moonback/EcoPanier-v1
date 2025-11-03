@@ -124,10 +124,13 @@
       "shortcuts": "💡 Consejo: Usa los atajos de teclado:",
       "shortcutsZoom": "• + para ampliar",
       "shortcutsReduce": "• - para reducir",
+      "shortcutsSettings": "• Alt + S para abrir configuración",
       "enabled": "{feature} activado",
       "disabled": "{feature} desactivado",
       "fontSizeChange": "Tamaño de fuente: {percent}%",
-      "languageChange": "Idioma cambiado a {language}"
+      "languageChange": "Idioma cambiado a {language}",
+      "increaseFontSize": "Aumentar tamaño de fuente",
+      "decreaseFontSize": "Disminuir tamaño de fuente"
     },
     "header": {
       "accessibility": "Accesibilidad",

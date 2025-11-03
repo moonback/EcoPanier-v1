@@ -64,7 +64,7 @@ export const KioskAccessibilitySettings = ({ onClose }: KioskAccessibilitySettin
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 animate-fade-in"
+      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-2 sm:p-4 z-50 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="accessibility-settings-title"
@@ -75,52 +75,52 @@ export const KioskAccessibilitySettings = ({ onClose }: KioskAccessibilitySettin
       }}
     >
       <div
-        className="bg-white rounded-xl max-w-lg w-full p-6 shadow-soft-xl border-2 border-primary-200 animate-fade-in-up"
+        className="bg-white rounded-xl max-w-lg w-full p-4 sm:p-6 shadow-soft-xl border-2 border-primary-200 animate-fade-in-up max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* En-tête */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h2
             id="accessibility-settings-title"
-            className="text-2xl font-bold text-gray-900"
+            className="text-xl sm:text-2xl font-bold text-gray-900"
           >
             {t('kiosk.accessibility.title')}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200 flex-shrink-0"
             aria-label={t('kiosk.common.close')}
           >
-            <X size={24} className="text-gray-600" />
+            <X size={20} className="sm:w-6 sm:h-6 text-gray-600" />
           </button>
         </div>
 
         {/* Options */}
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {/* Mode grand texte */}
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary-100 rounded-lg">
-                  <Type size={20} className="text-primary-600" />
+          <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center justify-between gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className="p-1.5 sm:p-2 bg-primary-100 rounded-lg flex-shrink-0">
+                  <Type size={18} className="sm:w-5 sm:h-5 text-primary-600" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">{t('kiosk.accessibility.largeText')}</h3>
-                  <p className="text-sm text-gray-600">{t('kiosk.accessibility.largeTextDesc')}</p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">{t('kiosk.accessibility.largeText')}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('kiosk.accessibility.largeTextDesc')}</p>
                 </div>
               </div>
               <button
                 onClick={handleLargeTextToggle}
-                className={`relative w-14 h-8 rounded-full transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200 ${
+                className={`relative w-12 h-7 sm:w-14 sm:h-8 rounded-full transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200 flex-shrink-0 ${
                   largeText ? 'bg-primary-600' : 'bg-gray-300'
                 }`}
                 role="switch"
                 aria-checked={largeText}
-                aria-label={largeText ? 'Désactiver le texte agrandi' : 'Activer le texte agrandi'}
+                aria-label={t('kiosk.accessibility.largeText')}
               >
                 <span
-                  className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-transform ${
-                    largeText ? 'translate-x-6' : 'translate-x-0'
+                  className={`absolute top-0.5 left-0.5 sm:top-1 sm:left-1 w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full transition-transform ${
+                    largeText ? 'translate-x-5 sm:translate-x-6' : 'translate-x-0'
                   }`}
                 />
               </button>
@@ -128,29 +128,29 @@ export const KioskAccessibilitySettings = ({ onClose }: KioskAccessibilitySettin
           </div>
 
           {/* Contraste élevé */}
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-accent-100 rounded-lg">
-                  <Contrast size={20} className="text-accent-600" />
+          <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center justify-between gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className="p-1.5 sm:p-2 bg-accent-100 rounded-lg flex-shrink-0">
+                  <Contrast size={18} className="sm:w-5 sm:h-5 text-accent-600" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">{t('kiosk.accessibility.highContrast')}</h3>
-                  <p className="text-sm text-gray-600">{t('kiosk.accessibility.highContrastDesc')}</p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">{t('kiosk.accessibility.highContrast')}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('kiosk.accessibility.highContrastDesc')}</p>
                 </div>
               </div>
               <button
                 onClick={handleHighContrastToggle}
-                className={`relative w-14 h-8 rounded-full transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200 ${
+                className={`relative w-12 h-7 sm:w-14 sm:h-8 rounded-full transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200 flex-shrink-0 ${
                   highContrast ? 'bg-primary-600' : 'bg-gray-300'
                 }`}
                 role="switch"
                 aria-checked={highContrast}
-                aria-label={highContrast ? 'Désactiver le contraste élevé' : 'Activer le contraste élevé'}
+                aria-label={t('kiosk.accessibility.highContrast')}
               >
                 <span
-                  className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-transform ${
-                    highContrast ? 'translate-x-6' : 'translate-x-0'
+                  className={`absolute top-0.5 left-0.5 sm:top-1 sm:left-1 w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full transition-transform ${
+                    highContrast ? 'translate-x-5 sm:translate-x-6' : 'translate-x-0'
                   }`}
                 />
               </button>
@@ -158,60 +158,60 @@ export const KioskAccessibilitySettings = ({ onClose }: KioskAccessibilitySettin
           </div>
 
           {/* Taille de police personnalisée */}
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-secondary-100 rounded-lg">
-                <Volume2 size={20} className="text-secondary-600" />
+          <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3">
+              <div className="p-1.5 sm:p-2 bg-secondary-100 rounded-lg flex-shrink-0">
+                <Volume2 size={18} className="sm:w-5 sm:h-5 text-secondary-600" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900">{t('kiosk.accessibility.fontSize')}</h3>
-                <p className="text-sm text-gray-600">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">{t('kiosk.accessibility.fontSize')}</h3>
+                <p className="text-xs sm:text-sm text-gray-600">
                   {t('kiosk.accessibility.fontSizeDesc', { percent: Math.round(fontSize * 100) })}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 mt-3">
+            <div className="flex items-center gap-2 sm:gap-3 mt-3">
               <button
                 onClick={decreaseFontSize}
                 disabled={fontSize <= 0.8}
-                className="p-2 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200"
-                aria-label="Diminuer la taille de police"
+                className="p-2 sm:p-2.5 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label={t('kiosk.accessibility.decreaseFontSize')}
               >
-                <ZoomOut size={20} className="text-gray-700" />
+                <ZoomOut size={18} className="sm:w-5 sm:h-5 text-gray-700" />
               </button>
-              <div className="flex-1 bg-white border-2 border-gray-300 rounded-lg p-3 text-center">
-                <span className="text-xl font-bold text-gray-900 font-mono">
+              <div className="flex-1 bg-white border-2 border-gray-300 rounded-lg p-2 sm:p-3 text-center min-w-0">
+                <span className="text-lg sm:text-xl font-bold text-gray-900 font-mono">
                   {Math.round(fontSize * 100)}%
                 </span>
               </div>
               <button
                 onClick={increaseFontSize}
                 disabled={fontSize >= 2.0}
-                className="p-2 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200"
-                aria-label="Augmenter la taille de police"
+                className="p-2 sm:p-2.5 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-4 focus:ring-primary-200 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label={t('kiosk.accessibility.increaseFontSize')}
               >
-                <ZoomIn size={20} className="text-gray-700" />
+                <ZoomIn size={18} className="sm:w-5 sm:h-5 text-gray-700" />
               </button>
             </div>
           </div>
 
           {/* Sélecteur de langue */}
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-secondary-100 rounded-lg">
-                <Languages size={20} className="text-secondary-600" />
+          <div className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3">
+              <div className="p-1.5 sm:p-2 bg-secondary-100 rounded-lg flex-shrink-0">
+                <Languages size={18} className="sm:w-5 sm:h-5 text-secondary-600" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900">{t('kiosk.accessibility.language')}</h3>
-                <p className="text-sm text-gray-600">{t('kiosk.accessibility.languageDesc')}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">{t('kiosk.accessibility.language')}</h3>
+                <p className="text-xs sm:text-sm text-gray-600">{t('kiosk.accessibility.languageDesc')}</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
               {languages.map((lang) => (
                 <button
                   key={lang.code}
                   onClick={() => handleLanguageChange(lang.code)}
-                  className={`p-2 rounded-lg border-2 transition-all focus:outline-none focus:ring-4 focus:ring-primary-200 ${
+                  className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all focus:outline-none focus:ring-4 focus:ring-primary-200 min-h-[60px] sm:min-h-[70px] flex flex-col items-center justify-center ${
                     language === lang.code
                       ? 'bg-primary-600 text-white border-primary-700 font-bold'
                       : 'bg-white text-gray-700 border-gray-300 hover:border-primary-300'
@@ -219,8 +219,8 @@ export const KioskAccessibilitySettings = ({ onClose }: KioskAccessibilitySettin
                   aria-label={`${t('kiosk.accessibility.language')}: ${lang.native}`}
                   aria-pressed={language === lang.code}
                 >
-                  <div className="text-sm font-semibold">{lang.native}</div>
-                  <div className="text-xs opacity-75">{lang.name}</div>
+                  <div className="text-sm sm:text-base font-semibold">{lang.native}</div>
+                  <div className="text-xs sm:text-sm opacity-75 mt-0.5">{lang.name}</div>
                 </button>
               ))}
             </div>
@@ -229,22 +229,30 @@ export const KioskAccessibilitySettings = ({ onClose }: KioskAccessibilitySettin
           {/* Réinitialiser */}
           <button
             onClick={resetSettings}
-            className="w-full py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-base flex items-center justify-center gap-2 focus:outline-none focus:ring-4 focus:ring-primary-200"
+            className="w-full py-3 sm:py-3.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm sm:text-base flex items-center justify-center gap-2 focus:outline-none focus:ring-4 focus:ring-primary-200 min-h-[44px]"
             aria-label={t('kiosk.accessibility.reset')}
           >
-            <RotateCcw size={18} />
+            <RotateCcw size={18} className="sm:w-5 sm:h-5" />
             <span>{t('kiosk.accessibility.reset')}</span>
           </button>
         </div>
 
         {/* Instructions */}
-        <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-sm text-blue-900">
-            <strong>{t('kiosk.accessibility.shortcuts')}</strong>
+        <div className="mt-4 sm:mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-xs sm:text-sm text-blue-900">
+            <strong className="block mb-1 sm:mb-0 sm:inline">{t('kiosk.accessibility.shortcuts')}</strong>
+            <span className="block sm:inline">
+              <br className="hidden sm:inline" />
+              • <kbd className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-white border border-blue-300 rounded text-xs font-mono">Ctrl/Cmd + +</kbd> {t('kiosk.accessibility.shortcutsZoom')}
+            </span>
             <br />
-            • <kbd className="px-2 py-1 bg-white border border-blue-300 rounded text-xs font-mono">+</kbd> {t('kiosk.accessibility.shortcutsZoom')}
+            <span className="block sm:inline">
+              • <kbd className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-white border border-blue-300 rounded text-xs font-mono">Ctrl/Cmd + -</kbd> {t('kiosk.accessibility.shortcutsReduce')}
+            </span>
             <br />
-            • <kbd className="px-2 py-1 bg-white border border-blue-300 rounded text-xs font-mono">-</kbd> {t('kiosk.accessibility.shortcutsReduce')}
+            <span className="block sm:inline">
+              • <kbd className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-white border border-blue-300 rounded text-xs font-mono">Alt + S</kbd> {t('kiosk.accessibility.shortcutsSettings')}
+            </span>
           </p>
         </div>
       </div>

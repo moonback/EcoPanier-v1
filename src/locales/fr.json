@@ -124,10 +124,13 @@
       "shortcuts": "💡 Astuce : Utilisez les raccourcis clavier :",
       "shortcutsZoom": "• + pour agrandir",
       "shortcutsReduce": "• - pour réduire",
+      "shortcutsSettings": "• Alt + S pour ouvrir les paramètres",
       "enabled": "{feature} activé",
       "disabled": "{feature} désactivé",
       "fontSizeChange": "Taille de police : {percent}%",
-      "languageChange": "Langue changée pour {language}"
+      "languageChange": "Langue changée pour {language}",
+      "increaseFontSize": "Augmenter la taille de police",
+      "decreaseFontSize": "Diminuer la taille de police"
     },
     "header": {
       "accessibility": "Accessibilité",
