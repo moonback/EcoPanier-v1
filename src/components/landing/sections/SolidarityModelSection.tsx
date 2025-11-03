@@ -13,7 +13,7 @@ const solidarityFeatures = [
   {
     icon: Users,
     title: 'Impact visible et mesurable',
-    description: 'Suivez dans votre tableau de bord le nombre de paniers offerts, de repas partagés et l'impact solidaire de vos gestes.',
+    description: 'Suivez dans votre tableau de bord le nombre de paniers offerts, de repas partagés et l\'impact solidaire de vos gestes.',
   },
   {
     icon: Shield,
@@ -23,7 +23,7 @@ const solidarityFeatures = [
   {
     icon: QrCode,
     title: 'Traçabilité complète',
-    description: 'Chaque panier suspendu est tracé de l'offre à la distribution. Vous savez où va votre don et son impact réel.',
+    description: 'Chaque panier suspendu est tracé de l\'offre à la distribution. Vous savez où va votre don et son impact réel.',
   },
 ];
 
@@ -34,7 +34,7 @@ export const SolidarityModelSection = () => {
         <SectionHeader
           eyebrow="Solidarité intégrée"
           title="Offrez un panier suspendu, créez du lien dans votre quartier"
-          description="Inspiré du "caffè sospeso" italien, offrez un panier en plus du vôtre à une personne dans le besoin. Un geste simple qui fait la différence."
+          description="Inspiré du « caffè sospeso » italien, offrez un panier en plus du vôtre à une personne dans le besoin. Un geste simple qui fait la différence."
         />
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
