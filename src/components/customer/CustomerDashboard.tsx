@@ -16,6 +16,7 @@ import { ImpactDashboard } from './ImpactDashboard';
 import { ProfilePage } from '../shared/ProfilePage';
 import { InteractiveMap } from './InteractiveMap';
 import { DashboardHeader } from '../shared/DashboardHeader';
+import { ChatWidget } from '../shared/ChatWidget';
 
 import EcoPanierLogo from '/logo.png'; // Import du logo
 
@@ -30,6 +31,7 @@ type TabId = 'browse' | 'map' | 'reservations' | 'impact' | 'profile';
 export const CustomerDashboard = () => {
   // État local
   const [activeTab, setActiveTab] = useState<TabId>('browse');
+  const [chatWithMerchant, setChatWithMerchant] = useState<{ id: string; name: string } | null>(null);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
@@ -56,12 +58,22 @@ export const CustomerDashboard = () => {
 
       {/* Contenu principal */}
       <main className="w-full pb-24">
-        {activeTab === 'browse' && <LotBrowser />}
-        {activeTab === 'map' && <InteractiveMap />}
-        {activeTab === 'reservations' && <ReservationsList />}
+        {activeTab === 'browse' && <LotBrowser onContactMerchant={setChatWithMerchant} />}
+        {activeTab === 'map' && <InteractiveMap onContactMerchant={setChatWithMerchant} />}
+        {activeTab === 'reservations' && <ReservationsList onContactMerchant={setChatWithMerchant} />}
         {activeTab === 'impact' && <ImpactDashboard />}
         {activeTab === 'profile' && <ProfilePage />}
       </main>
+
+      {/* Chat Widget (flottant) */}
+      {chatWithMerchant && (
+        <ChatWidget
+          recipientId={chatWithMerchant.id}
+          recipientName={chatWithMerchant.name}
+          onClose={() => setChatWithMerchant(null)}
+          defaultOpen={true}
+        />
+      )}
 
       {/* Barre de navigation fixe en bas */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
@@ -78,27 +90,11 @@ export const CustomerDashboard = () => {
                   className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
                     isActive
                       ? 'text-primary-600'
-                      : 'text-gray-500 hover:text-gray-700'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
-                  aria-label={tab.label}
-                  aria-current={isActive ? 'page' : undefined}
                 >
-                  {isActive && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-b-full" />
-                  )}
-                  <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
-                    <Icon
-                      size={20}
-                      strokeWidth={isActive ? 2.5 : 1.5}
-                    />
-                  </div>
-                  <span
-                    className={`text-xs transition-all ${
-                      isActive ? 'font-bold' : 'font-light'
-                    }`}
-                  >
-                    {tab.label}
-                  </span>
+                  <Icon size={24} />
+                  <span className="text-xs font-semibold">{tab.emoji} {tab.label}</span>
                 </button>
               );
             })}

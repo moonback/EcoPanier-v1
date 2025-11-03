@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
+import { NotificationCenter } from './NotificationCenter';
 
 export const Header = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -45,8 +48,13 @@ export const Header = () => {
               ))}
             </nav>
 
-            {/* CTA Buttons Desktop */}
+            {/* CTA Buttons & Notifications Desktop */}
             <div className="hidden lg:flex items-center gap-4">
+              {/* Notifications (si connecté) */}
+              {user && (
+                <NotificationCenter />
+              )}
+              
               <button
                 onClick={() => navigate('/login')}
                 className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
@@ -64,52 +72,21 @@ export const Header = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              className="lg:hidden p-2"
             >
               {mobileMenuOpen ? (
-                <X size={24} />
+                <X className="w-6 h-6" />
               ) : (
-                <Menu size={24} />
+                <Menu className="w-6 h-6" />
               )}
             </button>
           </div>
         </div>
 
-      </header>
-
-      {/* Overlay pour fermer la sidebar */}
-      {mobileMenuOpen && (
-        <div
-          onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
-        />
-      )}
-
-      {/* Sidebar Mobile */}
-      <div
-        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white z-50 lg:hidden transform transition-transform duration-300 ease-out ${
-          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Header de la sidebar */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <img
-              src="/logo.png"
-              alt="Logo EcoPanier"
-              className="h-8 rounded-lg object-cover"
-            />
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-all"
-            >
-              <X size={24} className="text-gray-700" />
-            </button>
-          </div>
-
-          {/* Navigation Links */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <nav className="space-y-2">
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-t border-gray-200 bg-white">
+            <nav className="flex flex-col">
               {navLinks.map((link) => (
                 <button
                   key={link.path}
@@ -117,37 +94,33 @@ export const Header = () => {
                     navigate(link.path);
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-all font-medium"
+                  className="px-6 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 border-b border-gray-100"
                 >
                   {link.name}
                 </button>
               ))}
+              <button
+                onClick={() => {
+                  navigate('/login');
+                  setMobileMenuOpen(false);
+                }}
+                className="px-6 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 border-b border-gray-100"
+              >
+                Connexion
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/dashboard');
+                  setMobileMenuOpen(false);
+                }}
+                className="px-6 py-3 text-left text-sm font-medium bg-black text-white"
+              >
+                S'inscrire
+              </button>
             </nav>
           </div>
-
-          {/* CTA Buttons */}
-          <div className="p-6 border-t border-gray-200 space-y-3">
-            <button
-              onClick={() => {
-                navigate('/login');
-                setMobileMenuOpen(false);
-              }}
-              className="w-full px-5 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-all font-medium"
-            >
-              Connexion
-            </button>
-            <button
-              onClick={() => {
-                navigate('/dashboard');
-                setMobileMenuOpen(false);
-              }}
-              className="w-full px-5 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-all font-medium"
-            >
-              S'inscrire
-            </button>
-          </div>
-        </div>
-      </div>
+        )}
+      </header>
     </>
   );
 };

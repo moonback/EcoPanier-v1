@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { generatePIN } from '../utils/helpers';
+import { notifyReservationConfirmed } from '../utils/notificationService';
 import type { Database } from '../lib/database.types';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
@@ -92,7 +93,7 @@ export function useLots(selectedCategory: string = ''): UseLotsReturn {
       const totalPrice = isDonation ? 0 : lot.discounted_price * quantity;
 
       // Créer la réservation
-      const { error: reservationError } = await supabase
+      const { data: reservationData, error: reservationError } = await supabase
         .from('reservations')
         .insert({
           lot_id: lot.id,
@@ -100,41 +101,44 @@ export function useLots(selectedCategory: string = ''): UseLotsReturn {
           quantity,
           total_price: totalPrice,
           pickup_pin: pin,
-          status: 'pending',
+          status: 'confirmed',
           is_donation: isDonation,
-        });
+        })
+        .select('id')
+        .single();
 
       if (reservationError) throw reservationError;
 
-      // Mettre à jour la quantité réservée du lot
+      // Mettre à jour les quantités du lot
       const { error: updateError } = await supabase
         .from('lots')
         .update({
           quantity_reserved: lot.quantity_reserved + quantity,
-          updated_at: new Date().toISOString(),
         })
         .eq('id', lot.id);
 
       if (updateError) throw updateError;
 
-      // Enregistrer les métriques d'impact
-      const metricType = isDonation ? 'donations_made' : 'meals_saved';
-      await supabase.from('impact_metrics').insert({
-        user_id: userId,
-        metric_type: metricType,
-        value: quantity,
-      });
-
-      // Rafraîchir la liste des lots
-      await fetchLots();
+      // 🔔 CRÉER UNE NOTIFICATION
+      try {
+        await notifyReservationConfirmed(
+          userId,
+          lot.title || 'Votre lot',
+          lot.profiles?.business_name || 'Commerçant',
+          pin,
+          reservationData.id
+        );
+      } catch (notificationError) {
+        // Ne pas bloquer si la notification échoue
+        console.error('Erreur notification:', notificationError);
+      }
 
       return pin;
     } catch (err) {
       console.error('Erreur lors de la réservation:', err);
-      if (err instanceof Error) {
-        throw err;
-      }
-      throw new Error('Impossible de finaliser la réservation. Veuillez réessayer.');
+      const errorMessage =
+        err instanceof Error ? err.message : 'Erreur lors de la réservation';
+      throw new Error(errorMessage);
     }
   };
 
