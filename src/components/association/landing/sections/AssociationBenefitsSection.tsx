@@ -1,15 +1,18 @@
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 
+import { PageSection } from '../../../shared/layout/PageSection';
+import { SectionHeader } from '../../../shared/layout/SectionHeader';
+
 const benefits = [
   {
     title: 'Inscription rapide',
     items: [
-      'Enregistrement d\'un bénéficiaire en 5 minutes',
-      'Génération automatique d\'un ID unique',
+      "Enregistrement d'un bénéficiaire en 5 minutes",
+      "Génération automatique d'un ID unique",
       'QR code instantané pour le retrait',
-      'Validation immédiate'
-    ]
+      'Validation immédiate',
+    ],
   },
   {
     title: 'Suivi complet',
@@ -17,80 +20,65 @@ const benefits = [
       'Historique de tous les retraits',
       'Statistiques détaillées par bénéficiaire',
       'Alertes automatiques (limite atteinte)',
-      'Vue d\'ensemble de l\'activité'
-    ]
+      "Vue d'ensemble de l'activité",
+    ],
   },
   {
     title: 'Conformité RGPD',
     items: [
       'Données sécurisées et cryptées',
       'Gestion des consentements',
-      'Droit à l\'oubli intégré',
-      'Conformité totale aux régulations'
-    ]
+      "Droit à l'oubli intégré",
+      'Conformité totale aux régulations',
+    ],
   },
   {
     title: 'Support dédié',
     items: [
-      'Accompagnement à l\'inscription',
+      "Accompagnement à l'inscription",
       'Formation à la plateforme',
       'Équipe disponible 7j/7',
-      'Documentation complète'
-    ]
-  }
+      'Documentation complète',
+    ],
+  },
 ];
 
 export const AssociationBenefitsSection = () => {
   return (
-    <section className="py-32 bg-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Des avantages concrets pour votre association
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            Tout ce dont vous avez besoin pour gérer efficacement votre programme d'aide
-          </p>
-        </motion.div>
+    <PageSection background="default" padding="lg">
+      <div className="flex flex-col gap-10">
+        <SectionHeader
+          align="center"
+          title="Des avantages concrets pour votre association"
+          description="Tout ce dont vous avez besoin pour gérer efficacement votre programme d'aide"
+        />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {benefits.map((benefit, index) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
+              key={benefit.title}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group"
+              className="surface-muted h-full space-y-4 p-6"
             >
-              <div className="h-full bg-gray-50 rounded-2xl p-8 hover:bg-purple-50 transition-all">
-                <h3 className="text-xl font-bold text-black mb-6 group-hover:text-purple-600 transition-colors">
-                  {benefit.title}
-                </h3>
-                <ul className="space-y-4">
-                  {benefit.items.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-success-100 flex items-center justify-center mt-0.5">
-                        <Check className="w-3 h-3 text-success-600" strokeWidth={3} />
-                      </div>
-                      <span className="text-gray-700 font-light text-sm leading-relaxed">
-                        {item}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <h3 className="text-lg font-semibold text-neutral-900">{benefit.title}</h3>
+              <ul className="space-y-3">
+                {benefit.items.map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-success-100">
+                      <Check className="h-3 w-3 text-success-600" strokeWidth={3} />
+                    </span>
+                    <span className="text-sm text-neutral-600 leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </motion.div>
           ))}
         </div>
       </div>
-    </section>
+    </PageSection>
   );
 };
 
