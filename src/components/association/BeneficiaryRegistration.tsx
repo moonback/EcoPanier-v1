@@ -96,7 +96,7 @@ export function BeneficiaryRegistration() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in-up">
+    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in-up pb-8">
       {/* En-tête */}
       <div className="card p-6">
         <h2 className="text-2xl font-bold text-neutral-900 mb-2">

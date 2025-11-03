@@ -108,7 +108,7 @@ export function AssociationStats() {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <div className="space-y-8 animate-fade-in-up pb-8">
       {/* En-tête */}
       <div className="card p-6">
         <h1 className="text-2xl font-bold text-neutral-900 mb-2">

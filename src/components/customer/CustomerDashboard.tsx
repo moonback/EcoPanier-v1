@@ -15,7 +15,7 @@ import { ReservationsList } from './ReservationsList';
 import { ImpactDashboard } from './ImpactDashboard';
 import { ProfilePage } from '../shared/ProfilePage';
 import { InteractiveMap } from './InteractiveMap';
-import { DashboardHeader } from '../shared/DashboardHeader';
+import { CustomerHeader } from './CustomerHeader';
 
 import EcoPanierLogo from '/logo.png'; // Import du logo
 
@@ -46,12 +46,13 @@ export const CustomerDashboard = () => {
   // Render principal
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* En-tête */}
-      <DashboardHeader
-        logo={<img src={EcoPanierLogo} alt="EcoPanier Logo" className="h-10 w-auto" />}
+      {/* En-tête amélioré */}
+      <CustomerHeader
+        logo={<img src={EcoPanierLogo} alt="EcoPanier Logo" className="h-14 w-auto rounded-2xl shadow-lg" />}
         title={`Bonjour ${profile?.full_name || 'Client'} !`}
         subtitle="Prêt à sauver des paniers aujourd'hui ?"
         defaultIcon="🛒"
+        showStats={true}
       />
 
       {/* Contenu principal */}

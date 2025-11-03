@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
-import { Users, UserPlus, FileText, LogOut, BarChart3, Building2, Download, Clock, TrendingUp } from 'lucide-react';
+import { Users, UserPlus, FileText, BarChart3, Building2, Download, Clock, TrendingUp } from 'lucide-react';
 import { BeneficiaryRegistration } from './BeneficiaryRegistration';
 import { RegisteredBeneficiaries } from './RegisteredBeneficiaries';
 import { AssociationStats } from './AssociationStats';
@@ -8,20 +8,13 @@ import { AssociationInfo } from './AssociationInfo';
 import { ExportData } from './ExportData';
 import { BeneficiaryActivityHistory } from './BeneficiaryActivityHistory';
 import { AdvancedStats } from './AdvancedStats';
+import { AssociationHeader } from './AssociationHeader';
 
 type TabType = 'stats' | 'register' | 'list' | 'info' | 'export' | 'activity' | 'advanced';
 
 export function AssociationDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('stats');
-  const { profile, signOut } = useAuthStore();
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    }
-  };
+  const { profile } = useAuthStore();
 
   const tabs = [
     { id: 'stats' as TabType, label: 'Vue d\'ensemble', icon: BarChart3 },
@@ -34,70 +27,18 @@ export function AssociationDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      {/* Header */}
-      <header className="bg-white border-b border-neutral-200 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/logo.png" 
-                  alt="EcoPanier" 
-                  className="h-10 w-100 rounded-lg object-contain"
-                  draggable={false}
-                />
-              </div>
-              <div className="h-8 w-px bg-neutral-200" />
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <FileText size={20} className="text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-neutral-900">Espace Association</p>
-                  <p className="text-xs text-neutral-600">{profile?.business_name || profile?.full_name}</p>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
-            >
-              <LogOut size={18} />
-              <span>Déconnexion</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation par onglets */}
-      <div className="bg-white border-b border-neutral-200">
-        <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex gap-6">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-4 border-b-2 transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-purple-600 text-purple-600'
-                      : 'border-transparent text-neutral-600 hover:text-neutral-900 hover:border-neutral-300'
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span className="font-medium">{tab.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* En-tête amélioré */}
+      <AssociationHeader
+        logo={<img src="/logo.png" alt="EcoPanier Logo" className="h-14 w-auto rounded-2xl shadow-lg" />}
+        title={profile?.business_name || profile?.full_name || 'Association'}
+        subtitle="Gérez vos bénéficiaires et leur accès à la solidarité"
+        defaultIcon="🏛️"
+        showStats={true}
+      />
 
       {/* Contenu principal */}
-      <main className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-32">
         {activeTab === 'stats' && <AssociationStats />}
         {activeTab === 'advanced' && <AdvancedStats />}
         {activeTab === 'info' && <AssociationInfo />}
@@ -106,6 +47,49 @@ export function AssociationDashboard() {
         {activeTab === 'activity' && <BeneficiaryActivityHistory />}
         {activeTab === 'export' && <ExportData />}
       </main>
+
+      {/* Barre de navigation fixe en bas */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
+        <div className="max-w-12xl mx-auto">
+          <div className="flex items-center justify-around">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative flex flex-col items-center justify-center gap-1 px-2 sm:px-4 py-3 flex-1 transition-all ${
+                    isActive
+                      ? 'text-secondary-600'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  aria-label={tab.label}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  {isActive && (
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-b-full" />
+                  )}
+                  <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
+                    <Icon
+                      size={20}
+                      strokeWidth={isActive ? 2.5 : 1.5}
+                    />
+                  </div>
+                  <span
+                    className={`text-[10px] sm:text-xs transition-all ${
+                      isActive ? 'font-bold' : 'font-light'
+                    }`}
+                  >
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </nav>
     </div>
   );
 }

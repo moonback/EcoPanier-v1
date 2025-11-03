@@ -122,7 +122,7 @@ export function RegisteredBeneficiaries() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <div className="space-y-6 animate-fade-in-up pb-8">
       {/* En-tête */}
       <div className="card p-6">
         <div className="flex items-center justify-between">
