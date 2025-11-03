@@ -56,12 +56,14 @@ export const SuccessModal = ({ isOpen, title, message, quantity, onClose }: Succ
             </div>
           )}
 
-          {/* Impact visuel */}
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-            <span>🌍</span>
-            <span className="font-medium">Merci pour votre geste solidaire !</span>
-            <span>💚</span>
-          </div>
+          {/* Impact visuel - seulement pour les actions solidaires (quand quantity est défini) */}
+          {quantity && (
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+              <span>🌍</span>
+              <span className="font-medium">Merci pour votre geste solidaire !</span>
+              <span>💚</span>
+            </div>
+          )}
         </div>
 
         {/* Bouton de fermeture */}

@@ -7,17 +7,30 @@ interface LotCardProps {
   onEdit: (lot: Lot) => void;
   onDelete: (id: string) => void;
   onMakeFree: (lot: Lot) => void;
+  isSelected?: boolean;
+  onSelect?: (lotId: string, selected: boolean) => void;
+  selectionMode?: boolean;
 }
 
-export const LotCard = ({ lot, onEdit, onDelete, onMakeFree }: LotCardProps) => {
+export const LotCard = ({ 
+  lot, 
+  onEdit, 
+  onDelete, 
+  onMakeFree, 
+  isSelected = false, 
+  onSelect, 
+  selectionMode = false 
+}: LotCardProps) => {
   const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
   const isOutOfStock = availableQty <= 0;
   const discount = lot.original_price > 0 ? Math.round((1 - lot.discounted_price / lot.original_price) * 100) : 0;
 
   return (
     <div
-      className={`group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 ${
+      className={`group bg-white rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 ${
         isOutOfStock ? 'opacity-60' : ''
+      } ${
+        isSelected ? 'border-primary-500 ring-2 ring-primary-200 shadow-md' : 'border-gray-200'
       }`}
     >
       {/* Image avec overlay */}
@@ -40,8 +53,22 @@ export const LotCard = ({ lot, onEdit, onDelete, onMakeFree }: LotCardProps) => 
         {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
+        {/* Checkbox de sélection */}
+        {selectionMode && onSelect && (
+          <div className="absolute top-2 left-2 z-20">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={(e) => onSelect(lot.id, e.target.checked)}
+                className="w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 focus:ring-2 cursor-pointer"
+              />
+            </label>
+          </div>
+        )}
+
         {/* Badges haut gauche */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
+        <div className={`absolute ${selectionMode && onSelect ? 'top-2 left-10' : 'top-2 left-2'} flex flex-col gap-1.5 z-10`}>
           {/* Catégorie */}
           <span className="inline-flex items-center px-2 py-0.5 bg-white/75 backdrop-blur-sm text-[9px] font-bold text-gray-800 rounded shadow-md border border-white/30 uppercase tracking-wide">
             {getCategoryLabel(lot.category)}

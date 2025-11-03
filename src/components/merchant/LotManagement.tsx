@@ -7,11 +7,15 @@ import {
   LotFormModal,
   MakeFreeModal,
   MakeAllFreeModal,
+  BulkDeleteModal,
+  BulkMakeFreeModal,
+  DeleteLotModal,
   SuccessModal,
   ErrorModal,
   InfoModal,
   type Lot,
 } from './lot-management';
+import { CheckSquare, Square, Trash2, Gift } from 'lucide-react';
 
 interface LotManagementProps {
   onCreateLotClick?: (handler: () => void) => void;
@@ -29,11 +33,20 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
   const [processingMassConversion, setProcessingMassConversion] = useState(false);
   const [hideSoldOut, setHideSoldOut] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [successData, setSuccessData] = useState<{ quantity: number; message?: string } | null>(null);
+  const [successData, setSuccessData] = useState<{ quantity?: number; message?: string; title?: string } | null>(null);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoMessage, setInfoMessage] = useState('');
+  const [selectedLotIds, setSelectedLotIds] = useState<Set<string>>(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [showBulkMakeFreeModal, setShowBulkMakeFreeModal] = useState(false);
+  const [processingBulkDelete, setProcessingBulkDelete] = useState(false);
+  const [processingBulkMakeFree, setProcessingBulkMakeFree] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [lotToDelete, setLotToDelete] = useState<Lot | null>(null);
+  const [processingDelete, setProcessingDelete] = useState(false);
   const { profile } = useAuthStore();
 
   // Enregistrer le handler pour ouvrir le modal de création depuis le header
@@ -290,32 +303,46 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
     }
   };
 
-  // Supprimer un lot
-  const handleDelete = async (id: string) => {
-    if (!confirm('Voulez-vous vraiment supprimer ce lot ?')) return;
+  // Ouvrir le modal de suppression
+  const handleDelete = (id: string) => {
+    const lot = lots.find((l) => l.id === id);
+    if (lot) {
+      setLotToDelete(lot);
+      setShowDeleteModal(true);
+    }
+  };
+
+  // Confirmer la suppression d'un lot
+  const confirmDelete = async () => {
+    if (!lotToDelete) return;
+
+    setProcessingDelete(true);
 
     try {
-      const { data: lot, error: fetchError } = await supabase
-        .from('lots')
-        .select('image_urls')
-        .eq('id', id)
-        .single() as { data: { image_urls: string[] } | null; error: unknown };
-
-      if (fetchError) throw fetchError;
-
-      if (lot?.image_urls && lot.image_urls.length > 0) {
-        await deleteImages(lot.image_urls);
+      if (lotToDelete.image_urls && lotToDelete.image_urls.length > 0) {
+        await deleteImages(lotToDelete.image_urls);
       }
 
-      const { error } = await supabase.from('lots').delete().eq('id', id);
+      const { error } = await supabase.from('lots').delete().eq('id', lotToDelete.id);
 
       if (error) throw error;
 
+      setShowDeleteModal(false);
+      setLotToDelete(null);
       fetchLots();
+
+      setSuccessData({ 
+        quantity: undefined, 
+        message: 'Lot supprimé avec succès.\n\n⚠️ Rappel : Ce lot n\'a pas pu être distribué et contribue au gaspillage alimentaire.',
+        title: '⚠️ Lot supprimé'
+      });
+      setShowSuccessModal(true);
     } catch (error) {
       console.error('Error deleting lot:', error);
       setErrorMessage('Erreur lors de la suppression du lot. Veuillez réessayer.');
       setShowErrorModal(true);
+    } finally {
+      setProcessingDelete(false);
     }
   };
 
@@ -323,6 +350,174 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
   const handleEdit = (lot: Lot) => {
     setEditingLot(lot);
     setShowModal(true);
+  };
+
+  // Gérer la sélection d'un lot
+  const handleSelectLot = (lotId: string, selected: boolean) => {
+    setSelectedLotIds((prev) => {
+      const newSet = new Set(prev);
+      if (selected) {
+        newSet.add(lotId);
+      } else {
+        newSet.delete(lotId);
+      }
+      return newSet;
+    });
+  };
+
+  // Activer/désactiver le mode sélection
+  const toggleSelectionMode = () => {
+    setSelectionMode((prev) => !prev);
+    if (selectionMode) {
+      setSelectedLotIds(new Set());
+    }
+  };
+
+  // Sélectionner/désélectionner tous les lots
+  const handleSelectAll = () => {
+    const allLotIds = new Set(lots.map((lot) => lot.id));
+    if (selectedLotIds.size === allLotIds.size) {
+      setSelectedLotIds(new Set());
+    } else {
+      setSelectedLotIds(allLotIds);
+    }
+  };
+
+  // Confirmer la suppression multiple
+  const confirmBulkDelete = async () => {
+    if (selectedLotIds.size === 0) return;
+
+    setProcessingBulkDelete(true);
+
+    const selectedIds = Array.from(selectedLotIds);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const lotId of selectedIds) {
+      try {
+        const lot = lots.find((l) => l.id === lotId);
+        if (!lot) continue;
+
+        if (lot.image_urls && lot.image_urls.length > 0) {
+          await deleteImages(lot.image_urls);
+        }
+
+        const { error } = await supabase.from('lots').delete().eq('id', lotId);
+
+        if (error) {
+          console.error(`Erreur lors de la suppression du lot ${lotId}:`, error);
+          errorCount++;
+        } else {
+          successCount++;
+        }
+      } catch (error) {
+        console.error(`Erreur lors de la suppression du lot ${lotId}:`, error);
+        errorCount++;
+      }
+    }
+
+    setProcessingBulkDelete(false);
+    setShowBulkDeleteModal(false);
+    setSelectedLotIds(new Set());
+    setSelectionMode(false);
+    fetchLots();
+
+    if (successCount > 0) {
+      const message = 
+        `${successCount} lot${successCount > 1 ? 's' : ''} supprimé${successCount > 1 ? 's' : ''} avec succès.` +
+        (errorCount > 0 ? `\n\n⚠️ Attention : ${errorCount} lot${errorCount > 1 ? 's' : ''} n'${errorCount > 1 ? 'ont' : 'a'} pas pu être supprimé${errorCount > 1 ? 's' : ''}.` : '') +
+        `\n\n⚠️ Ces lots n'ont pas pu être distribués et contribuent au gaspillage alimentaire.`;
+      setSuccessData({ 
+        quantity: undefined, 
+        message,
+        title: '⚠️ Lots supprimés'
+      });
+      setShowSuccessModal(true);
+    } else if (errorCount > 0) {
+      setErrorMessage('Erreur lors de la suppression des lots. Veuillez réessayer.');
+      setShowErrorModal(true);
+    }
+  };
+
+  // Confirmer le passage en don multiple
+  const confirmBulkMakeFree = async () => {
+    if (selectedLotIds.size === 0) return;
+
+    setProcessingBulkMakeFree(true);
+
+    const selectedLots = lots.filter((lot) => selectedLotIds.has(lot.id));
+    const eligibleLots = selectedLots.filter((lot) => {
+      const remainingQty = lot.quantity_total - lot.quantity_sold;
+      return !lot.is_free && remainingQty > 0;
+    });
+
+    let successCount = 0;
+    let errorCount = 0;
+    let totalMealsSaved = 0;
+
+    for (const lot of eligibleLots) {
+      try {
+        const remainingQty = lot.quantity_total - lot.quantity_sold;
+
+        // Annuler les réservations pending
+        if (lot.quantity_reserved > 0) {
+          await supabase
+            .from('reservations')
+            // @ts-expect-error Bug connu: Supabase 2.57.4 infère incorrectement les types comme 'never'
+            .update({
+              status: 'cancelled',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('lot_id', lot.id)
+            .eq('status', 'pending');
+        }
+
+        // Mettre à jour le lot
+        const { error } = await supabase
+          .from('lots')
+          // @ts-expect-error Bug connu: Supabase 2.57.4 infère incorrectement les types comme 'never'
+          .update({
+            is_free: true,
+            discounted_price: 0,
+            original_price: 0,
+            status: 'available',
+            quantity_total: remainingQty,
+            quantity_reserved: 0,
+            quantity_sold: 0,
+            is_urgent: true,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', lot.id);
+
+        if (error) {
+          console.error(`Erreur pour le lot ${lot.id}:`, error);
+          errorCount++;
+        } else {
+          successCount++;
+          totalMealsSaved += remainingQty;
+        }
+      } catch (error) {
+        console.error(`Erreur lors de la conversion du lot ${lot.id}:`, error);
+        errorCount++;
+      }
+    }
+
+    setProcessingBulkMakeFree(false);
+    setShowBulkMakeFreeModal(false);
+    setSelectedLotIds(new Set());
+    setSelectionMode(false);
+    fetchLots();
+
+    if (successCount > 0) {
+      const message = 
+        `${successCount} lot${successCount > 1 ? 's' : ''} passé${successCount > 1 ? 's' : ''} en gratuit avec succès !` +
+        (errorCount > 0 ? `\n\n⚠️ Attention : ${errorCount} lot${errorCount > 1 ? 's' : ''} n'${errorCount > 1 ? 'ont' : 'a'} pas pu être converti${errorCount > 1 ? 's' : ''}.` : '');
+      setSuccessData({ quantity: totalMealsSaved, message });
+      setShowSuccessModal(true);
+    } else if (errorCount > 0) {
+      setErrorMessage('Erreur lors de la conversion des lots. Veuillez réessayer.');
+      setShowErrorModal(true);
+    }
   };
 
   if (loading) {
@@ -364,49 +559,121 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
       })
     : paidLots;
 
+  // Calculer les lots éligibles pour le passage en don
+  const eligibleLotsForDon = lots.filter((lot) => {
+    if (!selectedLotIds.has(lot.id)) return false;
+    const remainingQty = lot.quantity_total - lot.quantity_sold;
+    return !lot.is_free && remainingQty > 0;
+  });
+
   return (
     <div>
-      {/* Boutons d'action */}
+      {/* Barre d'actions avec sélection */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        {/* Bouton pour masquer/afficher les épuisés */}
-        {soldOutCount > 0 && (
+        {/* Mode sélection */}
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => setHideSoldOut(!hideSoldOut)}
+            onClick={toggleSelectionMode}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              hideSoldOut
-                ? 'bg-gray-600 text-white hover:bg-gray-700'
+              selectionMode
+                ? 'bg-primary-600 text-white hover:bg-primary-700'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {hideSoldOut ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                />
-              )}
-            </svg>
-            <span className="font-medium">
-              {hideSoldOut ? 'Afficher' : 'Masquer'} épuisés ({soldOutCount})
-            </span>
+            {selectionMode ? (
+              <>
+                <CheckSquare className="w-5 h-5" strokeWidth={2} />
+                <span className="font-medium">Mode sélection</span>
+              </>
+            ) : (
+              <>
+                <Square className="w-5 h-5" strokeWidth={2} />
+                <span className="font-medium">Sélectionner</span>
+              </>
+            )}
           </button>
-        )}
 
+          {selectionMode && lots.length > 0 && (
+            <button
+              onClick={handleSelectAll}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all text-sm font-medium"
+            >
+              {selectedLotIds.size === lots.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+            </button>
+          )}
+        </div>
+
+        {/* Bouton pour masquer/afficher les épuisés */}
+        <div className="flex items-center gap-3">
+          {soldOutCount > 0 && (
+            <button
+              onClick={() => setHideSoldOut(!hideSoldOut)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                hideSoldOut
+                  ? 'bg-gray-600 text-white hover:bg-gray-700'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                {hideSoldOut ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                  />
+                )}
+              </svg>
+              <span className="font-medium">
+                {hideSoldOut ? 'Afficher' : 'Masquer'} épuisés ({soldOutCount})
+              </span>
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Barre d'actions groupées */}
+      {selectionMode && selectedLotIds.size > 0 && (
+        <div className="mb-6 p-4 bg-gradient-to-r from-primary-50 to-blue-50 border-2 border-primary-200 rounded-xl">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-gray-900">
+                {selectedLotIds.size} lot{selectedLotIds.size > 1 ? 's' : ''} sélectionné{selectedLotIds.size > 1 ? 's' : ''}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {eligibleLotsForDon.length > 0 && (
+                <button
+                  onClick={() => setShowBulkMakeFreeModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 font-semibold transition-all shadow-md"
+                >
+                  <Gift className="w-4 h-4" strokeWidth={2} />
+                  <span>Passer en don ({eligibleLotsForDon.length})</span>
+                </button>
+              )}
+              <button
+                onClick={() => setShowBulkDeleteModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 font-semibold transition-all shadow-md"
+              >
+                <Trash2 className="w-4 h-4" strokeWidth={2} />
+                <span>Supprimer ({selectedLotIds.size})</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Section des dons solidaires */}
       {displayedFreeLots.length > 0 && (
@@ -450,6 +717,9 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onMakeFree={handleMakeFree}
+                isSelected={selectedLotIds.has(lot.id)}
+                onSelect={handleSelectLot}
+                selectionMode={selectionMode}
               />
             ))}
           </div>
@@ -496,6 +766,9 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onMakeFree={handleMakeFree}
+                isSelected={selectedLotIds.has(lot.id)}
+                onSelect={handleSelectLot}
+                selectionMode={selectionMode}
               />
             ))}
           </div>
@@ -561,7 +834,7 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
       {/* Modal de succès */}
       <SuccessModal
         isOpen={showSuccessModal}
-        title="✅ Lot passé en gratuit avec succès !"
+        title={successData?.title || "✅ Lot passé en gratuit avec succès !"}
         message={successData?.message || "Vos invendus sont maintenant disponibles gratuitement pour les bénéficiaires."}
         quantity={successData?.quantity}
         onClose={() => {
@@ -591,6 +864,49 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
           setInfoMessage('');
         }}
       />
+
+      {/* Modal de suppression multiple */}
+      <BulkDeleteModal
+        isOpen={showBulkDeleteModal}
+        selectedCount={selectedLotIds.size}
+        isProcessing={processingBulkDelete}
+        eligibleForDonCount={eligibleLotsForDon.length}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setShowBulkDeleteModal(false)}
+        onSuggestDon={() => {
+          setShowBulkDeleteModal(false);
+          setShowBulkMakeFreeModal(true);
+        }}
+      />
+
+      {/* Modal de passage en don multiple */}
+      <BulkMakeFreeModal
+        isOpen={showBulkMakeFreeModal}
+        selectedCount={selectedLotIds.size}
+        eligibleCount={eligibleLotsForDon.length}
+        isProcessing={processingBulkMakeFree}
+        onConfirm={confirmBulkMakeFree}
+        onCancel={() => setShowBulkMakeFreeModal(false)}
+      />
+
+      {/* Modal de suppression individuelle */}
+      {lotToDelete && (
+        <DeleteLotModal
+          isOpen={showDeleteModal}
+          lot={lotToDelete}
+          isProcessing={processingDelete}
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            setShowDeleteModal(false);
+            setLotToDelete(null);
+          }}
+          onSuggestDon={() => {
+            setShowDeleteModal(false);
+            setLotToDelete(null);
+            handleMakeFree(lotToDelete);
+          }}
+        />
+      )}
     </div>
   );
 };
