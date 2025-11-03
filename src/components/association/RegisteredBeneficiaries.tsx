@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
 import type { Database } from '../../lib/database.types';
-import { CheckCircle, Clock, User, Mail, Phone, MapPin, FileText, Edit2, Trash2 } from 'lucide-react';
+import { CheckCircle, Clock, User, Mail, Phone, MapPin, FileText, Edit2, Trash2, Package } from 'lucide-react';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -13,6 +13,7 @@ type Profile = Database['public']['Tables']['profiles']['Row'];
 interface BeneficiaryWithRegistration {
   registration: Registration;
   beneficiary: Profile;
+  packagesRecovered: number;
 }
 
 export function RegisteredBeneficiaries() {
@@ -43,21 +44,49 @@ export function RegisteredBeneficiaries() {
 
       if (error) throw error;
 
-      // Transformer les données
-      const formattedData = data?.map(item => ({
-        registration: {
-          id: item.id,
-          association_id: item.association_id,
-          beneficiary_id: item.beneficiary_id,
-          registration_date: item.registration_date,
-          notes: item.notes,
-          verification_document_url: item.verification_document_url,
-          is_verified: item.is_verified,
-          created_at: item.created_at,
-          updated_at: item.updated_at,
-        } as Registration,
-        beneficiary: (item as any).beneficiary as Profile,
-      })) || [];
+      // Transformer les données et charger les statistiques de récupération
+      const formattedData = await Promise.all(
+        (data || []).map(async (item) => {
+          const beneficiary = (item as any).beneficiary as Profile;
+          
+          // Récupérer le nombre de colis récupérés (réservations complétées)
+          let packagesRecovered = 0;
+          if (beneficiary.id) {
+            try {
+              const { data: completedReservations, error: resError } = await supabase
+                .from('reservations')
+                .select('quantity')
+                .eq('user_id', beneficiary.id)
+                .eq('status', 'completed');
+
+              if (!resError && completedReservations) {
+                packagesRecovered = completedReservations.reduce(
+                  (sum, r) => sum + (r.quantity || 0),
+                  0
+                );
+              }
+            } catch (error) {
+              console.error('Erreur lors du chargement des réservations:', error);
+            }
+          }
+
+          return {
+            registration: {
+              id: item.id,
+              association_id: item.association_id,
+              beneficiary_id: item.beneficiary_id,
+              registration_date: item.registration_date,
+              notes: item.notes,
+              verification_document_url: item.verification_document_url,
+              is_verified: item.is_verified,
+              created_at: item.created_at,
+              updated_at: item.updated_at,
+            } as Registration,
+            beneficiary,
+            packagesRecovered,
+          };
+        })
+      );
 
       setBeneficiaries(formattedData);
     } catch (error) {
@@ -153,7 +182,7 @@ export function RegisteredBeneficiaries() {
 
       {/* Liste des bénéficiaires */}
       <div className="grid gap-4">
-        {beneficiaries.map(({ registration, beneficiary }) => (
+        {beneficiaries.map(({ registration, beneficiary, packagesRecovered }) => (
           <div
             key={registration.id}
             className="card p-6 hover:shadow-lg transition-shadow"
@@ -189,6 +218,13 @@ export function RegisteredBeneficiaries() {
                       </span>
                     )}
                   </div>
+                </div>
+
+                {/* Statistiques de récupération - compact */}
+                <div className="flex items-center gap-2 px-2.5 py-1.5 bg-primary-50 rounded-lg border border-primary-200 w-fit">
+                  <Package size={14} className="text-primary-600" />
+                  <span className="text-xs text-primary-600 font-medium">Colis récupérés:</span>
+                  <span className="text-sm font-bold text-primary-700">{packagesRecovered || 0}</span>
                 </div>
 
                 {/* Coordonnées */}
