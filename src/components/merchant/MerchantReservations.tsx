@@ -1,11 +1,11 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { Package, User, Clock, Key, MapPin, ShoppingCart, ClipboardList } from 'lucide-react';
+import { Package, User, Clock, Key, MapPin, ShoppingCart, ClipboardList, Eye, EyeOff, Thermometer, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 
 // Imports internes
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
-import { formatCurrency, formatDateTime } from '../../utils/helpers';
+import { formatCurrency, formatDateTime, getCategoryLabel } from '../../utils/helpers';
 
 // Imports types
 import type { Database } from '../../lib/database.types';
@@ -27,6 +27,7 @@ export const MerchantReservations = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
+  const [revealedPins, setRevealedPins] = useState<Set<string>>(new Set());
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
@@ -115,6 +116,19 @@ export const MerchantReservations = () => {
     if (filter === 'all') return true;
     return reservation.status === filter;
   });
+
+  // Handler pour révéler/masquer le PIN
+  const togglePinReveal = (reservationId: string) => {
+    setRevealedPins((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(reservationId)) {
+        newSet.delete(reservationId);
+      } else {
+        newSet.add(reservationId);
+      }
+      return newSet;
+    });
+  };
 
   // Statistiques rapides
   const stats = {
@@ -256,89 +270,163 @@ export const MerchantReservations = () => {
       </div>
 
       {/* Liste des réservations compacte */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {filteredReservations.map((reservation) => {
           const statusStyles = getStatusStyles(reservation.status);
+          const isPinRevealed = revealedPins.has(reservation.id);
+
+          // Calcul du pourcentage de remise
+          const discountPercent = reservation.lots.original_price > 0
+            ? Math.round(((reservation.lots.original_price - reservation.lots.discounted_price) / reservation.lots.original_price) * 100)
+            : 0;
+
+          // Formatage des heures de retrait
+          const pickupStart = new Date(reservation.lots.pickup_start);
+          const pickupEnd = new Date(reservation.lots.pickup_end);
+          const pickupTime = `${pickupStart.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - ${pickupEnd.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
 
           return (
             <div
               key={reservation.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-primary-300 hover:shadow-lg transition-all"
+              className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-primary-300 hover:shadow-md transition-all"
             >
-              <div className={`p-4 ${statusStyles.bg}`}>
-                {/* En-tête avec statut */}
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-base font-bold text-gray-900 flex-1 pr-2 line-clamp-2">
-                    {reservation.lots.title}
-                  </h3>
-                  <span className={`px-2 py-1 rounded-lg text-[10px] font-bold border whitespace-nowrap ${statusStyles.badge}`}>
-                    {statusStyles.label}
-                  </span>
-                </div>
-
-                {/* Informations compactes */}
-                <div className="space-y-2 mb-3">
-                  <div className="flex items-center gap-2 text-xs text-gray-700">
-                    <User size={14} className="text-gray-400" />
-                    <span className="font-medium">{reservation.profiles.full_name}</span>
-                  </div>
-                  {reservation.profiles.phone && (
-                    <div className="flex items-center gap-2 text-xs text-gray-600">
-                      <MapPin size={14} className="text-gray-400" />
-                      <span>{reservation.profiles.phone}</span>
+              <div className={`p-3 ${statusStyles.bg}`}>
+                {/* Image et en-tête avec statut compact */}
+                <div className="flex gap-2 mb-2">
+                  {/* Image miniature du produit */}
+                  {reservation.lots.image_urls && reservation.lots.image_urls.length > 0 ? (
+                    <img
+                      src={reservation.lots.image_urls[0]}
+                      alt={reservation.lots.title}
+                      className="w-12 h-12 rounded-lg object-cover border border-gray-200 flex-shrink-0"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center flex-shrink-0">
+                      <ImageIcon size={16} className="text-gray-400" />
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <Clock size={14} className="text-gray-400" />
-                    <span>{formatDateTime(reservation.lots.pickup_start)}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-700">
-                    <ShoppingCart size={14} className="text-gray-400" />
-                    <span className="font-medium">Qté: {reservation.quantity}</span>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <h3 className="text-sm font-bold text-gray-900 flex-1 line-clamp-1">
+                        {reservation.lots.title}
+                      </h3>
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-bold border whitespace-nowrap flex-shrink-0 ${statusStyles.badge}`}>
+                        {statusStyles.emoji}
+                      </span>
+                    </div>
+                    
+                    {/* Catégorie et badges */}
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                      <span className="text-[10px] text-gray-600 font-medium">
+                        {getCategoryLabel(reservation.lots.category)}
+                      </span>
+                      {reservation.lots.is_urgent && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-[9px] font-bold">
+                          <AlertTriangle size={8} />
+                          Urgent
+                        </span>
+                      )}
+                      {reservation.lots.requires_cold_chain && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-bold">
+                          <Thermometer size={8} />
+                          Froid
+                        </span>
+                      )}
+                      {discountPercent > 0 && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[9px] font-bold">
+                          -{discountPercent}%
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Code PIN épuré */}
-                <div className="mb-3 p-3 bg-gray-900 rounded-lg">
-                  <div className="flex items-center gap-2 justify-center mb-1">
-                    <Key size={16} className="text-primary-400" />
-                    <span className="font-mono text-2xl font-bold text-white tracking-widest">
-                      {reservation.pickup_pin}
-                    </span>
-                  </div>
-                  <p className="text-[9px] text-center text-gray-500 uppercase tracking-wide">Code PIN</p>
+                {/* Heure de retrait */}
+                <div className="flex items-center gap-1.5 mb-2 text-xs text-gray-700 bg-gray-50 rounded-lg px-2 py-1.5 border border-gray-200">
+                  <Clock size={12} className="text-gray-400 flex-shrink-0" />
+                  <span className="font-medium">Retrait :</span>
+                  <span className="font-semibold text-gray-900">{pickupTime}</span>
                 </div>
 
-                {/* Badge don (si applicable) */}
-                {reservation.is_donation && (
-                  <div className="mb-3 p-2 bg-pink-50 rounded-lg border border-pink-200">
-                    <p className="text-xs text-pink-700 font-bold text-center flex items-center justify-center gap-1.5">
-                      <span>❤️</span>
-                      <span>Panier Solidaire</span>
-                    </p>
+                {/* Informations client compactes */}
+                <div className="space-y-1 mb-2">
+                  <div className="flex items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-1.5 text-gray-700 min-w-0 flex-1">
+                      <User size={12} className="text-gray-400 flex-shrink-0" />
+                      <span className="font-medium truncate">{reservation.profiles.full_name}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <ShoppingCart size={12} className="text-gray-400" />
+                      <span className="font-semibold">{reservation.quantity}</span>
+                    </div>
                   </div>
-                )}
+                  {reservation.profiles.phone && (
+                    <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                      <MapPin size={12} className="text-gray-400" />
+                      <span className="truncate">{reservation.profiles.phone}</span>
+                    </div>
+                  )}
+                </div>
 
-                {/* Prix total compact */}
-                <div className="pt-3 border-t border-gray-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500 font-semibold">Total</span>
-                    {reservation.total_price === 0 ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent-500 text-white rounded text-xs font-bold">
+                {/* Code PIN compact avec bouton révéler */}
+                <div className="mb-2">
+                  <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
+                    <button
+                      onClick={() => togglePinReveal(reservation.id)}
+                      className="flex items-center justify-center w-6 h-6 rounded hover:bg-gray-200 transition-colors flex-shrink-0"
+                      title={isPinRevealed ? 'Masquer le PIN' : 'Révéler le PIN'}
+                    >
+                      {isPinRevealed ? (
+                        <EyeOff size={14} className="text-gray-600" />
+                      ) : (
+                        <Eye size={14} className="text-gray-600" />
+                      )}
+                    </button>
+                    <div className="flex-1 min-w-0">
+                      {isPinRevealed ? (
+                        <div className="flex items-center gap-1.5">
+                          <Key size={12} className="text-primary-600 flex-shrink-0" />
+                          <span className="font-mono text-sm font-bold text-gray-900 tracking-wider">
+                            {reservation.pickup_pin}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-500 font-medium">Cliquez pour révéler le PIN</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Prix et badge don compact */}
+                <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                  <div className="flex items-center gap-2">
+                    {reservation.is_donation && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[9px] font-bold">
                         <span>❤️</span>
                         <span>Don</span>
                       </span>
-                    ) : (
-                      <span className="text-lg font-bold text-gray-900">
-                        {formatCurrency(reservation.total_price)}
-                      </span>
                     )}
+                    <span className="text-xs text-gray-500">
+                      {new Date(reservation.created_at).toLocaleDateString('fr-FR', { 
+                        day: '2-digit', 
+                        month: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
                   </div>
-                </div>
-
-                {/* Date de réservation */}
-                <div className="mt-2 text-[10px] text-center text-gray-400">
-                  {formatDateTime(reservation.created_at)}
+                  {reservation.total_price === 0 ? (
+                    <span className="text-xs font-bold text-gray-500">Gratuit</span>
+                  ) : (
+                    <span className="text-sm font-bold text-gray-900">
+                      {formatCurrency(reservation.total_price)}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
