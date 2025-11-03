@@ -4,6 +4,7 @@ import { useAuthStore } from '../../../stores/authStore';
 import { Header } from '../../shared/Header';
 import { Footer } from '../../shared/Footer';
 import { SEOHead } from '../../shared/SEOHead';
+import { RestaurantStickyCTA } from './RestaurantStickyCTA';
 import {
   RestaurantHeroSection,
   RestaurantProblemSection,
@@ -35,6 +36,9 @@ export const RestaurantLanding = () => {
         url="https://ecopanier.fr/restaurateurs"
       />
       <Header />
+      
+      {/* Sticky CTA flottant */}
+      <RestaurantStickyCTA />
       
       {/* 1. Hero Section - Accroche restaurateurs */}
       <RestaurantHeroSection />
