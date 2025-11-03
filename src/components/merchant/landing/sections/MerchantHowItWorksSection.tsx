@@ -1,117 +1,111 @@
 import { motion } from 'framer-motion';
-import { UserPlus, Package, Smartphone, TrendingUp, Camera, QrCode } from 'lucide-react';
+import { Camera, QrCode, Smartphone, UserPlus } from 'lucide-react';
+
+import { PageSection } from '../../../shared/layout/PageSection';
+import { SectionHeader } from '../../../shared/layout/SectionHeader';
 
 const steps = [
   {
-    step: 1,
+    step: 'Étape 1',
     title: 'Inscrivez-vous gratuitement',
-    description: 'Créez votre compte commerçant en 5 minutes. Renseignez vos informations professionnelles (SIRET, nom du commerce, adresse) et configurez votre profil.',
+    description:
+      'Renseignez vos informations professionnelles et paramétrez vos horaires de retrait. Votre profil est validé en moins de 24 heures.',
     icon: UserPlus,
-    details: ['Inscription 100% gratuite', 'Validation sous 24h', 'Pas de matériel requis', 'Configuration en quelques clics']
+    details: [
+      "Inscription en ligne, sans matériel dédié",
+      'Ajout de plusieurs points de vente possible',
+      'Paramètres de retrait personnalisables',
+    ],
   },
   {
-    step: 2,
-    title: 'Créez vos lots avec l\'IA',
-    description: 'Prenez une photo de vos invendus et l\'IA Gemini analyse automatiquement le produit pour générer titre, description, catégorie et prix estimé.',
+    step: 'Étape 2',
+    title: 'Créez vos lots avec l’IA',
+    description:
+      'Prenez une photo de vos invendus : l’IA propose un titre, une description et un prix suggéré que vous ajustez en un clic.',
     icon: Camera,
-    details: ['Analyse IA en 30 secondes', 'Extraction automatique des données', 'Niveau de confiance affiché', 'Gain de temps considérable']
+    details: [
+      'Analyse IA en 30 secondes',
+      'Bibliothèque d’images et de descriptions enregistrée',
+      'Gestion des stocks et lots récurrents',
+    ],
   },
   {
-    step: 3,
-    title: 'Les clients réservent en ligne',
-    description: 'Recevez des notifications instantanées pour chaque réservation. Les clients paient en ligne et reçoivent un QR code avec PIN pour le retrait.',
+    step: 'Étape 3',
+    title: 'Les clients réservent et paient en ligne',
+    description:
+      'Vous recevez des notifications instantanées, les paiements sont sécurisés et vos lots apparaissent automatiquement sur la carte publique.',
     icon: Smartphone,
-    details: ['Paiement sécurisé automatique', 'QR code + PIN à 6 chiffres', 'Notifications temps réel', 'Suivi des réservations']
+    details: [
+      'Paiement sécurisé et commission prélevée automatiquement',
+      'Notifications email et SMS en temps réel',
+      'Tableau de bord unifié pour suivre vos ventes',
+    ],
   },
   {
-    step: 4,
-    title: 'Validez les retraits facilement',
-    description: 'Scannez le QR code du client via la station de retrait intégrée, vérifiez le PIN et validez. Vos revenus sont versés automatiquement chaque semaine.',
+    step: 'Étape 4',
+    title: 'Validez les retraits en 30 secondes',
+    description:
+      'Scan du QR code, confirmation du PIN et remise du panier. Votre virement hebdomadaire est ensuite automatisé.',
     icon: QrCode,
-    details: ['Station de retrait intégrée', 'Validation en 30 secondes', 'Virement automatique hebdomadaire', 'Statistiques détaillées']
-  }
+    details: [
+      'Station de retrait web ou tablette',
+      'Historique des retraits et incidents',
+      'Exports comptables et rapports automatiques',
+    ],
+  },
 ];
 
 export const MerchantHowItWorksSection = () => {
   return (
-    <section className="py-32 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Comment ça marche ?
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            4 étapes simples pour valoriser vos invendus
-          </p>
-        </motion.div>
+    <PageSection background="subtle" padding="lg">
+      <div className="flex flex-col gap-10">
+        <SectionHeader
+          align="center"
+          eyebrow="Parcours commerçant"
+          title="4 étapes pour valoriser vos invendus"
+          description="Une expérience fluide du paramétrage au retrait, sans friction pour vos équipes."
+        />
 
-        <div className="space-y-16">
+        <div className="grid gap-6">
           {steps.map((step, index) => {
             const Icon = step.icon;
-            const isEven = index % 2 === 0;
-            const gradients = [
-              'from-primary-500 to-primary-600',
-              'from-success-500 to-success-600',
-              'from-warning-500 to-warning-600',
-              'from-secondary-500 to-secondary-600'
-            ];
-            
             return (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 40 }}
+                key={step.title}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-12 items-center`}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, delay: index * 0.05 }}
+                className="surface grid gap-6 rounded-2xl p-6 sm:grid-cols-[auto,1fr] sm:items-start"
               >
-                <div className="flex-1">
-                  {/* Numéro de l'étape */}
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br ${gradients[index]} text-white text-2xl font-bold mb-6 shadow-lg`}
-                  >
+                <div className="flex items-start gap-3 sm:flex-col sm:items-start">
+                  <span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-primary-600">
                     {step.step}
-                  </motion.div>
-                  
-                  <h3 className="text-3xl md:text-4xl font-bold text-black mb-4">
-                    {step.title}
-                  </h3>
-                  <p className="text-lg text-gray-600 font-light leading-relaxed mb-6">
-                    {step.description}
-                  </p>
-
-                  {/* Détails */}
+                  </span>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+                    <Icon className="h-6 w-6" />
+                  </span>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-neutral-900">{step.title}</h3>
+                    <p className="text-sm text-neutral-600">{step.description}</p>
+                  </div>
                   <ul className="space-y-2">
-                    {step.details.map((detail, idx) => (
-                      <li key={idx} className="flex items-center gap-2 text-gray-700">
-                        <div className={`w-2 h-2 rounded-full bg-gradient-to-br ${gradients[index]}`} />
-                        <span className="font-light">{detail}</span>
+                    {step.details.map((detail) => (
+                      <li key={detail} className="flex items-start gap-2 text-sm text-neutral-600">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary-500" />
+                        <span>{detail}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
-                
-                <div className="flex-1 flex items-center justify-center">
-                  <motion.div
-                    whileHover={{ scale: 1.05, rotate: -2 }}
-                    className={`w-64 h-64 rounded-3xl bg-gradient-to-br ${gradients[index]} flex items-center justify-center shadow-2xl`}
-                  >
-                    <Icon className="w-32 h-32 text-white" strokeWidth={1.5} />
-                  </motion.div>
                 </div>
               </motion.div>
             );
           })}
         </div>
       </div>
-    </section>
+    </PageSection>
   );
 };
 

@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { Header } from '../shared/Header';
 import { Footer } from '../shared/Footer';
 import { SEOHead } from '../shared/SEOHead';
-import { 
-  Search, 
-  ShoppingCart, 
-  QrCode, 
+import { PageSection } from '../shared/layout/PageSection';
+import { SectionHeader } from '../shared/layout/SectionHeader';
+import { cn } from '../../utils/cn';
+import {
+  Search,
+  ShoppingCart,
+  QrCode,
   Heart,
   UserPlus,
   Package,
@@ -17,7 +21,8 @@ import {
   Leaf,
   TrendingDown,
   Shield,
-  Zap
+  Zap,
+  ArrowRight,
 } from 'lucide-react';
 
 export const HowItWorks = () => {
@@ -25,8 +30,8 @@ export const HowItWorks = () => {
   const [activeRole, setActiveRole] = useState<'customer' | 'beneficiary'>('customer');
 
   const roles = [
-    { id: 'customer', name: 'Je suis Client', icon: ShoppingCart },
-    { id: 'beneficiary', name: 'Je suis Bénéficiaire', icon: Users },
+    { id: 'customer', name: 'Je suis client', icon: ShoppingCart },
+    { id: 'beneficiary', name: 'Je suis bénéficiaire', icon: Users },
   ];
 
   const customerSteps = [
@@ -145,32 +150,39 @@ export const HowItWorks = () => {
   const features = [
     {
       icon: Shield,
-      title: '100% Sécurisé',
-      description: 'Paiements cryptés, données protégées',
-      color: 'from-primary-500 to-primary-600',
+      title: '100% sécurisé',
+      description: 'Paiements cryptés, données protégées et vérifiées.',
+      accent: 'primary',
     },
     {
       icon: Zap,
-      title: 'Ultra-Rapide',
-      description: 'Réservation en 2 min, retrait en 30s',
-      color: 'from-warning-500 to-warning-600',
+      title: 'Ultra rapide',
+      description: 'Réservation en moins de 2 minutes, retrait en 30 secondes.',
+      accent: 'warning',
     },
     {
       icon: Leaf,
-      title: 'Éco-Responsable',
-      description: '0.9kg CO₂ évité par panier',
-      color: 'from-success-500 to-success-600',
+      title: 'Éco-responsable',
+      description: '0,9 kg de CO₂ évité par panier sauvé.',
+      accent: 'success',
     },
     {
       icon: TrendingDown,
-      title: 'Super Économique',
-      description: 'Économisez jusqu\'à 70% sur vos courses',
-      color: 'from-accent-500 to-accent-600',
+      title: 'Super économique',
+      description: 'Jusqu’à 70 % d’économies sur vos courses quotidiennes.',
+      accent: 'accent',
     },
   ];
 
+  const featureAccents: Record<string, string> = {
+    primary: 'text-primary-600 bg-primary-50',
+    warning: 'text-warning-600 bg-warning-50',
+    success: 'text-success-600 bg-success-50',
+    accent: 'text-accent-600 bg-accent-50',
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-neutral-100">
       <SEOHead
         title="Comment Ça Marche ? Simple, Rapide, Efficace | ÉcoPanier"
         description="Sauvez des paniers en 4 étapes : inscrivez-vous, explorez les invendus près de chez vous, réservez en 2 min et récupérez avec votre QR code. Rejoignez le mouvement anti-gaspi !"
@@ -179,95 +191,95 @@ export const HowItWorks = () => {
       />
       <Header />
 
-      {/* Hero */}
-      <section className="py-32 text-center bg-gray-50 bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/slide-7.png)' }}>
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="max-w-4xl mx-auto px-6 relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full font-medium mb-6 border border-white/20">
-            <Zap className="w-5 h-5" />
-            <span>Simple, Rapide, Efficace</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Votre parcours anti-gaspi
-            <br />
-            <span className="text-primary-400">en 4 étapes</span>
+      <PageSection background="muted" padding="lg">
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-600">
+            <Zap className="h-4 w-4 text-primary-500" />
+            Simple & rapide
+          </span>
+          <h1 className="text-4xl font-semibold text-neutral-900 sm:text-5xl">
+            Votre parcours anti-gaspi en quatre étapes
           </h1>
-          <p className="text-xl text-white/90 font-light max-w-2xl mx-auto">
-            De la découverte à l'impact : rejoignez des milliers de personnes qui font leurs courses autrement
+          <p className="text-lg text-neutral-600">
+            Que vous soyez client ou bénéficiaire, ÉcoPanier vous guide pas à pas pour sauver des paniers, soutenir vos commerçants et renforcer la solidarité locale.
           </p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button onClick={() => navigate('/dashboard')} className="btn-primary">
+              <span className="flex items-center gap-2">
+                Créer mon compte
+                <UserPlus className="h-4 w-4" />
+              </span>
+            </button>
+            <button onClick={() => navigate('/')} className="btn-secondary">
+              Retour à l’accueil
+            </button>
+          </div>
         </div>
-      </section>
+      </PageSection>
 
-      {/* Role selector */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center text-black mb-8">
-            Choisissez votre profil
-          </h2>
-          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+      <PageSection background="default">
+        <div className="flex flex-col gap-10">
+          <SectionHeader
+            align="center"
+            eyebrow="Choisissez votre profil"
+            title="Un parcours dédié pour chaque rôle"
+            description="Les interfaces sont adaptées à vos besoins spécifiques, tout en restant très simples à utiliser."
+          />
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:max-w-2xl lg:self-center">
             {roles.map((role) => {
               const Icon = role.icon;
+              const isActive = activeRole === role.id;
               return (
                 <button
                   key={role.id}
+                  type="button"
                   onClick={() => setActiveRole(role.id as 'customer' | 'beneficiary')}
-                  className={`p-8 rounded-2xl font-medium text-lg transition-all shadow-sm hover:shadow-lg ${
-                    activeRole === role.id
-                      ? 'bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-xl scale-105'
-                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-primary-300'
-                  }`}
-                >
-                  <Icon size={32} className="mx-auto mb-4" strokeWidth={1.5} />
-                  {role.name}
-                  {activeRole === role.id && (
-                    <div className="mt-2 text-sm text-white/80">👇 Votre parcours</div>
+                  className={cn(
+                    'surface flex flex-col items-center gap-3 rounded-2xl p-6 text-sm font-semibold transition-transform duration-200',
+                    isActive
+                      ? 'border-primary-200 bg-primary-50/80 text-primary-700 shadow-md'
+                      : 'hover:border-primary-200 hover:text-primary-700'
                   )}
+                >
+                  <Icon className="h-6 w-6" />
+                  {role.name}
                 </button>
               );
             })}
           </div>
         </div>
-      </section>
+      </PageSection>
 
-      {/* Steps */}
-      <section className="py-32 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="space-y-24">
-            {getSteps().map((step, index) => {
+      <PageSection background="subtle" padding="lg">
+        <div className="flex flex-col gap-12">
+          <SectionHeader
+            eyebrow="Étapes clés"
+            title="Comment ça marche ?"
+            description="Quatre étapes suffisent pour récupérer vos paniers ou bénéficier du programme solidaire."
+          />
+          <div className="space-y-6">
+            {getSteps().map((step) => {
               const Icon = step.icon;
-              const isEven = index % 2 === 0;
-              
               return (
-                <div
-                  key={step.number}
-                  className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-16`}
-                >
-                  {/* Icon side */}
-                  <div className="flex-1 flex items-center justify-center">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-3xl blur-2xl opacity-20 animate-pulse"></div>
-                      <div className="relative w-64 h-64 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-3xl flex items-center justify-center shadow-2xl">
-                        <Icon size={96} className="text-white" strokeWidth={1.5} />
-                      </div>
+                <div key={step.number} className="surface grid gap-6 rounded-2xl p-6 sm:grid-cols-[auto,1fr] sm:items-start">
+                  <div className="flex items-center gap-3 sm:flex-col sm:items-start">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 text-lg font-semibold text-primary-600">
+                      {step.number}
+                    </span>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+                      <Icon className="h-6 w-6" />
                     </div>
                   </div>
-
-                  {/* Content side */}
-                  <div className="flex-1">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-600 to-primary-700 text-white rounded-2xl font-bold text-2xl mb-6 shadow-lg">
-                      {step.number}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-semibold text-neutral-900">{step.title}</h3>
+                      <p className="text-sm text-neutral-600">{step.description}</p>
                     </div>
-                    <h3 className="text-3xl md:text-4xl font-bold text-black mb-4">
-                      {step.title}
-                    </h3>
-                    <p className="text-lg text-gray-600 mb-6 font-light">
-                      {step.description}
-                    </p>
-                    <ul className="space-y-3">
-                      {step.details.map((detail, idx) => (
-                        <li key={idx} className="flex items-start gap-3 group">
-                          <CheckCircle size={20} className="text-success-600 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" strokeWidth={2} />
-                          <span className="text-gray-700 font-light">{detail}</span>
+                    <ul className="space-y-2">
+                      {step.details.map((detail) => (
+                        <li key={detail} className="flex items-start gap-2 text-sm text-neutral-600">
+                          <CheckCircle className="mt-0.5 h-4 w-4 text-success-500" />
+                          <span>{detail}</span>
                         </li>
                       ))}
                     </ul>
@@ -277,93 +289,70 @@ export const HowItWorks = () => {
             })}
           </div>
         </div>
-      </section>
+      </PageSection>
 
-      {/* Features */}
-      <section className="py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-black text-center mb-4">
-            Pourquoi nous faire confiance ?
-          </h2>
-          <p className="text-xl text-gray-600 text-center mb-16 font-light">
-            Une expérience simple et sécurisée
-          </p>
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {features.map((feature, index) => {
+      <PageSection background="default">
+        <div className="flex flex-col gap-10">
+          <SectionHeader
+            align="center"
+            eyebrow="Pourquoi ÉcoPanier"
+            title="Une expérience fiable et transparente"
+            description="Nous combinons sécurité, rapidité, impact environnemental et économies concrètes."
+          />
+          <div className="grid gap-4 sm:grid-cols-2 lg:max-w-4xl lg:self-center">
+            {features.map((feature) => {
               const Icon = feature.icon;
+              const accent = featureAccents[feature.accent] ?? featureAccents.primary;
+
               return (
-                <div
-                  key={index}
-                  className="group p-8 text-center bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all"
-                >
-                  <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${feature.color} mb-4`}>
-                    <Icon size={32} className="text-white" strokeWidth={2} />
+                <div key={feature.title} className="surface space-y-3 p-6 text-center">
+                  <div className={cn('mx-auto flex h-12 w-12 items-center justify-center rounded-xl', accent)}>
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="text-xl font-bold text-black mb-2 group-hover:text-primary-600 transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 font-light">{feature.description}</p>
+                  <h3 className="text-lg font-semibold text-neutral-900">{feature.title}</h3>
+                  <p className="text-sm text-neutral-600">{feature.description}</p>
                 </div>
               );
             })}
           </div>
         </div>
-      </section>
+      </PageSection>
 
-      {/* CTA */}
-      <section className="py-32 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-success-500 rounded-full blur-3xl" />
-        </div>
-        
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-          <div className="bg-white rounded-3xl p-12 md:p-16 shadow-2xl border border-gray-100">
-            <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
-              Prêt à commencer ? 
-              <br />
-              <span className="text-primary-600">C'est gratuit et simple !</span>
-            </h2>
-            <p className="text-xl text-gray-600 mb-10 font-light max-w-2xl mx-auto">
-              Que vous soyez client ou bénéficiaire, rejoignez notre communauté 
-              qui lutte contre le gaspillage alimentaire. Votre premier panier vous attend ! 
-            </p>
-            
-            {/* Stats rapides */}
-            <div className="grid grid-cols-3 gap-6 mb-10 py-6 border-y border-gray-100">
-              <div>
-                <div className="text-3xl font-bold text-primary-600">2min</div>
-                <div className="text-sm text-gray-600">pour s'inscrire</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-success-600">-70%</div>
-                <div className="text-sm text-gray-600">d'économies max</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-warning-600">2</div>
-                <div className="text-sm text-gray-600">rôles simples</div>
-              </div>
+      <PageSection background="contrast" padding="lg">
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Prêt·e à rejoindre ÉcoPanier ?
+          </h2>
+          <p className="text-base text-neutral-100 sm:text-lg">
+            Rejoignez la communauté qui transforme les invendus en repas solidaires, tout en aidant les commerçants locaux.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-white/10 bg-white/10 p-4">
+              <p className="text-2xl font-semibold">2 min</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-neutral-100/70">Pour s’inscrire</p>
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl font-medium text-lg hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg hover:shadow-xl"
-              >
-                <span>Je crée mon compte gratuitement</span>
-                <UserPlus className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button
-                onClick={() => navigate('/')}
-                className="px-8 py-4 bg-gray-100 text-black rounded-xl font-medium text-lg hover:bg-gray-200 transition-all"
-              >
-                Retour à l'accueil
-              </button>
+            <div className="rounded-xl border border-white/10 bg-white/10 p-4">
+              <p className="text-2xl font-semibold">-70 %</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-neutral-100/70">D’économies possibles</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/10 p-4">
+              <p className="text-2xl font-semibold">5 rôles</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-neutral-100/70">Interconnectés</p>
             </div>
           </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button onClick={() => navigate('/dashboard')} className="btn-primary">
+              <span className="flex items-center gap-2">
+                Commencer maintenant
+                <ArrowRight className="h-4 w-4" />
+              </span>
+            </button>
+            <button onClick={() => navigate('/')} className="btn-secondary">
+              Explorer la plateforme
+            </button>
+          </div>
         </div>
-      </section>
+      </PageSection>
 
       <Footer />
     </div>

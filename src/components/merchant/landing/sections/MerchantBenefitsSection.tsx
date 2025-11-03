@@ -1,96 +1,85 @@
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 
+import { PageSection } from '../../../shared/layout/PageSection';
+import { SectionHeader } from '../../../shared/layout/SectionHeader';
+
 const benefits = [
   {
     title: 'Création ultra-rapide',
     items: [
-      'IA Gemini : analyse automatique en 30s',
-      'Formulaire en 5 étapes guidées',
-      'Interface mobile et desktop optimisée',
-      'Validation en temps réel'
-    ]
+      'IA Gemini : analyse automatique en 30 secondes',
+      'Formulaire guidé optimisé mobile & desktop',
+      'Prévisualisation immédiate du lot',
+      'Contrôle qualité avant publication',
+    ],
   },
   {
     title: 'Gestion simplifiée',
     items: [
-      'Station de retrait intégrée',
-      'QR code + PIN pour validation',
-      'Notifications temps réel',
-      'Suivi des réservations en direct'
-    ]
+      'Station de retrait intégrée avec QR + PIN',
+      'Notifications temps réel pour chaque commande',
+      'Vue calendrier des lots à préparer',
+      'Rapports quotidiens envoyés par email',
+    ],
   },
   {
-    title: 'Modèle économique transparent',
+    title: 'Modèle transparent',
     items: [
-      'Inscription 100% gratuite',
-      'Commission unique de 15%',
-      'Virement automatique hebdomadaire',
-      'Aucun frais caché ni abonnement'
-    ]
+      "Inscription 100 % gratuite, sans abonnement",
+      'Commission unique de 15 %',
+      'Virements automatiques hebdomadaires',
+      'Factures et exports comptables disponibles',
+    ],
   },
   {
-    title: 'Impact et visibilité',
+    title: 'Impact & visibilité',
     items: [
-      'Profil visible sur la carte interactive',
-      'Statistiques d\'impact environnemental',
-      'Participation à la solidarité alimentaire',
-      'Communication sur votre engagement'
-    ]
-  }
+      'Profil mis en avant sur la carte interactive',
+      'Statistiques d’impact environnemental détaillées',
+      'Participation au programme solidaire local',
+      'Kit communication prêt à l’emploi',
+    ],
+  },
 ];
 
 export const MerchantBenefitsSection = () => {
   return (
-    <section className="py-32 bg-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Des avantages concrets pour votre commerce
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            Tout ce dont vous avez besoin pour réussir sur ÉcoPanier
-          </p>
-        </motion.div>
+    <PageSection background="default">
+      <div className="flex flex-col gap-10">
+        <SectionHeader
+          align="center"
+          eyebrow="Fonctionnalités clés"
+          title="Tout ce dont vous avez besoin pour réussir"
+          description="Des outils simples pour gagner du temps, sécuriser vos ventes et piloter votre impact."
+        />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {benefits.map((benefit, index) => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {benefits.map((benefit) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
+              key={benefit.title}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group"
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5 }}
+              className="surface h-full space-y-5 p-6"
             >
-              <div className="h-full bg-gray-50 rounded-2xl p-8 hover:bg-secondary-50 transition-all">
-                <h3 className="text-xl font-bold text-black mb-6 group-hover:text-secondary-600 transition-colors">
-                  {benefit.title}
-                </h3>
-                <ul className="space-y-4">
-                  {benefit.items.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-success-100 flex items-center justify-center mt-0.5">
-                        <Check className="w-3 h-3 text-success-600" strokeWidth={3} />
-                      </div>
-                      <span className="text-gray-700 font-light text-sm leading-relaxed">
-                        {item}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <h3 className="text-base font-semibold text-neutral-900">{benefit.title}</h3>
+              <ul className="space-y-3">
+                {benefit.items.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm text-neutral-600">
+                    <span className="mt-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-success-100 text-success-600">
+                      <Check className="h-3 w-3" />
+                    </span>
+                    <span className="leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </motion.div>
           ))}
         </div>
       </div>
-    </section>
+    </PageSection>
   );
 };
 

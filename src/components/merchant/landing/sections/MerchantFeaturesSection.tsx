@@ -1,110 +1,88 @@
 import { motion } from 'framer-motion';
-import { BarChart3, Camera, Smartphone, Clock, Bell, Shield, MapPin, Download, Brain, QrCode } from 'lucide-react';
+import { BarChart3, Bell, Brain, Camera, Download, MapPin, QrCode, Shield } from 'lucide-react';
+
+import { PageSection } from '../../../shared/layout/PageSection';
+import { SectionHeader } from '../../../shared/layout/SectionHeader';
 
 const features = [
   {
     icon: Brain,
     title: 'IA Gemini intégrée',
-    description: 'Analyse automatique de vos photos pour extraire titre, description, catégorie et prix estimé avec un niveau de confiance.',
-    color: 'from-secondary-500 to-purple-600'
+    description: 'Analyse automatique des photos et suggestions intelligentes pour gagner un temps précieux sur chaque lot.',
   },
   {
     icon: Camera,
-    title: 'Création en 5 étapes',
-    description: 'Formulaire progressif guidé : IA → Infos → Prix → Horaires → Options. Interface intuitive et rapide.',
-    color: 'from-primary-500 to-primary-600'
+    title: 'Création guidée',
+    description: 'Workflow en cinq étapes, accessible sur mobile, avec sauvegarde des brouillons et duplication des lots.',
   },
   {
     icon: QrCode,
     title: 'Station de retrait',
-    description: 'Scanner QR code intégré avec validation PIN. Interface dédiée pour valider les retraits en 30 secondes.',
-    color: 'from-success-500 to-success-600'
+    description: 'Validation QR + PIN, historique des retraits et gestion simple des incidents depuis votre tablette.',
   },
   {
     icon: BarChart3,
-    title: 'Statistiques avancées',
-    description: 'Dashboard complet : lots créés, CA généré, articles vendus, impact environnemental et tendances.',
-    color: 'from-warning-500 to-warning-600'
+    title: 'Statistiques en temps réel',
+    description: 'Suivez votre chiffre d’affaires, vos économies anti-gaspi et l’impact CO₂ évité, jour après jour.',
   },
   {
     icon: Bell,
     title: 'Notifications temps réel',
-    description: 'Alertes instantanées pour chaque réservation, changement de statut et activité sur vos lots.',
-    color: 'from-accent-500 to-pink-600'
+    description: 'Alertes email et SMS pour chaque réservation, annulation ou retrait à préparer.',
   },
   {
     icon: Shield,
     title: 'Paiements sécurisés',
-    description: 'Clients paient en ligne, vous recevez vos revenus automatiquement chaque semaine. Commission transparente.',
-    color: 'from-primary-500 to-primary-600'
+    description: 'Transactions gérées par un PSP certifié, virements automatiques hebdomadaires et factures disponibles.',
   },
   {
     icon: MapPin,
-    title: 'Géolocalisation',
-    description: 'Votre commerce visible sur la carte interactive pour attirer les clients à proximité.',
-    color: 'from-success-500 to-success-600'
+    title: 'Visibilité locale',
+    description: 'Votre commerce mis en avant sur la carte ÉcoPanier et dans les recherches par quartier.',
   },
   {
     icon: Download,
-    title: 'Export de données',
-    description: 'Exportez vos statistiques et rapports en CSV/JSON pour votre comptabilité et analyses.',
-    color: 'from-secondary-500 to-purple-600'
-  }
+    title: 'Exports & conformité',
+    description: 'Exports CSV/JSON, justificatifs comptables, journal des actions et conformité RGPD intégrée.',
+  },
 ];
 
 export const MerchantFeaturesSection = () => {
   return (
-    <section className="py-32 bg-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Tous les outils pour réussir
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            Une plateforme complète pensée pour simplifier votre quotidien
-          </p>
-        </motion.div>
+    <PageSection background="default">
+      <div className="flex flex-col gap-10">
+        <SectionHeader
+          align="center"
+          eyebrow="Plateforme complète"
+          title="Les outils qui simplifient votre quotidien"
+          description="Chaque module est co-construit avec des commerçants pour répondre à leurs enjeux terrain."
+        />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((feature, index) => {
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
+                key={feature.title}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
-                className="group"
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5 }}
+                className="surface h-full space-y-4 p-6"
               >
-                <div className="relative h-full p-8 bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all">
-                  {/* Icône avec dégradé */}
-                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.color} mb-6`}>
-                    <Icon className="w-7 h-7 text-white" strokeWidth={2} />
-                  </div>
-                  
-                  <h3 className="text-xl font-semibold text-black mb-3 group-hover:text-secondary-600 transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 font-light leading-relaxed text-sm">
-                    {feature.description}
-                  </p>
-
-                  {/* Effet de brillance au hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-secondary-50/0 group-hover:to-secondary-50/20 rounded-2xl transition-all pointer-events-none" />
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold text-neutral-900">{feature.title}</h3>
+                  <p className="text-sm text-neutral-600">{feature.description}</p>
                 </div>
               </motion.div>
             );
           })}
         </div>
       </div>
-    </section>
+    </PageSection>
   );
 };
 

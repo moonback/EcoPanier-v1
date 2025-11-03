@@ -30,7 +30,7 @@ export const MerchantLanding = () => {
   }, [initialized, user, profile, navigate]);
 
   return (
-    <div className="min-h-screen bg-white overflow-hidden">
+    <div className="min-h-screen bg-neutral-100">
       <SEOHead
         title="Commerçants - Valorisez vos invendus | ÉcoPanier"
         description="Transformez vos invendus en revenus. Rejoignez ÉcoPanier et valorisez vos produits tout en participant à la lutte contre le gaspillage alimentaire et la solidarité locale."

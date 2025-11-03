@@ -37,59 +37,58 @@ export const Header = () => {
         }`}
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-            {/* Logo */}
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-3 rounded-lg focus-visible:ring-2 focus-visible:ring-primary-300"
-            >
-              <img
-                src="/logo.png"
-                alt="Logo EcoPanier"
-                className="h-10 w-auto object-contain"
-              />
-            </button>
+          {/* Logo */}
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-3 rounded-lg focus-visible:ring-2 focus-visible:ring-primary-300"
+          >
+            <img
+              src="/logo.png"
+              alt="Logo EcoPanier"
+              className="h-10 w-auto object-contain"
+            />
+          </button>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden items-center gap-6 lg:flex">
-              {navLinks.map((link) => (
-                <button
-                  key={link.path}
-                  onClick={() => navigate(link.path)}
-                  className="text-sm font-medium text-neutral-600 transition-colors hover:text-neutral-900"
-                >
-                  {link.name}
-                </button>
-              ))}
-            </nav>
-
-            {/* CTA Buttons Desktop */}
-            <div className="hidden items-center gap-3 lg:flex">
+          {/* Desktop Navigation */}
+          <nav className="hidden items-center gap-6 lg:flex">
+            {navLinks.map((link) => (
               <button
-                onClick={() => navigate('/login')}
+                key={link.path}
+                onClick={() => navigate(link.path)}
                 className="text-sm font-medium text-neutral-600 transition-colors hover:text-neutral-900"
               >
-                Connexion
+                {link.name}
               </button>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="btn-primary"
-              >
-                S'inscrire
-              </button>
-            </div>
+            ))}
+          </nav>
 
-            {/* Mobile Menu Button */}
+          {/* CTA Buttons Desktop */}
+          <div className="hidden items-center gap-3 lg:flex">
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100 lg:hidden"
+              onClick={() => navigate('/login')}
+              className="text-sm font-medium text-neutral-600 transition-colors hover:text-neutral-900"
             >
-              {mobileMenuOpen ? (
-                <X size={24} />
-              ) : (
-                <Menu size={24} />
-              )}
+              Connexion
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="btn-primary"
+            >
+              S'inscrire
             </button>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100 lg:hidden"
+          >
+            {mobileMenuOpen ? (
+              <X size={24} />
+            ) : (
+              <Menu size={24} />
+            )}
+          </button>
         </div>
 
       </header>

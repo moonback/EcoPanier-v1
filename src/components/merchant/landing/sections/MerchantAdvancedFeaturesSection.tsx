@@ -1,130 +1,105 @@
 import { motion } from 'framer-motion';
-import { Brain, Trash2, BarChart3, Shield, Download } from 'lucide-react';
+import { BarChart3, Brain, Download, Shield, Trash2 } from 'lucide-react';
 
-const advancedFeatures = [
+import { PageSection } from '../../../shared/layout/PageSection';
+import { SectionHeader } from '../../../shared/layout/SectionHeader';
+
+const advancedModules = [
   {
     icon: Brain,
     title: 'IA Gemini 2.0 Flash',
-    description: 'Analyse automatique de vos photos d\'invendus pour extraire toutes les informations nécessaires.',
+    description: 'Reconnaissance automatique des produits, génération de fiches complètes et estimation de prix basée sur l’historique.',
     details: [
-      'Reconnaissance automatique des produits',
-      'Extraction du titre et description',
-      'Détection de la catégorie',
-      'Estimation du prix avec niveau de confiance'
+      'Propositions éditables en un clic',
+      'Suggestion de lots récurrents',
+      'Suivi du taux de conformité IA',
     ],
-    color: 'from-secondary-500 to-purple-600'
   },
   {
     icon: Trash2,
     title: 'Nettoyage automatique',
-    description: 'Suppression automatique des lots expirés et obsolètes pour maintenir votre espace propre.',
+    description: 'Archivage des lots expirés, alertes sur les stocks restants et suppression automatique des contenus obsolètes.',
     details: [
-      'Lots épuisés après 24h',
-      'Lots avec date de retrait dépassée',
-      'Archivage des statistiques',
-      'Notification des suppressions'
+      'Rappels avant expiration des créneaux',
+      'Archivage sécurisé des statistiques',
+      'Notifications hebdomadaires de synthèse',
     ],
-    color: 'from-warning-500 to-warning-600'
   },
   {
     icon: BarChart3,
     title: 'Analytics avancés',
-    description: 'Tableaux de bord complets avec métriques détaillées et tendances sur 6 mois.',
+    description: 'Tableaux de bord multi-indicateurs pour comprendre vos performances et optimiser vos horaires de retrait.',
     details: [
-      'Évolution des ventes mensuelles',
-      'Catégories les plus vendues',
-      'Heures de retrait préférées',
-      'Impact environnemental (CO₂ évité)'
+      'Tendances sur 6 mois',
+      'Comparaison par catégorie',
+      'Impact CO₂ et repas sauvés',
     ],
-    color: 'from-success-500 to-success-600'
   },
   {
     icon: Shield,
-    title: 'Sécurité RGPD',
-    description: 'Conformité totale avec le RGPD et sécurité des données garantie.',
+    title: 'Sécurité & conformité',
+    description: 'Gestion des consentements bénéficiaires, audit des actions et conformité RGPD vérifiée par un tiers.',
     details: [
       'Chiffrement des données sensibles',
-      'Consentement explicite des utilisateurs',
-      'Droit à l\'oubli respecté',
-      'Audit de sécurité régulier'
+      'Journal d’audit exportable',
+      'Droit à l’oubli simplifié',
     ],
-    color: 'from-accent-500 to-pink-600'
   },
   {
     icon: Download,
-    title: 'Export complet',
-    description: 'Exportez toutes vos données en CSV ou JSON pour votre comptabilité et analyses.',
+    title: 'Exports complets',
+    description: 'Accédez à toutes vos données au format CSV/JSON pour votre comptabilité et vos reporting internes.',
     details: [
-      'Statistiques de vente détaillées',
-      'Historique des réservations',
-      'Données d\'impact environnemental',
-      'Rapports personnalisables'
+      'Exports planifiables par email',
+      'Historique des réservations détaillé',
+      'Intégration facile avec Excel ou BI',
     ],
-    color: 'from-secondary-500 to-purple-600'
-  }
+  },
 ];
 
 export const MerchantAdvancedFeaturesSection = () => {
   return (
-    <section className="py-32 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold text-black mb-6 tracking-tight">
-            Fonctionnalités avancées
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
-            Des outils professionnels pour optimiser votre gestion des invendus
-          </p>
-        </motion.div>
+    <PageSection background="subtle" padding="lg">
+      <div className="flex flex-col gap-10">
+        <SectionHeader
+          align="center"
+          eyebrow="Fonctionnalités avancées"
+          title="Des outils professionnels pour aller plus loin"
+          description="Pensés pour les enseignes multi-sites comme pour les artisans indépendants."
+        />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {advancedFeatures.map((feature, index) => {
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {advancedModules.map((feature) => {
             const Icon = feature.icon;
             return (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
+                key={feature.title}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group"
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5 }}
+                className="surface h-full space-y-4 p-6"
               >
-                <div className="h-full bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all">
-                  {/* Icône avec dégradé */}
-                  <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${feature.color} mb-6`}>
-                    <Icon className="w-8 h-8 text-white" strokeWidth={2} />
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-black mb-4 group-hover:text-secondary-600 transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 font-light leading-relaxed mb-6">
-                    {feature.description}
-                  </p>
-
-                  {/* Détails */}
-                  <ul className="space-y-3">
-                    {feature.details.map((detail, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <div className={`flex-shrink-0 w-2 h-2 rounded-full bg-gradient-to-br ${feature.color} mt-2`} />
-                        <span className="text-gray-700 font-light text-sm leading-relaxed">
-                          {detail}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold text-neutral-900">{feature.title}</h3>
+                  <p className="text-sm text-neutral-600">{feature.description}</p>
                 </div>
+                <ul className="space-y-2 text-sm text-neutral-600">
+                  {feature.details.map((detail) => (
+                    <li key={detail} className="flex items-start gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary-500" />
+                      <span>{detail}</span>
+                    </li>
+                  ))}
+                </ul>
               </motion.div>
             );
           })}
         </div>
       </div>
-    </section>
+    </PageSection>
   );
 };
