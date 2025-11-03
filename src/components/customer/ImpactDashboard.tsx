@@ -122,7 +122,7 @@ export const ImpactDashboard = () => {
             <h2 className="text-2xl font-bold text-black">
               Votre Impact Environnemental
             </h2>
-            <p className="text-sm text-gray-600">Chaque geste compte pour la planète ! 🌍</p>
+            <p className="text-sm text-gray-600">Calculs basés sur des données scientifiques crédibles 🌍</p>
           </div>
         </div>
 
@@ -211,6 +211,20 @@ export const ImpactDashboard = () => {
                 </li>
               </ul>
             </div>
+          </div>
+
+          {/* Sources scientifiques */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <h5 className="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <span>📚</span>
+              <span>Sources scientifiques</span>
+            </h5>
+            <ul className="text-[10px] text-gray-600 space-y-1">
+              <li>• <strong>CO₂ :</strong> ADEME (2024) - 0.9 kg CO₂ par repas gaspillé évité</li>
+              <li>• <strong>Eau :</strong> FAO - 50 litres d'eau par repas sauvé</li>
+              <li>• <strong>Énergie :</strong> WWF - 0.5 kWh par repas (production, transport, stockage)</li>
+              <li>• <strong>Arbres :</strong> ONF - 1 arbre mature absorbe ~22 kg CO₂/an</li>
+            </ul>
           </div>
         </div>
       </div>
