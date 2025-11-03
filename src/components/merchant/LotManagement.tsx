@@ -20,9 +20,11 @@ import { CheckSquare, Square, Trash2, Gift } from 'lucide-react';
 interface LotManagementProps {
   onCreateLotClick?: (handler: () => void) => void;
   onMakeAllFreeClick?: (handler: () => void, count: number) => void;
+  onSelectionModeClick?: (handler: () => void) => void;
+  onSelectionModeChange?: (isActive: boolean) => void;
 }
 
-export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManagementProps = {}) => {
+export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectionModeClick, onSelectionModeChange }: LotManagementProps = {}) => {
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -73,6 +75,21 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lots, onMakeAllFreeClick]);
+
+  // Enregistrer le handler pour le mode sélection depuis le header
+  useEffect(() => {
+    if (onSelectionModeClick) {
+      onSelectionModeClick(toggleSelectionMode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onSelectionModeClick]);
+
+  // Notifier le parent des changements du mode sélection
+  useEffect(() => {
+    if (onSelectionModeChange) {
+      onSelectionModeChange(selectionMode);
+    }
+  }, [selectionMode, onSelectionModeChange]);
 
   // Nettoyage automatique des lots épuisés depuis plus de 24h
   const cleanupOldSoldOutLots = useCallback(async (lots: Lot[]) => {
@@ -367,10 +384,16 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
 
   // Activer/désactiver le mode sélection
   const toggleSelectionMode = () => {
-    setSelectionMode((prev) => !prev);
-    if (selectionMode) {
-      setSelectedLotIds(new Set());
-    }
+    setSelectionMode((prev) => {
+      const newMode = !prev;
+      if (onSelectionModeChange) {
+        onSelectionModeChange(newMode);
+      }
+      if (!newMode) {
+        setSelectedLotIds(new Set());
+      }
+      return newMode;
+    });
   };
 
   // Sélectionner/désélectionner tous les lots
@@ -570,41 +593,18 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick }: LotManag
     <div>
       {/* Barre d'actions avec sélection */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        {/* Mode sélection */}
-        <div className="flex items-center gap-3">
+        {/* Bouton "Tout sélectionner" quand en mode sélection */}
+        {selectionMode && lots.length > 0 && (
           <button
-            onClick={toggleSelectionMode}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              selectionMode
-                ? 'bg-primary-600 text-white hover:bg-primary-700'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            onClick={handleSelectAll}
+            className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all text-sm font-medium"
           >
-            {selectionMode ? (
-              <>
-                <CheckSquare className="w-5 h-5" strokeWidth={2} />
-                <span className="font-medium">Mode sélection</span>
-              </>
-            ) : (
-              <>
-                <Square className="w-5 h-5" strokeWidth={2} />
-                <span className="font-medium">Sélectionner</span>
-              </>
-            )}
+            {selectedLotIds.size === lots.length ? 'Tout désélectionner' : 'Tout sélectionner'}
           </button>
-
-          {selectionMode && lots.length > 0 && (
-            <button
-              onClick={handleSelectAll}
-              className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all text-sm font-medium"
-            >
-              {selectedLotIds.size === lots.length ? 'Tout désélectionner' : 'Tout sélectionner'}
-            </button>
-          )}
-        </div>
+        )}
 
         {/* Bouton pour masquer/afficher les épuisés */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-auto">
           {soldOutCount > 0 && (
             <button
               onClick={() => setHideSoldOut(!hideSoldOut)}

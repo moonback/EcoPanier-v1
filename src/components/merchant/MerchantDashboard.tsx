@@ -1,6 +1,6 @@
 // Imports externes
 import { useState } from 'react';
-import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2, Gift } from 'lucide-react';
+import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2, Gift, CheckSquare, Square } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -25,6 +25,8 @@ export const MerchantDashboard = () => {
   const [activeTab, setActiveTab] = useState<TabId>('lots');
   const [createLotHandler, setCreateLotHandler] = useState<(() => void) | null>(null);
   const [makeAllFreeHandler, setMakeAllFreeHandler] = useState<(() => void) | null>(null);
+  const [selectionModeHandler, setSelectionModeHandler] = useState<(() => void) | null>(null);
+  const [isSelectionModeActive, setIsSelectionModeActive] = useState(false);
   const [eligibleLotsCount, setEligibleLotsCount] = useState(0);
   const [isGeneratingLots, setIsGeneratingLots] = useState(false);
 
@@ -130,6 +132,25 @@ export const MerchantDashboard = () => {
             variant: 'secondary',
             mobileLabel: 'Station',
           },
+          ...(selectionModeHandler ? [{
+            label: isSelectionModeActive ? 'Mode sélection' : 'Sélectionner',
+            icon: isSelectionModeActive ? CheckSquare : Square,
+            onClick: () => {
+              // Basculer vers l'onglet "lots" si nécessaire
+              if (activeTab !== 'lots') {
+                setActiveTab('lots');
+                setTimeout(() => {
+                  if (selectionModeHandler) {
+                    selectionModeHandler();
+                  }
+                }, 100);
+              } else if (selectionModeHandler) {
+                selectionModeHandler();
+              }
+            },
+            variant: (isSelectionModeActive ? 'primary' : 'secondary') as const,
+            mobileLabel: isSelectionModeActive ? 'Mode' : 'Sélectionner',
+          }] : []),
           ...(eligibleLotsCount > 0 && makeAllFreeHandler ? [{
             label: `Tout passer en don (${eligibleLotsCount})`,
             icon: Gift,
@@ -161,6 +182,8 @@ export const MerchantDashboard = () => {
               setMakeAllFreeHandler(() => handler);
               setEligibleLotsCount(count);
             }}
+            onSelectionModeClick={(handler) => setSelectionModeHandler(() => handler)}
+            onSelectionModeChange={(isActive) => setIsSelectionModeActive(isActive)}
           />
         )}
         {activeTab === 'reservations' && <MerchantReservations />}
