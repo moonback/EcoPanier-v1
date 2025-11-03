@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Leaf, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, Sparkles, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { PageSection } from '../../shared/layout/PageSection';
@@ -9,15 +9,7 @@ const heroHighlights = [
     icon: Sparkles,
     label: 'Plateforme solidaire anti-gaspi',
   },
-  {
-    icon: Users,
-    label: '5 rôles connectés en temps réel',
-  },
-  {
-    icon: Leaf,
-    label: '0,9 kg de CO₂ évité par panier sauvé',
-  },
-];
+  ];
 
 const heroStats = [
   { value: '-70%', label: 'd’économies en moyenne' },
