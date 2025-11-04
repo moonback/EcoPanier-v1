@@ -479,87 +479,176 @@ export const PickupStation = () => {
 
       {/* Contenu principal */}
       {!reservation && reservations.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center p-4 relative z-10">
+        <div className="flex-1 flex items-center justify-center p-6 relative z-10">
           <div className="w-full max-w-7xl">
-            <div className="text-center mb-8">
-              
-              
-            </div>
+            
 
-            {/* Layout 2 colonnes */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Colonne gauche - Scanner */}
+            {/* Layout 2 colonnes modernisé */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Colonne gauche - Scanner avec effet glassmorphism */}
               <div className="flex flex-col">
-                <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-lg">
-                  <div className="text-center mb-4">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Scanner QR Code</h3>
-                    <p className="text-gray-600">Activez la caméra pour scanner le code du client</p>
-                  </div>
+                <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white/50 shadow-2xl overflow-hidden group hover:shadow-3xl transition-all duration-500">
+                  {/* Effet de brillance */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary-400/10 via-transparent to-secondary-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   
-                  <button
-                    onClick={() => setScannerActive(true)}
-                    disabled={loading}
-                    className="group w-full py-8 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 text-white rounded-xl hover:from-primary-700 hover:via-primary-800 hover:to-secondary-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-                  >
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                        <Scan size={40} className="text-white" strokeWidth={2.5} />
+                  <div className="relative z-10">
+                    <div className="text-center mb-6">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-100 to-secondary-100 rounded-full mb-4">
+                        <div className="w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-bold text-primary-700">Étape 1</span>
                       </div>
-                      <div className="text-center">
-                        <span className="text-xl font-bold block mb-1">Activer le Scanner</span>
-                        <span className="text-sm text-white/90 font-medium">Cliquez pour démarrer</span>
-                      </div>
+                      <h3 className="text-3xl font-black text-gray-900 mb-3">Scanner QR Code</h3>
+                      <p className="text-gray-600 font-medium leading-relaxed">
+                        Activez la caméra pour identifier instantanément la réservation
+                      </p>
                     </div>
-                  </button>
-                  
-                  
+                    
+                    <button
+                      onClick={() => setScannerActive(true)}
+                      disabled={loading}
+                      className="group/btn relative w-full py-10 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 text-white rounded-2xl hover:from-primary-700 hover:via-primary-800 hover:to-secondary-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl hover:shadow-3xl overflow-hidden transform hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      {/* Effet de particules */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000"></div>
+                      
+                      <div className="relative flex flex-col items-center gap-5">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-white/30 rounded-2xl blur-xl animate-pulse"></div>
+                          <div className="relative w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover/btn:scale-110 group-hover/btn:rotate-3 transition-all duration-300 shadow-2xl">
+                            <Scan size={48} className="text-white drop-shadow-lg" strokeWidth={2.5} />
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <span className="text-2xl font-black block mb-2 drop-shadow-md">Activer le Scanner</span>
+                          <span className="text-sm text-white/90 font-semibold flex items-center justify-center gap-2">
+                            <Sparkles size={14} />
+                            Cliquez pour démarrer
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                    
+                    {/* Statistiques rapides */}
+                    {todayStats && todayStats.total > 0 && (
+                      <div className="mt-6 p-4 bg-gradient-to-r from-success-50 to-emerald-50 rounded-2xl border border-success-200">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-success-500 rounded-xl flex items-center justify-center shadow-lg">
+                              <CheckCircle size={20} className="text-white" strokeWidth={2.5} />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-600 font-semibold uppercase">Aujourd'hui</p>
+                              <p className="text-lg font-black text-success-700">{todayStats.completed} retraits validés</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-3xl font-black text-success-600">
+                              {Math.round((todayStats.completed / todayStats.total) * 100)}%
+                            </div>
+                            <p className="text-xs text-gray-600 font-semibold">Taux de succès</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Colonne droite - Instructions et étapes */}
-              <div className="flex flex-col gap-4">
-                <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-lg">
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Processus de Retrait</h3>
-                    <p className="text-gray-600">Suivez ces étapes pour valider le retrait</p>
+              {/* Colonne droite - Instructions modernisées */}
+              <div className="flex flex-col gap-5">
+                <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white/50 shadow-2xl overflow-hidden">
+                  <div className="text-center mb-8">
+                    {/* <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full mb-4">
+                      <Sparkles size={14} className="text-purple-600" />
+                      <span className="text-sm font-bold text-purple-700">Guide Rapide</span>
+                    </div> */}
+                    <h3 className="text-3xl font-black text-gray-900 mb-3">Processus de Retrait</h3>
+                    <p className="text-gray-600 font-medium">3 étapes simples pour valider le retrait</p>
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl border border-primary-200 hover:shadow-md transition-all">
-                      <div className="w-12 h-12 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <Scan size={20} className="text-white" strokeWidth={2.5} />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-lg font-bold text-gray-900 mb-1">1. Scanner le QR Code</h4>
-                        <p className="text-sm text-gray-600 font-medium">Le client présente son QR code de réservation</p>
-                        <div className="mt-2 text-xs text-primary-700 font-medium">✓ Validation automatique de la commande</div>
+                    {/* Étape 1 - Design moderne */}
+                    <div className="group/step relative bg-gradient-to-br from-primary-50 via-white to-primary-50/50 rounded-2xl p-5 border-2 border-primary-200 hover:border-primary-400 hover:shadow-xl transition-all duration-300 overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full blur-3xl group-hover/step:bg-primary-300/40 transition-all duration-500"></div>
+                      
+                      <div className="relative flex items-start gap-4">
+                        <div className="relative flex-shrink-0">
+                          <div className="absolute inset-0 bg-primary-400 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
+                          <div className="relative w-14 h-14 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 rounded-2xl flex items-center justify-center shadow-xl group-hover/step:scale-110 group-hover/step:-rotate-6 transition-all duration-300">
+                            <Scan size={24} className="text-white" strokeWidth={2.5} />
+                          </div>
+                        </div>
+                        <div className="flex-1 pt-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-2 py-0.5 bg-primary-600 text-white text-xs font-black rounded-md">1</span>
+                            <h4 className="text-xl font-black text-gray-900">Scanner le QR Code</h4>
+                          </div>
+                          <p className="text-sm text-gray-700 font-medium mb-3 leading-relaxed">
+                            Le client présente son QR code de réservation depuis son téléphone
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-primary-700 font-bold">
+                            <CheckCircle size={14} strokeWidth={2.5} />
+                            <span>Validation automatique instantanée</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-warning-50 to-warning-100 rounded-xl border border-warning-200 hover:shadow-md transition-all">
-                      <div className="w-12 h-12 bg-gradient-to-br from-warning-600 to-warning-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <Lock size={20} className="text-white" strokeWidth={2.5} />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-lg font-bold text-gray-900 mb-1">2. Vérifier le Code PIN</h4>
-                        <p className="text-sm text-gray-600 font-medium">Code PIN à 6 chiffres fourni par le client</p>
-                        <div className="mt-2 text-xs text-warning-700 font-medium">🔒 Sécurité renforcée</div>
+                    {/* Étape 2 - Design moderne */}
+                    <div className="group/step relative bg-gradient-to-br from-warning-50 via-white to-orange-50/50 rounded-2xl p-5 border-2 border-warning-200 hover:border-warning-400 hover:shadow-xl transition-all duration-300 overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-warning-200/30 rounded-full blur-3xl group-hover/step:bg-warning-300/40 transition-all duration-500"></div>
+                      
+                      <div className="relative flex items-start gap-4">
+                        <div className="relative flex-shrink-0">
+                          <div className="absolute inset-0 bg-warning-400 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
+                          <div className="relative w-14 h-14 bg-gradient-to-br from-warning-600 via-orange-600 to-warning-800 rounded-2xl flex items-center justify-center shadow-xl group-hover/step:scale-110 group-hover/step:-rotate-6 transition-all duration-300">
+                            <Lock size={24} className="text-white" strokeWidth={2.5} />
+                          </div>
+                        </div>
+                        <div className="flex-1 pt-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-2 py-0.5 bg-warning-600 text-white text-xs font-black rounded-md">2</span>
+                            <h4 className="text-xl font-black text-gray-900">Vérifier le Code PIN</h4>
+                          </div>
+                          <p className="text-sm text-gray-700 font-medium mb-3 leading-relaxed">
+                            Saisissez le code PIN à 6 chiffres fourni par le client
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-warning-700 font-bold">
+                            <Lock size={14} strokeWidth={2.5} />
+                            <span>Double authentification sécurisée</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-success-50 to-success-100 rounded-xl border border-success-200 hover:shadow-md transition-all">
-                      <div className="w-12 h-12 bg-gradient-to-br from-success-600 to-success-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                        <CheckCircle size={20} className="text-white" strokeWidth={2.5} />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-lg font-bold text-gray-900 mb-1">3. Remettre le Panier</h4>
-                        <p className="text-sm text-gray-600 font-medium">Validation finale et remise au client</p>
-                        <div className="mt-2 text-xs text-success-700 font-medium">🎉 Transaction terminée</div>
+                    {/* Étape 3 - Design moderne */}
+                    <div className="group/step relative bg-gradient-to-br from-success-50 via-white to-emerald-50/50 rounded-2xl p-5 border-2 border-success-200 hover:border-success-400 hover:shadow-xl transition-all duration-300 overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-success-200/30 rounded-full blur-3xl group-hover/step:bg-success-300/40 transition-all duration-500"></div>
+                      
+                      <div className="relative flex items-start gap-4">
+                        <div className="relative flex-shrink-0">
+                          <div className="absolute inset-0 bg-success-400 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
+                          <div className="relative w-14 h-14 bg-gradient-to-br from-success-600 via-emerald-600 to-success-800 rounded-2xl flex items-center justify-center shadow-xl group-hover/step:scale-110 group-hover/step:-rotate-6 transition-all duration-300">
+                            <CheckCircle size={24} className="text-white" strokeWidth={2.5} />
+                          </div>
+                        </div>
+                        <div className="flex-1 pt-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-2 py-0.5 bg-success-600 text-white text-xs font-black rounded-md">3</span>
+                            <h4 className="text-xl font-black text-gray-900">Remettre le Panier</h4>
+                          </div>
+                          <p className="text-sm text-gray-700 font-medium mb-3 leading-relaxed">
+                            Validation finale et remise du panier au client satisfait
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-success-700 font-bold">
+                            <Heart size={14} strokeWidth={2.5} className="fill-current" />
+                            <span>Transaction anti-gaspi réussie !</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
