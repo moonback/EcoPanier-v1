@@ -16,7 +16,9 @@ import {
   Clock,
   Euro,
   Heart,
-  Sparkles
+  Sparkles,
+  Layers,
+  Check
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -43,10 +45,13 @@ export const PickupStation = () => {
   const [scannerActive, setScannerActive] = useState(false);
   const [helpActive, setHelpActive] = useState(false);
   const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [reservations, setReservations] = useState<Reservation[]>([]); // Mode multi-retrait
+  const [selectedReservationIds, setSelectedReservationIds] = useState<Set<string>>(new Set());
   const [enteredPin, setEnteredPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [pinError, setPinError] = useState(false);
   const [todayStats, setTodayStats] = useState<{ completed: number; total: number } | null>(null);
 
@@ -85,8 +90,8 @@ export const PickupStation = () => {
     try {
       const qrData: QRData = JSON.parse(data);
 
-      // Fetch reservation details with all needed data
-      const { data: reservationData, error: fetchError } = await supabase
+      // Fetch la réservation principale scannée
+      const { data: mainReservation, error: fetchError } = await supabase
         .from('reservations')
         .select(`
           *,
@@ -101,29 +106,69 @@ export const PickupStation = () => {
 
       if (fetchError) throw new Error('Réservation introuvable');
 
-      const typedReservation = reservationData as Reservation;
+      const typedMainReservation = mainReservation as Reservation;
 
-      // Verify reservation status
-      if (typedReservation.status === 'completed') {
+      // Vérifier le statut de la réservation principale
+      if (typedMainReservation.status === 'completed') {
         throw new Error('Cette réservation a déjà été récupérée');
       }
 
-      if (typedReservation.status === 'cancelled') {
+      if (typedMainReservation.status === 'cancelled') {
         throw new Error('Cette réservation a été annulée');
       }
 
-      setReservation(typedReservation);
+      // 🎯 MODE MULTI-RETRAIT : Chercher TOUTES les réservations actives de cet utilisateur
+      const { data: allUserReservations, error: allReservationsError } = await supabase
+        .from('reservations')
+        .select(`
+          *,
+          lots(
+            *,
+            profiles(business_name, business_address, business_logo_url)
+          ),
+          profiles(full_name)
+        `)
+        .eq('user_id', qrData.userId)
+        .in('status', ['pending', 'confirmed'])
+        .order('created_at', { ascending: true });
+
+      if (allReservationsError) {
+        console.error('Erreur récupération toutes les réservations:', allReservationsError);
+      }
+
+      const typedAllReservations = (allUserReservations || []) as Reservation[];
+
+      // Si plusieurs réservations actives → Mode Multi-Retrait
+      if (typedAllReservations.length > 1) {
+        setReservations(typedAllReservations);
+        setReservation(null); // Pas de réservation unique
+        // Présélectionner la réservation scannée
+        setSelectedReservationIds(new Set([qrData.reservationId]));
+      } else {
+        // Mode standard : une seule réservation
+        setReservation(typedMainReservation);
+        setReservations([]);
+        setSelectedReservationIds(new Set());
+      }
+
       setEnteredPin('');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la lecture du QR code';
       setError(errorMessage);
       setReservation(null);
+      setReservations([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleValidatePin = async () => {
+    // Mode Multi-Retrait
+    if (reservations.length > 1) {
+      return handleValidateMultiPickup();
+    }
+
+    // Mode Standard (une seule réservation)
     if (!reservation) return;
 
     if (enteredPin !== reservation.pickup_pin) {
@@ -172,6 +217,7 @@ export const PickupStation = () => {
       if (lotError) throw lotError;
 
       setSuccess(true);
+      setSuccessMessage('Retrait validé avec succès !');
       setTimeout(() => {
         resetState();
       }, 3000);
@@ -184,16 +230,123 @@ export const PickupStation = () => {
     }
   };
 
+  // 🎯 Nouvelle fonction : Validation groupée multi-retrait
+  const handleValidateMultiPickup = async () => {
+    if (selectedReservationIds.size === 0) {
+      setError('Veuillez sélectionner au moins une réservation');
+      return;
+    }
+
+    // Vérifier que le PIN correspond à au moins UNE des réservations sélectionnées
+    const selectedReservations = reservations.filter(r => selectedReservationIds.has(r.id));
+    const pinValid = selectedReservations.some(r => r.pickup_pin === enteredPin);
+
+    if (!pinValid) {
+      setPinError(true);
+      setError('Code PIN incorrect pour les réservations sélectionnées');
+      setTimeout(() => {
+        setPinError(false);
+        setEnteredPin('');
+      }, 2000);
+      return;
+    }
+
+    setPinError(false);
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Valider toutes les réservations sélectionnées en parallèle
+      const updatePromises = selectedReservations.map(async (reservation) => {
+        // Update reservation status
+        const { error: updateError } = await supabase
+          .from('reservations')
+          .update({
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+          } as unknown as never)
+          .eq('id', reservation.id);
+
+        if (updateError) throw updateError;
+
+        // Update lot quantities
+        const newQuantitySold = reservation.lots.quantity_sold + reservation.quantity;
+        const newQuantityReserved = reservation.lots.quantity_reserved - reservation.quantity;
+
+        const { error: lotError } = await supabase
+          .from('lots')
+          .update({
+            quantity_sold: newQuantitySold,
+            quantity_reserved: newQuantityReserved,
+          } as unknown as never)
+          .eq('id', reservation.lot_id);
+
+        if (lotError) throw lotError;
+      });
+
+      await Promise.all(updatePromises);
+
+      setSuccess(true);
+      setSuccessMessage(
+        `🎉 ${selectedReservationIds.size} panier${selectedReservationIds.size > 1 ? 's' : ''} validé${selectedReservationIds.size > 1 ? 's' : ''} avec succès !`
+      );
+      
+      setTimeout(() => {
+        resetState();
+      }, 3000);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la validation groupée';
+      setError(errorMessage);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction pour sélectionner/désélectionner une réservation
+  const toggleReservationSelection = (reservationId: string) => {
+    const newSelection = new Set(selectedReservationIds);
+    if (newSelection.has(reservationId)) {
+      newSelection.delete(reservationId);
+    } else {
+      newSelection.add(reservationId);
+    }
+    setSelectedReservationIds(newSelection);
+  };
+
+  // Sélectionner/désélectionner toutes les réservations
+  const toggleSelectAll = () => {
+    if (selectedReservationIds.size === reservations.length) {
+      setSelectedReservationIds(new Set());
+    } else {
+      setSelectedReservationIds(new Set(reservations.map(r => r.id)));
+    }
+  };
+
   const resetState = () => {
     setReservation(null);
+    setReservations([]);
+    setSelectedReservationIds(new Set());
     setEnteredPin('');
     setError(null);
     setSuccess(false);
+    setSuccessMessage('');
     setPinError(false);
   };
 
   // Validation visuelle du PIN en temps réel
-  const pinMatch = reservation && enteredPin.length === 6 && enteredPin === reservation.pickup_pin;
+  const pinMatch = () => {
+    if (enteredPin.length !== 6) return false;
+    
+    // Mode Multi-Retrait
+    if (reservations.length > 1) {
+      const selectedReservations = reservations.filter(r => selectedReservationIds.has(r.id));
+      return selectedReservations.some(r => r.pickup_pin === enteredPin);
+    }
+    
+    // Mode Standard
+    return reservation && reservation.pickup_pin === enteredPin;
+  };
 
   if (success) {
     return (
@@ -212,12 +365,14 @@ export const PickupStation = () => {
           </div>
           
           <h2 className="text-4xl font-bold text-black mb-3">
-            🎉 Retrait Validé !
+            {successMessage || '🎉 Retrait Validé !'}
           </h2>
           
           <p className="text-lg text-gray-600 mb-8 font-light leading-relaxed">
-            Le panier a été remis avec succès. 
-            Merci de votre engagement anti-gaspi ! 💚
+            {selectedReservationIds.size > 1 
+              ? `Tous les paniers ont été remis avec succès ! Merci de votre engagement anti-gaspi ! 💚`
+              : `Le panier a été remis avec succès. Merci de votre engagement anti-gaspi ! 💚`
+            }
           </p>
           
           <div className="mb-8">
@@ -323,7 +478,7 @@ export const PickupStation = () => {
       )}
 
       {/* Contenu principal */}
-      {!reservation ? (
+      {!reservation && reservations.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-4 relative z-10">
           <div className="w-full max-w-7xl">
             <div className="text-center mb-8">
@@ -409,7 +564,271 @@ export const PickupStation = () => {
             </div>
           </div>
         </div>
-      ) : (
+      ) : reservations.length > 1 ? (
+        // 🎯 MODE MULTI-RETRAIT : Plusieurs réservations actives
+        <div className="flex-1 flex flex-col lg:flex-row gap-3 p-3 overflow-hidden relative z-10">
+          {/* Liste des réservations */}
+          <div className="lg:w-1/2 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden flex flex-col">
+            {/* En-tête Mode Multi-Retrait */}
+            <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 text-white p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                  <Layers size={24} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Mode Multi-Retrait</h3>
+                  <p className="text-sm text-purple-100">
+                    {reservations[0]?.profiles.full_name} • {reservations.length} panier{reservations.length > 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={toggleSelectAll}
+                className="px-4 py-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-lg transition-all text-sm font-semibold"
+              >
+                {selectedReservationIds.size === reservations.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+              </button>
+            </div>
+
+            {/* Liste scrollable des réservations */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {reservations.map((res, index) => (
+                <div
+                  key={res.id}
+                  onClick={() => toggleReservationSelection(res.id)}
+                  className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                    selectedReservationIds.has(res.id)
+                      ? 'border-purple-500 bg-purple-50 shadow-md'
+                      : 'border-gray-200 bg-white hover:border-purple-300 hover:bg-purple-50/50'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    {/* Checkbox personnalisé */}
+                    <div className={`mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                      selectedReservationIds.has(res.id)
+                        ? 'bg-purple-600 border-purple-600'
+                        : 'border-gray-300 bg-white'
+                    }`}>
+                      {selectedReservationIds.has(res.id) && (
+                        <Check size={16} className="text-white" strokeWidth={3} />
+                      )}
+                    </div>
+
+                    {/* Numéro */}
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+                      <span className="text-white font-bold text-sm">{index + 1}</span>
+                    </div>
+
+                    {/* Contenu */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h4 className="font-bold text-gray-900 text-sm truncate">{res.lots.title}</h4>
+                        {res.is_donation && (
+                          <Heart size={14} className="text-red-500 flex-shrink-0" strokeWidth={2.5} />
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <ShoppingBag size={12} strokeWidth={2} />
+                          <span>Qté: {res.quantity}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-gray-600">
+                          {res.is_donation ? (
+                            <>
+                              <Heart size={12} strokeWidth={2} className="text-red-500" />
+                              <span className="text-red-600 font-semibold">Gratuit</span>
+                            </>
+                          ) : (
+                            <>
+                              <Euro size={12} strokeWidth={2} />
+                              <span>{res.total_price.toFixed(2)}€</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                        <MapPin size={11} strokeWidth={2} />
+                        <span className="truncate">{res.lots.profiles.business_name}</span>
+                      </div>
+
+                      {/* Code PIN si sélectionné */}
+                      {selectedReservationIds.has(res.id) && (
+                        <div className="mt-2 px-2 py-1 bg-purple-100 rounded text-xs font-mono font-bold text-purple-700 flex items-center gap-1.5">
+                          <Lock size={11} strokeWidth={2.5} />
+                          PIN: {res.pickup_pin}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Résumé sélection */}
+            <div className="border-t border-gray-200 p-3 bg-gray-50">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600 font-medium">
+                  Sélection : {selectedReservationIds.size}/{reservations.length}
+                </span>
+                <span className="font-bold text-purple-700">
+                  Total : {reservations
+                    .filter(r => selectedReservationIds.has(r.id))
+                    .reduce((sum, r) => sum + (r.is_donation ? 0 : r.total_price), 0)
+                    .toFixed(2)}€
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Validation PIN (même logique qu'avant) */}
+          <div className="lg:w-1/2 flex flex-col gap-3">
+            <div className="flex-1 bg-gradient-to-br from-white via-warning-50/30 to-white rounded-xl p-4 border border-gray-200 shadow-lg flex flex-col justify-center min-h-0">
+              <div className="text-center mb-4">
+                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl mb-3 shadow-lg transition-all duration-300 ${
+                  pinMatch() 
+                    ? 'bg-gradient-to-br from-success-500 to-success-600 animate-pulse' 
+                    : pinError
+                    ? 'bg-gradient-to-br from-red-500 to-red-600 animate-shake'
+                    : 'bg-gradient-to-br from-warning-500 to-warning-600'
+                }`}>
+                  {pinMatch() ? (
+                    <CheckCircle size={24} className="text-white" strokeWidth={2.5} />
+                  ) : pinError ? (
+                    <XCircle size={24} className="text-white" strokeWidth={2.5} />
+                  ) : (
+                    <Lock size={24} className="text-white" strokeWidth={2.5} />
+                  )}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">
+                  {pinMatch() ? '✓ PIN Valide' : pinError ? '✗ PIN Incorrect' : 'Validation Groupée'}
+                </h3>
+                <p className="text-xs text-gray-600">
+                  {pinMatch() 
+                    ? `Prêt à valider ${selectedReservationIds.size} panier${selectedReservationIds.size > 1 ? 's' : ''}`
+                    : pinError
+                    ? 'Vérifiez le code'
+                    : 'Saisissez un code PIN valide'
+                  }
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="relative">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={enteredPin}
+                    onChange={(e) => {
+                      setEnteredPin(e.target.value.replace(/\D/g, ''));
+                      setPinError(false);
+                      setError(null);
+                    }}
+                    className={`w-full px-4 py-4 text-center text-4xl font-mono font-bold rounded-xl outline-none transition-all duration-300 tracking-[0.8rem] shadow-lg ${
+                      pinMatch()
+                        ? 'border-2 border-success-500 bg-gradient-to-br from-success-50 to-success-100 ring-2 ring-success-200'
+                        : pinError
+                        ? 'border-2 border-red-500 bg-gradient-to-br from-red-50 to-red-100 ring-2 ring-red-200 animate-shake'
+                        : 'border-2 border-warning-300 bg-gradient-to-br from-white to-warning-50 focus:border-warning-500 focus:ring-2 focus:ring-warning-100'
+                    }`}
+                    placeholder="● ● ● ● ● ●"
+                    autoFocus
+                    disabled={loading}
+                  />
+                  
+                  {/* Indicateurs visuels */}
+                  <div className="mt-2 flex justify-center gap-1.5">
+                    {[...Array(6)].map((_, i) => {
+                      const isFilled = i < enteredPin.length;
+                      const isCorrect = pinMatch() && isFilled;
+                      const isWrong = pinError && isFilled;
+                      
+                      return (
+                        <div
+                          key={i}
+                          className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                            isCorrect
+                              ? 'bg-gradient-to-r from-success-500 to-success-600 scale-110 shadow-md'
+                              : isWrong
+                              ? 'bg-gradient-to-r from-red-500 to-red-600 scale-110 shadow-md'
+                              : isFilled
+                              ? 'bg-gradient-to-r from-warning-500 to-warning-600 scale-110 shadow-md'
+                              : 'bg-gray-300'
+                          }`}
+                        ></div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Message de validation */}
+                  {pinMatch() && (
+                    <div className="mt-2 flex items-center justify-center gap-1.5 text-success-600 font-semibold text-xs animate-fade-in">
+                      <Sparkles size={12} strokeWidth={2.5} />
+                      <span>Code vérifié ✓</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className={`rounded-lg p-2.5 border transition-all duration-300 ${
+                  pinMatch()
+                    ? 'bg-gradient-to-r from-success-50 to-success-100 border-success-200'
+                    : 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${
+                      pinMatch() ? 'bg-success-500' : 'bg-purple-500'
+                    }`}>
+                      <Lock size={12} className="text-white" strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <p className={`text-xs font-bold ${pinMatch() ? 'text-success-800' : 'text-purple-800'}`}>
+                        Code PIN Client
+                      </p>
+                      <p className={`text-[10px] ${pinMatch() ? 'text-success-700' : 'text-purple-700'}`}>
+                        {pinMatch() ? `Valider ${selectedReservationIds.size} panier${selectedReservationIds.size > 1 ? 's' : ''}` : 'Code à 6 chiffres'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Boutons d'action */}
+            <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+              <button
+                onClick={resetState}
+                className="py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 border-2 border-gray-200 transition-all font-bold text-sm shadow-md hover:shadow-lg"
+              >
+                ← Annuler
+              </button>
+              <button
+                onClick={handleValidatePin}
+                disabled={selectedReservationIds.size === 0 || enteredPin.length !== 6 || loading || !pinMatch()}
+                className={`py-3 rounded-lg transition-all font-bold text-sm shadow-lg flex items-center justify-center gap-2 ${
+                  pinMatch() && !loading && selectedReservationIds.size > 0
+                    ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 hover:shadow-xl transform hover:scale-[1.02]'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    <span>Validation...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle size={16} strokeWidth={2.5} />
+                    <span>{pinMatch() ? `Valider (${selectedReservationIds.size})` : 'PIN requis'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : reservation ? (
+        // MODE STANDARD : Une seule réservation
         <div className="flex-1 flex flex-col lg:flex-row gap-3 p-3 overflow-hidden relative z-10">
           {/* Détails de la réservation */}
           <div className="lg:w-1/2 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden flex flex-col">
@@ -588,13 +1007,13 @@ export const PickupStation = () => {
             <div className="flex-1 bg-gradient-to-br from-white via-warning-50/30 to-white rounded-xl p-4 border border-gray-200 shadow-lg flex flex-col justify-center min-h-0">
               <div className="text-center mb-4">
                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl mb-3 shadow-lg transition-all duration-300 ${
-                  pinMatch 
+                  pinMatch() 
                     ? 'bg-gradient-to-br from-success-500 to-success-600 animate-pulse' 
                     : pinError
                     ? 'bg-gradient-to-br from-red-500 to-red-600 animate-shake'
                     : 'bg-gradient-to-br from-warning-500 to-warning-600'
                 }`}>
-                  {pinMatch ? (
+                  {pinMatch() ? (
                     <CheckCircle size={24} className="text-white" strokeWidth={2.5} />
                   ) : pinError ? (
                     <XCircle size={24} className="text-white" strokeWidth={2.5} />
@@ -603,10 +1022,10 @@ export const PickupStation = () => {
                   )}
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-1">
-                  {pinMatch ? '✓ PIN Valide' : pinError ? '✗ PIN Incorrect' : 'Validation'}
+                  {pinMatch() ? '✓ PIN Valide' : pinError ? '✗ PIN Incorrect' : 'Validation'}
                 </h3>
                 <p className="text-xs text-gray-600">
-                  {pinMatch 
+                  {pinMatch() 
                     ? 'Prêt à valider'
                     : pinError
                     ? 'Vérifiez le code'
@@ -627,7 +1046,7 @@ export const PickupStation = () => {
                       setError(null);
                     }}
                     className={`w-full px-4 py-4 text-center text-4xl font-mono font-bold rounded-xl outline-none transition-all duration-300 tracking-[0.8rem] shadow-lg ${
-                      pinMatch
+                      pinMatch()
                         ? 'border-2 border-success-500 bg-gradient-to-br from-success-50 to-success-100 ring-2 ring-success-200'
                         : pinError
                         ? 'border-2 border-red-500 bg-gradient-to-br from-red-50 to-red-100 ring-2 ring-red-200 animate-shake'
@@ -642,7 +1061,7 @@ export const PickupStation = () => {
                   <div className="mt-2 flex justify-center gap-1.5">
                     {[...Array(6)].map((_, i) => {
                       const isFilled = i < enteredPin.length;
-                      const isCorrect = pinMatch && isFilled;
+                      const isCorrect = pinMatch() && isFilled;
                       const isWrong = pinError && isFilled;
                       
                       return (
@@ -663,7 +1082,7 @@ export const PickupStation = () => {
                   </div>
 
                   {/* Message de validation */}
-                  {pinMatch && (
+                  {pinMatch() && (
                     <div className="mt-2 flex items-center justify-center gap-1.5 text-success-600 font-semibold text-xs animate-fade-in">
                       <Sparkles size={12} strokeWidth={2.5} />
                       <span>Code vérifié ✓</span>
@@ -672,22 +1091,22 @@ export const PickupStation = () => {
                 </div>
                 
                 <div className={`rounded-lg p-2.5 border transition-all duration-300 ${
-                  pinMatch
+                  pinMatch()
                     ? 'bg-gradient-to-r from-success-50 to-success-100 border-success-200'
                     : 'bg-gradient-to-r from-warning-50 to-warning-100 border-warning-200'
                 }`}>
                   <div className="flex items-center gap-2">
                     <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${
-                      pinMatch ? 'bg-success-500' : 'bg-warning-500'
+                      pinMatch() ? 'bg-success-500' : 'bg-warning-500'
                     }`}>
                       <Lock size={12} className="text-white" strokeWidth={2.5} />
                     </div>
                     <div>
-                      <p className={`text-xs font-bold ${pinMatch ? 'text-success-800' : 'text-warning-800'}`}>
+                      <p className={`text-xs font-bold ${pinMatch() ? 'text-success-800' : 'text-warning-800'}`}>
                         Code PIN Client
                       </p>
-                      <p className={`text-[10px] ${pinMatch ? 'text-success-700' : 'text-warning-700'}`}>
-                        {pinMatch ? 'Prêt à valider' : 'Code à 6 chiffres'}
+                      <p className={`text-[10px] ${pinMatch() ? 'text-success-700' : 'text-warning-700'}`}>
+                        {pinMatch() ? 'Prêt à valider' : 'Code à 6 chiffres'}
                       </p>
                     </div>
                   </div>
@@ -705,9 +1124,9 @@ export const PickupStation = () => {
               </button>
               <button
                 onClick={handleValidatePin}
-                disabled={enteredPin.length !== 6 || loading || !pinMatch}
+                disabled={enteredPin.length !== 6 || loading || !pinMatch()}
                 className={`py-3 rounded-lg transition-all font-bold text-sm shadow-lg flex items-center justify-center gap-2 ${
-                  pinMatch && !loading
+                  pinMatch() && !loading
                     ? 'bg-gradient-to-r from-success-600 to-success-700 text-white hover:from-success-700 hover:to-success-800 hover:shadow-xl transform hover:scale-[1.02]'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
@@ -720,14 +1139,14 @@ export const PickupStation = () => {
                 ) : (
                   <>
                     <CheckCircle size={16} strokeWidth={2.5} />
-                    <span>{pinMatch ? 'Valider' : 'PIN requis'}</span>
+                    <span>{pinMatch() ? 'Valider' : 'PIN requis'}</span>
                   </>
                 )}
               </button>
             </div>
           </div>
         </div>
-      )}
+      ) : null}
       </div>
 
       <QRScanner
