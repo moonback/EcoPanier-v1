@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { Users, Package, DollarSign, Heart, TrendingUp, Truck } from 'lucide-react';
+import { Users, Package, DollarSign, Heart, TrendingUp, Truck, ShoppingBag } from 'lucide-react';
 
 // Imports internes
 import { supabase } from '../../lib/supabase';
@@ -129,72 +129,190 @@ export const AdminStats = () => {
 
   // Render principal
   return (
-    <div>
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Vue d'ensemble de la plateforme</h2>
+    <div className="space-y-6">
+      {/* Header avec Quick Actions */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+              <TrendingUp size={22} className="text-white" />
+            </div>
+            <span>Vue d'ensemble</span>
+          </h2>
+          <p className="text-sm text-gray-600 mt-2 font-medium">
+            📊 Statistiques en temps réel de la plateforme
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-success-600 to-success-700 text-white rounded-xl hover:from-success-700 hover:to-success-800 transition-all font-semibold shadow-lg hover:shadow-xl hover:scale-105">
+            <TrendingUp size={16} />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+          <button 
+            onClick={fetchStats}
+            className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 hover:border-primary-300 text-gray-700 hover:text-primary-600 rounded-xl transition-all font-semibold hover:shadow-md"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="hidden sm:inline">Actualiser</span>
+          </button>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        {statCards.map((card) => {
+      {/* Cartes de statistiques - Design amélioré */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {statCards.map((card, index) => {
           const Icon = card.icon;
           return (
             <div
               key={card.title}
-              className="bg-white rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition animate-fade-in-up"
+              className="group bg-white rounded-2xl shadow-md hover:shadow-2xl p-6 transition-all duration-300 hover:-translate-y-1 border-2 border-gray-100 hover:border-primary-200 animate-fade-in-up cursor-pointer"
+              style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="flex items-start justify-between mb-3 sm:mb-4">
-                <div className={`${card.color} p-2.5 sm:p-3 rounded-lg flex-shrink-0`}>
-                  <Icon size={20} className="sm:w-6 sm:h-6 text-white" />
+              <div className="flex items-start justify-between mb-4">
+                <div className={`${card.color} p-3 rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon size={24} className="text-white" />
+                </div>
+                <div className="text-right">
+                  <div className="text-xs font-semibold text-success-600 flex items-center gap-1">
+                    <TrendingUp size={12} />
+                    <span>+12%</span>
+                  </div>
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-gray-600 mb-1 font-medium">{card.title}</p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2 truncate">{card.value}</p>
-              <p className="text-xs text-gray-500 line-clamp-1">{card.detail}</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{card.title}</p>
+              <p className="text-3xl sm:text-4xl font-black text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">{card.value}</p>
+              <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-success-500 rounded-full"></span>
+                {card.detail}
+              </p>
             </div>
           );
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Impact Environnemental</h3>
-          <div className="space-y-3 sm:space-y-4">
-            <div className="flex justify-between items-center p-3 sm:p-4 bg-green-50 rounded-lg border border-green-100">
-              <span className="text-xs sm:text-sm text-gray-700 font-medium">Repas sauvés</span>
-              <span className="text-xl sm:text-2xl font-bold text-green-600">{stats.itemsSaved}</span>
+      {/* Sections Impact - Design moderne */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Impact Environnemental */}
+        <div className="bg-gradient-to-br from-success-50 via-white to-emerald-50 rounded-2xl shadow-lg p-6 border-2 border-success-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-success-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+              <TrendingUp size={24} className="text-white" />
             </div>
-            <div className="flex justify-between items-center p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-100">
-              <span className="text-xs sm:text-sm text-gray-700 font-medium">Eau économisée</span>
-              <span className="text-xl sm:text-2xl font-bold text-blue-600">
-                {(stats.itemsSaved * 50).toFixed(0)} L
-              </span>
+            <div>
+              <h3 className="text-xl font-black text-gray-900">Impact Environnemental</h3>
+              <p className="text-xs text-gray-600 font-medium">🌱 Contribution écologique</p>
             </div>
-            <div className="flex justify-between items-center p-3 sm:p-4 bg-yellow-50 rounded-lg border border-yellow-100">
-              <span className="text-xs sm:text-sm text-gray-700 font-medium">Énergie économisée</span>
-              <span className="text-xl sm:text-2xl font-bold text-yellow-600">
-                {(stats.itemsSaved * 0.5).toFixed(1)} kWh
-              </span>
+          </div>
+          <div className="space-y-3">
+            <div className="group flex justify-between items-center p-4 bg-white rounded-xl border-2 border-success-100 hover:border-success-300 transition-all hover:shadow-md cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-success-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Package size={20} className="text-success-600" />
+                </div>
+                <span className="text-sm font-bold text-gray-700">Repas sauvés</span>
+              </div>
+              <span className="text-2xl font-black text-success-600">{stats.itemsSaved}</span>
+            </div>
+            <div className="group flex justify-between items-center p-4 bg-white rounded-xl border-2 border-blue-100 hover:border-blue-300 transition-all hover:shadow-md cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                </div>
+                <span className="text-sm font-bold text-gray-700">Eau économisée</span>
+              </div>
+              <span className="text-2xl font-black text-blue-600">{(stats.itemsSaved * 50).toFixed(0)} L</span>
+            </div>
+            <div className="group flex justify-between items-center p-4 bg-white rounded-xl border-2 border-yellow-100 hover:border-yellow-300 transition-all hover:shadow-md cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-bold text-gray-700">Énergie économisée</span>
+              </div>
+              <span className="text-2xl font-black text-yellow-600">{(stats.itemsSaved * 0.5).toFixed(1)} kWh</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Impact Social</h3>
-          <div className="space-y-3 sm:space-y-4">
-            <div className="flex justify-between items-center p-3 sm:p-4 bg-pink-50 rounded-lg border border-pink-100">
-              <span className="text-xs sm:text-sm text-gray-700 font-medium">Bénéficiaires aidés</span>
-              <span className="text-xl sm:text-2xl font-bold text-pink-600">
-                {stats.totalBeneficiaries}
-              </span>
+        {/* Impact Social */}
+        <div className="bg-gradient-to-br from-pink-50 via-white to-red-50 rounded-2xl shadow-lg p-6 border-2 border-pink-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Heart size={24} className="text-white" />
             </div>
-            <div className="flex justify-between items-center p-3 sm:p-4 bg-red-50 rounded-lg border border-red-100">
-              <span className="text-xs sm:text-sm text-gray-700 font-medium">Dons réalisés</span>
-              <span className="text-xl sm:text-2xl font-bold text-red-600">{stats.donations}</span>
+            <div>
+              <h3 className="text-xl font-black text-gray-900">Impact Social</h3>
+              <p className="text-xs text-gray-600 font-medium">❤️ Solidarité locale</p>
             </div>
-            <div className="flex justify-between items-center p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-100">
-              <span className="text-xs sm:text-sm text-gray-700 font-medium">Commerçants engagés</span>
-              <span className="text-xl sm:text-2xl font-bold text-orange-600">{stats.totalMerchants}</span>
+          </div>
+          <div className="space-y-3">
+            <div className="group flex justify-between items-center p-4 bg-white rounded-xl border-2 border-pink-100 hover:border-pink-300 transition-all hover:shadow-md cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Users size={20} className="text-pink-600" />
+                </div>
+                <span className="text-sm font-bold text-gray-700">Bénéficiaires aidés</span>
+              </div>
+              <span className="text-2xl font-black text-pink-600">{stats.totalBeneficiaries}</span>
+            </div>
+            <div className="group flex justify-between items-center p-4 bg-white rounded-xl border-2 border-red-100 hover:border-red-300 transition-all hover:shadow-md cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Heart size={20} className="text-red-600" />
+                </div>
+                <span className="text-sm font-bold text-gray-700">Dons réalisés</span>
+              </div>
+              <span className="text-2xl font-black text-red-600">{stats.donations}</span>
+            </div>
+            <div className="group flex justify-between items-center p-4 bg-white rounded-xl border-2 border-orange-100 hover:border-orange-300 transition-all hover:shadow-md cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <ShoppingBag size={20} className="text-orange-600" />
+                </div>
+                <span className="text-sm font-bold text-gray-700">Commerçants engagés</span>
+              </div>
+              <span className="text-2xl font-black text-orange-600">{stats.totalMerchants}</span>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Section Actions rapides */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button className="group p-4 bg-gradient-to-br from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex flex-col items-center gap-2">
+            <Users size={28} className="group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold">Utilisateurs</span>
+            <span className="text-2xl font-black">{stats.totalUsers}</span>
+          </div>
+        </button>
+        <button className="group p-4 bg-gradient-to-br from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex flex-col items-center gap-2">
+            <Package size={28} className="group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold">Lots</span>
+            <span className="text-2xl font-black">{stats.totalLots}</span>
+          </div>
+        </button>
+        <button className="group p-4 bg-gradient-to-br from-warning-500 to-warning-600 hover:from-warning-600 hover:to-warning-700 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex flex-col items-center gap-2">
+            <DollarSign size={28} className="group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold">Revenus</span>
+            <span className="text-xl font-black">{formatCurrency(stats.totalRevenue)}</span>
+          </div>
+        </button>
+        <button className="group p-4 bg-gradient-to-br from-accent-500 to-accent-600 hover:from-accent-600 hover:to-accent-700 text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="flex flex-col items-center gap-2">
+            <Truck size={28} className="group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold">Missions</span>
+            <span className="text-2xl font-black">{stats.activeMissions}</span>
+          </div>
+        </button>
       </div>
     </div>
   );
