@@ -19,9 +19,27 @@ export const BeneficiaryReservations = () => {
   const { profile } = useAuthStore();
   const qrCodeRef = useRef<HTMLDivElement>(null);
   const [enlargedQR, setEnlargedQR] = useState(false);
+  const [qrSize, setQrSize] = useState(200);
+  const [enlargedQrSize, setEnlargedQrSize] = useState(320);
 
   useEffect(() => {
     fetchReservations();
+  }, []);
+
+  // Calculer la taille du QR code en fonction de la largeur de l'écran
+  useEffect(() => {
+    const calculateQrSize = () => {
+      const width = window.innerWidth;
+      // QR code normal dans le modal
+      setQrSize(width < 640 ? 200 : 180);
+      // QR code agrandi
+      setEnlargedQrSize(Math.min(width - 64, 320));
+    };
+
+    calculateQrSize();
+    window.addEventListener('resize', calculateQrSize);
+    
+    return () => window.removeEventListener('resize', calculateQrSize);
   }, []);
 
   const fetchReservations = async () => {
@@ -278,44 +296,58 @@ export const BeneficiaryReservations = () => {
       </div>
 
       {selectedReservation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto animate-fade-in-up">
-            <h3 className="text-lg sm:text-xl font-bold mb-4 text-center text-gray-800">
-              QR Code de Retrait
-            </h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50 animate-fade-in overflow-y-auto">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full p-4 sm:p-6 my-auto animate-fade-in-up">
+            {/* Header avec bouton fermer mobile-friendly */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+                QR Code de Retrait
+              </h3>
+              <button
+                onClick={() => {
+                  setSelectedReservation(null);
+                  setEnlargedQR(false);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors sm:hidden"
+                aria-label="Fermer"
+              >
+                <X size={20} className="text-gray-600" />
+              </button>
+            </div>
             
             {/* Titre du panier */}
             <div className="text-center mb-4">
-              <span className="text-sm text-gray-600">Invendu :</span>
-              <h3 className="text-lg sm:text-xl font-bold text-black">
+              <span className="text-xs sm:text-sm text-gray-600">Invendu :</span>
+              <h3 className="text-base sm:text-lg font-bold text-black mt-1">
                 {selectedReservation.lots.title}
               </h3>
             </div>
 
             {/* Message d'aide */}
-            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-center text-blue-900">
-                <strong>💡 Astuce :</strong> Cliquez sur le QR code pour l'agrandir
+            <div className="mb-4 p-2.5 sm:p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-xs sm:text-sm text-center text-blue-900">
+                <strong>💡 Astuce :</strong> Touchez le QR code pour l'agrandir
               </p>
             </div>
 
-            {/* QR Code et PIN côte à côte */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
-               {/* QR Code à gauche */}
-               <div ref={qrCodeRef} className="flex-1 flex flex-col items-center gap-2 p-3 bg-white rounded-xl border-2 border-gray-100 shadow-lg">
-                 <div className="flex items-center justify-between w-full">
-                   <p className="text-xs text-gray-600 font-semibold">QR Code</p>
+            {/* QR Code et PIN - Layout optimisé mobile */}
+            <div className="flex flex-col gap-4 mb-4">
+               {/* QR Code - Pleine largeur sur mobile, centré et plus grand */}
+               <div ref={qrCodeRef} className="flex flex-col items-center gap-2.5 p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-white rounded-xl border-2 border-gray-200 shadow-lg">
+                 <div className="flex items-center justify-between w-full mb-1">
+                   <p className="text-xs sm:text-sm text-gray-700 font-semibold">QR Code</p>
                    <button
                      onClick={() => setEnlargedQR(true)}
-                     className="p-1 hover:bg-gray-100 rounded transition-colors"
+                     className="p-1.5 sm:p-2 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors touch-manipulation"
                      title="Agrandir"
+                     aria-label="Agrandir le QR code"
                    >
-                     <Maximize2 size={14} className="text-gray-600" />
+                     <Maximize2 size={16} className="sm:w-4 sm:h-4 text-gray-600" />
                    </button>
                  </div>
                  <div 
                    onClick={() => setEnlargedQR(true)}
-                   className="p-2 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 cursor-pointer hover:border-accent-300 transition-colors"
+                   className="p-3 sm:p-4 bg-white rounded-xl border-2 border-gray-300 cursor-pointer active:scale-[0.98] transition-transform touch-manipulation shadow-md"
                  >
                    <QRCodeSVG 
                      value={JSON.stringify({
@@ -323,23 +355,25 @@ export const BeneficiaryReservations = () => {
                        pin: selectedReservation.pickup_pin,
                        userId: profile?.id,
                      })}
-                     size={140} 
-                     level="H" 
+                     size={qrSize}
+                     level="H"
+                     className="w-full h-auto"
                    />
                  </div>
+                 <p className="text-xs text-gray-500 text-center mt-1">Touchez pour agrandir</p>
                </div>
 
-               {/* Code PIN à droite */}
-               <div className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-gradient-to-br from-accent-50 to-pink-50 rounded-xl border-2 border-accent-200 shadow-lg">
-                 <div className="text-center">
-                   <p className="text-sm text-accent-800 font-bold mb-2 flex items-center justify-center gap-1">
-                     <Key size={16} />
+               {/* Code PIN - Pleine largeur sur mobile */}
+               <div className="flex flex-col items-center justify-center gap-3 p-4 sm:p-5 bg-gradient-to-br from-accent-50 to-pink-50 rounded-xl border-2 border-accent-300 shadow-lg">
+                 <div className="text-center w-full">
+                   <p className="text-sm sm:text-base text-accent-800 font-bold mb-3 flex items-center justify-center gap-2">
+                     <Key size={18} className="sm:w-5 sm:h-5" strokeWidth={2.5} />
                      <span>Code PIN</span>
                    </p>
-                   <p className="font-mono font-bold text-4xl sm:text-5xl text-accent-700 tracking-wider">
+                   <p className="font-mono font-bold text-5xl sm:text-6xl text-accent-700 tracking-wider mb-2">
                      {selectedReservation.pickup_pin}
                    </p>
-                   <p className="text-xs text-accent-600 mt-2">À présenter au commerçant</p>
+                   <p className="text-xs sm:text-sm text-accent-600 font-medium">À présenter au commerçant</p>
                  </div>
                </div>
              </div>
@@ -377,33 +411,51 @@ export const BeneficiaryReservations = () => {
          </div>
        )}
 
-       {/* Modal QR Code agrandi */}
+       {/* Modal QR Code agrandi - Optimisé mobile */}
        {enlargedQR && selectedReservation && (
          <div 
-           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[60] p-4 animate-fade-in"
+           className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-[60] p-4 sm:p-6 animate-fade-in"
            onClick={() => setEnlargedQR(false)}
          >
-           <div className="relative">
-             <button
-               onClick={() => setEnlargedQR(false)}
-               className="absolute -top-12 right-0 p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors"
-               aria-label="Fermer"
+           <div className="relative w-full max-w-lg">
+             {/* Header avec bouton fermer et message d'aide */}
+             <div className="absolute -top-10 sm:-top-12 left-0 right-0 flex items-center justify-between mb-2">
+               <p className="text-white text-xs sm:text-sm text-center flex-1">
+                 Touchez pour fermer
+               </p>
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   setEnlargedQR(false);
+                 }}
+                 className="p-2.5 sm:p-3 bg-white rounded-xl hover:bg-gray-100 active:bg-gray-200 transition-colors shadow-lg touch-manipulation flex-shrink-0 ml-2"
+                 aria-label="Fermer"
+               >
+                 <X size={20} className="sm:w-6 sm:h-6 text-gray-900" />
+               </button>
+             </div>
+             
+             {/* QR Code agrandi - Responsive */}
+             <div 
+               className="bg-white p-4 sm:p-8 rounded-2xl shadow-2xl"
+               onClick={(e) => e.stopPropagation()}
              >
-               <X size={24} className="text-gray-900" />
-             </button>
-             <div className="bg-white p-6 rounded-2xl shadow-2xl">
                <QRCodeSVG 
                  value={JSON.stringify({
                    reservationId: selectedReservation.id,
                    pin: selectedReservation.pickup_pin,
                    userId: profile?.id,
                  })}
-                 size={400} 
-                 level="H" 
+                 size={enlargedQrSize}
+                 level="H"
+                 className="w-full h-auto"
                />
-               <p className="text-center mt-4 font-mono font-bold text-2xl text-gray-900">
-                 {selectedReservation.pickup_pin}
-               </p>
+               <div className="mt-4 sm:mt-6 text-center">
+                 <p className="text-xs sm:text-sm text-gray-600 mb-2 font-semibold">Code PIN</p>
+                 <p className="font-mono font-bold text-3xl sm:text-4xl text-gray-900 tracking-wider">
+                   {selectedReservation.pickup_pin}
+                 </p>
+               </div>
              </div>
            </div>
          </div>
