@@ -12,7 +12,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { LotBrowser } from './LotBrowser';
 import { ReservationsList } from './ReservationsList';
 import { ImpactDashboard } from './ImpactDashboard';
-import { ProfilePage } from '../shared/ProfilePage';
+import { CustomerProfilePage } from './CustomerProfilePage';
 import { CustomerHeader } from './CustomerHeader';
 
 import EcoPanierLogo from '/logo.png'; // Import du logo
@@ -57,7 +57,7 @@ export const CustomerDashboard = () => {
         {activeTab === 'browse' && <LotBrowser />}
         {activeTab === 'reservations' && <ReservationsList />}
         {activeTab === 'impact' && <ImpactDashboard />}
-        {activeTab === 'profile' && <ProfilePage />}
+        {activeTab === 'profile' && <CustomerProfilePage />}
       </main>
 
       {/* Barre de navigation fixe en bas */}

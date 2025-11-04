@@ -7,6 +7,9 @@ interface ProfileStats {
   totalReservations?: number;
   moneySaved?: number;
   donationsMade?: number;
+  suspendedBasketsOffered?: number;
+  suspendedBasketsClaimed?: number;
+  totalSuspendedAmount?: number;
   co2Impact?: number;
   
   // Commerçant
@@ -61,6 +64,19 @@ export function useProfileStats(userId: string | undefined, role: UserRole | und
 
           const donationsMade = reservations?.filter(r => r.is_donation).length || 0;
           
+          // Récupérer les paniers suspendus offerts par le client
+          const { data: suspendedBaskets } = await supabase
+            .from('suspended_baskets')
+            .select('amount, status')
+            .eq('donor_id', userId);
+
+          const suspendedBasketsOffered = suspendedBaskets?.length || 0;
+          const suspendedBasketsClaimed = suspendedBaskets?.filter(sb => sb.status === 'claimed').length || 0;
+          const totalSuspendedAmount = suspendedBaskets?.reduce((sum, sb) => {
+            const amount = typeof sb.amount === 'string' ? parseFloat(sb.amount) : sb.amount || 0;
+            return sum + amount;
+          }, 0) || 0;
+          
           // CO2 = nombre de repas * 0.9 kg
           const co2Impact = totalReservations * 0.9;
 
@@ -68,6 +84,9 @@ export function useProfileStats(userId: string | undefined, role: UserRole | und
             totalReservations,
             moneySaved: Math.round(moneySaved * 100) / 100,
             donationsMade,
+            suspendedBasketsOffered,
+            suspendedBasketsClaimed,
+            totalSuspendedAmount: Math.round(totalSuspendedAmount * 100) / 100,
             co2Impact: Math.round(co2Impact * 100) / 100,
           });
           break;
