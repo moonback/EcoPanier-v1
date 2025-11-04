@@ -1,5 +1,19 @@
 import { useState } from 'react';
-import { X, Package, MapPin, Clock, ShoppingCart, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+  X, 
+  Package, 
+  MapPin, 
+  Clock, 
+  ShoppingCart, 
+  ZoomIn, 
+  ChevronLeft, 
+  ChevronRight,
+  Store,
+  Mail,
+  Phone,
+  CheckCircle,
+  Info
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database } from '../../../lib/database.types';
@@ -9,6 +23,12 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
     business_name: string;
     business_address: string;
     business_logo_url?: string | null;
+    business_type?: string | null;
+    business_description?: string | null;
+    business_email?: string | null;
+    business_hours?: Record<string, { open: string | null; close: string | null; closed: boolean }> | null;
+    phone?: string | null;
+    verified?: boolean;
   };
 };
 
@@ -18,6 +38,46 @@ interface LotDetailsModalProps {
   onReserve: () => void;
   onMerchantClick?: () => void;
 }
+
+// Fonction pour formater les horaires d'ouverture
+const formatBusinessHours = (
+  businessHours: Record<string, { open: string | null; close: string | null; closed: boolean }> | null | undefined
+): string => {
+  if (!businessHours) return 'Non renseigné';
+
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+  const today = new Date().getDay();
+  const todayKey = days[today === 0 ? 6 : today - 1];
+  const todayHours = businessHours[todayKey];
+
+  if (todayHours?.closed || !todayHours?.open || !todayHours?.close) {
+    return 'Fermé aujourd\'hui';
+  }
+
+  return `Aujourd'hui: ${todayHours.open} - ${todayHours.close}`;
+};
+
+// Fonction pour obtenir le label du type de commerce
+const getBusinessTypeLabel = (type: string | null | undefined): string => {
+  if (!type) return '';
+  
+  const typeLabels: Record<string, string> = {
+    bakery: 'Boulangerie',
+    restaurant: 'Restaurant',
+    supermarket: 'Supermarché',
+    grocery: 'Épicerie',
+    market: 'Marché',
+    cafe: 'Café',
+    patisserie: 'Pâtisserie',
+    butcher: 'Boucherie',
+    fishmonger: 'Poissonnerie',
+    organic: 'Bio',
+    other: 'Autre',
+  };
+
+  return typeLabels[type] || type;
+};
 
 export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: LotDetailsModalProps) {
   const [showImageZoom, setShowImageZoom] = useState(false);
@@ -29,6 +89,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
   );
 
   const hasMultipleImages = lot.image_urls && lot.image_urls.length > 1;
+  const merchant = lot.profiles;
 
   const nextImage = () => {
     if (lot.image_urls && currentImageIndex < lot.image_urls.length - 1) {
@@ -154,12 +215,12 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
               </div>
 
               {/* Description */}
-              <div className="p-3 sm:p-4 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-xl border border-gray-200">
+              <div className="p-3 sm:p-4 bg-gradient-to-br from-gray-50 via-white to-primary-50/30 rounded-xl border border-gray-200 shadow-sm">
                 <h4 className="text-xs sm:text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
                   <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" strokeWidth={1.5} />
                   Description
                 </h4>
-                <p className="text-sm sm:text-base text-gray-700 leading-relaxed font-light">
+                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                   {lot.description}
                 </p>
               </div>
@@ -167,27 +228,27 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
               {/* Prix et Commerçant sur la même ligne */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {/* Prix */}
-                <div className="p-3 sm:p-4 bg-gradient-to-br from-primary-50 to-secondary-50/50 rounded-xl border border-primary-100">
+                <div className="p-3 sm:p-4 bg-gradient-to-br from-primary-50 via-white to-secondary-50/50 rounded-xl border border-primary-100 shadow-sm hover:shadow-md transition-shadow">
                   <h4 className="text-xs sm:text-sm font-bold text-gray-900 mb-2 sm:mb-3 flex items-center gap-1.5">
                     <span className="text-primary-600">💰</span>
                     Prix
                   </h4>
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <div className="text-[10px] sm:text-xs text-gray-600 font-light mb-1">Prix initial</div>
+                      <div className="text-[10px] sm:text-xs text-gray-600 font-medium mb-1">Prix initial</div>
                       <div className="text-gray-400 line-through text-base sm:text-lg font-bold">
                         {lot.original_price}€
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[10px] sm:text-xs text-gray-600 font-light mb-1">Prix réduit</div>
-                      <div className="text-2xl sm:text-3xl font-bold text-primary-700">
+                      <div className="text-[10px] sm:text-xs text-gray-600 font-medium mb-1">Prix réduit</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-primary-700 bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
                         {lot.discounted_price}€
                       </div>
                     </div>
                   </div>
-                  <div className="text-center">
-                    <span className="inline-block bg-gradient-to-r from-primary-600 to-primary-700 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium shadow-md">
+                  <div className="text-center mt-3">
+                    <span className="inline-block bg-gradient-to-r from-primary-600 to-primary-700 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium shadow-md hover:shadow-lg transition-shadow">
                       Économisez {(lot.original_price - lot.discounted_price).toFixed(2)}€ ({discount}%)
                     </span>
                   </div>
@@ -202,21 +263,29 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                   }`}
                   onClick={onMerchantClick}
                 >
-                  <h4 className="text-xs sm:text-sm font-bold text-gray-900 mb-2 sm:mb-3 flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" strokeWidth={1.5} />
-                    Commerçant
+                  <div className="flex items-start justify-between mb-2 sm:mb-3">
+                    <h4 className="text-xs sm:text-sm font-bold text-gray-900 flex items-center gap-2">
+                      <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" strokeWidth={1.5} />
+                      Commerçant
+                    </h4>
+                    {merchant.verified && (
+                      <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded-full">
+                        <CheckCircle className="w-3 h-3" strokeWidth={2} />
+                        Vérifié
+                      </span>
+                    )}
                     {onMerchantClick && (
-                      <span className="ml-auto text-[10px] sm:text-xs text-primary-600 font-medium hover:text-primary-700">
+                      <span className="text-[10px] sm:text-xs text-primary-600 font-medium hover:text-primary-700">
                         Voir tous →
                       </span>
                     )}
-                  </h4>
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gray-200">
-                      {lot.profiles.business_logo_url ? (
+                  </div>
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 border border-primary-200">
+                      {merchant.business_logo_url ? (
                         <img
-                          src={lot.profiles.business_logo_url}
-                          alt={lot.profiles.business_name}
+                          src={merchant.business_logo_url}
+                          alt={merchant.business_name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
@@ -224,13 +293,20 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                           }}
                         />
                       ) : null}
-                      <MapPin className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-400 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
+                      <Store className={`w-5 h-5 sm:w-6 sm:h-6 text-primary-500 ${merchant.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 truncate">{lot.profiles.business_name}</div>
-                      <div className="text-xs sm:text-sm text-gray-600 font-light flex items-center gap-1">
-                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0 text-gray-500" strokeWidth={1.5} />
-                        <span className="truncate">{lot.profiles.business_address}</span>
+                      <div className="font-bold text-gray-900 text-sm sm:text-base mb-1 truncate flex items-center gap-2">
+                        {merchant.business_name}
+                      </div>
+                      {merchant.business_type && (
+                        <span className="inline-block bg-primary-100 text-primary-700 text-[10px] px-2 py-0.5 rounded-full font-medium mb-1">
+                          {getBusinessTypeLabel(merchant.business_type)}
+                        </span>
+                      )}
+                      <div className="text-xs sm:text-sm text-gray-600 font-light flex items-start gap-1 mt-1">
+                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0 text-gray-500 mt-0.5" strokeWidth={1.5} />
+                        <span className="truncate">{merchant.business_address}</span>
                       </div>
                     </div>
                   </div>
@@ -283,6 +359,89 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                 <span className="text-xs sm:text-sm font-medium text-blue-700">
                   ❄️ Produit nécessitant une chaîne du froid
                 </span>
+              </div>
+            </div>
+          )}
+
+          {/* Section Informations Commerçant Complètes */}
+          {(merchant.business_description || merchant.business_hours || merchant.business_email || merchant.phone) && (
+            <div className="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-br from-gray-50 via-white to-primary-50/20 rounded-xl border border-gray-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 bg-primary-100 rounded-lg">
+                  <Store className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">À propos du commerçant</h3>
+              </div>
+
+              <div className="space-y-3 sm:space-y-4">
+                {/* Description */}
+                {merchant.business_description && (
+                  <div className="p-3 sm:p-4 bg-white rounded-lg border border-gray-100">
+                    <div className="flex items-start gap-2 mb-2">
+                      <Info className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                      <div className="flex-1">
+                        <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Description</h4>
+                        <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
+                          {merchant.business_description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Informations de contact */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  {/* Horaires */}
+                  {merchant.business_hours && (
+                    <div className="p-3 sm:p-4 bg-white rounded-lg border border-gray-100">
+                      <div className="flex items-start gap-2">
+                        <Clock className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Horaires</h4>
+                          <p className="text-xs sm:text-sm text-gray-700">
+                            {formatBusinessHours(merchant.business_hours)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Email */}
+                  {merchant.business_email && (
+                    <div className="p-3 sm:p-4 bg-white rounded-lg border border-gray-100">
+                      <div className="flex items-start gap-2">
+                        <Mail className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Email</h4>
+                          <a 
+                            href={`mailto:${merchant.business_email}`}
+                            className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 hover:underline break-all"
+                          >
+                            {merchant.business_email}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Téléphone */}
+                  {merchant.phone && (
+                    <div className="p-3 sm:p-4 bg-white rounded-lg border border-gray-100">
+                      <div className="flex items-start gap-2">
+                        <Phone className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Téléphone</h4>
+                          <a 
+                            href={`tel:${merchant.phone}`}
+                            className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 hover:underline"
+                          >
+                            {merchant.phone}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
