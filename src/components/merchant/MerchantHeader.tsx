@@ -142,7 +142,7 @@ export const MerchantHeader = ({
       if (todayError) throw todayError;
 
       const todayRevenue = (todayReservations || []).reduce(
-        (sum, r) => sum + (r.total_price || 0),
+        (sum, r: { total_price: number | null }) => sum + (r.total_price || 0),
         0
       );
 
@@ -164,18 +164,19 @@ export const MerchantHeader = ({
   // Déterminer le sous-titre final
   const finalSubtitle = subtitle || 'Valorisez vos invendus, réduisez le gaspillage ! 💚';
 
-  // Render du logo
+  // Render du logo avec tailles responsive
   const renderLogo = () => {
     // Si logo est une string (URL)
     if (typeof logo === 'string') {
       return (
-        <div className="relative group">
+        <div className="relative group flex-shrink-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-500/30 to-secondary-500/30 rounded-lg sm:rounded-xl md:rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <img
             src={logo}
             alt={logoAlt}
-            className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105"
+            className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-lg sm:rounded-xl md:rounded-2xl object-cover border-2 border-white/80 shadow-lg group-hover:shadow-xl group-hover:shadow-primary-500/40 transition-all duration-300 group-hover:scale-105 ring-2 ring-primary-100/50 group-hover:ring-primary-300/50"
           />
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl bg-gradient-to-br from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
       );
     }
@@ -187,9 +188,12 @@ export const MerchantHeader = ({
 
     // Logo par défaut avec emoji/icône
     return (
-      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-        <span className="text-3xl">{defaultIcon}</span>
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+      <div className="relative flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 group">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-600 rounded-lg sm:rounded-xl md:rounded-2xl blur-sm opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="relative bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-600 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:shadow-primary-500/50 transition-all duration-300 group-hover:scale-105 border-2 border-white/20">
+          <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl relative z-10">{defaultIcon}</span>
+          <div className="absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        </div>
       </div>
     );
   };
@@ -201,19 +205,22 @@ export const MerchantHeader = ({
     // Classes de variantes simplifiées avec couleurs cohérentes du design system
     const variantClasses = {
       primary: `
-        bg-primary-600 text-white
-        hover:bg-primary-700 active:bg-primary-800
-        shadow-md hover:shadow-lg hover:shadow-primary-500/40
+        bg-gradient-to-br from-primary-600 to-primary-700 text-white
+        hover:from-primary-700 hover:to-primary-800 active:from-primary-800 active:to-primary-900
+        shadow-md hover:shadow-lg hover:shadow-primary-500/50
+        ring-2 ring-primary-200/50 hover:ring-primary-300/50
       `,
       secondary: `
-        bg-secondary-600 text-white
-        hover:bg-secondary-700 active:bg-secondary-800
-        shadow-md hover:shadow-lg hover:shadow-secondary-500/40
+        bg-gradient-to-br from-secondary-600 to-secondary-700 text-white
+        hover:from-secondary-700 hover:to-secondary-800 active:from-secondary-800 active:to-secondary-900
+        shadow-md hover:shadow-lg hover:shadow-secondary-500/50
+        ring-2 ring-secondary-200/50 hover:ring-secondary-300/50
       `,
       danger: `
         bg-white text-accent-600 border-2 border-accent-600
-        hover:bg-accent-50 hover:border-accent-700 active:bg-accent-100
-        shadow-md hover:shadow-lg hover:shadow-accent-500/30
+        hover:bg-gradient-to-br hover:from-accent-50 hover:to-accent-100 hover:border-accent-700 active:bg-accent-100
+        shadow-md hover:shadow-lg hover:shadow-accent-500/40
+        ring-2 ring-accent-100/50 hover:ring-accent-200/50
       `,
     };
 
@@ -227,8 +234,8 @@ export const MerchantHeader = ({
         disabled={action.disabled}
         className={`
           group relative flex items-center justify-center
-          w-10 h-10 sm:w-11 sm:h-11
-          rounded-xl
+          w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-11 lg:h-11
+          rounded-lg sm:rounded-xl
           transition-all duration-200 ease-out
           hover:scale-105 active:scale-95
           ${classes}
@@ -239,54 +246,111 @@ export const MerchantHeader = ({
       >
         {Icon && (
           <Icon 
-            size={20} 
+            className="w-4 h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5 transition-transform duration-200 group-hover:scale-110"
             strokeWidth={2.5}
-            className="transition-transform duration-200 group-hover:scale-110"
           />
         )}
       </button>
     );
   };
 
-  // Render des statistiques rapides
-  const renderQuickStats = () => {
+  // Render des statistiques rapides avec différentes tailles selon le breakpoint
+  const renderQuickStats = (variant: 'full' | 'compact' | 'minimal' = 'full') => {
     if (!showStats) return null;
 
+    if (variant === 'minimal') {
+      // Version minimale : juste l'icône avec badge pour les réservations
+      return (
+        <div className="flex items-center">
+          {quickStats.pendingReservations > 0 && (
+            <div className="relative">
+              <Bell className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-warning-600" strokeWidth={2.5} />
+              <div className="absolute -top-1 -right-1 flex items-center justify-center w-3.5 h-3.5 sm:w-4 sm:h-4 bg-warning-500 rounded-full border-2 border-white">
+                <span className="text-[7px] sm:text-[8px] font-bold text-white">
+                  {quickStats.pendingReservations > 9 ? '9+' : quickStats.pendingReservations}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (variant === 'compact') {
+      // Version compacte pour tablet : statistiques en ligne avec icônes uniquement
+      return (
+        <div className="flex items-center gap-2">
+          {/* Lots actifs */}
+          <div className="flex items-center gap-1.5 px-2 py-1 bg-primary-50 rounded-lg border border-primary-200">
+            <Package size={14} className="text-primary-600" />
+            <span className="text-xs font-bold text-primary-700">
+              {loadingStats ? '...' : quickStats.activeLots}
+            </span>
+          </div>
+
+          {/* Réservations en attente */}
+          <div className="relative flex items-center gap-1.5 px-2 py-1 bg-warning-50 rounded-lg border border-warning-200">
+            <ClipboardList size={14} className="text-warning-600" />
+            <span className="text-xs font-bold text-warning-700">
+              {loadingStats ? '...' : quickStats.pendingReservations}
+            </span>
+            {quickStats.pendingReservations > 0 && (
+              <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-warning-500 rounded-full border-2 border-white">
+                <Bell size={8} className="text-white" />
+              </div>
+            )}
+          </div>
+
+          {/* Revenus */}
+          <div className="flex items-center gap-1.5 px-2 py-1 bg-success-50 rounded-lg border border-success-200">
+            <DollarSign size={14} className="text-success-600" />
+            <span className="text-xs font-bold text-success-700">
+              {loadingStats ? '...' : formatCurrency(quickStats.todayRevenue)}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    // Version complète pour desktop
     return (
-      <div className="hidden lg:flex items-center gap-3">
+      <div className="flex items-center gap-2 xl:gap-3">
         {/* Lots actifs */}
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 rounded-lg border border-primary-200 hover:shadow-md transition-shadow">
-          <Package size={16} className="text-primary-600" />
-          <div className="flex flex-col">
-            <span className="text-[10px] text-primary-600 font-medium">Lots actifs</span>
-            <span className="text-sm font-bold text-primary-700">
+        <div className="relative flex items-center gap-2 px-2.5 xl:px-3 py-1.5 bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-lg border border-primary-200/80 hover:border-primary-300 hover:shadow-md hover:shadow-primary-500/20 transition-all duration-200 group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-400/0 via-primary-400/10 to-primary-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+          <Package size={14} className="xl:w-4 xl:h-4 text-primary-600 relative z-10 group-hover:scale-110 transition-transform duration-200" />
+          <div className="flex flex-col relative z-10">
+            <span className="text-[9px] xl:text-[10px] text-primary-600 font-medium">Lots actifs</span>
+            <span className="text-xs xl:text-sm font-bold text-primary-700 group-hover:text-primary-800 transition-colors">
               {loadingStats ? '...' : quickStats.activeLots}
             </span>
           </div>
         </div>
 
         {/* Réservations en attente avec badge */}
-        <div className="relative flex items-center gap-2 px-3 py-1.5 bg-warning-50 rounded-lg border border-warning-200 hover:shadow-md transition-shadow">
-          <ClipboardList size={16} className="text-warning-600" />
-          <div className="flex flex-col">
-            <span className="text-[10px] text-warning-600 font-medium">En attente</span>
-            <span className="text-sm font-bold text-warning-700">
+        <div className="relative flex items-center gap-2 px-2.5 xl:px-3 py-1.5 bg-gradient-to-br from-warning-50 to-warning-100/50 rounded-lg border border-warning-200/80 hover:border-warning-300 hover:shadow-md hover:shadow-warning-500/20 transition-all duration-200 group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-warning-400/0 via-warning-400/10 to-warning-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+          <ClipboardList size={14} className="xl:w-4 xl:h-4 text-warning-600 relative z-10 group-hover:scale-110 transition-transform duration-200" />
+          <div className="flex flex-col relative z-10">
+            <span className="text-[9px] xl:text-[10px] text-warning-600 font-medium">En attente</span>
+            <span className="text-xs xl:text-sm font-bold text-warning-700 group-hover:text-warning-800 transition-colors">
               {loadingStats ? '...' : quickStats.pendingReservations}
             </span>
           </div>
           {quickStats.pendingReservations > 0 && (
-            <div className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 bg-warning-500 rounded-full border-2 border-white">
-              <Bell size={10} className="text-white" />
+            <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 xl:w-5 xl:h-5 bg-gradient-to-br from-warning-500 to-warning-600 rounded-full border-2 border-white shadow-lg animate-pulse">
+              <Bell size={8} className="xl:w-2.5 xl:h-2.5 text-white" />
             </div>
           )}
         </div>
 
         {/* Revenus du jour */}
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-success-50 rounded-lg border border-success-200 hover:shadow-md transition-shadow">
-          <DollarSign size={16} className="text-success-600" />
-          <div className="flex flex-col">
-            <span className="text-[10px] text-success-600 font-medium">Aujourd'hui</span>
-            <span className="text-sm font-bold text-success-700">
+        <div className="relative flex items-center gap-2 px-2.5 xl:px-3 py-1.5 bg-gradient-to-br from-success-50 to-success-100/50 rounded-lg border border-success-200/80 hover:border-success-300 hover:shadow-md hover:shadow-success-500/20 transition-all duration-200 group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-success-400/0 via-success-400/10 to-success-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+          <DollarSign size={14} className="xl:w-4 xl:h-4 text-success-600 relative z-10 group-hover:scale-110 transition-transform duration-200" />
+          <div className="flex flex-col relative z-10">
+            <span className="text-[9px] xl:text-[10px] text-success-600 font-medium">Aujourd'hui</span>
+            <span className="text-xs xl:text-sm font-bold text-success-700 group-hover:text-success-800 transition-colors">
               {loadingStats ? '...' : formatCurrency(quickStats.todayRevenue)}
             </span>
           </div>
@@ -298,19 +362,23 @@ export const MerchantHeader = ({
   // Render principal
   return (
     <header
-      className={`bg-gradient-to-br from-white via-white to-gray-50/50 sticky top-0 z-40 border-b border-gray-200/80 backdrop-blur-sm transition-all duration-300 ${
-        isScrolled ? 'shadow-md py-2' : 'shadow-sm py-4'
+      className={`relative bg-gradient-to-br from-white via-white to-gray-50/80 sticky top-0 z-40 border-b border-gray-200/60 backdrop-blur-md transition-all duration-300 ${
+        isScrolled ? 'shadow-lg py-1.5 bg-white/95' : 'shadow-sm py-2 sm:py-3 md:py-4'
       } ${className}`}
     >
-      <div className="max-w-12xl mx-auto px-4 sm:px-6">
-        {/* Layout Desktop : Grid 3 colonnes avec logo au centre */}
-        <div className="hidden lg:grid lg:grid-cols-3 gap-4 items-center">
+      {/* Effet de brillance animé en arrière-plan */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      {/* Bordure brillante en haut */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-400/50 to-transparent" />
+      <div className="max-w-12xl mx-auto px-2 sm:px-3 md:px-4 lg:px-6">
+        {/* Layout Desktop XL : Grid 3 colonnes avec logo au centre */}
+        <div className="hidden xl:grid xl:grid-cols-3 gap-4 items-center">
           {/* Section gauche : Titre, sous-titre et statistiques */}
           <div className="flex flex-col min-w-0 gap-2">
             <div className="flex flex-col min-w-0">
-              <h1 className="text-xl font-bold text-gray-900 truncate flex items-center gap-2">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent truncate flex items-center gap-2">
                 {finalTitle}
-                <Sparkles size={18} className="text-primary-500 animate-pulse" />
+                <Sparkles size={18} className="text-primary-500 animate-pulse flex-shrink-0 drop-shadow-sm" />
               </h1>
               <p className="text-sm text-gray-600 font-medium mt-0.5 truncate">
                 {finalSubtitle}
@@ -318,7 +386,7 @@ export const MerchantHeader = ({
             </div>
             {showStats && (
               <div className="flex items-center gap-2 mt-1">
-                {renderQuickStats()}
+                {renderQuickStats('full')}
               </div>
             )}
           </div>
@@ -329,7 +397,7 @@ export const MerchantHeader = ({
           </div>
 
           {/* Section droite : Actions */}
-          <div className="flex items-center justify-end gap-2 sm:gap-3">
+          <div className="flex items-center justify-end gap-2">
             {/* Boutons d'action personnalisés */}
             {actions.map((action, index) => renderActionButton(action, index))}
 
@@ -339,36 +407,39 @@ export const MerchantHeader = ({
                 onClick={signOut}
                 className="
                   group relative flex items-center justify-center
-                  w-10 h-10 sm:w-11 sm:h-11
-                  bg-white text-accent-600 border-2 border-accent-600
-                  hover:bg-accent-50 hover:border-accent-700 active:bg-accent-100
+                  w-11 h-11
+                  bg-gradient-to-br from-white to-gray-50 text-accent-600 border-2 border-accent-600/80
+                  hover:bg-gradient-to-br hover:from-accent-50 hover:to-accent-100 hover:border-accent-700 active:bg-accent-100
                   rounded-xl
-                  shadow-md hover:shadow-lg hover:shadow-accent-500/30
+                  shadow-md hover:shadow-lg hover:shadow-accent-500/40
                   hover:scale-105 active:scale-95
                   transition-all duration-200 ease-out
+                  ring-2 ring-accent-100/50 hover:ring-accent-200/50
+                  overflow-hidden
                 "
                 aria-label="Se déconnecter"
                 title="Se déconnecter"
               >
+                <div className="absolute inset-0 bg-gradient-to-r from-accent-400/0 via-accent-400/10 to-accent-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
                 <LogOut 
                   size={20} 
                   strokeWidth={2.5}
-                  className="transition-transform duration-200 group-hover:scale-110"
+                  className="relative z-10 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-[-12deg]"
                 />
               </button>
             )}
           </div>
         </div>
 
-        {/* Layout Tablet : Logo + Titre à gauche, Stats + Actions à droite */}
-        <div className="hidden md:flex lg:hidden items-center justify-between gap-4">
+        {/* Layout Desktop LG : Logo + Titre à gauche, Stats + Actions à droite */}
+        <div className="hidden lg:flex xl:hidden items-center justify-between gap-4">
           {/* Logo + Titre */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {renderLogo()}
             <div className="flex flex-col min-w-0">
-              <h1 className="text-lg font-bold text-gray-900 truncate flex items-center gap-2">
+              <h1 className="text-lg font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent truncate flex items-center gap-2">
                 {finalTitle}
-                <Sparkles size={16} className="text-primary-500" />
+                <Sparkles size={16} className="text-primary-500 flex-shrink-0 drop-shadow-sm" />
               </h1>
               <p className="text-xs text-gray-600 font-medium mt-0.5 truncate">
                 {finalSubtitle}
@@ -378,20 +449,7 @@ export const MerchantHeader = ({
 
           {/* Stats + Actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            {showStats && (
-              <div className="flex items-center gap-2">
-                {quickStats.pendingReservations > 0 && (
-                  <div className="relative">
-                    <Bell size={18} className="text-warning-600" />
-                    <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-warning-500 rounded-full border-2 border-white">
-                      <span className="text-[8px] font-bold text-white">
-                        {quickStats.pendingReservations}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            {showStats && renderQuickStats('compact')}
             {actions.map((action, index) => renderActionButton(action, index))}
             {showLogout && (
               <button
@@ -419,33 +477,25 @@ export const MerchantHeader = ({
           </div>
         </div>
 
-        {/* Layout Mobile : Logo + Titre à gauche, Actions à droite */}
-        <div className="flex md:hidden items-center justify-between gap-3">
+        {/* Layout Tablet : Logo + Titre à gauche, Stats compactes + Actions à droite */}
+        <div className="hidden md:flex lg:hidden items-center justify-between gap-3">
           {/* Logo + Titre */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
             {renderLogo()}
             <div className="flex flex-col min-w-0">
-              <h1 className="text-base font-bold text-gray-900 truncate">
+              <h1 className="text-base font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent truncate flex items-center gap-1.5">
                 {finalTitle}
+                <Sparkles size={14} className="text-primary-500 flex-shrink-0 drop-shadow-sm" />
               </h1>
-              <p className="text-xs text-gray-600 font-medium mt-0.5 truncate">
+              <p className="text-[11px] text-gray-600 font-medium mt-0.5 truncate">
                 {finalSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Stats + Actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            {showStats && quickStats.pendingReservations > 0 && (
-              <div className="relative">
-                <Bell size={18} className="text-warning-600" />
-                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-warning-500 rounded-full border-2 border-white">
-                  <span className="text-[8px] font-bold text-white">
-                    {quickStats.pendingReservations}
-                  </span>
-                </div>
-              </div>
-            )}
+            {showStats && renderQuickStats('compact')}
             {actions.map((action, index) => renderActionButton(action, index))}
             {showLogout && (
               <button
@@ -464,9 +514,53 @@ export const MerchantHeader = ({
                 title="Se déconnecter"
               >
                 <LogOut 
-                  size={20} 
+                  size={18} 
                   strokeWidth={2.5}
                   className="transition-transform duration-200 group-hover:scale-110"
+                />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Layout Mobile : Logo + Titre au-dessus, Actions en dessous */}
+        <div className="flex md:hidden flex-col gap-2">
+          {/* Logo + Titre */}
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            {renderLogo()}
+            <div className="flex flex-col min-w-0 flex-1">
+              <h1 className="text-xs sm:text-sm font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent truncate">
+                {finalTitle}
+              </h1>
+              <p className="text-[9px] sm:text-[10px] text-gray-600 font-medium truncate hidden sm:block">
+                {finalSubtitle}
+              </p>
+            </div>
+          </div>
+
+          {/* Actions en dessous */}
+          <div className="flex items-center gap-1 justify-end">
+            {showStats && renderQuickStats('minimal')}
+            {actions.map((action, index) => renderActionButton(action, index))}
+            {showLogout && (
+              <button
+                onClick={signOut}
+                className="
+                  group relative flex items-center justify-center
+                  w-8 h-8 sm:w-9 sm:h-9
+                  bg-white text-accent-600 border-2 border-accent-600
+                  hover:bg-accent-50 hover:border-accent-700 active:bg-accent-100
+                  rounded-lg
+                  shadow-md hover:shadow-lg hover:shadow-accent-500/30
+                  hover:scale-105 active:scale-95
+                  transition-all duration-200 ease-out
+                "
+                aria-label="Se déconnecter"
+                title="Se déconnecter"
+              >
+                <LogOut 
+                  className="w-4 h-4 sm:w-[18px] sm:h-[18px] transition-transform duration-200 group-hover:scale-110"
+                  strokeWidth={2.5}
                 />
               </button>
             )}

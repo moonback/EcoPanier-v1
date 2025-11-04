@@ -1,6 +1,6 @@
 // Imports externes
-import { useState } from 'react';
-import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2, Gift, CheckSquare, Square } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2, Gift, CheckSquare, Square, Eye, EyeOff } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -29,9 +29,36 @@ export const MerchantDashboard = () => {
   const [isSelectionModeActive, setIsSelectionModeActive] = useState(false);
   const [eligibleLotsCount, setEligibleLotsCount] = useState(0);
   const [isGeneratingLots, setIsGeneratingLots] = useState(false);
+  const [toggleSoldOutHandler, setToggleSoldOutHandler] = useState<(() => void) | null>(null);
+  const [soldOutCount, setSoldOutCount] = useState(0);
+  const [isSoldOutHidden, setIsSoldOutHidden] = useState(true);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
+
+  // Callbacks pour LotManagement (doivent être définis avant le render)
+  const handleCreateLotClick = useCallback((handler: () => void) => {
+    setCreateLotHandler(() => handler);
+  }, []);
+
+  const handleMakeAllFreeClick = useCallback((handler: () => void, count: number) => {
+    setMakeAllFreeHandler(() => handler);
+    setEligibleLotsCount(count);
+  }, []);
+
+  const handleSelectionModeClick = useCallback((handler: () => void) => {
+    setSelectionModeHandler(() => handler);
+  }, []);
+
+  const handleSelectionModeChange = useCallback((isActive: boolean) => {
+    setIsSelectionModeActive(isActive);
+  }, []);
+
+  const handleToggleSoldOutClick = useCallback((handler: () => void, count: number, isHidden: boolean) => {
+    setToggleSoldOutHandler(() => handler);
+    setSoldOutCount(count);
+    setIsSoldOutHidden(isHidden);
+  }, []);
 
   // Handler pour générer 30 lots fictifs
   const handleGenerateFictionalLots = async () => {
@@ -114,14 +141,14 @@ export const MerchantDashboard = () => {
                 createLotHandler();
               }
             },
-            variant: 'primary',
+            variant: 'primary' as const,
             mobileLabel: 'Créer',
           },
           {
             label: isGeneratingLots ? 'Création...' : '30 Démos',
             icon: Wand2,
             onClick: handleGenerateFictionalLots,
-            variant: 'secondary',
+            variant: 'secondary' as const,
             mobileLabel: 'Démo',
             disabled: isGeneratingLots,
           },
@@ -129,7 +156,7 @@ export const MerchantDashboard = () => {
             label: 'Station Retrait',
             icon: Scan,
             onClick: () => window.open('/pickup', '_blank'),
-            variant: 'secondary',
+            variant: 'secondary' as const,
             mobileLabel: 'Station',
           },
           ...(selectionModeHandler ? [{
@@ -148,7 +175,7 @@ export const MerchantDashboard = () => {
                 selectionModeHandler();
               }
             },
-            variant: (isSelectionModeActive ? 'primary' : 'secondary') as const,
+            variant: (isSelectionModeActive ? 'primary' : 'secondary') as 'primary' | 'secondary',
             mobileLabel: isSelectionModeActive ? 'Mode' : 'Sélectionner',
           }] : []),
           ...(eligibleLotsCount > 0 && makeAllFreeHandler ? [{
@@ -170,6 +197,17 @@ export const MerchantDashboard = () => {
             variant: 'secondary' as const,
             mobileLabel: `Don (${eligibleLotsCount})`,
           }] : []),
+          ...(toggleSoldOutHandler && soldOutCount > 0 && activeTab === 'lots' ? [{
+            label: isSoldOutHidden ? `Afficher épuisés (${soldOutCount})` : `Masquer épuisés (${soldOutCount})`,
+            icon: isSoldOutHidden ? Eye : EyeOff,
+            onClick: () => {
+              if (toggleSoldOutHandler) {
+                toggleSoldOutHandler();
+              }
+            },
+            variant: 'secondary' as const,
+            mobileLabel: isSoldOutHidden ? `Afficher (${soldOutCount})` : `Masquer (${soldOutCount})`,
+          }] : []),
         ]}
       />
 
@@ -177,13 +215,11 @@ export const MerchantDashboard = () => {
       <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
         {activeTab === 'lots' && (
           <LotManagement 
-            onCreateLotClick={(handler) => setCreateLotHandler(() => handler)}
-            onMakeAllFreeClick={(handler, count) => {
-              setMakeAllFreeHandler(() => handler);
-              setEligibleLotsCount(count);
-            }}
-            onSelectionModeClick={(handler) => setSelectionModeHandler(() => handler)}
-            onSelectionModeChange={(isActive) => setIsSelectionModeActive(isActive)}
+            onCreateLotClick={handleCreateLotClick}
+            onMakeAllFreeClick={handleMakeAllFreeClick}
+            onSelectionModeClick={handleSelectionModeClick}
+            onSelectionModeChange={handleSelectionModeChange}
+            onToggleSoldOutClick={handleToggleSoldOutClick}
           />
         )}
         {activeTab === 'reservations' && <MerchantReservations />}
