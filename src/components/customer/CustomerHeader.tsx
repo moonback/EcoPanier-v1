@@ -1,13 +1,12 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { LogOut, type LucideIcon, Package, ShoppingBag, DollarSign, Heart, Sparkles } from 'lucide-react';
+import { LogOut, type LucideIcon, Package, ShoppingBag, Heart, Sparkles, TrendingDown } from 'lucide-react';
 import { ReactNode } from 'react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
 import { formatCurrency } from '../../utils/helpers';
-import { calculateCO2Impact } from '../../hooks/useImpactMetrics';
 
 // Types
 interface ActionButton {
@@ -129,19 +128,22 @@ export const CustomerHeader = ({
       const activeCount = activeReservations?.length || 0;
       
       const mealsSaved = (completedReservations || []).reduce(
-        (sum, r) => sum + (r.quantity || 0),
+        (sum, r: { quantity: number | null }) => sum + (r.quantity || 0),
         0
       );
 
-      const moneySaved = (completedReservations || []).reduce((sum, r) => {
-        const lot = (r as any).lots;
+      const moneySaved = (completedReservations || []).reduce((sum, r: {
+        quantity: number | null;
+        lots: { original_price: number | null; discounted_price: number | null } | null;
+      }) => {
+        const lot = r.lots;
         if (lot && lot.original_price && lot.discounted_price) {
           return sum + (r.quantity || 0) * (lot.original_price - lot.discounted_price);
         }
         return sum;
       }, 0);
 
-      const donationsMade = (completedReservations || []).filter(r => r.is_donation).length;
+      const donationsMade = (completedReservations || []).filter((r: { is_donation: boolean | null }) => r.is_donation).length;
 
       setQuickStats({
         activeReservations: activeCount,
@@ -162,61 +164,49 @@ export const CustomerHeader = ({
   // Déterminer le sous-titre final
   const finalSubtitle = subtitle || 'Prêt à sauver des paniers aujourd\'hui ?';
 
-  // Render du logo
+  // Render du logo - Design compact
   const renderLogo = () => {
     // Si logo est une string (URL)
     if (typeof logo === 'string') {
       return (
-        <div className="relative group">
+        <div className="relative group flex-shrink-0 animate-fade-in">
           <img
             src={logo}
             alt={logoAlt}
-            className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105"
           />
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
       );
     }
 
     // Si logo est un élément React
     if (logo) {
-      return <div className="flex-shrink-0">{logo}</div>;
+      return <div className="flex-shrink-0 animate-fade-in">{logo}</div>;
     }
 
-    // Logo par défaut avec emoji/icône
+    // Logo par défaut avec emoji/icône - Design compact
     return (
-      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-        <span className="text-3xl">{defaultIcon}</span>
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+      <div className="relative flex-shrink-0 w-10 h-10 md:w-12 md:h-12 group animate-fade-in">
+        <div className="relative bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 h-full">
+          <span className="text-xl md:text-2xl">{defaultIcon}</span>
+        </div>
       </div>
     );
   };
 
-  // Render d'un bouton d'action avec icône uniquement et couleurs cohérentes
+  // Render d'un bouton d'action - Design compact et moderne
   const renderActionButton = (action: ActionButton, index: number) => {
     const Icon = action.icon;
     
-    // Classes de variantes simplifiées avec couleurs cohérentes du design system
+    // Classes de variantes épurées
     const variantClasses = {
-      primary: `
-        bg-primary-600 text-white
-        hover:bg-primary-700 active:bg-primary-800
-        shadow-md hover:shadow-lg hover:shadow-primary-500/40
-      `,
-      secondary: `
-        bg-secondary-600 text-white
-        hover:bg-secondary-700 active:bg-secondary-800
-        shadow-md hover:shadow-lg hover:shadow-secondary-500/40
-      `,
-      danger: `
-        bg-white text-accent-600 border-2 border-accent-600
-        hover:bg-accent-50 hover:border-accent-700 active:bg-accent-100
-        shadow-md hover:shadow-lg hover:shadow-accent-500/30
-      `,
+      primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-sm hover:shadow-md',
+      secondary: 'bg-secondary-600 hover:bg-secondary-700 text-white shadow-sm hover:shadow-md',
+      danger: 'bg-white hover:bg-accent-50 text-accent-600 border border-accent-300 hover:border-accent-500 shadow-sm',
     };
 
-    const classes = variantClasses[action.variant || 'primary'].trim().replace(/\s+/g, ' ');
-    const disabledClasses = action.disabled ? 'opacity-50 cursor-not-allowed hover:scale-100 hover:shadow-md' : '';
+    const classes = variantClasses[action.variant || 'primary'];
+    const disabledClasses = action.disabled ? 'opacity-50 cursor-not-allowed hover:scale-100' : '';
 
     return (
       <button
@@ -225,84 +215,100 @@ export const CustomerHeader = ({
         disabled={action.disabled}
         className={`
           group relative flex items-center justify-center
-          w-10 h-10 sm:w-11 sm:h-11
+          w-10 h-10 md:w-11 md:h-11
           rounded-xl
-          transition-all duration-200 ease-out
+          transition-all duration-300 ease-out
           hover:scale-105 active:scale-95
+          animate-fade-in
           ${classes}
           ${disabledClasses}
         `}
+        style={{ animationDelay: `${index * 50}ms` }}
         aria-label={action.label}
         title={action.label}
       >
         {Icon && (
           <Icon 
-            size={20} 
-            strokeWidth={2.5}
-            className="transition-transform duration-200 group-hover:scale-110"
+            className="w-5 h-5"
+            strokeWidth={2}
           />
         )}
       </button>
     );
   };
 
-  // Render des statistiques rapides
+  // Render des statistiques rapides - Design compact
   const renderQuickStats = () => {
     if (!showStats) return null;
 
+    const stats = [
+      {
+        icon: ShoppingBag,
+        label: 'En cours',
+        value: quickStats.activeReservations,
+        show: quickStats.activeReservations > 0,
+        color: 'primary',
+      },
+      {
+        icon: Package,
+        label: 'Repas sauvés',
+        value: quickStats.mealsSaved,
+        show: quickStats.mealsSaved > 0,
+        color: 'success',
+      },
+      {
+        icon: TrendingDown,
+        label: 'Économies',
+        value: formatCurrency(quickStats.moneySaved),
+        show: quickStats.moneySaved > 0,
+        color: 'warning',
+      },
+      {
+        icon: Heart,
+        label: 'Dons',
+        value: quickStats.donationsMade,
+        show: quickStats.donationsMade > 0,
+        color: 'accent',
+      },
+    ];
+
+    const visibleStats = stats.filter(stat => stat.show);
+    if (visibleStats.length === 0) return null;
+
     return (
-      <div className="hidden lg:flex items-center gap-3">
-        {/* Réservations actives */}
-        {quickStats.activeReservations > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 rounded-lg border border-primary-200 hover:shadow-md transition-shadow">
-            <ShoppingBag size={16} className="text-primary-600" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-primary-600 font-medium">En cours</span>
-              <span className="text-sm font-bold text-primary-700">
-                {loadingStats ? '...' : quickStats.activeReservations}
-              </span>
-            </div>
-          </div>
-        )}
+      <div className="hidden lg:flex items-center gap-2 animate-fade-in">
+        {visibleStats.map((stat, index) => {
+          const Icon = stat.icon;
+          const colorClasses = {
+            primary: 'bg-primary-50 border-primary-200 hover:border-primary-300',
+            success: 'bg-success-50 border-success-200 hover:border-success-300',
+            warning: 'bg-warning-50 border-warning-200 hover:border-warning-300',
+            accent: 'bg-accent-50 border-accent-200 hover:border-accent-300',
+          };
+          const iconColorClasses = {
+            primary: 'text-primary-600',
+            success: 'text-success-600',
+            warning: 'text-warning-600',
+            accent: 'text-accent-600',
+          };
 
-        {/* Repas sauvés */}
-        {quickStats.mealsSaved > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-success-50 rounded-lg border border-success-200 hover:shadow-md transition-shadow">
-            <Package size={16} className="text-success-600" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-success-600 font-medium">Repas sauvés</span>
-              <span className="text-sm font-bold text-success-700">
-                {loadingStats ? '...' : quickStats.mealsSaved}
-              </span>
+          return (
+            <div
+              key={index}
+              className={`flex items-center gap-2 px-3 py-2 bg-white rounded-lg border shadow-sm hover:shadow-md transition-all duration-300 ${colorClasses[stat.color as keyof typeof colorClasses]}`}
+            >
+              <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${colorClasses[stat.color as keyof typeof colorClasses]}`}>
+                <Icon size={16} className={iconColorClasses[stat.color as keyof typeof iconColorClasses]} strokeWidth={2} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-gray-500 font-medium">{stat.label}</span>
+                <span className="text-sm font-bold text-gray-900">
+                  {loadingStats ? '...' : stat.value}
+                </span>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Économies */}
-        {quickStats.moneySaved > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-warning-50 rounded-lg border border-warning-200 hover:shadow-md transition-shadow">
-            <DollarSign size={16} className="text-warning-600" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-warning-600 font-medium">Économies</span>
-              <span className="text-sm font-bold text-warning-700">
-                {loadingStats ? '...' : formatCurrency(quickStats.moneySaved)}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Dons solidaires */}
-        {quickStats.donationsMade > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-accent-50 rounded-lg border border-accent-200 hover:shadow-md transition-shadow">
-            <Heart size={16} className="text-accent-600" fill="currentColor" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-accent-600 font-medium">Dons</span>
-              <span className="text-sm font-bold text-accent-700">
-                {loadingStats ? '...' : quickStats.donationsMade}
-              </span>
-            </div>
-          </div>
-        )}
+          );
+        })}
       </div>
     );
   };
@@ -310,79 +316,76 @@ export const CustomerHeader = ({
   // Render principal
   return (
     <header
-      className={`bg-gradient-to-br from-white via-white to-gray-50/50 sticky top-0 z-40 border-b border-gray-200/80 backdrop-blur-sm transition-all duration-300 ${
-        isScrolled ? 'shadow-md py-2' : 'shadow-sm py-4'
+      className={`relative bg-white/95 backdrop-blur-lg sticky top-0 z-40 border-b border-gray-200 transition-all duration-500 animate-fade-in ${
+        isScrolled ? 'shadow-md py-3' : 'shadow-sm py-4'
       } ${className}`}
     >
-      <div className="max-w-12xl mx-auto px-4 sm:px-6">
-        {/* Layout Desktop : Grid 3 colonnes avec logo au centre */}
-        <div className="hidden lg:grid lg:grid-cols-3 gap-4 items-center">
-          {/* Section gauche : Titre, sous-titre et statistiques */}
-          <div className="flex flex-col min-w-0 gap-2">
+      {/* Ligne d'accentuation subtile en haut */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary-500 to-transparent opacity-60" />
+      
+      <div className="max-w-12xl mx-auto px-4 md:px-6 lg:px-8">
+        {/* Layout Desktop : Logo + Titre à gauche, Stats centrées, Actions à droite */}
+        <div className="hidden lg:flex items-center justify-between gap-6">
+          {/* Section gauche : Logo + Titre */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {renderLogo()}
             <div className="flex flex-col min-w-0">
-              <h1 className="text-xl font-bold text-gray-900 truncate flex items-center gap-2">
+              <h1 className="text-lg font-bold text-gray-900 flex items-center gap-2 animate-fade-in">
                 {finalTitle}
-                <Sparkles size={18} className="text-primary-500 animate-pulse" />
+                <Sparkles size={14} className="text-primary-500 animate-pulse" strokeWidth={2} />
               </h1>
-              <p className="text-sm text-gray-600 font-medium mt-0.5 truncate">
+              <p className="text-xs text-gray-500 font-medium mt-0.5 animate-fade-in" style={{ animationDelay: '100ms' }}>
                 {finalSubtitle}
               </p>
             </div>
-            {showStats && (
-              <div className="flex items-center gap-2 mt-1">
-                {renderQuickStats()}
-              </div>
-            )}
           </div>
 
-          {/* Section centrale : Logo */}
-          <div className="flex items-center justify-center">
-            {renderLogo()}
+          {/* Section centrale : Statistiques */}
+          <div className="flex items-center justify-center flex-1">
+            {renderQuickStats()}
           </div>
 
           {/* Section droite : Actions */}
-          <div className="flex items-center justify-end gap-2 sm:gap-3">
-            {/* Boutons d'action personnalisés */}
+          <div className="flex items-center justify-end gap-2 flex-shrink-0">
             {actions.map((action, index) => renderActionButton(action, index))}
-
-            {/* Bouton de déconnexion avec icône uniquement */}
             {showLogout && (
               <button
                 onClick={signOut}
                 className="
-                  group relative flex items-center justify-center
-                  w-10 h-10 sm:w-11 sm:h-11
-                  bg-white text-accent-600 border-2 border-accent-600
-                  hover:bg-accent-50 hover:border-accent-700 active:bg-accent-100
+                  group flex items-center justify-center
+                  w-11 h-11
+                  bg-white hover:bg-accent-50 text-accent-600 border border-accent-300 hover:border-accent-500
                   rounded-xl
-                  shadow-md hover:shadow-lg hover:shadow-accent-500/30
+                  shadow-sm hover:shadow-md
                   hover:scale-105 active:scale-95
-                  transition-all duration-200 ease-out
+                  transition-all duration-300 ease-out
+                  animate-fade-in
                 "
+                style={{ animationDelay: `${actions.length * 50}ms` }}
                 aria-label="Se déconnecter"
                 title="Se déconnecter"
               >
                 <LogOut 
                   size={20} 
-                  strokeWidth={2.5}
-                  className="transition-transform duration-200 group-hover:scale-110"
+                  strokeWidth={2}
+                  className="transition-all duration-300 group-hover:rotate-12"
                 />
               </button>
             )}
           </div>
         </div>
 
-        {/* Layout Tablet : Logo + Titre à gauche, Stats + Actions à droite */}
+        {/* Layout Tablet : Logo + Titre à gauche, Actions à droite */}
         <div className="hidden md:flex lg:hidden items-center justify-between gap-4">
           {/* Logo + Titre */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
             {renderLogo()}
             <div className="flex flex-col min-w-0">
-              <h1 className="text-lg font-bold text-gray-900 truncate flex items-center gap-2">
+              <h1 className="text-base font-bold text-gray-900 flex items-center gap-1.5">
                 {finalTitle}
-                <Sparkles size={16} className="text-primary-500" />
+                <Sparkles size={12} className="text-primary-500" strokeWidth={2} />
               </h1>
-              <p className="text-xs text-gray-600 font-medium mt-0.5 truncate">
+              <p className="text-[11px] text-gray-500 font-medium mt-0.5">
                 {finalSubtitle}
               </p>
             </div>
@@ -391,9 +394,9 @@ export const CustomerHeader = ({
           {/* Stats + Actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {showStats && quickStats.activeReservations > 0 && (
-              <div className="relative">
-                <ShoppingBag size={18} className="text-primary-600" />
-                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-primary-500 rounded-full border-2 border-white">
+              <div className="relative animate-fade-in">
+                <ShoppingBag size={18} className="text-primary-600" strokeWidth={2} />
+                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full border-2 border-white shadow-sm animate-pulse">
                   <span className="text-[8px] font-bold text-white">
                     {quickStats.activeReservations}
                   </span>
@@ -405,49 +408,49 @@ export const CustomerHeader = ({
               <button
                 onClick={signOut}
                 className="
-                  group relative flex items-center justify-center
+                  group flex items-center justify-center
                   w-10 h-10
-                  bg-white text-accent-600 border-2 border-accent-600
-                  hover:bg-accent-50 hover:border-accent-700 active:bg-accent-100
+                  bg-white hover:bg-accent-50 text-accent-600 border border-accent-300 hover:border-accent-500
                   rounded-xl
-                  shadow-md hover:shadow-lg hover:shadow-accent-500/30
+                  shadow-sm hover:shadow-md
                   hover:scale-105 active:scale-95
-                  transition-all duration-200 ease-out
+                  transition-all duration-300 ease-out
                 "
                 aria-label="Se déconnecter"
                 title="Se déconnecter"
               >
                 <LogOut 
-                  size={20} 
-                  strokeWidth={2.5}
-                  className="transition-transform duration-200 group-hover:scale-110"
+                  size={18} 
+                  strokeWidth={2}
+                  className="transition-all duration-300 group-hover:rotate-12"
                 />
               </button>
             )}
           </div>
         </div>
 
-        {/* Layout Mobile : Logo + Titre à gauche, Actions à droite */}
-        <div className="flex md:hidden items-center justify-between gap-3">
-          {/* Logo + Titre */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        {/* Layout Mobile : Logo + Titre centrés, Actions en dessous */}
+        <div className="flex md:hidden flex-col gap-3">
+          {/* Logo + Titre centrés */}
+          <div className="flex items-center justify-center gap-2 min-w-0">
             {renderLogo()}
             <div className="flex flex-col min-w-0">
-              <h1 className="text-base font-bold text-gray-900 truncate">
+              <h1 className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
                 {finalTitle}
+                <Sparkles size={12} className="text-primary-500" strokeWidth={2} />
               </h1>
-              <p className="text-xs text-gray-600 font-medium mt-0.5 truncate">
+              <p className="text-[10px] text-gray-500 font-medium hidden sm:block">
                 {finalSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Stats + Actions en dessous */}
+          <div className="flex items-center gap-2 justify-center flex-wrap">
             {showStats && quickStats.activeReservations > 0 && (
-              <div className="relative">
-                <ShoppingBag size={18} className="text-primary-600" />
-                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-primary-500 rounded-full border-2 border-white">
+              <div className="relative animate-fade-in">
+                <ShoppingBag size={18} className="text-primary-600" strokeWidth={2} />
+                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full border-2 border-white shadow-sm animate-pulse">
                   <span className="text-[8px] font-bold text-white">
                     {quickStats.activeReservations}
                   </span>
@@ -459,22 +462,21 @@ export const CustomerHeader = ({
               <button
                 onClick={signOut}
                 className="
-                  group relative flex items-center justify-center
-                  w-10 h-10
-                  bg-white text-accent-600 border-2 border-accent-600
-                  hover:bg-accent-50 hover:border-accent-700 active:bg-accent-100
-                  rounded-xl
-                  shadow-md hover:shadow-lg hover:shadow-accent-500/30
+                  group flex items-center justify-center
+                  w-9 h-9
+                  bg-white hover:bg-accent-50 text-accent-600 border border-accent-300 hover:border-accent-500
+                  rounded-lg
+                  shadow-sm hover:shadow-md
                   hover:scale-105 active:scale-95
-                  transition-all duration-200 ease-out
+                  transition-all duration-300 ease-out
                 "
                 aria-label="Se déconnecter"
                 title="Se déconnecter"
               >
                 <LogOut 
-                  size={20} 
-                  strokeWidth={2.5}
-                  className="transition-transform duration-200 group-hover:scale-110"
+                  size={18}
+                  strokeWidth={2}
+                  className="transition-all duration-300 group-hover:rotate-12"
                 />
               </button>
             )}
