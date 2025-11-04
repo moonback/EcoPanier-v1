@@ -15,7 +15,7 @@ import {
   InfoModal,
   type Lot,
 } from './lot-management';
-import { CheckSquare, Square, Trash2, Gift } from 'lucide-react';
+import { Trash2, Gift } from 'lucide-react';
 
 interface LotManagementProps {
   onCreateLotClick?: (handler: () => void) => void;
@@ -576,11 +576,6 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
     return !lot.is_free && remainingQty > 0;
   }).length;
 
-  // Calculer les lots épuisés
-  const soldOutCount = lots.filter(lot => {
-    const remainingQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
-    return remainingQty <= 0;
-  }).length;
 
   // Séparer les lots gratuits (dons) et les lots payants
   const freeLots = lots.filter(lot => lot.is_free);
@@ -675,19 +670,7 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
             </span>
           </div>
           
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">💚</span>
-              </div>
-              <div>
-                <p className="text-sm font-bold text-green-800">Impact Solidaire</p>
-                <p className="text-xs text-green-700">
-                  Ces produits sont offerts gratuitement aux bénéficiaires pour lutter contre le gaspillage alimentaire
-                </p>
-              </div>
-            </div>
-          </div>
+          
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {displayedFreeLots.map((lot) => (
@@ -724,19 +707,7 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
             </span>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">💼</span>
-              </div>
-              <div>
-                <p className="text-sm font-bold text-blue-800">Vente Anti-Gaspi</p>
-                <p className="text-xs text-blue-700">
-                  Ces produits sont vendus à prix réduits pour valoriser vos invendus tout en réduisant le gaspillage
-                </p>
-              </div>
-            </div>
-          </div>
+          
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {displayedPaidLots.map((lot) => (
