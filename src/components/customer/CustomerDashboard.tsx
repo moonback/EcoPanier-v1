@@ -45,7 +45,7 @@ export const CustomerDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       {/* En-tête amélioré */}
       <CustomerHeader
-        logo={<img src={EcoPanierLogo} alt="EcoPanier Logo" className="h-14 " />}
+        logo={<img src={EcoPanierLogo} alt="EcoPanier Logo" className="h-10 " />}
         title={`Bonjour ${profile?.full_name || 'Client'} !`}
         subtitle="Prêt à sauver des paniers aujourd'hui ?"
         defaultIcon="🛒"
