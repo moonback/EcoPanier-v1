@@ -371,33 +371,29 @@ export const MerchantHeader = ({
       {/* Bordure brillante en haut */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-400/50 to-transparent" />
       <div className="max-w-12xl mx-auto px-2 sm:px-3 md:px-4 lg:px-6">
-        {/* Layout Desktop XL : Grid 3 colonnes avec logo au centre */}
-        <div className="hidden xl:grid xl:grid-cols-3 gap-4 items-center">
-          {/* Section gauche : Titre, sous-titre et statistiques */}
-          <div className="flex flex-col min-w-0 gap-2">
-            <div className="flex flex-col min-w-0">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent truncate flex items-center gap-2">
+        {/* Layout Desktop XL : Logo + Titre centrés, Stats à gauche, Actions à droite */}
+        <div className="hidden xl:flex items-center justify-between gap-4">
+          {/* Section gauche : Statistiques */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {showStats && renderQuickStats('full')}
+          </div>
+
+          {/* Section centrale : Logo + Titre */}
+          <div className="flex items-center gap-3 flex-1 justify-center min-w-0">
+            {renderLogo()}
+            <div className="flex flex-col min-w-0 items-center">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent flex items-center gap-2">
                 {finalTitle}
                 <Sparkles size={18} className="text-primary-500 animate-pulse flex-shrink-0 drop-shadow-sm" />
               </h1>
-              <p className="text-sm text-gray-600 font-medium mt-0.5 truncate">
+              <p className="text-sm text-gray-600 font-medium mt-0.5">
                 {finalSubtitle}
               </p>
             </div>
-            {showStats && (
-              <div className="flex items-center gap-2 mt-1">
-                {renderQuickStats('full')}
-              </div>
-            )}
-          </div>
-
-          {/* Section centrale : Logo */}
-          <div className="flex items-center justify-center">
-            {renderLogo()}
           </div>
 
           {/* Section droite : Actions */}
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2 flex-shrink-0">
             {/* Boutons d'action personnalisés */}
             {actions.map((action, index) => renderActionButton(action, index))}
 
@@ -431,25 +427,29 @@ export const MerchantHeader = ({
           </div>
         </div>
 
-        {/* Layout Desktop LG : Logo + Titre à gauche, Stats + Actions à droite */}
+        {/* Layout Desktop LG : Logo + Titre centrés, Stats + Actions à droite */}
         <div className="hidden lg:flex xl:hidden items-center justify-between gap-4">
-          {/* Logo + Titre */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Section gauche : Vide pour équilibrer */}
+          <div className="flex items-center gap-2 flex-shrink-0 w-40">
+            {showStats && renderQuickStats('compact')}
+          </div>
+
+          {/* Section centrale : Logo + Titre */}
+          <div className="flex items-center gap-3 flex-1 justify-center min-w-0">
             {renderLogo()}
-            <div className="flex flex-col min-w-0">
-              <h1 className="text-lg font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent truncate flex items-center gap-2">
+            <div className="flex flex-col min-w-0 items-center">
+              <h1 className="text-lg font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent flex items-center gap-2">
                 {finalTitle}
                 <Sparkles size={16} className="text-primary-500 flex-shrink-0 drop-shadow-sm" />
               </h1>
-              <p className="text-xs text-gray-600 font-medium mt-0.5 truncate">
+              <p className="text-xs text-gray-600 font-medium mt-0.5">
                 {finalSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Stats + Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {showStats && renderQuickStats('compact')}
+          {/* Section droite : Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0 w-40 justify-end">
             {actions.map((action, index) => renderActionButton(action, index))}
             {showLogout && (
               <button
@@ -477,25 +477,29 @@ export const MerchantHeader = ({
           </div>
         </div>
 
-        {/* Layout Tablet : Logo + Titre à gauche, Stats compactes + Actions à droite */}
+        {/* Layout Tablet : Logo + Titre centrés, Actions à droite */}
         <div className="hidden md:flex lg:hidden items-center justify-between gap-3">
-          {/* Logo + Titre */}
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+          {/* Section gauche : Vide pour équilibrer */}
+          <div className="flex items-center gap-2 flex-shrink-0 w-32">
+            {showStats && renderQuickStats('compact')}
+          </div>
+
+          {/* Section centrale : Logo + Titre */}
+          <div className="flex items-center gap-2.5 flex-1 justify-center min-w-0">
             {renderLogo()}
-            <div className="flex flex-col min-w-0">
-              <h1 className="text-base font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent truncate flex items-center gap-1.5">
+            <div className="flex flex-col min-w-0 items-center">
+              <h1 className="text-base font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent flex items-center gap-1.5">
                 {finalTitle}
                 <Sparkles size={14} className="text-primary-500 flex-shrink-0 drop-shadow-sm" />
               </h1>
-              <p className="text-[11px] text-gray-600 font-medium mt-0.5 truncate">
+              <p className="text-[11px] text-gray-600 font-medium mt-0.5">
                 {finalSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Stats + Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {showStats && renderQuickStats('compact')}
+          {/* Section droite : Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0 w-32 justify-end">
             {actions.map((action, index) => renderActionButton(action, index))}
             {showLogout && (
               <button
@@ -523,23 +527,23 @@ export const MerchantHeader = ({
           </div>
         </div>
 
-        {/* Layout Mobile : Logo + Titre au-dessus, Actions en dessous */}
+        {/* Layout Mobile : Logo + Titre centrés, Actions en dessous */}
         <div className="flex md:hidden flex-col gap-2">
-          {/* Logo + Titre */}
-          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+          {/* Logo + Titre centrés */}
+          <div className="flex items-center justify-center gap-1.5 min-w-0">
             {renderLogo()}
-            <div className="flex flex-col min-w-0 flex-1">
-              <h1 className="text-xs sm:text-sm font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent truncate">
+            <div className="flex flex-col min-w-0 items-center">
+              <h1 className="text-xs sm:text-sm font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
                 {finalTitle}
               </h1>
-              <p className="text-[9px] sm:text-[10px] text-gray-600 font-medium truncate hidden sm:block">
+              <p className="text-[9px] sm:text-[10px] text-gray-600 font-medium hidden sm:block">
                 {finalSubtitle}
               </p>
             </div>
           </div>
 
           {/* Actions en dessous */}
-          <div className="flex items-center gap-1 justify-end">
+          <div className="flex items-center gap-1 justify-center">
             {showStats && renderQuickStats('minimal')}
             {actions.map((action, index) => renderActionButton(action, index))}
             {showLogout && (

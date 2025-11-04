@@ -120,7 +120,7 @@ export const MerchantDashboard = () => {
           ) : undefined
         }
         title={profile?.business_name || profile?.full_name || 'Commerçant'}
-        subtitle="Valorisez vos invendus, réduisez le gaspillage ! 💚"
+        // subtitle="Valorisez vos invendus, réduisez le gaspillage ! 💚"
         defaultIcon="🏪"
         showStats={true}
         actions={[
