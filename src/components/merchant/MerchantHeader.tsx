@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { LogOut, type LucideIcon, Package, ClipboardList, Bell, Sparkles, TrendingUp } from 'lucide-react';
+import { LogOut, type LucideIcon, Package, ClipboardList, Bell, TrendingUp } from 'lucide-react';
 import { ReactNode } from 'react';
 
 // Imports internes
@@ -164,16 +164,16 @@ export const MerchantHeader = ({
   // Déterminer le sous-titre final
   const finalSubtitle = subtitle || 'Valorisez vos invendus, réduisez le gaspillage ! 💚';
 
-  // Render du logo avec design épuré et animations subtiles
+  // Render du logo - Design simple et responsive
   const renderLogo = () => {
     // Si logo est une string (URL)
     if (typeof logo === 'string') {
       return (
-        <div className="relative group flex-shrink-0 animate-fade-in">
+        <div className="flex-shrink-0">
           <img
             src={logo}
             alt={logoAlt}
-            className="w-10 h-10 md:w-12 md:h-12 rounded-xl object-cover shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover"
           />
         </div>
       );
@@ -181,58 +181,41 @@ export const MerchantHeader = ({
 
     // Si logo est un élément React
     if (logo) {
-      return <div className="flex-shrink-0 animate-fade-in">{logo}</div>;
+      return <div className="flex-shrink-0">{logo}</div>;
     }
 
-    // Logo par défaut avec emoji/icône - Design épuré
+    // Logo par défaut avec emoji/icône
     return (
-      <div className="relative flex-shrink-0 w-10 h-10 md:w-12 md:h-12 group animate-fade-in">
-        <div className="relative bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 h-full">
-          <span className="text-xl md:text-2xl">{defaultIcon}</span>
-        </div>
+      <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+        <span className="text-lg sm:text-xl">{defaultIcon}</span>
       </div>
     );
   };
 
-  // Render d'un bouton d'action - Design épuré et moderne
+  // Render d'un bouton d'action - Design simple et responsive
   const renderActionButton = (action: ActionButton, index: number) => {
     const Icon = action.icon;
     
-    // Classes de variantes épurées
+    // Classes de variantes simples
     const variantClasses = {
-      primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-sm hover:shadow-md',
-      secondary: 'bg-secondary-600 hover:bg-secondary-700 text-white shadow-sm hover:shadow-md',
-      danger: 'bg-white hover:bg-accent-50 text-accent-600 border border-accent-300 hover:border-accent-500 shadow-sm',
+      primary: 'bg-primary-600 hover:bg-primary-700 text-white',
+      secondary: 'bg-gray-600 hover:bg-gray-700 text-white',
+      danger: 'bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300',
     };
 
     const classes = variantClasses[action.variant || 'primary'];
-    const disabledClasses = action.disabled ? 'opacity-50 cursor-not-allowed hover:scale-100' : '';
+    const disabledClasses = action.disabled ? 'opacity-50 cursor-not-allowed' : '';
 
     return (
       <button
         key={index}
         onClick={action.disabled ? undefined : action.onClick}
         disabled={action.disabled}
-        className={`
-          group relative flex items-center justify-center
-          w-10 h-10 md:w-11 md:h-11
-          rounded-xl
-          transition-all duration-300 ease-out
-          hover:scale-105 active:scale-95
-          animate-fade-in
-          ${classes}
-          ${disabledClasses}
-        `}
-        style={{ animationDelay: `${index * 50}ms` }}
+        className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg shadow-sm hover:shadow transition-all duration-200 ${classes} ${disabledClasses}`}
         aria-label={action.label}
         title={action.label}
       >
-        {Icon && (
-          <Icon 
-            className="w-5 h-5 transition-transform duration-300 group-hover:rotate-6"
-            strokeWidth={2}
-          />
-        )}
+        {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />}
       </button>
     );
   };
@@ -242,14 +225,14 @@ export const MerchantHeader = ({
     if (!showStats) return null;
 
     if (variant === 'minimal') {
-      // Version minimale : badge notif seulement
+      // Version minimale : badge notif compact pour mobile
       return (
-        <div className="flex items-center animate-fade-in">
+        <div className="flex items-center">
           {quickStats.pendingReservations > 0 && (
             <div className="relative">
-              <Bell className="w-5 h-5 text-warning-600 animate-pulse" strokeWidth={2} />
-              <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-gradient-to-br from-warning-500 to-warning-600 rounded-full border-2 border-white shadow-sm">
-                <span className="text-[8px] font-bold text-white">
+              <Bell className="w-4 h-4 text-orange-600" strokeWidth={2} />
+              <div className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[14px] h-3.5 px-1 bg-orange-500 rounded-full">
+                <span className="text-[9px] font-bold text-white leading-none">
                   {quickStats.pendingReservations > 9 ? '9+' : quickStats.pendingReservations}
                 </span>
               </div>
@@ -260,32 +243,32 @@ export const MerchantHeader = ({
     }
 
     if (variant === 'compact') {
-      // Version compacte - Design épuré
+      // Version compacte - Design minimaliste
       return (
-        <div className="flex items-center gap-2 animate-fade-in">
+        <div className="flex items-center gap-2">
           {/* Lots actifs */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white rounded-lg shadow-sm border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all duration-300">
-            <Package size={16} className="text-primary-600" strokeWidth={2} />
-            <span className="text-sm font-semibold text-gray-900">
+          <div className="flex items-center gap-1.5 px-2 py-1.5 bg-gray-50 rounded-lg">
+            <Package size={14} className="text-blue-600" strokeWidth={2} />
+            <span className="text-xs font-bold text-gray-900">
               {loadingStats ? '...' : quickStats.activeLots}
             </span>
           </div>
 
           {/* Réservations en attente */}
-          <div className="relative flex items-center gap-1.5 px-2.5 py-1.5 bg-white rounded-lg shadow-sm border border-gray-200 hover:border-warning-300 hover:shadow-md transition-all duration-300">
-            <ClipboardList size={16} className="text-warning-600" strokeWidth={2} />
-            <span className="text-sm font-semibold text-gray-900">
+          <div className="relative flex items-center gap-1.5 px-2 py-1.5 bg-gray-50 rounded-lg">
+            <ClipboardList size={14} className="text-orange-600" strokeWidth={2} />
+            <span className="text-xs font-bold text-gray-900">
               {loadingStats ? '...' : quickStats.pendingReservations}
             </span>
             {quickStats.pendingReservations > 0 && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-warning-500 rounded-full border-2 border-white animate-pulse" />
+              <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
             )}
           </div>
 
           {/* Revenus */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white rounded-lg shadow-sm border border-gray-200 hover:border-success-300 hover:shadow-md transition-all duration-300">
-            <TrendingUp size={16} className="text-success-600" strokeWidth={2} />
-            <span className="text-sm font-semibold text-gray-900">
+          <div className="flex items-center gap-1.5 px-2 py-1.5 bg-gray-50 rounded-lg">
+            <TrendingUp size={14} className="text-green-600" strokeWidth={2} />
+            <span className="text-xs font-bold text-gray-900">
               {loadingStats ? '...' : formatCurrency(quickStats.todayRevenue)}
             </span>
           </div>
@@ -293,46 +276,40 @@ export const MerchantHeader = ({
       );
     }
 
-    // Version complète - Design épuré avec animations subtiles
+    // Version complète - Design minimaliste et pro
     return (
-      <div className="flex items-center gap-3 animate-fade-in">
+      <div className="flex items-center gap-3">
         {/* Lots actifs */}
-        <div className="flex items-center gap-2.5 px-4 py-2.5 bg-white rounded-xl shadow-sm border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all duration-300 group">
-          <div className="w-10 h-10 flex items-center justify-center bg-primary-50 rounded-lg group-hover:bg-primary-100 transition-colors duration-300">
-            <Package size={20} className="text-primary-600 group-hover:scale-110 transition-transform duration-300" strokeWidth={2} />
-          </div>
+        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <Package size={18} className="text-blue-600" strokeWidth={2} />
           <div className="flex flex-col">
-            <span className="text-xs text-gray-500 font-medium">Lots actifs</span>
-            <span className="text-lg font-bold text-gray-900">
+            <span className="text-[10px] text-gray-500 font-medium">Lots</span>
+            <span className="text-sm font-bold text-gray-900">
               {loadingStats ? '...' : quickStats.activeLots}
             </span>
           </div>
         </div>
 
         {/* Réservations en attente */}
-        <div className="relative flex items-center gap-2.5 px-4 py-2.5 bg-white rounded-xl shadow-sm border border-gray-200 hover:border-warning-300 hover:shadow-md transition-all duration-300 group">
-          <div className="w-10 h-10 flex items-center justify-center bg-warning-50 rounded-lg group-hover:bg-warning-100 transition-colors duration-300">
-            <ClipboardList size={20} className="text-warning-600 group-hover:scale-110 transition-transform duration-300" strokeWidth={2} />
-          </div>
+        <div className="relative flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <ClipboardList size={18} className="text-orange-600" strokeWidth={2} />
           <div className="flex flex-col">
-            <span className="text-xs text-gray-500 font-medium">En attente</span>
-            <span className="text-lg font-bold text-gray-900">
+            <span className="text-[10px] text-gray-500 font-medium">En attente</span>
+            <span className="text-sm font-bold text-gray-900">
               {loadingStats ? '...' : quickStats.pendingReservations}
             </span>
           </div>
           {quickStats.pendingReservations > 0 && (
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-warning-500 to-warning-600 rounded-full border-2 border-white shadow-sm animate-pulse" />
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
           )}
         </div>
 
         {/* Revenus du jour */}
-        <div className="flex items-center gap-2.5 px-4 py-2.5 bg-white rounded-xl shadow-sm border border-gray-200 hover:border-success-300 hover:shadow-md transition-all duration-300 group">
-          <div className="w-10 h-10 flex items-center justify-center bg-success-50 rounded-lg group-hover:bg-success-100 transition-colors duration-300">
-            <TrendingUp size={20} className="text-success-600 group-hover:scale-110 transition-transform duration-300" strokeWidth={2} />
-          </div>
+        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <TrendingUp size={18} className="text-green-600" strokeWidth={2} />
           <div className="flex flex-col">
-            <span className="text-xs text-gray-500 font-medium">Aujourd'hui</span>
-            <span className="text-lg font-bold text-gray-900">
+            <span className="text-[10px] text-gray-500 font-medium">Aujourd'hui</span>
+            <span className="text-sm font-bold text-gray-900">
               {loadingStats ? '...' : formatCurrency(quickStats.todayRevenue)}
             </span>
           </div>
@@ -344,205 +321,111 @@ export const MerchantHeader = ({
   // Render principal
   return (
     <header
-      className={`relative bg-white/95 backdrop-blur-lg sticky top-0 z-40 border-b border-gray-200 transition-all duration-500 animate-fade-in ${
-        isScrolled ? 'shadow-md py-3' : 'shadow-sm py-4'
+      className={`relative bg-white sticky top-0 z-40 border-b border-gray-100 transition-all duration-300 ${
+        isScrolled ? 'shadow-lg py-2 sm:py-3' : 'shadow-sm py-3 sm:py-4'
       } ${className}`}
     >
-      {/* Ligne d'accentuation subtile en haut */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary-500 to-transparent opacity-60" />
+      {/* Accent bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-primary-600 to-secondary-600" />
       
-      <div className="max-w-12xl mx-auto px-4 md:px-6 lg:px-8">
-        {/* Layout Desktop XL : Stats à gauche, Logo + Titre centrés, Actions à droite */}
-        <div className="hidden xl:flex items-center justify-between gap-6">
-          {/* Section gauche : Statistiques */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {showStats && renderQuickStats('full')}
-          </div>
-
-          {/* Section centrale : Logo + Titre */}
-          <div className="flex items-center gap-3 flex-1 justify-center min-w-0">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        {/* Layout Desktop : Logo + Titre à gauche, Stats au centre, Actions à droite */}
+        <div className="hidden lg:flex items-center justify-between gap-8">
+          {/* Section gauche : Logo + Titre */}
+          <div className="flex items-center gap-3">
             {renderLogo()}
-            <div className="flex flex-col min-w-0 items-center">
-              <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2 animate-fade-in">
-                {finalTitle}
-                <Sparkles size={16} className="text-primary-500 animate-pulse" strokeWidth={2} />
-              </h1>
-              <p className="text-sm text-gray-500 font-medium mt-0.5 animate-fade-in" style={{ animationDelay: '100ms' }}>
-                {finalSubtitle}
-              </p>
-            </div>
-          </div>
-
-          {/* Section droite : Actions */}
-          <div className="flex items-center justify-end gap-2 flex-shrink-0">
-            {actions.map((action, index) => renderActionButton(action, index))}
-            {showLogout && (
-              <button
-                onClick={signOut}
-                className="
-                  group relative flex items-center justify-center
-                  w-11 h-11
-                  bg-white hover:bg-accent-50 text-accent-600 border border-accent-300 hover:border-accent-500
-                  rounded-xl
-                  shadow-sm hover:shadow-md
-                  hover:scale-105 active:scale-95
-                  transition-all duration-300 ease-out
-                  animate-fade-in
-                "
-                style={{ animationDelay: `${actions.length * 50}ms` }}
-                aria-label="Se déconnecter"
-                title="Se déconnecter"
-              >
-                <LogOut 
-                  size={20} 
-                  strokeWidth={2}
-                  className="transition-all duration-300 group-hover:rotate-12"
-                />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Layout Desktop LG : Stats à gauche, Logo + Titre centrés, Actions à droite */}
-        <div className="hidden lg:flex xl:hidden items-center justify-between gap-4">
-          {/* Section gauche : Statistiques */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {showStats && renderQuickStats('compact')}
-          </div>
-
-          {/* Section centrale : Logo + Titre */}
-          <div className="flex items-center gap-3 flex-1 justify-center min-w-0">
-            {renderLogo()}
-            <div className="flex flex-col min-w-0 items-center">
+            <div className="flex flex-col">
               <h1 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 {finalTitle}
-                <Sparkles size={14} className="text-primary-500 animate-pulse" strokeWidth={2} />
               </h1>
-              <p className="text-xs text-gray-500 font-medium mt-0.5">
+              <p className="text-xs text-gray-500">
                 {finalSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Section droite : Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0 justify-end">
-            {actions.map((action, index) => renderActionButton(action, index))}
-            {showLogout && (
-              <button
-                onClick={signOut}
-                className="
-                  group flex items-center justify-center
-                  w-10 h-10
-                  bg-white hover:bg-accent-50 text-accent-600 border border-accent-300 hover:border-accent-500
-                  rounded-xl
-                  shadow-sm hover:shadow-md
-                  hover:scale-105 active:scale-95
-                  transition-all duration-300 ease-out
-                "
-                aria-label="Se déconnecter"
-                title="Se déconnecter"
-              >
-                <LogOut 
-                  size={20} 
-                  strokeWidth={2}
-                  className="transition-all duration-300 group-hover:rotate-12"
-                />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Layout Tablet : Stats à gauche, Logo + Titre centrés, Actions à droite */}
-        <div className="hidden md:flex lg:hidden items-center justify-between gap-3">
-          {/* Section gauche : Statistiques */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {showStats && renderQuickStats('compact')}
-          </div>
-
-          {/* Section centrale : Logo + Titre */}
-          <div className="flex items-center gap-2.5 flex-1 justify-center min-w-0">
-            {renderLogo()}
-            <div className="flex flex-col min-w-0 items-center">
-              <h1 className="text-base font-bold text-gray-900 flex items-center gap-1.5">
-                {finalTitle}
-                <Sparkles size={12} className="text-primary-500" strokeWidth={2} />
-              </h1>
-              <p className="text-[11px] text-gray-500 font-medium mt-0.5">
-                {finalSubtitle}
-              </p>
+          {/* Section centrale : Statistiques */}
+          {showStats && (
+            <div className="flex items-center gap-2 flex-1 justify-center">
+              {renderQuickStats('full')}
             </div>
-          </div>
+          )}
 
           {/* Section droite : Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0 justify-end">
+          <div className="flex items-center gap-2">
             {actions.map((action, index) => renderActionButton(action, index))}
             {showLogout && (
               <button
                 onClick={signOut}
-                className="
-                  group flex items-center justify-center
-                  w-10 h-10
-                  bg-white hover:bg-accent-50 text-accent-600 border border-accent-300 hover:border-accent-500
-                  rounded-xl
-                  shadow-sm hover:shadow-md
-                  hover:scale-105 active:scale-95
-                  transition-all duration-300 ease-out
-                "
+                className="flex items-center justify-center w-10 h-10 bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 rounded-lg shadow-sm hover:shadow transition-all duration-200"
                 aria-label="Se déconnecter"
-                title="Se déconnecter"
               >
-                <LogOut 
-                  size={18} 
-                  strokeWidth={2}
-                  className="transition-all duration-300 group-hover:rotate-12"
-                />
+                <LogOut size={18} strokeWidth={2} />
               </button>
             )}
           </div>
         </div>
 
-        {/* Layout Mobile : Logo + Titre centrés, Stats + Actions en dessous */}
-        <div className="flex md:hidden flex-col gap-3">
-          {/* Logo + Titre centrés */}
-          <div className="flex items-center justify-center gap-2 min-w-0">
+        {/* Layout Tablet : Logo + Titre à gauche, Actions à droite */}
+        <div className="hidden md:flex lg:hidden items-center justify-between gap-4">
+          {/* Logo + Titre */}
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
             {renderLogo()}
             <div className="flex flex-col min-w-0">
-              <h1 className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+              <h1 className="text-base font-bold text-gray-900 truncate">
                 {finalTitle}
-                <Sparkles size={12} className="text-primary-500" strokeWidth={2} />
               </h1>
-              <p className="text-[10px] text-gray-500 font-medium hidden sm:block">
+              <p className="text-xs text-gray-500 truncate">
                 {finalSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Stats + Actions en dessous */}
-          <div className="flex items-center gap-2 justify-center flex-wrap">
-            {showStats && renderQuickStats('minimal')}
+          {/* Stats + Actions */}
+          <div className="flex items-center gap-2">
+            {showStats && renderQuickStats('compact')}
             {actions.map((action, index) => renderActionButton(action, index))}
             {showLogout && (
               <button
                 onClick={signOut}
-                className="
-                  group flex items-center justify-center
-                  w-9 h-9
-                  bg-white hover:bg-accent-50 text-accent-600 border border-accent-300 hover:border-accent-500
-                  rounded-lg
-                  shadow-sm hover:shadow-md
-                  hover:scale-105 active:scale-95
-                  transition-all duration-300 ease-out
-                "
+                className="flex items-center justify-center w-10 h-10 bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 rounded-lg shadow-sm hover:shadow transition-all duration-200"
                 aria-label="Se déconnecter"
-                title="Se déconnecter"
               >
-                <LogOut 
-                  size={18}
-                  strokeWidth={2}
-                  className="transition-all duration-300 group-hover:rotate-12"
-                />
+                <LogOut size={18} strokeWidth={2} />
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Layout Mobile : Optimisé pour petits écrans */}
+        <div className="flex md:hidden flex-col gap-2">
+          {/* Ligne 1 : Logo + Titre + Déconnexion */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              {renderLogo()}
+              <h1 className="text-xs font-bold text-gray-900 truncate">
+                {finalTitle}
+              </h1>
+            </div>
+            
+            {showLogout && (
+              <button
+                onClick={signOut}
+                className="flex-shrink-0 flex items-center justify-center w-8 h-8 bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 rounded-lg shadow-sm hover:shadow transition-all duration-200"
+                aria-label="Se déconnecter"
+              >
+                <LogOut size={14} strokeWidth={2} />
+              </button>
+            )}
+          </div>
+
+          {/* Ligne 2 : Stats + Actions + Sous-titre */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {showStats && renderQuickStats('minimal')}
+              {actions.map((action, index) => renderActionButton(action, index))}
+            </div>
+            
           </div>
         </div>
       </div>
