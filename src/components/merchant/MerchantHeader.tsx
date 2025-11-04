@@ -328,7 +328,7 @@ export const MerchantHeader = ({
       {/* Accent bar */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-primary-600 to-secondary-600" />
       
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+      <div className="max-w-12xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         {/* Layout Desktop : Logo + Titre à gauche, Stats au centre, Actions à droite */}
         <div className="hidden lg:flex items-center justify-between gap-8">
           {/* Section gauche : Logo + Titre */}
