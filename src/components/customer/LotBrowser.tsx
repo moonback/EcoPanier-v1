@@ -1,6 +1,6 @@
 // Imports externes
-import { useState } from 'react';
-import { Package, Filter, X, Zap, Euro } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Package, X, Zap, Euro } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -37,13 +37,22 @@ const DEFAULT_FILTERS: AdvancedFilters = {
   sortBy: 'urgent'
 };
 
+interface LotBrowserProps {
+  showFilterSidebar: boolean;
+  setShowFilterSidebar: (show: boolean) => void;
+  onFiltersCountChange: (count: number) => void;
+}
+
 /**
  * Composant principal pour parcourir et réserver des lots
  * Gère l'affichage des lots, le filtrage avancé et la réservation
  */
-export const LotBrowser = () => {
+export const LotBrowser = ({
+  showFilterSidebar,
+  setShowFilterSidebar,
+  onFiltersCountChange,
+}: LotBrowserProps) => {
   // État local
-  const [showFilterSidebar, setShowFilterSidebar] = useState(false);
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
   const [reservationMode, setReservationMode] = useState<'reserve' | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -108,6 +117,18 @@ export const LotBrowser = () => {
     setFilters(DEFAULT_FILTERS);
   };
 
+  // Calculer les filtres actifs
+  const activeFiltersCount = 
+    (filters.category ? 1 : 0) +
+    (filters.onlyUrgent ? 1 : 0) +
+    (filters.minQuantity > 1 ? 1 : 0) +
+    ((filters.minPrice > 0 || filters.maxPrice < 100) ? 1 : 0);
+
+  // Communiquer le nombre de filtres actifs au parent
+  useEffect(() => {
+    onFiltersCountChange(activeFiltersCount);
+  }, [activeFiltersCount, onFiltersCountChange]);
+
   // Early returns (conditions de sortie)
   if (loading) {
     return (
@@ -123,12 +144,7 @@ export const LotBrowser = () => {
 
         {/* Contenu principal avec margin pour la sidebar */}
         <div className="lg:ml-80">
-          <div className="w-full px-4 py-6">
-            {/* Barre de filtres mobile skeleton */}
-            <div className="mb-6 flex items-center justify-between gap-3">
-              <div className="lg:hidden h-12 bg-gray-200 rounded-xl animate-pulse w-32"></div>
-            </div>
-            
+          <div className="w-full px-4 pt-6">
             {/* Grid de skeleton loaders */}
             <SkeletonGrid count={12} />
           </div>
@@ -145,13 +161,6 @@ export const LotBrowser = () => {
     );
   }
 
-  // Calculer les filtres actifs
-  const activeFiltersCount = 
-    (filters.category ? 1 : 0) +
-    (filters.onlyUrgent ? 1 : 0) +
-    (filters.minQuantity > 1 ? 1 : 0) +
-    ((filters.minPrice > 0 || filters.maxPrice < 100) ? 1 : 0);
-
   // Render principal
   return (
     <div>
@@ -166,23 +175,7 @@ export const LotBrowser = () => {
 
       {/* Contenu principal avec margin pour la sidebar */}
       <div className="lg:ml-80">
-        <div className="w-full px-4">
-        {/* Barre de filtres mobile + résultats */}
-        <div className="mb-6 flex items-center justify-between gap-3">
-          <button
-            onClick={() => setShowFilterSidebar(true)}
-            className="lg:hidden flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-white to-primary-50/50 text-gray-900 rounded-xl border-2 border-gray-200 hover:border-primary-400 hover:shadow-lg transition-all font-medium group"
-          >
-            <Filter className="w-5 h-5 text-gray-600 group-hover:text-primary-600 transition-colors" strokeWidth={1.5} />
-            <span className="group-hover:text-primary-600 transition-colors">Filtres</span>
-            {activeFiltersCount > 0 && (
-              <span className="ml-1 px-2 py-0.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-full text-xs font-bold shadow-sm animate-pulse">
-                {activeFiltersCount}
-              </span>
-            )}
-          </button>
-
-        </div>
+        <div className="w-full px-4 pt-4">
 
         {/* Badges filtres actifs */}
         {activeFiltersCount > 0 && (

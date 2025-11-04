@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { LogOut, type LucideIcon, Package, ShoppingBag, Heart, Sparkles, TrendingDown } from 'lucide-react';
+import { LogOut, type LucideIcon, Package, ShoppingBag, Heart, Sparkles, TrendingDown, Filter } from 'lucide-react';
 import { ReactNode } from 'react';
 
 // Imports internes
@@ -37,6 +37,12 @@ interface CustomerHeaderProps {
   className?: string;
   /** Afficher les statistiques rapides */
   showStats?: boolean;
+  /** Afficher le bouton filtres (par défaut: false) */
+  showFilters?: boolean;
+  /** Callback pour ouvrir les filtres */
+  onOpenFilters?: () => void;
+  /** Nombre de filtres actifs */
+  activeFiltersCount?: number;
 }
 
 interface QuickStats {
@@ -60,6 +66,9 @@ export const CustomerHeader = ({
   showLogout = true,
   className = '',
   showStats = true,
+  showFilters = false,
+  onOpenFilters,
+  activeFiltersCount = 0,
 }: CustomerHeaderProps) => {
   // État local
   const [isScrolled, setIsScrolled] = useState(false);
@@ -429,36 +438,48 @@ export const CustomerHeader = ({
           </div>
         </div>
 
-        {/* Layout Mobile : Logo + Titre centrés, Actions en dessous */}
-        <div className="flex md:hidden flex-col gap-3">
-          {/* Logo + Titre centrés */}
-          <div className="flex items-center justify-center gap-2 min-w-0">
+         {/* Layout Mobile : Filtres à gauche, Logo centré, Déconnexion à droite */}
+         <div className="flex md:hidden flex-col gap-3">
+           {/* Ligne avec Filtres à gauche, Logo centré et Déconnexion à droite */}
+           <div className="flex items-center justify-between animate-fade-in">
+             {/* Bouton filtres à gauche */}
+             {showFilters && onOpenFilters ? (
+               <button
+                 onClick={onOpenFilters}
+                 className="
+                   group relative flex items-center justify-center
+                   w-9 h-9
+                   bg-white hover:bg-primary-50 text-primary-600 border border-primary-300 hover:border-primary-500
+                   rounded-lg
+                   shadow-sm hover:shadow-md
+                   hover:scale-105 active:scale-95
+                   transition-all duration-300 ease-out
+                 "
+                 aria-label="Filtres"
+                 title="Filtres"
+               >
+                 <Filter 
+                   size={18}
+                   strokeWidth={2}
+                   className="transition-all duration-300"
+                 />
+                 {activeFiltersCount > 0 && (
+                   <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full border-2 border-white shadow-sm animate-pulse">
+                     <span className="text-[8px] font-bold text-white">
+                       {activeFiltersCount}
+                     </span>
+                   </div>
+                 )}
+               </button>
+             ) : (
+               <div className="w-9 h-9" />
+             )}
+            
+            {/* Logo centré */}
             {renderLogo()}
-            <div className="flex flex-col min-w-0">
-              <h1 className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-                {finalTitle}
-                <Sparkles size={12} className="text-primary-500" strokeWidth={2} />
-              </h1>
-              <p className="text-[10px] text-gray-500 font-medium hidden sm:block">
-                {finalSubtitle}
-              </p>
-            </div>
-          </div>
-
-          {/* Stats + Actions en dessous */}
-          <div className="flex items-center gap-2 justify-center flex-wrap">
-            {showStats && quickStats.activeReservations > 0 && (
-              <div className="relative animate-fade-in">
-                <ShoppingBag size={18} className="text-primary-600" strokeWidth={2} />
-                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full border-2 border-white shadow-sm animate-pulse">
-                  <span className="text-[8px] font-bold text-white">
-                    {quickStats.activeReservations}
-                  </span>
-                </div>
-              </div>
-            )}
-            {actions.map((action, index) => renderActionButton(action, index))}
-            {showLogout && (
+            
+            {/* Bouton déconnexion à droite */}
+            {showLogout ? (
               <button
                 onClick={signOut}
                 className="
@@ -479,7 +500,35 @@ export const CustomerHeader = ({
                   className="transition-all duration-300 group-hover:rotate-12"
                 />
               </button>
+            ) : (
+              <div className="w-9 h-9" />
             )}
+          </div>
+
+          {/* Titre centré en dessous du logo */}
+          <div className="flex flex-col items-center justify-center gap-1 animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <h1 className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+              {finalTitle}
+              <Sparkles size={12} className="text-primary-500" strokeWidth={2} />
+            </h1>
+            <p className="text-[10px] text-gray-500 font-medium text-center">
+              {finalSubtitle}
+            </p>
+          </div>
+
+          {/* Stats + Actions en dessous */}
+          <div className="flex items-center gap-2 justify-center flex-wrap animate-fade-in" style={{ animationDelay: '200ms' }}>
+            {showStats && quickStats.activeReservations > 0 && (
+              <div className="relative">
+                <ShoppingBag size={18} className="text-primary-600" strokeWidth={2} />
+                <div className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full border-2 border-white shadow-sm animate-pulse">
+                  <span className="text-[8px] font-bold text-white">
+                    {quickStats.activeReservations}
+                  </span>
+                </div>
+              </div>
+            )}
+            {actions.map((action, index) => renderActionButton(action, index))}
           </div>
         </div>
       </div>

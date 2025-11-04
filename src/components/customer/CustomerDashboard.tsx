@@ -28,6 +28,8 @@ type TabId = 'browse' | 'reservations' | 'impact' | 'profile';
 export const CustomerDashboard = () => {
   // État local
   const [activeTab, setActiveTab] = useState<TabId>('browse');
+  const [showFilterSidebar, setShowFilterSidebar] = useState(false);
+  const [activeFiltersCount, setActiveFiltersCount] = useState(0);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
@@ -50,11 +52,20 @@ export const CustomerDashboard = () => {
         subtitle="Prêt à sauver des paniers aujourd'hui ?"
         defaultIcon="🛒"
         showStats={true}
+        showFilters={activeTab === 'browse'}
+        onOpenFilters={() => setShowFilterSidebar(true)}
+        activeFiltersCount={activeFiltersCount}
       />
 
       {/* Contenu principal */}
       <main className="w-full pb-24">
-        {activeTab === 'browse' && <LotBrowser />}
+        {activeTab === 'browse' && (
+          <LotBrowser 
+            showFilterSidebar={showFilterSidebar}
+            setShowFilterSidebar={setShowFilterSidebar}
+            onFiltersCountChange={setActiveFiltersCount}
+          />
+        )}
         {activeTab === 'reservations' && <ReservationsList />}
         {activeTab === 'impact' && <ImpactDashboard />}
         {activeTab === 'profile' && <CustomerProfilePage />}

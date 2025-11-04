@@ -37,7 +37,7 @@ export function FilterSidebar({
       {/* Overlay mobile avec animation */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60 z-40 lg:hidden backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60 z-[60] lg:hidden backdrop-blur-sm animate-fade-in"
           onClick={onClose}
         />
       )}
@@ -49,7 +49,7 @@ export function FilterSidebar({
           w-80 bg-gradient-to-br from-white via-gray-50/50 to-white
           border-r border-gray-200/80 shadow-2xl
           transform transition-all duration-500 ease-out
-          z-50 lg:z-10
+          z-[70] lg:z-10
           flex flex-col
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
