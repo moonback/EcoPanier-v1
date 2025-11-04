@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { QRScanner } from '../shared/QRScanner';
 import { PickupHelp } from './PickupHelp';
+import { AbsenceModal } from './AbsenceModal';
 import { supabase } from '../../lib/supabase';
 import { 
   Package, 
@@ -54,6 +55,13 @@ export const PickupStation = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [pinError, setPinError] = useState(false);
   const [todayStats, setTodayStats] = useState<{ completed: number; total: number } | null>(null);
+  
+  // 📦 Gestion des absences
+  const [expiredReservations, setExpiredReservations] = useState<Reservation[]>([]);
+  const [showAbsenceModal, setShowAbsenceModal] = useState(false);
+  const [currentAbsentReservation, setCurrentAbsentReservation] = useState<Reservation | null>(null);
+  const [reminderSent, setReminderSent] = useState<Set<string>>(new Set()); // IDs des réservations pour lesquelles on a déjà envoyé un rappel
+  const absenceCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Charger les statistiques du jour au montage
   useEffect(() => {
@@ -81,6 +89,84 @@ export const PickupStation = () => {
 
     loadTodayStats();
   }, [success]); // Recharger après chaque succès
+
+  // 📦 Vérification périodique des absences
+  useEffect(() => {
+    const checkExpiredReservations = async () => {
+      try {
+        const now = new Date();
+
+        // Récupérer les réservations en attente dont la fenêtre de retrait se termine bientôt ou est expirée
+        const { data: pendingReservations, error: fetchError } = await supabase
+          .from('reservations')
+          .select(`
+            *,
+            lots(
+              *,
+              profiles(business_name, business_address, business_logo_url)
+            ),
+            profiles(full_name)
+          `)
+          .in('status', ['pending', 'confirmed'])
+          .order('created_at', { ascending: true });
+
+        if (fetchError) {
+          console.error('Erreur récupération réservations:', fetchError);
+          return;
+        }
+
+        const typedReservations = (pendingReservations || []) as Reservation[];
+        const expired: Reservation[] = [];
+        const needsReminder: Reservation[] = [];
+
+        typedReservations.forEach((res) => {
+          const pickupEnd = new Date(res.lots.pickup_end);
+          const timeUntilEnd = pickupEnd.getTime() - now.getTime();
+          const timeUntilEndMinutes = Math.floor(timeUntilEnd / (1000 * 60));
+
+          // Réservation expirée (pickup_end passé)
+          if (pickupEnd < now) {
+            expired.push(res);
+          }
+          // 15 min avant la fin → Relance automatique
+          else if (timeUntilEndMinutes <= 15 && timeUntilEndMinutes > 0 && !reminderSent.has(res.id)) {
+            needsReminder.push(res);
+          }
+        });
+
+        // Envoyer rappels pour les réservations qui se terminent dans 15 min
+        needsReminder.forEach((res) => {
+          // TODO: Envoyer notification/SMS au client
+          console.log(`📧 Rappel envoyé pour réservation ${res.id} - Fin dans ${Math.floor((new Date(res.lots.pickup_end).getTime() - now.getTime()) / (1000 * 60))} min`);
+          
+          // Marquer comme rappel envoyé
+          setReminderSent((prev) => new Set(prev).add(res.id));
+        });
+
+        // Afficher modal pour la première réservation expirée
+        if (expired.length > 0 && !showAbsenceModal) {
+          setExpiredReservations(expired);
+          setCurrentAbsentReservation(expired[0]);
+          setShowAbsenceModal(true);
+        }
+      } catch (err) {
+        console.error('Erreur vérification absences:', err);
+      }
+    };
+
+    // Vérifier immédiatement
+    checkExpiredReservations();
+
+    // Vérifier toutes les minutes
+    absenceCheckIntervalRef.current = setInterval(checkExpiredReservations, 60 * 1000);
+
+    // Cleanup
+    return () => {
+      if (absenceCheckIntervalRef.current) {
+        clearInterval(absenceCheckIntervalRef.current);
+      }
+    };
+  }, [showAbsenceModal, reminderSent]);
 
   const handleScan = async (data: string) => {
     setScannerActive(false);
@@ -334,6 +420,154 @@ export const PickupStation = () => {
     setPinError(false);
   };
 
+  // 📦 Gestion des absences : Actions possibles
+  const handleAbsenceAction = async (action: 'wait' | 'reassign' | 'mark_lost') => {
+    if (!currentAbsentReservation) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      switch (action) {
+        case 'wait': {
+          // Prolonger la fenêtre de retrait de 30 minutes
+          const newPickupEnd = new Date(currentAbsentReservation.lots.pickup_end);
+          newPickupEnd.setMinutes(newPickupEnd.getMinutes() + 30);
+
+          const { error: waitError } = await supabase
+            .from('lots')
+            .update({
+              pickup_end: newPickupEnd.toISOString(),
+            } as unknown as never)
+            .eq('id', currentAbsentReservation.lot_id);
+
+          if (waitError) throw waitError;
+
+          // TODO: Envoyer notification au client
+          console.log(`⏳ Fenêtre prolongée de 30 min pour réservation ${currentAbsentReservation.id}`);
+          break;
+        }
+
+        case 'reassign': {
+          // Transformer en lot gratuit et annuler la réservation
+          // 1. Mettre le lot en gratuit
+          const { error: freeError } = await supabase
+            .from('lots')
+            .update({
+              is_free: true,
+              discounted_price: 0,
+            } as unknown as never)
+            .eq('id', currentAbsentReservation.lot_id);
+
+          if (freeError) throw freeError;
+
+          // 2. Annuler la réservation
+          const { error: cancelError } = await supabase
+            .from('reservations')
+            .update({
+              status: 'cancelled',
+            } as unknown as never)
+            .eq('id', currentAbsentReservation.id);
+
+          if (cancelError) throw cancelError;
+
+          // 3. Libérer le stock
+          const newQuantityReserved = currentAbsentReservation.lots.quantity_reserved - currentAbsentReservation.quantity;
+          const { error: stockError } = await supabase
+            .from('lots')
+            .update({
+              quantity_reserved: newQuantityReserved,
+            } as unknown as never)
+            .eq('id', currentAbsentReservation.lot_id);
+
+          if (stockError) throw stockError;
+
+          console.log(`❤️ Lot ${currentAbsentReservation.lot_id} réattribué gratuitement`);
+          break;
+        }
+
+        case 'mark_lost': {
+          // Annuler la réservation et libérer le stock
+          // 1. Annuler la réservation
+          const { error: cancelLostError } = await supabase
+            .from('reservations')
+            .update({
+              status: 'cancelled',
+            } as unknown as never)
+            .eq('id', currentAbsentReservation.id);
+
+          if (cancelLostError) throw cancelLostError;
+
+          // 2. Libérer le stock
+          const newQuantityReservedLost = currentAbsentReservation.lots.quantity_reserved - currentAbsentReservation.quantity;
+          const { error: stockLostError } = await supabase
+            .from('lots')
+            .update({
+              quantity_reserved: newQuantityReservedLost,
+            } as unknown as never)
+            .eq('id', currentAbsentReservation.lot_id);
+
+          if (stockLostError) throw stockLostError;
+
+          console.log(`⚠️ Réservation ${currentAbsentReservation.id} marquée comme perdue`);
+          break;
+        }
+      }
+
+      // Fermer le modal et passer à la réservation suivante
+      setShowAbsenceModal(false);
+      setExpiredReservations((prev) => prev.filter((r) => r.id !== currentAbsentReservation.id));
+      
+      if (expiredReservations.length > 1) {
+        // Afficher la prochaine réservation expirée
+        const nextExpired = expiredReservations.find((r) => r.id !== currentAbsentReservation.id);
+        if (nextExpired) {
+          setCurrentAbsentReservation(nextExpired);
+          setTimeout(() => setShowAbsenceModal(true), 1000);
+        }
+      } else {
+        setCurrentAbsentReservation(null);
+      }
+
+      // Recharger les stats
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+
+      const { data, error: statsError } = await supabase
+        .from('reservations')
+        .select('status')
+        .gte('created_at', todayStart.toISOString())
+        .lte('created_at', todayEnd.toISOString());
+
+      if (!statsError && data) {
+        const completed = data.filter((r: { status: string }) => r.status === 'completed').length;
+        setTodayStats({ completed, total: data.length });
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de l\'action';
+      setError(errorMessage);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCloseAbsenceModal = () => {
+    setShowAbsenceModal(false);
+    // Passer à la prochaine réservation expirée si disponible
+    if (expiredReservations.length > 1) {
+      const nextExpired = expiredReservations.find((r) => r.id !== currentAbsentReservation?.id);
+      if (nextExpired) {
+        setCurrentAbsentReservation(nextExpired);
+        setTimeout(() => setShowAbsenceModal(true), 1000);
+      }
+    } else {
+      setCurrentAbsentReservation(null);
+    }
+  };
+
   // Validation visuelle du PIN en temps réel
   const pinMatch = () => {
     if (enteredPin.length !== 6) return false;
@@ -501,11 +735,11 @@ export const PickupStation = () => {
                       <p className="text-gray-600 font-medium leading-relaxed">
                         Activez la caméra pour identifier instantanément la réservation
                       </p>
-                    </div>
-                    
-                    <button
-                      onClick={() => setScannerActive(true)}
-                      disabled={loading}
+                  </div>
+                  
+                  <button
+                    onClick={() => setScannerActive(true)}
+                    disabled={loading}
                       className="group/btn relative w-full py-10 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 text-white rounded-2xl hover:from-primary-700 hover:via-primary-800 hover:to-secondary-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl hover:shadow-3xl overflow-hidden transform hover:scale-[1.02] active:scale-[0.98]"
                     >
                       {/* Effet de particules */}
@@ -517,17 +751,17 @@ export const PickupStation = () => {
                           <div className="relative w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover/btn:scale-110 group-hover/btn:rotate-3 transition-all duration-300 shadow-2xl">
                             <Scan size={48} className="text-white drop-shadow-lg" strokeWidth={2.5} />
                           </div>
-                        </div>
-                        <div className="text-center">
+                      </div>
+                      <div className="text-center">
                           <span className="text-2xl font-black block mb-2 drop-shadow-md">Activer le Scanner</span>
                           <span className="text-sm text-white/90 font-semibold flex items-center justify-center gap-2">
                             <Sparkles size={14} />
                             Cliquez pour démarrer
                           </span>
-                        </div>
                       </div>
-                    </button>
-                    
+                    </div>
+                  </button>
+                  
                     {/* Statistiques rapides */}
                     {todayStats && todayStats.total > 0 && (
                       <div className="mt-6 p-4 bg-gradient-to-r from-success-50 to-emerald-50 rounded-2xl border border-success-200">
@@ -576,7 +810,7 @@ export const PickupStation = () => {
                           <div className="absolute inset-0 bg-primary-400 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
                           <div className="relative w-14 h-14 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 rounded-2xl flex items-center justify-center shadow-xl group-hover/step:scale-110 group-hover/step:-rotate-6 transition-all duration-300">
                             <Scan size={24} className="text-white" strokeWidth={2.5} />
-                          </div>
+                      </div>
                         </div>
                         <div className="flex-1 pt-1">
                           <div className="flex items-center gap-2 mb-2">
@@ -603,7 +837,7 @@ export const PickupStation = () => {
                           <div className="absolute inset-0 bg-warning-400 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
                           <div className="relative w-14 h-14 bg-gradient-to-br from-warning-600 via-orange-600 to-warning-800 rounded-2xl flex items-center justify-center shadow-xl group-hover/step:scale-110 group-hover/step:-rotate-6 transition-all duration-300">
                             <Lock size={24} className="text-white" strokeWidth={2.5} />
-                          </div>
+                      </div>
                         </div>
                         <div className="flex-1 pt-1">
                           <div className="flex items-center gap-2 mb-2">
@@ -630,20 +864,20 @@ export const PickupStation = () => {
                           <div className="absolute inset-0 bg-success-400 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
                           <div className="relative w-14 h-14 bg-gradient-to-br from-success-600 via-emerald-600 to-success-800 rounded-2xl flex items-center justify-center shadow-xl group-hover/step:scale-110 group-hover/step:-rotate-6 transition-all duration-300">
                             <CheckCircle size={24} className="text-white" strokeWidth={2.5} />
-                          </div>
-                        </div>
+                      </div>
+                      </div>
                         <div className="flex-1 pt-1">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="px-2 py-0.5 bg-success-600 text-white text-xs font-black rounded-md">3</span>
                             <h4 className="text-xl font-black text-gray-900">Remettre le Panier</h4>
-                          </div>
+                    </div>
                           <p className="text-sm text-gray-700 font-medium mb-3 leading-relaxed">
                             Validation finale et remise du panier au client satisfait
                           </p>
                           <div className="flex items-center gap-2 text-xs text-success-700 font-bold">
                             <Heart size={14} strokeWidth={2.5} className="fill-current" />
                             <span>Transaction anti-gaspi réussie !</span>
-                          </div>
+                  </div>
                         </div>
                       </div>
                     </div>
@@ -677,7 +911,7 @@ export const PickupStation = () => {
               >
                 {selectedReservationIds.size === reservations.length ? 'Tout désélectionner' : 'Tout sélectionner'}
               </button>
-            </div>
+                </div>
 
             {/* Liste scrollable des réservations */}
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -701,12 +935,12 @@ export const PickupStation = () => {
                       {selectedReservationIds.has(res.id) && (
                         <Check size={16} className="text-white" strokeWidth={3} />
                       )}
-                    </div>
+              </div>
 
                     {/* Numéro */}
                     <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
                       <span className="text-white font-bold text-sm">{index + 1}</span>
-                    </div>
+            </div>
 
                     {/* Contenu */}
                     <div className="flex-1 min-w-0">
@@ -715,13 +949,13 @@ export const PickupStation = () => {
                         {res.is_donation && (
                           <Heart size={14} className="text-red-500 flex-shrink-0" strokeWidth={2.5} />
                         )}
-                      </div>
+          </div>
 
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div className="flex items-center gap-1 text-gray-600">
                           <ShoppingBag size={12} strokeWidth={2} />
                           <span>Qté: {res.quantity}</span>
-                        </div>
+        </div>
                         <div className="flex items-center gap-1 text-gray-600">
                           {res.is_donation ? (
                             <>
@@ -1245,6 +1479,15 @@ export const PickupStation = () => {
       />
 
       {helpActive && <PickupHelp onClose={() => setHelpActive(false)} />}
+
+      {/* 📦 Modal de gestion des absences */}
+      {showAbsenceModal && currentAbsentReservation && (
+        <AbsenceModal
+          reservation={currentAbsentReservation}
+          onClose={handleCloseAbsenceModal}
+          onAction={handleAbsenceAction}
+        />
+      )}
     </>
   );
 };
