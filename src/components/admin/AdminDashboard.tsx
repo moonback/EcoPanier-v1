@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, ChevronLeft, ChevronRight, Home, Menu, X, MapPin, Package, Gift, Search, Bell, Zap, Moon, Sun, BarChart3, MessageSquare, HelpCircle, Wallet } from 'lucide-react';
+import { Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, ChevronLeft, ChevronRight, Home, Menu, X, MapPin, Package, Gift, Search, Bell, Zap, Moon, Sun, BarChart3, MessageSquare, HelpCircle, Wallet, ArrowDownCircle } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -17,9 +17,10 @@ import { GeocodeMerchants } from './GeocodeMerchants';
 import { LotModeration } from './LotModeration';
 import { ExpiredLotsManager } from './ExpiredLotsManager';
 import { WalletManagement } from './WalletManagement';
+import { WithdrawalManagement } from './WithdrawalManagement';
 
 // Type pour les onglets
-type TabId = 'stats' | 'users' | 'lots' | 'expired-lots' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile' | 'geocode' | 'wallets';
+type TabId = 'stats' | 'users' | 'lots' | 'expired-lots' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile' | 'geocode' | 'wallets' | 'withdrawals';
 
 /**
  * Dashboard principal pour les administrateurs
@@ -166,6 +167,7 @@ export const AdminDashboard = () => {
       items: [
         { id: 'users', label: 'Utilisateurs', icon: Users, color: 'secondary', emoji: '👥' },
         { id: 'wallets', label: 'Portefeuilles', icon: Wallet, color: 'primary', emoji: '💰' },
+        { id: 'withdrawals', label: 'Virements', icon: ArrowDownCircle, color: 'primary', emoji: '💳' },
         { id: 'lots', label: 'Modération Lots', icon: Package, color: 'warning', emoji: '📦' },
         { id: 'expired-lots', label: 'Lots Expirés', icon: Gift, color: 'success', emoji: '🎁' },
         { id: 'geocode', label: 'Géocodage', icon: MapPin, color: 'primary', emoji: '🗺️' },
@@ -672,6 +674,7 @@ export const AdminDashboard = () => {
             {activeTab === 'stats' && <AdminStats />}
             {activeTab === 'users' && <UserManagement />}
             {activeTab === 'wallets' && <WalletManagement />}
+            {activeTab === 'withdrawals' && <WithdrawalManagement />}
             {activeTab === 'lots' && <LotModeration />}
             {activeTab === 'expired-lots' && <ExpiredLotsManager />}
             {activeTab === 'analytics' && <AdvancedAnalytics />}
