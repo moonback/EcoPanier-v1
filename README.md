@@ -49,6 +49,9 @@ La plateforme gère **6 types d'utilisateurs** avec des fonctionnalités dédié
 - Statistiques de ventes et d'impact
 - Station de retrait avec scanner QR code
 - Gestion des retraits clients
+- **💳 Portefeuille commerçant** : Réception automatique des paiements après confirmation client
+- **🏦 Demandes de virement** : Retrait des fonds vers compte bancaire (min 100€, commission 8%)
+- **🔐 Gestion des comptes bancaires** : Enregistrement et gestion de plusieurs comptes
 
 #### 🤝 **Bénéficiaire**
 - Accès exclusif aux lots gratuits créés par les commerçants
@@ -137,11 +140,11 @@ Interface publique pour validation des retraits :
 - Optimisée pour tablettes/mobiles
 - Logs automatiques des retraits
 
-### 💳 Système de Portefeuille (Nouveau !)
+### 💳 Système de Portefeuille
 
-**Gestion financière intégrée** pour les clients :
+**Gestion financière intégrée** pour les clients et commerçants :
 
-#### Fonctionnalités principales
+#### 👤 Pour les Clients
 - **💵 Recharge de portefeuille** : Montants prédéfinis (10€, 20€, 50€, 100€, 200€) ou personnalisés
 - **💳 Paiement via portefeuille** : Option de paiement lors de la réservation de lots
 - **📊 Statistiques détaillées** :
@@ -154,16 +157,31 @@ Interface publique pour validation des retraits :
 - **⚠️ Alerte solde faible** : Notification si le solde est inférieur à 10€
 - **📄 Pagination** : Navigation dans l'historique (20 transactions par page)
 
+#### 🏪 Pour les Commerçants
+- **💰 Réception automatique** : Paiement dans le portefeuille lors de la confirmation de réception par le client
+- **📊 Statistiques de revenus** : Suivi des paiements reçus et historique complet
+- **💸 Demandes de virement** : Retrait des fonds vers compte bancaire (minimum 100€)
+- **💼 Gestion des comptes bancaires** : Enregistrement de plusieurs comptes avec compte par défaut
+- **🔒 Sécurité renforcée** : Confirmation par mot de passe pour actions sensibles (modification compte, virement)
+- **🔐 Masquage IBAN** : Protection des données bancaires (affichage partiel)
+- **📈 Commission** : 8% de commission sur les virements (montant net = montant demandé - commission)
+
 #### Avantages
 - ⚡ **Paiement rapide** : Plus besoin de saisir les informations de carte à chaque achat
-- 🔒 **Sécurisé** : Transactions tracées et historisées
-- 📈 **Suivi transparent** : Visualisation claire des dépenses et recharges
-- 💰 **Gestion du budget** : Contrôle total sur les dépenses anti-gaspillage
+- 🔒 **Sécurisé** : Transactions tracées et historisées, confirmation par mot de passe
+- 📈 **Suivi transparent** : Visualisation claire des dépenses et revenus
+- 💰 **Gestion du budget** : Contrôle total sur les dépenses et revenus
+- 🏦 **Retrait facile** : Virement bancaire simple avec gestion des comptes
 
-#### Utilisation
+#### Utilisation Client
 1. **Recharger** : Onglet "Portefeuille" → "Recharger mon portefeuille"
 2. **Payer** : Lors de la réservation, cocher "Payer avec mon portefeuille"
 3. **Consulter** : Voir le solde dans le header et l'historique dans l'onglet dédié
+
+#### Utilisation Commerçant
+1. **Recevoir** : Les paiements arrivent automatiquement après confirmation client
+2. **Gérer les comptes** : Onglet "Portefeuille" → "Comptes" pour enregistrer vos IBAN
+3. **Demander un virement** : Onglet "Portefeuille" → "Demander un virement" (min 100€)
 
 ### 📊 Impact & Métriques
 
@@ -596,11 +614,11 @@ npm run test:coverage
 
 ## 🆕 Mises à Jour Récentes
 
-### 💳 Système de Portefeuille (21 Janvier 2025)
+### 💳 Système de Portefeuille Complet (Janvier 2025)
 
-**Nouvelle fonctionnalité majeure** : Les clients peuvent maintenant gérer leur portefeuille directement dans l'application !
+**Fonctionnalité majeure** : Gestion financière intégrée pour clients et commerçants !
 
-#### Fonctionnalités ajoutées
+#### Phase 1 : Portefeuille Client (21 Janvier 2025)
 - ✅ **Recharge de portefeuille** : Montants prédéfinis ou personnalisés
 - ✅ **Paiement via portefeuille** : Option lors de la réservation de lots
 - ✅ **Statistiques complètes** : Total rechargé, dépensé, remboursé
@@ -608,16 +626,34 @@ npm run test:coverage
 - ✅ **Notifications automatiques** : Alertes pour chaque transaction
 - ✅ **Alerte solde faible** : Notification si solde < 10€
 - ✅ **Affichage dans le header** : Solde visible en temps réel
+- ✅ Migration : `20250121_create_wallet_system.sql`
+
+#### Phase 2 : Portefeuille Commerçant (22-24 Janvier 2025)
+- ✅ **Réception automatique** : Paiement dans le portefeuille après confirmation client
+- ✅ **Statistiques de revenus** : Suivi des paiements reçus
+- ✅ **Demandes de virement** : Retrait vers compte bancaire (minimum 100€)
+- ✅ **Commission 8%** : Calcul automatique de la commission sur virements
+- ✅ **Gestion des comptes bancaires** : Enregistrement multiple avec compte par défaut
+- ✅ **Confirmation par mot de passe** : Sécurité pour actions sensibles (modification compte, virement)
+- ✅ **Masquage IBAN** : Protection des données bancaires (affichage partiel)
+- ✅ Migrations : 
+  - `20250122_extend_wallet_to_merchants.sql`
+  - `20250123_add_withdrawal_requests.sql`
+  - `20250124_add_merchant_bank_accounts.sql`
 
 #### Base de données
 - ✅ Tables `wallets` et `wallet_transactions` créées
-- ✅ Trigger automatique : création de wallet pour chaque nouveau client
-- ✅ Migration : `20250121_create_wallet_system.sql`
+- ✅ Tables `withdrawal_requests` et `merchant_bank_accounts` créées
+- ✅ Trigger automatique : création de wallet pour clients et commerçants
+- ✅ Champ `customer_confirmed` ajouté à `reservations` pour déclencher le paiement
 
 #### Interface utilisateur
-- ✅ Page dédiée "Portefeuille" dans le dashboard client
-- ✅ Modal de recharge avec montants rapides
-- ✅ Intégration dans le processus de réservation
+- ✅ Page dédiée "Portefeuille" dans les dashboards client et commerçant
+- ✅ Modal de recharge avec montants rapides (clients)
+- ✅ Modal de demande de virement (commerçants)
+- ✅ Modal de gestion des comptes bancaires (commerçants)
+- ✅ Modal de confirmation par mot de passe (actions sensibles)
+- ✅ Intégration dans le processus de réservation et confirmation
 - ✅ Design moderne avec statistiques visuelles
 
 ### 🔧 Correction Critique : Lots Gratuits (20 Janvier 2025)

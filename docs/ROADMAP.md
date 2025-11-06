@@ -23,9 +23,10 @@ Valider le concept avec les fonctionnalités essentielles pour chaque type d'uti
 
 #### 🔐 Authentification & Utilisateurs
 - ✅ Inscription/Connexion avec email + mot de passe
-- ✅ 5 rôles utilisateurs (Customer, Merchant, Beneficiary, Collector, Admin)
+- ✅ 6 rôles utilisateurs (Customer, Merchant, Beneficiary, Collector, Association, Admin)
 - ✅ Profils utilisateurs avec informations spécifiques par rôle
 - ✅ ID unique pour bénéficiaires (format YYYY-BEN-XXXXX)
+- ✅ Confirmation par mot de passe pour actions sensibles (modification comptes bancaires, virements)
 
 #### 🏪 Gestion des Lots
 - ✅ Création de lots par les commerçants
@@ -46,6 +47,7 @@ Valider le concept avec les fonctionnalités essentielles pour chaque type d'uti
 - ✅ **Limite de 2 lots gratuits/jour** pour bénéficiaires
 - ✅ Station de retrait publique (scan QR + vérification PIN)
 - ✅ Historique des réservations
+- ✅ **Confirmation de réception** : Clients confirment la réception pour déclencher le paiement commerçant
 
 #### 🚚 Missions Collecteurs
 - ✅ Liste des missions disponibles
@@ -77,6 +79,16 @@ Valider le concept avec les fonctionnalités essentielles pour chaque type d'uti
 
 ### Objectif
 Préparer la plateforme pour le lancement public avec optimisations et fonctionnalités clés.
+
+### ✅ Fonctionnalités Récemment Ajoutées (Janvier 2025)
+
+#### 💳 Système de Portefeuille Complet
+- ✅ **Portefeuille client** : Recharge, paiement, historique, statistiques
+- ✅ **Portefeuille commerçant** : Réception automatique après confirmation client
+- ✅ **Demandes de virement** : Retrait bancaire avec commission 8% (minimum 100€)
+- ✅ **Gestion des comptes bancaires** : Enregistrement multiple, compte par défaut
+- ✅ **Sécurité** : Confirmation par mot de passe pour actions sensibles
+- ✅ **Protection des données** : Masquage partiel des IBAN
 
 ### Fonctionnalités en Développement
 
@@ -155,9 +167,13 @@ Préparer la plateforme pour le lancement public avec optimisations et fonctionn
 - 📋 Mode hors-ligne partiel
 
 #### 💳 Paiements Intégrés
-- 📋 **Intégration Stripe/PayPal**
-- 📋 Paiement en ligne sécurisé
-- 📋 Portefeuille virtuel EcoPanier
+- ✅ **Portefeuille virtuel EcoPanier** (clients et commerçants)
+- ✅ **Paiement via portefeuille** lors des réservations
+- ✅ **Réception automatique** pour commerçants après confirmation client
+- ✅ **Demandes de virement** avec commission (8%)
+- ✅ **Gestion des comptes bancaires** avec masquage IBAN
+- ✅ **Confirmation par mot de passe** pour actions sensibles
+- 📋 **Intégration Stripe/PayPal** (paiements externes)
 - 📋 Paiement fractionné (futur achat)
 - 📋 Factures automatiques
 
