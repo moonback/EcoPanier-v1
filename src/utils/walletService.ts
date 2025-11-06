@@ -3,6 +3,9 @@ import type { Database } from '../lib/database.types';
 
 type Wallet = Database['public']['Tables']['wallets']['Row'];
 type WalletTransaction = Database['public']['Tables']['wallet_transactions']['Row'];
+type WalletInsert = Database['public']['Tables']['wallets']['Insert'];
+type WalletTransactionInsert = Database['public']['Tables']['wallet_transactions']['Insert'];
+type WalletUpdate = Database['public']['Tables']['wallets']['Update'];
 
 /**
  * Service pour gérer les opérations de wallet
@@ -23,12 +26,13 @@ export async function getWallet(userId: string): Promise<Wallet | null> {
     if (error) {
       // Si le wallet n'existe pas, le créer automatiquement
       if (error.code === 'PGRST116') {
+        const walletData: WalletInsert = {
+          user_id: userId,
+          balance: 0,
+        };
         const { data: newWallet, error: createError } = await supabase
           .from('wallets')
-          .insert({
-            user_id: userId,
-            balance: 0,
-          })
+          .insert(walletData as never)
           .select()
           .single();
 
@@ -86,31 +90,33 @@ export async function rechargeWallet(
     const balanceAfter = balanceBefore + amount;
 
     // Créer la transaction de recharge
+    const transactionData: WalletTransactionInsert = {
+      wallet_id: wallet.id,
+      user_id: userId,
+      type: 'recharge',
+      amount: amount,
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      description,
+      status: 'completed',
+      metadata: metadata ?? null,
+    };
     const { data: transaction, error: transactionError } = await supabase
       .from('wallet_transactions')
-      .insert({
-        wallet_id: wallet.id,
-        user_id: userId,
-        type: 'recharge',
-        amount: amount,
-        balance_before: balanceBefore,
-        balance_after: balanceAfter,
-        description,
-        status: 'completed',
-        metadata,
-      })
+      .insert(transactionData as never)
       .select()
       .single();
 
     if (transactionError) throw transactionError;
 
     // Mettre à jour le solde du wallet
+    const updateData: WalletUpdate = {
+      balance: balanceAfter,
+      updated_at: new Date().toISOString(),
+    };
     const { error: updateError } = await supabase
       .from('wallets')
-      .update({
-        balance: balanceAfter,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData as never)
       .eq('id', wallet.id);
 
     if (updateError) throw updateError;
@@ -164,33 +170,35 @@ export async function payFromWallet(
     const balanceAfter = balanceBefore - amount;
 
     // Créer la transaction de paiement
+    const transactionData: WalletTransactionInsert = {
+      wallet_id: wallet.id,
+      user_id: userId,
+      type: 'payment',
+      amount: -amount, // Montant négatif pour un paiement
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      description,
+      reference_id: referenceId ?? null,
+      reference_type: referenceType ?? null,
+      status: 'completed',
+      metadata: metadata ?? null,
+    };
     const { data: transaction, error: transactionError } = await supabase
       .from('wallet_transactions')
-      .insert({
-        wallet_id: wallet.id,
-        user_id: userId,
-        type: 'payment',
-        amount: -amount, // Montant négatif pour un paiement
-        balance_before: balanceBefore,
-        balance_after: balanceAfter,
-        description,
-        reference_id: referenceId ?? null,
-        reference_type: referenceType ?? null,
-        status: 'completed',
-        metadata,
-      })
+      .insert(transactionData as never)
       .select()
       .single();
 
     if (transactionError) throw transactionError;
 
     // Mettre à jour le solde du wallet
+    const updateData: WalletUpdate = {
+      balance: balanceAfter,
+      updated_at: new Date().toISOString(),
+    };
     const { error: updateError } = await supabase
       .from('wallets')
-      .update({
-        balance: balanceAfter,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData as never)
       .eq('id', wallet.id);
 
     if (updateError) throw updateError;
@@ -238,33 +246,35 @@ export async function refundToWallet(
     const balanceAfter = balanceBefore + amount;
 
     // Créer la transaction de remboursement
+    const transactionData: WalletTransactionInsert = {
+      wallet_id: wallet.id,
+      user_id: userId,
+      type: 'refund',
+      amount: amount,
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      description,
+      reference_id: referenceId ?? null,
+      reference_type: referenceType ?? null,
+      status: 'completed',
+      metadata: metadata ?? null,
+    };
     const { data: transaction, error: transactionError } = await supabase
       .from('wallet_transactions')
-      .insert({
-        wallet_id: wallet.id,
-        user_id: userId,
-        type: 'refund',
-        amount: amount,
-        balance_before: balanceBefore,
-        balance_after: balanceAfter,
-        description,
-        reference_id: referenceId ?? null,
-        reference_type: referenceType ?? null,
-        status: 'completed',
-        metadata,
-      })
+      .insert(transactionData as never)
       .select()
       .single();
 
     if (transactionError) throw transactionError;
 
     // Mettre à jour le solde du wallet
+    const updateData: WalletUpdate = {
+      balance: balanceAfter,
+      updated_at: new Date().toISOString(),
+    };
     const { error: updateError } = await supabase
       .from('wallets')
-      .update({
-        balance: balanceAfter,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData as never)
       .eq('id', wallet.id);
 
     if (updateError) throw updateError;
