@@ -25,27 +25,44 @@ export const WhyEcoPanierSection = () => {
         <SectionHeader
           align="center"
           eyebrow="Pourquoi ÉcoPanier ?"
-          title="Trois raisons de choisir ÉcoPanier"
-          description="Économisez sur vos courses tout en agissant concrètement pour l'environnement et la solidarité locale."
+          title="Trois raisons de nous choisir"
+          description="Économisez sur vos courses tout en agissant pour l'environnement et la solidarité."
         />
 
         <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{
+            staggerChildren: 0.15,
+            delayChildren: 0.1,
+          }}
           className="grid gap-6 md:grid-cols-3"
         >
-          {whyPillars.map((pillar) => {
+          {whyPillars.map((pillar, index) => {
             const Icon = pillar.icon;
             const accents = pillarColors[pillar.color] ?? pillarColors.primary;
 
             return (
-              <div key={pillar.title} className="surface h-full space-y-5 p-7">
+              <motion.div
+                key={pillar.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -4 }}
+                className="surface h-full space-y-5 p-7 transition-shadow hover:shadow-md"
+              >
                 <div className="inline-flex items-center gap-3 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-neutral-500">
-                  <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${accents.icon}`}>
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 + 0.2, type: 'spring' }}
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${accents.icon}`}
+                  >
                     <Icon className="h-5 w-5" />
-                  </span>
+                  </motion.span>
                   <span className={`rounded-full px-3 py-1 text-xs font-semibold ${accents.badge}`}>
                     Pilier clé
                   </span>
@@ -54,7 +71,7 @@ export const WhyEcoPanierSection = () => {
                   <h3 className="text-xl font-semibold text-neutral-900">{pillar.title}</h3>
                   <p className="text-sm leading-relaxed text-neutral-600">{pillar.description}</p>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </motion.div>
@@ -62,28 +79,45 @@ export const WhyEcoPanierSection = () => {
         <div className="surface flex flex-col gap-10 border-dashed border-neutral-200 bg-white p-8">
           <div className="space-y-3 text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-600">
-              Notre impact collectif (tests 2025)
+              Notre impact collectif
             </p>
             <h3 className="text-2xl font-semibold text-neutral-900">
-              L'impact de notre communauté de clients engagés.
+              L'impact de notre communauté
             </h3>
             <p className="text-sm text-neutral-600">
-              Chiffres issus de l'activité réelle de nos clients qui économisent et agissent pour la planète.
+              Chiffres issus de l'activité réelle de nos clients.
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {globalStats.map((stat) => {
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{
+              staggerChildren: 0.1,
+              delayChildren: 0.2,
+            }}
+            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          >
+            {globalStats.map((stat, index) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.label} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 text-center">
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
+                  className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 text-center transition-shadow hover:shadow-md"
+                >
                   <Icon className={`mx-auto mb-4 h-8 w-8 ${stat.tone}`} />
                   <p className="text-3xl font-semibold text-neutral-900">{stat.value}</p>
                   <p className="mt-1 text-sm text-neutral-600">{stat.label}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
     </PageSection>
