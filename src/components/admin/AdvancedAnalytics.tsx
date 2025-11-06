@@ -40,7 +40,12 @@ export const AdvancedAnalytics = () => {
     avgOrderValue: 0,
     conversionRate: 0,
     customerRetention: 0,
-    carbonSaved: 0
+    carbonSaved: 0,
+    // Nouvelles métriques wallet
+    walletTransactions: 0,
+    walletBalance: 0,
+    pendingReservations: 0,
+    confirmedReservations: 0,
   });
 
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -101,15 +106,33 @@ export const AdvancedAnalytics = () => {
 
       if (reservationsError) throw reservationsError;
 
-      // Calculer les métriques
-      const completedReservations = reservations?.filter(r => r.status === 'completed') || [];
-      const totalRevenue = completedReservations.reduce((sum, r) => sum + r.total_price, 0);
-      const totalOrders = completedReservations.length;
+      // Charger les données wallet
+      const { data: wallets } = await supabase
+        .from('wallets')
+        .select('balance');
+      
+      const { data: walletTransactions } = await supabase
+        .from('wallet_transactions')
+        .select('amount, type, status')
+        .gte('created_at', dateFilter);
+
+      // Calculer les métriques (inclure completed et confirmed)
+      const paidReservations = reservations?.filter(r => 
+        r.status === 'completed' || r.status === 'confirmed'
+      ) || [];
+      const totalRevenue = paidReservations.reduce((sum, r) => sum + (r.total_price || 0), 0);
+      const totalOrders = paidReservations.length;
       const totalUsers = users?.length || 0;
       const totalLots = lots?.filter(l => l.status === 'available').length || 0;
       const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-      const totalQuantitySold = completedReservations.reduce((sum, r) => sum + r.quantity, 0);
+      const totalQuantitySold = paidReservations.reduce((sum, r) => sum + (r.quantity || 0), 0);
       const carbonSaved = totalQuantitySold * 0.9; // 0.9 kg CO₂ par repas
+
+      // Statistiques wallet
+      const walletBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0;
+      const walletTxCount = walletTransactions?.length || 0;
+      const pendingReservations = reservations?.filter(r => r.status === 'pending').length || 0;
+      const confirmedReservations = reservations?.filter(r => r.status === 'confirmed').length || 0;
 
       setMetrics({
         totalRevenue: Math.round(totalRevenue),
@@ -119,7 +142,11 @@ export const AdvancedAnalytics = () => {
         avgOrderValue: Math.round(avgOrderValue * 10) / 10,
         conversionRate: 0, // À calculer avec plus de données
         customerRetention: 0, // À calculer avec plus de données
-        carbonSaved: Math.round(carbonSaved * 10) / 10
+        carbonSaved: Math.round(carbonSaved * 10) / 10,
+        walletTransactions: walletTxCount,
+        walletBalance: Math.round(walletBalance * 100) / 100,
+        pendingReservations,
+        confirmedReservations,
       });
 
       // Calculer les top produits par catégorie

@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { Users, Package, DollarSign, Heart, TrendingUp, Truck, ShoppingBag } from 'lucide-react';
+import { Users, Package, DollarSign, Heart, TrendingUp, Truck, ShoppingBag, Wallet, CreditCard, CheckCircle } from 'lucide-react';
 
 // Imports internes
 import { supabase } from '../../lib/supabase';
@@ -22,37 +22,130 @@ export const AdminStats = () => {
     itemsSaved: 0,
     donations: 0,
     activeMissions: 0,
+    // Nouvelles statistiques wallet
+    totalWalletBalance: 0,
+    totalWalletTransactions: 0,
+    totalRecharges: 0,
+    totalPayments: 0,
+    totalRefunds: 0,
+    pendingReservations: 0,
+    confirmedReservations: 0,
+    walletUsers: 0,
   });
   const [loading, setLoading] = useState(true);
 
   // Effets
   useEffect(() => {
     fetchStats();
+
+    // Rafraîchir les statistiques toutes les 30 secondes
+    const interval = setInterval(() => {
+      fetchStats();
+    }, 30000);
+
+    // Écouter les changements en temps réel
+    const channel = supabase
+      .channel('admin_stats_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reservations',
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'wallet_transactions',
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'wallets',
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lots',
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handlers
   const fetchStats = async () => {
     try {
-      const { data: profiles } = await supabase.from('profiles').select('role');
-      const { data: lots } = await supabase.from('lots').select('quantity_reserved, quantity_sold');
-      const { data: reservations } = await supabase
-        .from('reservations')
-        .select('total_price, is_donation');
-      const { data: missions } = await supabase
-        .from('missions')
-        .select('status')
-        .in('status', ['accepted', 'in_progress']);
+      const [
+        { data: profiles },
+        { data: lots },
+        { data: reservations },
+        { data: missions },
+        { data: wallets },
+        { data: walletTransactions },
+      ] = await Promise.all([
+        supabase.from('profiles').select('role'),
+        supabase.from('lots').select('quantity_reserved, quantity_sold'),
+        supabase.from('reservations').select('total_price, is_donation, status'),
+        supabase.from('missions').select('status').in('status', ['accepted', 'in_progress']),
+        supabase.from('wallets').select('balance'),
+        supabase.from('wallet_transactions').select('type, amount, status'),
+      ]);
 
       const totalUsers = profiles?.length || 0;
       const totalMerchants = profiles?.filter((p) => p.role === 'merchant').length || 0;
       const totalBeneficiaries = profiles?.filter((p) => p.role === 'beneficiary').length || 0;
       const totalCollectors = profiles?.filter((p) => p.role === 'collector').length || 0;
       const totalLots = lots?.length || 0;
-      const totalRevenue = reservations?.reduce((sum, r) => sum + r.total_price, 0) || 0;
+      
+      // Calculer les revenus depuis les réservations complétées et confirmées (payées)
+      const paidReservations = reservations?.filter((r) => 
+        r.status === 'completed' || r.status === 'confirmed'
+      ) || [];
+      const totalRevenue = paidReservations.reduce((sum, r) => sum + (r.total_price || 0), 0);
+      
       const itemsSaved =
         lots?.reduce((sum, lot) => sum + lot.quantity_reserved + lot.quantity_sold, 0) || 0;
       const donations = reservations?.filter((r) => r.is_donation).length || 0;
       const activeMissions = missions?.length || 0;
+
+      // Statistiques wallet
+      const totalWalletBalance = wallets?.reduce((sum, w) => sum + (w.balance || 0), 0) || 0;
+      const totalWalletTransactions = walletTransactions?.length || 0;
+      const totalRecharges = walletTransactions?.filter((t) => t.type === 'recharge' && t.status === 'completed').length || 0;
+      const totalPayments = walletTransactions?.filter((t) => t.type === 'payment' && t.status === 'completed').length || 0;
+      const totalRefunds = walletTransactions?.filter((t) => t.type === 'refund' && t.status === 'completed').length || 0;
+      const walletUsers = wallets?.length || 0;
+
+      // Statistiques réservations
+      const pendingReservations = reservations?.filter((r) => r.status === 'pending').length || 0;
+      const confirmedReservations = reservations?.filter((r) => r.status === 'confirmed').length || 0;
 
       setStats({
         totalUsers,
@@ -64,6 +157,14 @@ export const AdminStats = () => {
         itemsSaved,
         donations,
         activeMissions,
+        totalWalletBalance,
+        totalWalletTransactions,
+        totalRecharges,
+        totalPayments,
+        totalRefunds,
+        pendingReservations,
+        confirmedReservations,
+        walletUsers,
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -93,7 +194,21 @@ export const AdminStats = () => {
       value: formatCurrency(stats.totalRevenue),
       icon: DollarSign,
       color: 'bg-yellow-500',
-      detail: 'Total des transactions',
+      detail: `${stats.confirmedReservations + stats.pendingReservations} réservations`,
+    },
+    {
+      title: 'Portefeuilles',
+      value: stats.walletUsers,
+      icon: Wallet,
+      color: 'bg-purple-500',
+      detail: `${formatCurrency(stats.totalWalletBalance)} de solde total`,
+    },
+    {
+      title: 'Réservations',
+      value: stats.pendingReservations + stats.confirmedReservations,
+      icon: ShoppingBag,
+      color: 'bg-indigo-500',
+      detail: `${stats.confirmedReservations} payées, ${stats.pendingReservations} en attente`,
     },
     {
       title: 'Dons Solidaires',
@@ -104,7 +219,7 @@ export const AdminStats = () => {
     },
     {
       title: 'Impact CO₂',
-      value: `${(stats.itemsSaved * 2.5).toFixed(0)} kg`,
+      value: `${(stats.itemsSaved * 0.9).toFixed(0)} kg`,
       icon: TrendingUp,
       color: 'bg-green-600',
       detail: 'CO₂ économisé',
@@ -279,6 +394,53 @@ export const AdminStats = () => {
               </div>
               <span className="text-2xl font-black text-orange-600">{stats.totalMerchants}</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section Wallet - Nouvelles statistiques */}
+      <div className="bg-gradient-to-br from-purple-50 via-white to-indigo-50 rounded-2xl shadow-lg p-6 border-2 border-purple-100 hover:shadow-2xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+            <Wallet size={24} className="text-white" />
+          </div>
+          <div>
+            <h3 className="text-xl font-black text-gray-900">Portefeuilles & Transactions</h3>
+            <p className="text-xs text-gray-600 font-medium">💰 Gestion des wallets utilisateurs</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-xl p-4 border-2 border-purple-100 hover:border-purple-300 transition-all hover:shadow-md">
+            <div className="flex items-center gap-2 mb-2">
+              <Wallet size={18} className="text-purple-600" />
+              <span className="text-xs font-bold text-gray-600">Solde total</span>
+            </div>
+            <p className="text-2xl font-black text-purple-600">{formatCurrency(stats.totalWalletBalance)}</p>
+            <p className="text-[10px] text-gray-500 mt-1">{stats.walletUsers} portefeuilles actifs</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 border-2 border-green-100 hover:border-green-300 transition-all hover:shadow-md">
+            <div className="flex items-center gap-2 mb-2">
+              <CreditCard size={18} className="text-green-600" />
+              <span className="text-xs font-bold text-gray-600">Transactions</span>
+            </div>
+            <p className="text-2xl font-black text-green-600">{stats.totalWalletTransactions}</p>
+            <p className="text-[10px] text-gray-500 mt-1">{stats.totalPayments} paiements</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 border-2 border-blue-100 hover:border-blue-300 transition-all hover:shadow-md">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp size={18} className="text-blue-600" />
+              <span className="text-xs font-bold text-gray-600">Recharges</span>
+            </div>
+            <p className="text-2xl font-black text-blue-600">{stats.totalRecharges}</p>
+            <p className="text-[10px] text-gray-500 mt-1">Recharges effectuées</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 border-2 border-orange-100 hover:border-orange-300 transition-all hover:shadow-md">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle size={18} className="text-orange-600" />
+              <span className="text-xs font-bold text-gray-600">Remboursements</span>
+            </div>
+            <p className="text-2xl font-black text-orange-600">{stats.totalRefunds}</p>
+            <p className="text-[10px] text-gray-500 mt-1">Remboursements effectués</p>
           </div>
         </div>
       </div>
