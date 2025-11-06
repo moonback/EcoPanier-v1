@@ -7,7 +7,7 @@ import { SectionHeader } from '../../../shared/layout/SectionHeader';
 const features = [
   {
     icon: Brain,
-    title: 'IA Gemini intégrée',
+    title: 'IA EcoPanier',
     description: 'Analyse automatique des photos et suggestions intelligentes pour gagner un temps précieux sur chaque lot.',
   },
   {

@@ -80,7 +80,7 @@ export const MerchantPricingSection = () => {
               <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                 {[
                   'Création de lots illimitée',
-                  'IA Gemini intégrée',
+                  'IA EcoPanier',
                   'Station de retrait QR code',
                   'Statistiques avancées',
                   'Notifications temps réel',

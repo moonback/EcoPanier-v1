@@ -7,7 +7,7 @@ import { SectionHeader } from '../../../shared/layout/SectionHeader';
 const advancedModules = [
   {
     icon: Brain,
-    title: 'IA Gemini 2.0 Flash',
+    title: 'IA EcoPanier ',
     description: 'Reconnaissance automatique des produits, génération de fiches complètes et estimation de prix basée sur l’historique.',
     details: [
       'Propositions éditables en un clic',

@@ -8,7 +8,7 @@ const benefits = [
   {
     title: 'Création ultra-rapide',
     items: [
-      'IA Gemini : analyse automatique en 30 secondes',
+      'IA EcoPanier : analyse automatique en 30 secondes',
       'Formulaire guidé optimisé mobile & desktop',
       'Prévisualisation immédiate du lot',
       'Contrôle qualité avant publication',

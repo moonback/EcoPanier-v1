@@ -22,7 +22,7 @@ landing/
 │   ├── MerchantHeroSection.tsx          # Hero avec IA et stats mises à jour
 │   ├── MerchantWhySection.tsx           # Pourquoi rejoindre (4 raisons)
 │   ├── MerchantBenefitsSection.tsx      # Avantages concrets (4 colonnes)
-│   ├── MerchantHowItWorksSection.tsx    # 4 étapes avec IA Gemini
+│   ├── MerchantHowItWorksSection.tsx    # 4 étapes 
 │   ├── MerchantFeaturesSection.tsx      # Fonctionnalités principales (8 features)
 │   ├── MerchantAdvancedFeaturesSection.tsx # Fonctionnalités avancées (6 features)
 │   ├── MerchantTestimonialsSection.tsx  # Témoignages commerçants
