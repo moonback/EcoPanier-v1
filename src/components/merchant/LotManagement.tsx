@@ -604,14 +604,14 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
   });
 
   return (
-    <div>
+    <div className={selectionMode && selectedLotIds.size > 0 ? 'pb-24' : ''}>
       {/* Barre d'actions avec sélection */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         {/* Bouton "Tout sélectionner" quand en mode sélection */}
         {selectionMode && lots.length > 0 && (
           <button
             onClick={handleSelectAll}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 text-gray-700 rounded-xl transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md border border-gray-200"
           >
             {selectedLotIds.size === lots.length ? 'Tout désélectionner' : 'Tout sélectionner'}
           </button>
@@ -619,32 +619,50 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
 
       </div>
 
-      {/* Barre d'actions groupées */}
+      {/* Barre d'actions flottante */}
       {selectionMode && selectedLotIds.size > 0 && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-primary-50 to-blue-50 border-2 border-primary-200 rounded-xl">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-gray-900">
-                {selectedLotIds.size} lot{selectedLotIds.size > 1 ? 's' : ''} sélectionné{selectedLotIds.size > 1 ? 's' : ''}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              {eligibleLotsForDon.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-white border-t-2 border-gray-300 shadow-2xl animate-fade-in-up" style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+          <div className="max-w-12xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Section gauche : Compteur et bouton désélectionner */}
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-lg">{selectedLotIds.size}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-gray-900">
+                      {selectedLotIds.size} lot{selectedLotIds.size > 1 ? 's' : ''} sélectionné{selectedLotIds.size > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                </div>
                 <button
-                  onClick={() => setShowBulkMakeFreeModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 font-semibold transition-all shadow-md"
+                  onClick={handleSelectAll}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-all duration-200 text-sm shadow-sm hover:shadow-md"
                 >
-                  <Gift className="w-4 h-4" strokeWidth={2} />
-                  <span>Passer en don ({eligibleLotsForDon.length})</span>
+                  Tout désélectionner
                 </button>
-              )}
-              <button
-                onClick={() => setShowBulkDeleteModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 font-semibold transition-all shadow-md"
-              >
-                <Trash2 className="w-4 h-4" strokeWidth={2} />
-                <span>Supprimer ({selectedLotIds.size})</span>
-              </button>
+              </div>
+
+              {/* Section droite : Actions */}
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                {eligibleLotsForDon.length > 0 && (
+                  <button
+                    onClick={() => setShowBulkMakeFreeModal(true)}
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 font-bold transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm"
+                  >
+                    <Gift className="w-5 h-5" strokeWidth={2.5} />
+                    <span>Passer en don ({eligibleLotsForDon.length})</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowBulkDeleteModal(true)}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 font-bold transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm"
+                >
+                  <Trash2 className="w-5 h-5" strokeWidth={2.5} />
+                  <span>Supprimer ({selectedLotIds.size})</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

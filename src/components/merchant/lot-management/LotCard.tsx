@@ -103,8 +103,18 @@ export const LotCard = ({
           )}
         </div>
 
+        {/* Badge Don */}
+        {lot.discounted_price === 0 && (
+          <div className="absolute top-2 right-2 z-10">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-accent-500 to-pink-500 text-white rounded-lg text-[10px] font-bold shadow-lg backdrop-blur-sm border border-white/20">
+              <span className="text-xs">❤️</span>
+              <span>Don</span>
+            </span>
+          </div>
+        )}
+
         {/* Badge réduction */}
-        {discount > 0 && !isOutOfStock && (
+        {discount > 0 && !isOutOfStock && lot.discounted_price > 0 && (
           <div className="absolute top-2 right-2 z-10">
             <div className="relative group/badge">
               <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-br from-green-400/90 via-green-500/90 to-green-600/90 backdrop-blur-sm rounded-full shadow-md">
@@ -149,9 +159,8 @@ export const LotCard = ({
           <h3 className="text-[13px] font-bold text-gray-900 line-clamp-1 mb-0.5">{lot.title}</h3>
           <div className="flex items-baseline gap-1.5">
             {lot.discounted_price === 0 ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-accent-500 to-pink-500 text-white rounded text-[10px] font-bold shadow-sm">
-                <span className="text-xs">❤️</span>
-                <span>Don</span>
+              <span className="text-base font-bold text-green-600">
+                Gratuit
               </span>
             ) : (
               <>
@@ -219,12 +228,7 @@ export const LotCard = ({
               <span>Gratuit</span>
             </button>
           )}
-          {lot.is_free && (
-            <div className="flex-1 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded border-2 border-green-300 flex items-center justify-center gap-1 text-xs font-bold">
-              <Gift size={12} strokeWidth={2.5} />
-              <span>GRATUIT</span>
-            </div>
-          )}
+          
           <button
             onClick={() => onEdit(lot)}
             className="flex-1 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded hover:from-blue-100 hover:to-indigo-100 border border-blue-200 transition-all flex items-center justify-center gap-1 text-xs font-semibold"
