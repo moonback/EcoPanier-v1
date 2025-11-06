@@ -13,6 +13,11 @@ import {
   ArrowDownCircle,
   X,
   CreditCard,
+  Info,
+  Calendar,
+  Hash,
+  FileText,
+  Eye,
 } from 'lucide-react';
 
 // Imports internes
@@ -58,6 +63,7 @@ export const MerchantWalletPage = () => {
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [showBankAccountModal, setShowBankAccountModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<WalletTransactionType | null>(null);
 
   // Enrichir les transactions avec les titres des lots depuis les réservations
   const enrichTransactionsWithLotTitles = async (
@@ -383,14 +389,15 @@ export const MerchantWalletPage = () => {
             </div>
           ) : (
             <>
-              <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-                {transactions.map((transaction) => (
-                  <TransactionItem
-                    key={transaction.id}
-                    transaction={transaction}
-                  />
-                ))}
-              </div>
+               <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                 {transactions.map((transaction) => (
+                   <TransactionItem
+                     key={transaction.id}
+                     transaction={transaction}
+                     onViewDetails={() => setSelectedTransaction(transaction)}
+                   />
+                 ))}
+               </div>
 
               {/* Pagination */}
               {totalPages > 1 && (
@@ -489,6 +496,14 @@ export const MerchantWalletPage = () => {
           }}
         />
       )}
+
+      {/* Modal de détails de transaction */}
+      {selectedTransaction && (
+        <TransactionDetailModal
+          transaction={selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+        />
+      )}
     </div>
   );
 };
@@ -532,9 +547,10 @@ function StatCard({ title, value, icon, color, subtitle }: StatCardProps) {
  */
 interface TransactionItemProps {
   transaction: WalletTransactionType;
+  onViewDetails: () => void;
 }
 
-function TransactionItem({ transaction }: TransactionItemProps) {
+function TransactionItem({ transaction, onViewDetails }: TransactionItemProps) {
   const isPayment = transaction.type === 'merchant_payment';
 
   const getTypeLabel = () => {
@@ -603,7 +619,10 @@ function TransactionItem({ transaction }: TransactionItemProps) {
   const { mainTitle, subtitle } = parseTransactionDescription();
 
   return (
-    <div className="bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+    <div 
+      className="bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
+      onClick={onViewDetails}
+    >
       {/* Layout Desktop/Tablette : Horizontal */}
       <div className="hidden sm:flex items-center justify-between p-3 sm:p-4">
         <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
@@ -631,9 +650,21 @@ function TransactionItem({ transaction }: TransactionItemProps) {
                   </p>
                 )}
               </div>
-              <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded flex-shrink-0 self-start">
-                {getTypeLabel()}
-              </span>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
+                  {getTypeLabel()}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewDetails();
+                  }}
+                  className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
+                  aria-label="Voir les détails"
+                >
+                  <Eye className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <p className="text-xs sm:text-sm text-gray-500">
@@ -693,13 +724,25 @@ function TransactionItem({ transaction }: TransactionItemProps) {
                     {subtitle}
                   </p>
                 )}
-                <span className="inline-block px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
-                  {getTypeLabel()}
-                </span>
-              </div>
-              <p className="text-xs text-gray-500">
-                {formatDateTime(transaction.created_at)}
-              </p>
+                 <div className="flex items-center gap-2">
+                   <span className="inline-block px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
+                     {getTypeLabel()}
+                   </span>
+                   <button
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       onViewDetails();
+                     }}
+                     className="p-1 hover:bg-gray-200 rounded transition-colors"
+                     aria-label="Voir les détails"
+                   >
+                     <Eye className="w-3.5 h-3.5 text-gray-500" />
+                   </button>
+                 </div>
+               </div>
+               <p className="text-xs text-gray-500">
+                 {formatDateTime(transaction.created_at)}
+               </p>
               {transaction.reference_type && (
                 <p className="text-xs text-gray-400 mt-0.5">
                   Réf: {transaction.reference_type}
@@ -846,6 +889,314 @@ function WithdrawalRequestItem({ request, onCancel }: WithdrawalRequestItemProps
             Annuler
           </button>
         )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Modal pour afficher les détails complets d'une transaction
+ */
+interface TransactionDetailModalProps {
+  transaction: WalletTransactionType;
+  onClose: () => void;
+}
+
+function TransactionDetailModal({ transaction, onClose }: TransactionDetailModalProps) {
+  const isPayment = transaction.type === 'merchant_payment';
+  const isCredit = transaction.amount >= 0;
+
+  const getTypeLabel = () => {
+    switch (transaction.type) {
+      case 'merchant_payment':
+        return 'Paiement reçu';
+      case 'recharge':
+        return 'Recharge';
+      case 'refund':
+        return 'Remboursement';
+      case 'payment':
+        return 'Paiement';
+      default:
+        return 'Transaction';
+    }
+  };
+
+  const getStatusLabel = () => {
+    switch (transaction.status) {
+      case 'completed':
+        return 'Complétée';
+      case 'pending':
+        return 'En attente';
+      case 'failed':
+        return 'Échouée';
+      case 'cancelled':
+        return 'Annulée';
+      default:
+        return transaction.status || 'N/A';
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (transaction.status) {
+      case 'completed':
+        return 'bg-green-100 text-green-700 border-green-300';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      case 'failed':
+        return 'bg-red-100 text-red-700 border-red-300';
+      case 'cancelled':
+        return 'bg-gray-100 text-gray-700 border-gray-300';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-300';
+    }
+  };
+
+  // Parser la description pour extraire les informations
+  const parseDescription = () => {
+    if (transaction.type === 'merchant_payment' && transaction.description) {
+      const match = transaction.description.match(/Paiement pour la réservation (.+?) - (.+?)(?:\s*\(x(\d+)\))?$/);
+      if (match) {
+        return {
+          reservationId: match[1],
+          lotTitle: match[2].trim(),
+          quantity: match[3] ? parseInt(match[3]) : 1,
+        };
+      }
+    }
+    return null;
+  };
+
+  const parsedInfo = parseDescription();
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* En-tête */}
+        <div className="sticky top-0 bg-white border-b-2 border-gray-200 p-6 z-10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className={`p-3 rounded-xl ${
+                  isPayment
+                    ? 'bg-green-100 text-green-600'
+                    : 'bg-blue-100 text-blue-600'
+                }`}
+              >
+                <Info className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-gray-900">Détails de la transaction</h3>
+                <p className="text-sm text-gray-600 mt-1">{getTypeLabel()}</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Fermer"
+            >
+              <X size={24} className="text-gray-400" />
+            </button>
+          </div>
+        </div>
+
+        {/* Contenu */}
+        <div className="p-6 space-y-6">
+          {/* Montant principal */}
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border-2 border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">Montant</p>
+                <p
+                  className={`text-3xl font-black ${
+                    isCredit ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {isCredit ? '+' : '-'}
+                  {formatCurrency(Math.abs(transaction.amount))}
+                </p>
+              </div>
+              <div className={`px-4 py-2 rounded-lg border-2 ${getStatusColor()}`}>
+                <p className="text-sm font-semibold">{getStatusLabel()}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Informations principales */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Date et heure */}
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-5 h-5 text-gray-600" />
+                <p className="text-sm font-semibold text-gray-900">Date et heure</p>
+              </div>
+              <p className="text-sm text-gray-700">{formatDateTime(transaction.created_at)}</p>
+              {transaction.updated_at && transaction.updated_at !== transaction.created_at && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Modifié : {formatDateTime(transaction.updated_at)}
+                </p>
+              )}
+            </div>
+
+            {/* ID de transaction */}
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Hash className="w-5 h-5 text-gray-600" />
+                <p className="text-sm font-semibold text-gray-900">ID de transaction</p>
+              </div>
+              <p className="text-xs font-mono text-gray-700 break-all">{transaction.id}</p>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="w-5 h-5 text-gray-600" />
+              <p className="text-sm font-semibold text-gray-900">Description</p>
+            </div>
+            <p className="text-sm text-gray-700 break-words">{transaction.description || 'Aucune description'}</p>
+            
+            {/* Informations parsées pour les paiements commercants */}
+            {parsedInfo && (
+              <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-gray-600">Lot vendu :</p>
+                  <p className="text-sm font-semibold text-gray-900">{parsedInfo.lotTitle}</p>
+                </div>
+                {parsedInfo.quantity > 1 && (
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium text-gray-600">Quantité :</p>
+                    <p className="text-sm font-semibold text-gray-900">x{parsedInfo.quantity}</p>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-gray-600">ID de réservation :</p>
+                  <p className="text-xs font-mono text-gray-700 break-all">{parsedInfo.reservationId}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Soldes */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border-2 border-blue-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Wallet className="w-5 h-5 text-blue-600" />
+              <p className="text-sm font-semibold text-gray-900">Évolution du solde</p>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-600">Solde avant</p>
+                <p className="text-base font-semibold text-gray-900">
+                  {formatCurrency(transaction.balance_before || 0)}
+                </p>
+              </div>
+              <div className="flex items-center justify-center text-gray-400">
+                <ArrowUp className="w-5 h-5" />
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-600">Montant de la transaction</p>
+                <p
+                  className={`text-base font-semibold ${
+                    isCredit ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  {isCredit ? '+' : '-'}
+                  {formatCurrency(Math.abs(transaction.amount))}
+                </p>
+              </div>
+              <div className="border-t-2 border-blue-300 pt-3 flex items-center justify-between">
+                <p className="text-sm font-semibold text-gray-900">Solde après</p>
+                <p className="text-lg font-black text-blue-600">
+                  {formatCurrency(transaction.balance_after || 0)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Informations de référence */}
+          {transaction.reference_type && (
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Hash className="w-5 h-5 text-gray-600" />
+                <p className="text-sm font-semibold text-gray-900">Référence</p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-600">Type</p>
+                  <p className="text-sm font-medium text-gray-900 capitalize">
+                    {transaction.reference_type}
+                  </p>
+                </div>
+                {transaction.reference_id && (
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-600">ID de référence</p>
+                    <p className="text-xs font-mono text-gray-700 break-all">
+                      {transaction.reference_id}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Métadonnées */}
+          {transaction.metadata && (
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="w-5 h-5 text-gray-600" />
+                <p className="text-sm font-semibold text-gray-900">Métadonnées</p>
+              </div>
+              <pre className="text-xs text-gray-700 bg-white p-3 rounded-lg border border-gray-200 overflow-auto max-h-48">
+                {JSON.stringify(transaction.metadata, null, 2)}
+              </pre>
+            </div>
+          )}
+
+          {/* Informations système */}
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="w-5 h-5 text-gray-600" />
+              <p className="text-sm font-semibold text-gray-900">Informations système</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <p className="text-gray-600">Type de transaction</p>
+                <p className="font-medium text-gray-900 mt-0.5">{transaction.type}</p>
+              </div>
+              <div>
+                <p className="text-gray-600">Statut</p>
+                <p className="font-medium text-gray-900 mt-0.5">{transaction.status || 'N/A'}</p>
+              </div>
+              {transaction.wallet_id && (
+                <div>
+                  <p className="text-gray-600">ID du wallet</p>
+                  <p className="font-mono text-gray-700 break-all mt-0.5">{transaction.wallet_id}</p>
+                </div>
+              )}
+              {transaction.user_id && (
+                <div>
+                  <p className="text-gray-600">ID utilisateur</p>
+                  <p className="font-mono text-gray-700 break-all mt-0.5">{transaction.user_id}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-gray-50 border-t-2 border-gray-200 p-4 rounded-b-2xl">
+          <button
+            onClick={onClose}
+            className="w-full py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors"
+          >
+            Fermer
+          </button>
+        </div>
       </div>
     </div>
   );
