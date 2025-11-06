@@ -504,6 +504,38 @@ export interface Database {
           updated_at?: string;
         };
       };
+      merchant_bank_accounts: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          account_name: string;
+          iban: string;
+          bic: string | null;
+          is_default: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          account_name: string;
+          iban: string;
+          bic?: string | null;
+          is_default?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          account_name?: string;
+          iban?: string;
+          bic?: string | null;
+          is_default?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;

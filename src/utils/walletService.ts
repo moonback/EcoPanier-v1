@@ -867,3 +867,178 @@ export async function cancelWithdrawalRequest(
 export type { WithdrawalRequest };
 export { MIN_WITHDRAWAL_AMOUNT, WITHDRAWAL_COMMISSION_RATE };
 
+// Types pour les comptes bancaires
+type MerchantBankAccount = Database['public']['Tables']['merchant_bank_accounts']['Row'];
+type MerchantBankAccountInsert = Database['public']['Tables']['merchant_bank_accounts']['Insert'];
+type MerchantBankAccountUpdate = Database['public']['Tables']['merchant_bank_accounts']['Update'];
+
+/**
+ * Récupère les comptes bancaires d'un commerçant
+ * @param merchantId - ID du commerçant
+ */
+export async function getMerchantBankAccounts(merchantId: string): Promise<MerchantBankAccount[]> {
+  try {
+    const { data, error } = await supabase
+      .from('merchant_bank_accounts')
+      .select('*')
+      .eq('merchant_id', merchantId)
+      .order('is_default', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return (data as MerchantBankAccount[]) ?? [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des comptes bancaires:', error);
+    throw new Error('Impossible de récupérer les comptes bancaires. Vérifiez votre connexion.');
+  }
+}
+
+/**
+ * Récupère le compte bancaire par défaut d'un commerçant
+ * @param merchantId - ID du commerçant
+ */
+export async function getDefaultBankAccount(merchantId: string): Promise<MerchantBankAccount | null> {
+  try {
+    const { data, error } = await supabase
+      .from('merchant_bank_accounts')
+      .select('*')
+      .eq('merchant_id', merchantId)
+      .eq('is_default', true)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    return data as MerchantBankAccount | null;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du compte par défaut:', error);
+    return null;
+  }
+}
+
+/**
+ * Crée ou met à jour un compte bancaire pour un commerçant
+ * @param merchantId - ID du commerçant
+ * @param accountData - Données du compte bancaire
+ * @param accountId - ID du compte à mettre à jour (optionnel, pour mise à jour)
+ */
+export async function saveMerchantBankAccount(
+  merchantId: string,
+  accountData: {
+    account_name: string;
+    iban: string;
+    bic?: string;
+    is_default?: boolean;
+  },
+  accountId?: string
+): Promise<MerchantBankAccount> {
+  try {
+    // Nettoyer l'IBAN (supprimer les espaces)
+    const cleanIban = accountData.iban.replace(/\s/g, '').toUpperCase();
+
+    if (accountId) {
+      // Mise à jour
+      const updateData: MerchantBankAccountUpdate = {
+        account_name: accountData.account_name,
+        iban: cleanIban,
+        bic: accountData.bic?.toUpperCase() || null,
+        is_default: accountData.is_default ?? false,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
+        .from('merchant_bank_accounts')
+        .update(updateData as never)
+        .eq('id', accountId)
+        .eq('merchant_id', merchantId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Créer une notification
+      await createNotification(merchantId, {
+        title: 'Compte bancaire mis à jour',
+        message: 'Vos informations bancaires ont été mises à jour avec succès.',
+        type: 'success',
+      });
+
+      return data as MerchantBankAccount;
+    } else {
+      // Création
+      // Si c'est le premier compte ou si is_default est true, le définir comme défaut
+      const existingAccounts = await getMerchantBankAccounts(merchantId);
+      const shouldBeDefault = accountData.is_default ?? existingAccounts.length === 0;
+
+      const insertData: MerchantBankAccountInsert = {
+        merchant_id: merchantId,
+        account_name: accountData.account_name,
+        iban: cleanIban,
+        bic: accountData.bic?.toUpperCase() || null,
+        is_default: shouldBeDefault,
+      };
+
+      const { data, error } = await supabase
+        .from('merchant_bank_accounts')
+        .insert(insertData as never)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Créer une notification
+      await createNotification(merchantId, {
+        title: 'Compte bancaire enregistré',
+        message: 'Vos informations bancaires ont été enregistrées avec succès.',
+        type: 'success',
+      });
+
+      return data as MerchantBankAccount;
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'enregistrement du compte bancaire:', error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : 'Impossible d\'enregistrer le compte bancaire. Vérifiez votre connexion.'
+    );
+  }
+}
+
+/**
+ * Supprime un compte bancaire
+ * @param accountId - ID du compte à supprimer
+ * @param merchantId - ID du commerçant (pour vérification)
+ */
+export async function deleteMerchantBankAccount(
+  accountId: string,
+  merchantId: string
+): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('merchant_bank_accounts')
+      .delete()
+      .eq('id', accountId)
+      .eq('merchant_id', merchantId);
+
+    if (error) throw error;
+
+    // Créer une notification
+    await createNotification(merchantId, {
+      title: 'Compte bancaire supprimé',
+      message: 'Le compte bancaire a été supprimé avec succès.',
+      type: 'info',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la suppression du compte bancaire:', error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : 'Impossible de supprimer le compte bancaire. Vérifiez votre connexion.'
+    );
+  }
+}
+
+// Export du type
+export type { MerchantBankAccount };
+

@@ -1,14 +1,17 @@
 // Imports externes
-import { useState } from 'react';
-import { X, ArrowDownCircle, AlertCircle, Info } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, ArrowDownCircle, AlertCircle, Info, CreditCard, Plus } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../../stores/authStore';
 import {
   createWithdrawalRequest,
   calculateWithdrawalAmounts,
+  getDefaultBankAccount,
+  getMerchantBankAccounts,
   MIN_WITHDRAWAL_AMOUNT,
   WITHDRAWAL_COMMISSION_RATE,
+  type MerchantBankAccount,
 } from '../../../utils/walletService';
 import { formatCurrency } from '../../../utils/helpers';
 
@@ -16,6 +19,7 @@ interface WithdrawalRequestModalProps {
   onClose: () => void;
   onSuccess: () => void;
   currentBalance: number;
+  onManageBankAccounts?: () => void;
 }
 
 /**
@@ -26,17 +30,70 @@ export function WithdrawalRequestModal({
   onClose,
   onSuccess,
   currentBalance,
+  onManageBankAccounts,
 }: WithdrawalRequestModalProps) {
   // Hooks (stores, contexts, router)
   const { user } = useAuthStore();
 
   // État local
   const [amount, setAmount] = useState<string>('');
+  const [bankAccounts, setBankAccounts] = useState<MerchantBankAccount[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [useSavedAccount, setUseSavedAccount] = useState<boolean>(true);
   const [bankAccountName, setBankAccountName] = useState<string>('');
   const [bankAccountIban, setBankAccountIban] = useState<string>('');
   const [bankAccountBic, setBankAccountBic] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Charger les comptes bancaires
+  useEffect(() => {
+    loadBankAccounts();
+  }, []);
+
+  const loadBankAccounts = async () => {
+    if (!user?.id) return;
+
+    try {
+      setLoadingAccounts(true);
+      const accounts = await getMerchantBankAccounts(user.id);
+      setBankAccounts(accounts);
+
+      // Sélectionner le compte par défaut s'il existe
+      const defaultAccount = accounts.find((acc) => acc.is_default);
+      if (defaultAccount) {
+        setSelectedAccountId(defaultAccount.id);
+        setUseSavedAccount(true);
+      } else if (accounts.length > 0) {
+        setSelectedAccountId(accounts[0].id);
+        setUseSavedAccount(true);
+      } else {
+        setUseSavedAccount(false);
+      }
+    } catch (err) {
+      console.error('Erreur lors du chargement des comptes:', err);
+      setUseSavedAccount(false);
+    } finally {
+      setLoadingAccounts(false);
+    }
+  };
+
+  // Mettre à jour les champs quand un compte est sélectionné
+  useEffect(() => {
+    if (useSavedAccount && selectedAccountId) {
+      const account = bankAccounts.find((acc) => acc.id === selectedAccountId);
+      if (account) {
+        setBankAccountName(account.account_name);
+        setBankAccountIban(account.iban.match(/.{1,4}/g)?.join(' ') || account.iban);
+        setBankAccountBic(account.bic || '');
+      }
+    } else {
+      setBankAccountName('');
+      setBankAccountIban('');
+      setBankAccountBic('');
+    }
+  }, [selectedAccountId, useSavedAccount, bankAccounts]);
 
   // Calculs
   const numericAmount = amount ? parseFloat(amount) : 0;
@@ -86,14 +143,34 @@ export function WithdrawalRequestModal({
       return;
     }
 
-    if (!bankAccountName.trim()) {
-      setError('Veuillez saisir le nom du titulaire du compte');
-      return;
-    }
+    // Déterminer les informations bancaires à utiliser
+    let finalAccountName: string;
+    let finalIban: string;
+    let finalBic: string | undefined;
 
-    if (!bankAccountIban.trim() || bankAccountIban.replace(/\s/g, '').length < 15) {
-      setError('Veuillez saisir un IBAN valide');
-      return;
+    if (useSavedAccount && selectedAccountId) {
+      const selectedAccount = bankAccounts.find((acc) => acc.id === selectedAccountId);
+      if (!selectedAccount) {
+        setError('Compte bancaire sélectionné introuvable');
+        return;
+      }
+      finalAccountName = selectedAccount.account_name;
+      finalIban = selectedAccount.iban;
+      finalBic = selectedAccount.bic || undefined;
+    } else {
+      if (!bankAccountName.trim()) {
+        setError('Veuillez saisir le nom du titulaire du compte');
+        return;
+      }
+
+      if (!bankAccountIban.trim() || bankAccountIban.replace(/\s/g, '').length < 15) {
+        setError('Veuillez saisir un IBAN valide');
+        return;
+      }
+
+      finalAccountName = bankAccountName.trim();
+      finalIban = bankAccountIban.replace(/\s/g, '');
+      finalBic = bankAccountBic.trim() || undefined;
     }
 
     setLoading(true);
@@ -103,9 +180,9 @@ export function WithdrawalRequestModal({
       await createWithdrawalRequest(
         user.id,
         numericAmount,
-        bankAccountName.trim(),
-        bankAccountIban.replace(/\s/g, ''),
-        bankAccountBic.trim() || undefined
+        finalAccountName,
+        finalIban,
+        finalBic
       );
       onSuccess();
     } catch (err) {
@@ -218,62 +295,156 @@ export function WithdrawalRequestModal({
 
         {/* Informations bancaires */}
         <div className="mb-4 sm:mb-6 space-y-4">
-          <div>
-            <label
-              htmlFor="bankAccountName"
-              className="block text-xs sm:text-sm font-medium text-gray-700 mb-2"
-            >
-              Nom du titulaire du compte *
-            </label>
-            <input
-              id="bankAccountName"
-              type="text"
-              value={bankAccountName}
-              onChange={(e) => {
-                setBankAccountName(e.target.value);
-                setError(null);
-              }}
-              placeholder="Jean Dupont"
-              disabled={loading}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-primary-600 focus:ring-2 focus:ring-primary-200 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
+          {loadingAccounts ? (
+            <div className="text-center py-4">
+              <div className="w-6 h-6 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-xs text-gray-500">Chargement des comptes...</p>
+            </div>
+          ) : bankAccounts.length > 0 ? (
+            <>
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                  Compte bancaire
+                </label>
+                {onManageBankAccounts && (
+                  <button
+                    onClick={onManageBankAccounts}
+                    className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                  >
+                    <CreditCard size={14} />
+                    Gérer les comptes
+                  </button>
+                )}
+              </div>
 
-          <div>
-            <label
-              htmlFor="bankAccountIban"
-              className="block text-xs sm:text-sm font-medium text-gray-700 mb-2"
-            >
-              IBAN *
-            </label>
-            <input
-              id="bankAccountIban"
-              type="text"
-              value={bankAccountIban}
-              onChange={handleIbanChange}
-              placeholder="FR76 1234 5678 9012 3456 7890 123"
-              disabled={loading}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-primary-600 focus:ring-2 focus:ring-primary-200 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed font-mono"
-            />
-          </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="radio"
+                    id="useSaved"
+                    checked={useSavedAccount}
+                    onChange={() => setUseSavedAccount(true)}
+                    disabled={loading}
+                    className="w-4 h-4 text-primary-600"
+                  />
+                  <label htmlFor="useSaved" className="text-xs sm:text-sm text-gray-700">
+                    Utiliser un compte enregistré
+                  </label>
+                </div>
 
-          <div>
-            <label
-              htmlFor="bankAccountBic"
-              className="block text-xs sm:text-sm font-medium text-gray-700 mb-2"
-            >
-              BIC (optionnel)
-            </label>
-            <input
-              id="bankAccountBic"
-              type="text"
-              value={bankAccountBic}
-              onChange={handleBicChange}
-              placeholder="ABCDEFGH"
-              disabled={loading}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-primary-600 focus:ring-2 focus:ring-primary-200 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed font-mono uppercase"
-            />
-          </div>
+                {useSavedAccount && (
+                  <select
+                    value={selectedAccountId}
+                    onChange={(e) => setSelectedAccountId(e.target.value)}
+                    disabled={loading}
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:border-primary-600 focus:ring-2 focus:ring-primary-200 transition-all text-sm disabled:opacity-50"
+                  >
+                    {bankAccounts.map((account) => (
+                      <option key={account.id} value={account.id}>
+                        {account.account_name} - {account.iban.slice(0, 4)}****{account.iban.slice(-4)}
+                        {account.is_default ? ' (Par défaut)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="useNew"
+                    checked={!useSavedAccount}
+                    onChange={() => setUseSavedAccount(false)}
+                    disabled={loading}
+                    className="w-4 h-4 text-primary-600"
+                  />
+                  <label htmlFor="useNew" className="text-xs sm:text-sm text-gray-700">
+                    Utiliser un nouveau compte
+                  </label>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-start gap-2">
+                <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-xs sm:text-sm text-blue-900 mb-2">
+                    Aucun compte bancaire enregistré
+                  </p>
+                  {onManageBankAccounts && (
+                    <button
+                      onClick={onManageBankAccounts}
+                      className="text-xs text-blue-700 hover:text-blue-800 font-medium flex items-center gap-1"
+                    >
+                      <Plus size={14} />
+                      Enregistrer un compte bancaire
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {(!useSavedAccount || bankAccounts.length === 0) && (
+            <>
+              <div>
+                <label
+                  htmlFor="bankAccountName"
+                  className="block text-xs sm:text-sm font-medium text-gray-700 mb-2"
+                >
+                  Nom du titulaire du compte *
+                </label>
+                <input
+                  id="bankAccountName"
+                  type="text"
+                  value={bankAccountName}
+                  onChange={(e) => {
+                    setBankAccountName(e.target.value);
+                    setError(null);
+                  }}
+                  placeholder="Jean Dupont"
+                  disabled={loading}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-primary-600 focus:ring-2 focus:ring-primary-200 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="bankAccountIban"
+                  className="block text-xs sm:text-sm font-medium text-gray-700 mb-2"
+                >
+                  IBAN *
+                </label>
+                <input
+                  id="bankAccountIban"
+                  type="text"
+                  value={bankAccountIban}
+                  onChange={handleIbanChange}
+                  placeholder="FR76 1234 5678 9012 3456 7890 123"
+                  disabled={loading}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-primary-600 focus:ring-2 focus:ring-primary-200 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed font-mono"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="bankAccountBic"
+                  className="block text-xs sm:text-sm font-medium text-gray-700 mb-2"
+                >
+                  BIC (optionnel)
+                </label>
+                <input
+                  id="bankAccountBic"
+                  type="text"
+                  value={bankAccountBic}
+                  onChange={handleBicChange}
+                  placeholder="ABCDEFGH"
+                  disabled={loading}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-primary-600 focus:ring-2 focus:ring-primary-200 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed font-mono uppercase"
+                />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Erreur globale */}
@@ -297,7 +468,12 @@ export function WithdrawalRequestModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading || !canRequest || !bankAccountName.trim() || !bankAccountIban.trim()}
+            disabled={
+              loading ||
+              !canRequest ||
+              (!useSavedAccount && (!bankAccountName.trim() || !bankAccountIban.trim())) ||
+              (useSavedAccount && !selectedAccountId)
+            }
             className="flex-1 py-2.5 sm:py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
           >
             {loading ? (

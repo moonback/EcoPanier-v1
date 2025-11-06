@@ -12,6 +12,7 @@ import {
   ChevronRight,
   ArrowDownCircle,
   X,
+  CreditCard,
 } from 'lucide-react';
 
 // Imports internes
@@ -30,6 +31,7 @@ import {
 } from '../../utils/walletService';
 import { formatCurrency, formatDateTime } from '../../utils/helpers';
 import { WithdrawalRequestModal } from './components/WithdrawalRequestModal';
+import { BankAccountModal } from './components/BankAccountModal';
 
 // Constantes
 const TRANSACTIONS_PER_PAGE = 20;
@@ -54,6 +56,7 @@ export const MerchantWalletPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const [showBankAccountModal, setShowBankAccountModal] = useState(false);
 
   // Charger les données du wallet
   const loadWalletData = async () => {
@@ -183,19 +186,28 @@ export const MerchantWalletPage = () => {
               </div>
             </div>
 
-            {/* Bouton de demande de virement */}
-            <button
-              onClick={() => setShowWithdrawalModal(true)}
-              disabled={balance < MIN_WITHDRAWAL_AMOUNT}
-              className="w-full py-2.5 sm:py-3 bg-white text-success-600 rounded-lg hover:bg-success-50 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ArrowDownCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-              {balance < MIN_WITHDRAWAL_AMOUNT ? (
-                <span>Minimum {formatCurrency(MIN_WITHDRAWAL_AMOUNT)} requis</span>
-              ) : (
-                <span>Demander un virement</span>
-              )}
-            </button>
+            {/* Boutons d'action */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowBankAccountModal(true)}
+                className="flex-1 py-2.5 sm:py-3 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors font-medium flex items-center justify-center gap-2 text-sm sm:text-base border border-white/30"
+              >
+                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Comptes</span>
+              </button>
+              <button
+                onClick={() => setShowWithdrawalModal(true)}
+                disabled={balance < MIN_WITHDRAWAL_AMOUNT}
+                className="flex-1 py-2.5 sm:py-3 bg-white text-success-600 rounded-lg hover:bg-success-50 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ArrowDownCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                {balance < MIN_WITHDRAWAL_AMOUNT ? (
+                  <span className="hidden sm:inline">Minimum {formatCurrency(MIN_WITHDRAWAL_AMOUNT)} requis</span>
+                ) : (
+                  <span>Virement</span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -367,6 +379,24 @@ export const MerchantWalletPage = () => {
             loadWalletData();
           }}
           currentBalance={balance}
+          onManageBankAccounts={() => {
+            setShowWithdrawalModal(false);
+            setShowBankAccountModal(true);
+          }}
+        />
+      )}
+
+      {/* Modal de gestion des comptes bancaires */}
+      {showBankAccountModal && (
+        <BankAccountModal
+          onClose={() => setShowBankAccountModal(false)}
+          onSuccess={() => {
+            setShowBankAccountModal(false);
+            // Si le modal de virement était ouvert, le rouvrir
+            if (balance >= MIN_WITHDRAWAL_AMOUNT) {
+              setShowWithdrawalModal(true);
+            }
+          }}
         />
       )}
     </div>
