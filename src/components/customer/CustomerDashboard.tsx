@@ -1,5 +1,6 @@
 // Imports externes
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   ShoppingBag,
   History,
@@ -28,13 +29,34 @@ type TabId = 'browse' | 'reservations' | 'impact' | 'wallet' | 'profile';
  * gérer les réservations, voir l'impact et profil
  */
 export const CustomerDashboard = () => {
+  // Hooks (stores, contexts, router)
+  const { profile } = useAuthStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   // État local
-  const [activeTab, setActiveTab] = useState<TabId>('browse');
   const [showFilterSidebar, setShowFilterSidebar] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
 
-  // Hooks (stores, contexts, router)
-  const { profile } = useAuthStore();
+  // Lire le paramètre 'tab' de l'URL ou utiliser 'browse' par défaut
+  const tabFromUrl = searchParams.get('tab') as TabId | null;
+  const validTabs: TabId[] = ['browse', 'reservations', 'impact', 'wallet', 'profile'];
+  const initialTab: TabId = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'browse';
+  
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+
+  // Synchroniser l'état avec l'URL quand elle change
+  useEffect(() => {
+    if (tabFromUrl && validTabs.includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabFromUrl]);
+
+  // Mettre à jour l'URL quand l'onglet change
+  const handleTabChange = (tabId: TabId) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId });
+  };
 
   // Configuration des onglets
   const tabs = [
@@ -85,7 +107,7 @@ export const CustomerDashboard = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   className={`flex flex-col items-center justify-center flex-1 gap-0.5 p-2 transition-all relative ${
                     isActive
                       ? 'text-primary-600'

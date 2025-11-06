@@ -1,5 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, Wallet, AlertCircle, CheckCircle, Plus, Minus } from 'lucide-react';
 
 // Imports internes
@@ -32,6 +33,7 @@ export function ReservationModal({
 }: ReservationModalProps) {
   // Hooks (stores, contexts, router)
   const { user } = useAuthStore();
+  const navigate = useNavigate();
 
   // État local
   const [quantity, setQuantity] = useState(1);
@@ -279,8 +281,8 @@ export function ReservationModal({
                   <button
                     onClick={() => {
                       onClose();
-                      // Rediriger vers la page wallet (vous pouvez ajuster le chemin selon votre routing)
-                      window.location.href = '/dashboard?tab=wallet';
+                      // Rediriger vers la page wallet
+                      navigate('/dashboard?tab=wallet');
                     }}
                     className="text-sm text-primary-600 hover:text-primary-700 font-medium underline"
                   >

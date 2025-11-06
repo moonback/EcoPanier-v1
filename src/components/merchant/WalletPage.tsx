@@ -389,15 +389,15 @@ export const MerchantWalletPage = () => {
             </div>
           ) : (
             <>
-               <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-                 {transactions.map((transaction) => (
-                   <TransactionItem
-                     key={transaction.id}
-                     transaction={transaction}
+              <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                {transactions.map((transaction) => (
+                  <TransactionItem
+                    key={transaction.id}
+                    transaction={transaction}
                      onViewDetails={() => setSelectedTransaction(transaction)}
-                   />
-                 ))}
-               </div>
+                  />
+                ))}
+              </div>
 
               {/* Pagination */}
               {totalPages > 1 && (
@@ -652,8 +652,8 @@ function TransactionItem({ transaction, onViewDetails }: TransactionItemProps) {
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
-                  {getTypeLabel()}
-                </span>
+                {getTypeLabel()}
+              </span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -664,20 +664,20 @@ function TransactionItem({ transaction, onViewDetails }: TransactionItemProps) {
                 >
                   <Eye className="w-4 h-4 text-gray-500" />
                 </button>
-              </div>
+            </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-xs sm:text-sm text-gray-500">
-                {formatDateTime(transaction.created_at)}
-              </p>
-              {transaction.reference_type && (
+            <p className="text-xs sm:text-sm text-gray-500">
+              {formatDateTime(transaction.created_at)}
+            </p>
+            {transaction.reference_type && (
                 <>
                   <span className="text-xs text-gray-300">•</span>
                   <p className="text-xs text-gray-400">
                     {transaction.reference_type}
-                  </p>
+              </p>
                 </>
-              )}
+            )}
             </div>
           </div>
 
@@ -726,8 +726,8 @@ function TransactionItem({ transaction, onViewDetails }: TransactionItemProps) {
                 )}
                  <div className="flex items-center gap-2">
                    <span className="inline-block px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
-                     {getTypeLabel()}
-                   </span>
+                  {getTypeLabel()}
+                </span>
                    <button
                      onClick={(e) => {
                        e.stopPropagation();
@@ -739,10 +739,10 @@ function TransactionItem({ transaction, onViewDetails }: TransactionItemProps) {
                      <Eye className="w-3.5 h-3.5 text-gray-500" />
                    </button>
                  </div>
-               </div>
-               <p className="text-xs text-gray-500">
-                 {formatDateTime(transaction.created_at)}
-               </p>
+              </div>
+              <p className="text-xs text-gray-500">
+                {formatDateTime(transaction.created_at)}
+              </p>
               {transaction.reference_type && (
                 <p className="text-xs text-gray-400 mt-0.5">
                   Réf: {transaction.reference_type}
