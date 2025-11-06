@@ -37,6 +37,7 @@ La plateforme gère **6 types d'utilisateurs** avec des fonctionnalités dédié
 #### 🛍️ **Client**
 - Navigation et recherche de lots à prix réduits (jusqu'à -70%)
 - Réservation de lots avec code PIN et QR code
+- **💳 Système de portefeuille intégré** : Recharge, paiement et suivi des transactions
 - Carte interactive pour localiser les commerçants
 - Tableau de bord d'impact personnel (CO₂, repas sauvés, argent économisé)
 - Historique des réservations
@@ -135,6 +136,34 @@ Interface publique pour validation des retraits :
 - Utilisation sans authentification
 - Optimisée pour tablettes/mobiles
 - Logs automatiques des retraits
+
+### 💳 Système de Portefeuille (Nouveau !)
+
+**Gestion financière intégrée** pour les clients :
+
+#### Fonctionnalités principales
+- **💵 Recharge de portefeuille** : Montants prédéfinis (10€, 20€, 50€, 100€, 200€) ou personnalisés
+- **💳 Paiement via portefeuille** : Option de paiement lors de la réservation de lots
+- **📊 Statistiques détaillées** :
+  - Total rechargé et nombre de recharges
+  - Total dépensé et nombre de paiements
+  - Total remboursé et nombre de remboursements
+  - Nombre total de transactions et moyenne
+- **📜 Historique complet** : Toutes les transactions avec filtres (recharges, paiements, remboursements)
+- **🔔 Notifications automatiques** : Alertes pour chaque transaction importante
+- **⚠️ Alerte solde faible** : Notification si le solde est inférieur à 10€
+- **📄 Pagination** : Navigation dans l'historique (20 transactions par page)
+
+#### Avantages
+- ⚡ **Paiement rapide** : Plus besoin de saisir les informations de carte à chaque achat
+- 🔒 **Sécurisé** : Transactions tracées et historisées
+- 📈 **Suivi transparent** : Visualisation claire des dépenses et recharges
+- 💰 **Gestion du budget** : Contrôle total sur les dépenses anti-gaspillage
+
+#### Utilisation
+1. **Recharger** : Onglet "Portefeuille" → "Recharger mon portefeuille"
+2. **Payer** : Lors de la réservation, cocher "Payer avec mon portefeuille"
+3. **Consulter** : Voir le solde dans le header et l'historique dans l'onglet dédié
 
 ### 📊 Impact & Métriques
 
@@ -294,6 +323,7 @@ VITE_GEMINI_API_KEY=votre-cle-gemini-api
    - `20250116_add_association_beneficiary_registrations.sql` (enregistrements bénéficiaires)
    - `20250120_add_is_free_to_lots.sql` (champ is_free pour lots gratuits)
    - `20250120_fix_free_lots_is_free_flag.sql` (correction données existantes)
+   - `20250121_create_wallet_system.sql` (système de portefeuille pour clients)
 
 ##### Option 2 : Via Supabase CLI (Recommandé pour développeurs)
 
@@ -419,9 +449,15 @@ ecopanier/
 │   │   │   └── MyMissions.tsx
 │   │   ├── customer/           # Composants client
 │   │   │   ├── CustomerDashboard.tsx
+│   │   │   ├── CustomerHeader.tsx
+│   │   │   ├── CustomerProfilePage.tsx
 │   │   │   ├── ImpactDashboard.tsx
 │   │   │   ├── LotBrowser.tsx
-│   │   │   └── ReservationsList.tsx
+│   │   │   ├── ReservationsList.tsx
+│   │   │   ├── WalletPage.tsx
+│   │   │   └── components/
+│   │   │       ├── RechargeModal.tsx
+│   │   │       └── ReservationModal.tsx
 │   │   ├── merchant/           # Composants commerçant
 │   │   │   ├── MerchantDashboard.tsx
 │   │   │   ├── LotManagement.tsx
@@ -456,7 +492,8 @@ ecopanier/
 │   ├── utils/                  # Fonctions utilitaires
 │   │   ├── helpers.ts
 │   │   ├── settingsService.ts
-│   │   └── validationHelpers.ts
+│   │   ├── validationHelpers.ts
+│   │   └── walletService.ts    # Service de gestion du portefeuille
 │   ├── App.tsx                 # Composant racine
 │   ├── main.tsx                # Point d'entrée
 │   ├── index.css               # Styles globaux
@@ -470,7 +507,8 @@ ecopanier/
 │       ├── 20250116_add_association_role.sql
 │       ├── 20250116_add_association_beneficiary_registrations.sql
 │       ├── 20250120_add_is_free_to_lots.sql
-│       └── 20250120_fix_free_lots_is_free_flag.sql
+│       ├── 20250120_fix_free_lots_is_free_flag.sql
+│       └── 20250121_create_wallet_system.sql
 ├── .env.example                # Exemple de configuration
 ├── .gitignore                  # Fichiers ignorés par Git
 ├── eslint.config.js            # Configuration ESLint
@@ -557,6 +595,30 @@ npm run test:coverage
 ---
 
 ## 🆕 Mises à Jour Récentes
+
+### 💳 Système de Portefeuille (21 Janvier 2025)
+
+**Nouvelle fonctionnalité majeure** : Les clients peuvent maintenant gérer leur portefeuille directement dans l'application !
+
+#### Fonctionnalités ajoutées
+- ✅ **Recharge de portefeuille** : Montants prédéfinis ou personnalisés
+- ✅ **Paiement via portefeuille** : Option lors de la réservation de lots
+- ✅ **Statistiques complètes** : Total rechargé, dépensé, remboursé
+- ✅ **Historique filtré** : Transactions par type avec pagination
+- ✅ **Notifications automatiques** : Alertes pour chaque transaction
+- ✅ **Alerte solde faible** : Notification si solde < 10€
+- ✅ **Affichage dans le header** : Solde visible en temps réel
+
+#### Base de données
+- ✅ Tables `wallets` et `wallet_transactions` créées
+- ✅ Trigger automatique : création de wallet pour chaque nouveau client
+- ✅ Migration : `20250121_create_wallet_system.sql`
+
+#### Interface utilisateur
+- ✅ Page dédiée "Portefeuille" dans le dashboard client
+- ✅ Modal de recharge avec montants rapides
+- ✅ Intégration dans le processus de réservation
+- ✅ Design moderne avec statistiques visuelles
 
 ### 🔧 Correction Critique : Lots Gratuits (20 Janvier 2025)
 
