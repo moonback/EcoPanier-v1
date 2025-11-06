@@ -67,7 +67,7 @@ export const HeroSection = () => {
           <div className="space-y-6">
             <motion.h1
               variants={itemVariants}
-              className="text-4xl font-bold leading-tight text-neutral-900 sm:text-5xl lg:text-7xl"
+              className="text-4xl font-bold leading-tight text-neutral-900 sm:text-5xl lg:text-6xl"
             >
               <motion.span
                 variants={itemVariants}
