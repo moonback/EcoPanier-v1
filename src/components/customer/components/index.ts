@@ -18,4 +18,6 @@ export { SkeletonLotCard } from './SkeletonLotCard';
 export { SkeletonGrid } from './SkeletonGrid';
 export { SkeletonReservationCard } from './SkeletonReservationCard';
 export { SkeletonImpactCard } from './SkeletonImpactCard';
+export { ReservationFilterSidebar, DEFAULT_FILTERS as DEFAULT_RESERVATION_FILTERS } from './ReservationFilterSidebar';
+export type { ReservationFilters, ReservationStatus, ReservationType, SortBy, DateFilter } from './ReservationFilterSidebar';
 
