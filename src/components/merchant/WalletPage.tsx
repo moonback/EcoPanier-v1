@@ -32,6 +32,7 @@ import {
 import { formatCurrency, formatDateTime } from '../../utils/helpers';
 import { WithdrawalRequestModal } from './components/WithdrawalRequestModal';
 import { BankAccountModal } from './components/BankAccountModal';
+import { supabase } from '../../lib/supabase';
 
 // Constantes
 const TRANSACTIONS_PER_PAGE = 20;
@@ -58,6 +59,93 @@ export const MerchantWalletPage = () => {
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [showBankAccountModal, setShowBankAccountModal] = useState(false);
 
+  // Enrichir les transactions avec les titres des lots depuis les réservations
+  const enrichTransactionsWithLotTitles = async (
+    transactions: WalletTransactionType[]
+  ): Promise<WalletTransactionType[]> => {
+    // Identifier les transactions qui ont besoin d'être enrichies
+    const transactionsToEnrich = transactions.filter(
+      (tx) => tx.type === 'merchant_payment' && tx.reference_type === 'reservation' && tx.reference_id
+    );
+
+    if (transactionsToEnrich.length === 0) {
+      return transactions;
+    }
+
+    // Récupérer les IDs de réservation uniques
+    const reservationIds = [...new Set(transactionsToEnrich.map((tx) => tx.reference_id).filter(Boolean))];
+
+    try {
+      // Récupérer les réservations avec les lots
+      const { data: reservations, error: reservationsError } = await supabase
+        .from('reservations')
+        .select(`
+          id,
+          quantity,
+          lots!inner(
+            title
+          )
+        `)
+        .in('id', reservationIds);
+
+      if (reservationsError) {
+        console.error('Erreur lors de la récupération des réservations:', reservationsError);
+        return transactions;
+      }
+
+      // Créer une map des réservations par ID
+      const reservationsMap = new Map(
+        (reservations || []).map((res: any) => {
+          // Accéder au titre du lot (peut être dans res.lots ou res.lot selon la structure)
+          const lotTitle = (res.lots?.title || res.lot?.title || 'Lot') as string;
+          const quantity = (res.quantity || 1) as number;
+          
+          return [
+            res.id,
+            {
+              lotTitle,
+              quantity,
+            },
+          ];
+        })
+      );
+
+      // Enrichir les transactions avec les titres des lots
+      return transactions.map((tx) => {
+        // Si la transaction a une description qui se termine par " - Lot" ou juste "Lot", enrichir
+        if (
+          tx.type === 'merchant_payment' &&
+          tx.reference_type === 'reservation' &&
+          tx.reference_id &&
+          reservationsMap.has(tx.reference_id)
+        ) {
+          const reservationData = reservationsMap.get(tx.reference_id);
+          if (reservationData) {
+            // Vérifier si la description contient déjà un titre valide
+            const match = tx.description.match(/Paiement pour la réservation (.+?) - (.+?)(?:\s*\(x(\d+)\))?$/);
+            
+            // Si la description se termine par " - Lot" ou ne contient pas de titre valide, la mettre à jour
+            if (!match || match[2] === 'Lot' || match[2].trim() === 'Lot') {
+              const lotTitle = reservationData.lotTitle;
+              const quantity = reservationData.quantity;
+              const quantityText = quantity > 1 ? ` (x${quantity})` : '';
+              const newDescription = `Paiement pour la réservation ${tx.reference_id} - ${lotTitle}${quantityText}`;
+              
+              return {
+                ...tx,
+                description: newDescription,
+              };
+            }
+          }
+        }
+        return tx;
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'enrichissement des transactions:', error);
+      return transactions;
+    }
+  };
+
   // Charger les données du wallet
   const loadWalletData = async () => {
     if (!user?.id) return;
@@ -77,9 +165,12 @@ export const MerchantWalletPage = () => {
         getWithdrawalRequests(user.id),
       ]);
 
+      // Enrichir les transactions avec les titres des lots
+      const enrichedTransactions = await enrichTransactionsWithLotTitles(transactionsData);
+
       setBalance(walletBalance);
       setStats(walletStats);
-      setTransactions(transactionsData);
+      setTransactions(enrichedTransactions);
       setTotalTransactions(totalCount);
       setWithdrawalRequests(withdrawalRequestsData);
     } catch (err) {
@@ -459,6 +550,58 @@ function TransactionItem({ transaction }: TransactionItemProps) {
     }
   };
 
+  // Parser la description pour extraire les informations importantes
+  const parseTransactionDescription = () => {
+    if (transaction.type === 'merchant_payment' && transaction.description) {
+      // Format: "Paiement pour la réservation {reservationId} - {lotTitle} (x{quantity})"
+      const match = transaction.description.match(/Paiement pour la réservation (.+?) - (.+?)(?:\s*\(x(\d+)\))?$/);
+      if (match) {
+        const reservationId = match[1];
+        let lotTitle = match[2].trim();
+        const quantity = match[3];
+        
+        // Nettoyer le titre du lot (enlever les espaces en fin)
+        if (lotTitle.endsWith(' ')) {
+          lotTitle = lotTitle.trim();
+        }
+        
+        // Ajouter la quantité au titre si elle existe et est > 1
+        const titleWithQuantity = quantity && parseInt(quantity) > 1 
+          ? `${lotTitle} (x${quantity})`
+          : lotTitle;
+        
+        return {
+          mainTitle: titleWithQuantity || 'Lot',
+          subtitle: `Réservation ${reservationId.slice(0, 8)}...`,
+        };
+      }
+      // Format alternatif si pas de match exact
+      if (transaction.description.includes(' - ')) {
+        const parts = transaction.description.split(' - ');
+        if (parts.length >= 2) {
+          return {
+            mainTitle: parts[1].trim() || 'Lot',
+            subtitle: transaction.description.includes('réservation')
+              ? 'Paiement pour réservation'
+              : undefined,
+          };
+        }
+      }
+      return {
+        mainTitle: transaction.description,
+        subtitle: transaction.description.includes('réservation')
+          ? 'Paiement pour réservation'
+          : undefined,
+      };
+    }
+    return {
+      mainTitle: transaction.description || 'Transaction',
+      subtitle: undefined,
+    };
+  };
+
+  const { mainTitle, subtitle } = parseTransactionDescription();
+
   return (
     <div className="bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
       {/* Layout Desktop/Tablette : Horizontal */}
@@ -477,20 +620,34 @@ function TransactionItem({ transaction }: TransactionItemProps) {
 
           {/* Détails */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <p className="font-medium text-gray-900 text-sm sm:text-base truncate">{transaction.description}</p>
-              <span className="px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 rounded flex-shrink-0">
+            <div className="flex items-start gap-2 mb-1.5 flex-wrap">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-900 text-sm sm:text-base break-words leading-tight">
+                  {mainTitle}
+                </p>
+                {subtitle && (
+                  <p className="text-xs text-gray-500 mt-0.5 font-mono">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+              <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded flex-shrink-0 self-start">
                 {getTypeLabel()}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-gray-500">
-              {formatDateTime(transaction.created_at)}
-            </p>
-            {transaction.reference_type && (
-              <p className="text-xs text-gray-400 mt-1">
-                Référence: {transaction.reference_type}
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-xs sm:text-sm text-gray-500">
+                {formatDateTime(transaction.created_at)}
               </p>
-            )}
+              {transaction.reference_type && (
+                <>
+                  <span className="text-xs text-gray-300">•</span>
+                  <p className="text-xs text-gray-400">
+                    {transaction.reference_type}
+                  </p>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Montant */}
@@ -527,15 +684,27 @@ function TransactionItem({ transaction }: TransactionItemProps) {
 
             {/* Description */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <p className="font-medium text-gray-900 text-sm">{transaction.description}</p>
-                <span className="px-1.5 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 rounded flex-shrink-0">
+              <div className="mb-1.5">
+                <p className="font-semibold text-gray-900 text-sm break-words leading-tight mb-1">
+                  {mainTitle}
+                </p>
+                {subtitle && (
+                  <p className="text-xs text-gray-500 font-mono mb-1">
+                    {subtitle}
+                  </p>
+                )}
+                <span className="inline-block px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
                   {getTypeLabel()}
                 </span>
               </div>
               <p className="text-xs text-gray-500">
                 {formatDateTime(transaction.created_at)}
               </p>
+              {transaction.reference_type && (
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Réf: {transaction.reference_type}
+                </p>
+              )}
             </div>
           </div>
 

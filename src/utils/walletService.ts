@@ -618,7 +618,8 @@ export async function confirmReceiptAndPayMerchant(
         *,
         lots!inner(
           merchant_id,
-          discounted_price
+          discounted_price,
+          title
         )
       `)
       .eq('id', reservationId)
@@ -635,6 +636,7 @@ export async function confirmReceiptAndPayMerchant(
       status: string;
       customer_confirmed?: boolean;
       total_price: number;
+      quantity?: number;
       lots: { merchant_id: string; discounted_price: number; title?: string };
     };
 
@@ -653,11 +655,14 @@ export async function confirmReceiptAndPayMerchant(
 
     // Si le montant est > 0, payer le commerçant
     if (amount > 0) {
+      const lotTitle = reservationData.lots.title || 'Lot';
+      const quantity = reservationData.quantity || 1;
+      const quantityText = quantity > 1 ? ` (x${quantity})` : '';
       await payMerchantOnConfirmation(
         reservationId,
         merchantId,
         amount,
-        `Paiement pour la réservation ${reservationId} - ${reservationData.lots.title || 'Lot'}`
+        `Paiement pour la réservation ${reservationId} - ${lotTitle}${quantityText}`
       );
     }
 
