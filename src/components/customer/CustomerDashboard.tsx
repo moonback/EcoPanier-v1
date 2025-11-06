@@ -72,18 +72,17 @@ export const CustomerDashboard = () => {
       </main>
 
       {/* Barre de navigation fixe en bas */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
-        <div className="max-w-12xl mx-auto">
-          <div className="flex items-center justify-around">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-lg">
+        <div className="mx-auto max-w-12xl">
+          <div className="flex justify-between items-center">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
-
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
+                  className={`flex flex-col items-center justify-center flex-1 gap-0.5 p-2 transition-all relative ${
                     isActive
                       ? 'text-primary-600'
                       : 'text-gray-500 hover:text-gray-700'
@@ -92,19 +91,10 @@ export const CustomerDashboard = () => {
                   aria-current={isActive ? 'page' : undefined}
                 >
                   {isActive && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-b-full" />
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary-500 rounded-full" />
                   )}
-                  <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
-                    <Icon
-                      size={20}
-                      strokeWidth={isActive ? 2.5 : 1.5}
-                    />
-                  </div>
-                  <span
-                    className={`text-xs transition-all ${
-                      isActive ? 'font-bold' : 'font-light'
-                    }`}
-                  >
+                  <Icon size={21} strokeWidth={isActive ? 2.2 : 1.3} />
+                  <span className={`text-[11px] leading-tight transition-all ${isActive ? 'font-bold' : 'font-light'}`}>
                     {tab.label}
                   </span>
                 </button>
