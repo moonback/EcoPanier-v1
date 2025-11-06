@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   X, 
   Package, 
@@ -13,11 +13,14 @@ import {
   Phone,
   CheckCircle,
   Info,
-  FileText
+  FileText,
+  Navigation
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database } from '../../../lib/database.types';
+import { useAuthStore } from '../../../stores/authStore';
+import { calculateDistance, formatDistance, geocodeAddress } from '../../../utils/geocodingService';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: {
@@ -86,7 +89,12 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<TabId>('product');
+  const [distance, setDistance] = useState<number | null>(null);
+  const [distanceLoading, setDistanceLoading] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
   
+  const { profile: userProfile } = useAuthStore();
   const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
   const discount = Math.round(
     ((lot.original_price - lot.discounted_price) / lot.original_price) * 100
@@ -94,6 +102,9 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
 
   const hasMultipleImages = lot.image_urls && lot.image_urls.length > 1;
   const merchant = lot.profiles;
+  
+  // Vérifier si le compte à rebours doit s'afficher
+  const shouldShowCountdown = (lot.is_urgent || availableQty < 3) && availableQty > 0;
 
   const nextImage = () => {
     if (lot.image_urls && currentImageIndex < lot.image_urls.length - 1) {
@@ -104,6 +115,148 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
   const prevImage = () => {
     if (currentImageIndex > 0) {
       setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  // Calcul du temps restant jusqu'à la fin du créneau de retrait
+  useEffect(() => {
+    if (!shouldShowCountdown) {
+      setTimeRemaining(null);
+      return;
+    }
+
+    const calculateTimeRemaining = () => {
+      const now = new Date();
+      const pickupEnd = new Date(lot.pickup_end);
+      
+      // Si le créneau est déjà passé
+      if (pickupEnd <= now) {
+        setTimeRemaining(null);
+        return;
+      }
+
+      const diff = pickupEnd.getTime() - now.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeRemaining({ hours, minutes, seconds });
+    };
+
+    // Calculer immédiatement
+    calculateTimeRemaining();
+
+    // Mettre à jour toutes les secondes
+    const interval = setInterval(calculateTimeRemaining, 1000);
+
+    return () => clearInterval(interval);
+  }, [lot.pickup_end, shouldShowCountdown]);
+
+  // Formatage du temps restant pour l'affichage
+  const formatTimeRemaining = (time: { hours: number; minutes: number; seconds: number }): string => {
+    if (time.hours > 0) {
+      return `${time.hours}h${time.minutes.toString().padStart(2, '0')}`;
+    }
+    return `${time.minutes}min${time.seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Vérifier si le temps restant est critique (< 1h)
+  const isTimeCritical = timeRemaining !== null && timeRemaining.hours === 0 && timeRemaining.minutes < 60;
+
+  // Calcul de la distance entre l'utilisateur et le commerçant
+  useEffect(() => {
+    const calculateUserDistance = async () => {
+      if (!merchant.business_address) return;
+
+      setDistanceLoading(true);
+      
+      try {
+        // 1. Obtenir la position de l'utilisateur
+        let userLat: number | null = null;
+        let userLon: number | null = null;
+
+        // Essayer d'abord depuis le profil (coordonnées GPS)
+        if (userProfile?.latitude && userProfile?.longitude) {
+          userLat = userProfile.latitude;
+          userLon = userProfile.longitude;
+        }
+        // Sinon, essayer la géolocalisation du navigateur
+        else if (navigator.geolocation) {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 5000,
+              enableHighAccuracy: false,
+            });
+          });
+          userLat = position.coords.latitude;
+          userLon = position.coords.longitude;
+        }
+        // Sinon, géocoder l'adresse de l'utilisateur si disponible
+        else if (userProfile?.address) {
+          const userGeocode = await geocodeAddress(userProfile.address);
+          if (userGeocode.success) {
+            userLat = userGeocode.latitude;
+            userLon = userGeocode.longitude;
+          }
+        }
+
+        if (!userLat || !userLon) {
+          setDistanceLoading(false);
+          return;
+        }
+
+        // 2. Obtenir les coordonnées du commerçant
+        let merchantLat: number;
+        let merchantLon: number;
+
+        // Essayer d'abord depuis le profil du commerçant (si disponible dans le lot)
+        // Note: Le lot contient déjà les infos du commerçant, mais pas les coordonnées GPS
+        // On doit géocoder l'adresse du commerce
+        const merchantGeocode = await geocodeAddress(merchant.business_address);
+        if (merchantGeocode.success) {
+          merchantLat = merchantGeocode.latitude;
+          merchantLon = merchantGeocode.longitude;
+        } else {
+          setDistanceLoading(false);
+          return;
+        }
+
+        // 3. Calculer la distance
+        const calculatedDistance = calculateDistance(
+          userLat,
+          userLon,
+          merchantLat,
+          merchantLon
+        );
+
+        setDistance(calculatedDistance);
+        setUserLocation({ lat: userLat, lon: userLon });
+      } catch (error) {
+        console.error('Erreur lors du calcul de distance:', error);
+      } finally {
+        setDistanceLoading(false);
+      }
+    };
+
+    // Calculer uniquement si on est sur l'onglet commerçant ou si on a besoin de la distance
+    if (activeTab === 'merchant' || activeTab === 'product') {
+      calculateUserDistance();
+    }
+  }, [merchant.business_address, userProfile, activeTab]);
+
+  // Fonction pour ouvrir Google Maps avec l'itinéraire
+  const openDirections = () => {
+    if (!merchant.business_address) return;
+
+    const encodedAddress = encodeURIComponent(merchant.business_address);
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+    
+    // Si on a la position de l'utilisateur, l'ajouter comme origine
+    if (userLocation) {
+      const originUrl = `&origin=${userLocation.lat},${userLocation.lon}`;
+      window.open(`${mapsUrl}${originUrl}`, '_blank');
+    } else {
+      window.open(mapsUrl, '_blank');
     }
   };
 
@@ -125,10 +278,23 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
         {/* Header avec onglets */}
         <div className="sticky top-0 z-20 bg-white border-b border-gray-200 flex-shrink-0">
           <div className="p-2 sm:p-3 lg:p-3 flex items-center justify-between border-b border-gray-100">
-            <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">Détails du lot</h2>
-          <button
-            onClick={onClose}
-              className="p-1.5 sm:p-2 hover:bg-primary-100 rounded-lg transition-colors"
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">Détails du lot</h2>
+              {/* Compte à rebours d'urgence dans le header */}
+              {shouldShowCountdown && timeRemaining !== null && (
+                <div className={`mt-1 inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${
+                  isTimeCritical
+                    ? 'bg-red-100 text-red-700 animate-pulse'
+                    : 'bg-orange-100 text-orange-700'
+                }`}>
+                  <Clock className="w-3 h-3" strokeWidth={2} />
+                  <span>Plus que {formatTimeRemaining(timeRemaining)}</span>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1.5 sm:p-2 hover:bg-primary-100 rounded-lg transition-colors flex-shrink-0"
             >
               <X className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-gray-600" strokeWidth={1.5} />
             </button>
@@ -325,6 +491,53 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                       </div>
                     </div>
                   </div>
+
+                  {/* Compte à rebours d'urgence */}
+                  {shouldShowCountdown && timeRemaining !== null && (
+                    <div className={`mt-2 p-3 rounded-lg border-2 ${
+                      isTimeCritical
+                        ? 'bg-red-50 border-red-300 animate-pulse'
+                        : 'bg-orange-50 border-orange-200'
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        <Clock className={`w-4 h-4 ${isTimeCritical ? 'text-red-600' : 'text-orange-600'}`} strokeWidth={2} />
+                        <div className="flex-1">
+                          <div className={`text-xs sm:text-sm font-bold ${isTimeCritical ? 'text-red-700' : 'text-orange-700'}`}>
+                            {isTimeCritical ? '⏰ Dernière chance !' : '⏱️ Temps limité'}
+                          </div>
+                          <div className={`text-xs ${isTimeCritical ? 'text-red-600' : 'text-orange-600'}`}>
+                            Plus que {formatTimeRemaining(timeRemaining)} pour réserver
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Distance (si disponible) */}
+                  {distance !== null && (
+                    <div className="mt-2 p-2.5 sm:p-3 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-primary-600" strokeWidth={1.5} />
+                          <span className="text-xs sm:text-sm text-gray-700">
+                            À {formatDistance(distance)} de vous
+                    </span>
+                  </div>
+                        <button
+                          onClick={openDirections}
+                          className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                        >
+                          <Navigation className="w-3 h-3" strokeWidth={2} />
+                          <span className="hidden sm:inline">Itinéraire</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {distanceLoading && (
+                    <div className="mt-2 text-xs text-gray-500 text-center">
+                      Calcul de la distance...
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -353,7 +566,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">
-                          {merchant.business_name}
+                        {merchant.business_name}
                         </h3>
                         {merchant.verified && (
                           <span className="inline-flex items-center gap-0.5 bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">
@@ -370,7 +583,29 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                       <div className="text-xs sm:text-sm text-gray-600 flex items-start gap-1 mt-1">
                         <MapPin className="w-3 h-3 flex-shrink-0 text-gray-500 mt-0.5" strokeWidth={1.5} />
                         <span className="line-clamp-2">{merchant.business_address}</span>
-                      </div>
+          </div>
+
+                      {/* Distance et itinéraire */}
+                      {distance !== null && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-xs sm:text-sm text-primary-600 font-medium">
+                            📍 À {formatDistance(distance)} de vous
+                </span>
+                          <button
+                            onClick={openDirections}
+                            className="inline-flex items-center gap-1 text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                          >
+                            <Navigation className="w-3 h-3" strokeWidth={2} />
+                            Itinéraire
+                          </button>
+              </div>
+                      )}
+                      {distanceLoading && (
+                        <div className="mt-2 text-xs text-gray-500">
+                          Calcul de la distance...
+            </div>
+          )}
+
                       {onMerchantClick && (
                         <button
                           onClick={onMerchantClick}
@@ -379,23 +614,23 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                           Voir tous les produits →
                         </button>
                       )}
-                    </div>
-                  </div>
+                </div>
+              </div>
 
-                  {/* Description */}
-                  {merchant.business_description && (
+                {/* Description */}
+                {merchant.business_description && (
                     <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm flex-1">
-                      <div className="flex items-start gap-2 mb-2">
-                        <Info className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                        <div className="flex-1">
+                    <div className="flex items-start gap-2 mb-2">
+                      <Info className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                      <div className="flex-1">
                           <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">À propos</h4>
                           <p className="text-xs sm:text-sm text-gray-700 leading-relaxed line-clamp-6 lg:line-clamp-none">
-                            {merchant.business_description}
-                          </p>
-                        </div>
+                          {merchant.business_description}
+                        </p>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
                 </div>
 
                 {/* Colonne droite : Informations de contact */}
@@ -453,9 +688,9 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                       </div>
                     </div>
                   )}
-                </div>
               </div>
-            )}
+            </div>
+          )}
 
             {/* Onglet Détails */}
             {activeTab === 'details' && (
