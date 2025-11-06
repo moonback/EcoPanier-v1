@@ -259,7 +259,7 @@ function validateAndCorrectAnalysis(analysis: any): LotAnalysisResult {
 
   return {
     title: analysis.title?.slice(0, 100) || 'Produit alimentaire à sauver',
-    description: analysis.description?.slice(0, 300) || 'Produit de qualité à sauver du gaspillage. Récupération rapide recommandée.',
+    description: analysis.description?.slice(0, 300) || 'Produit à sauver du gaspillage. Récupération rapide recommandée.',
     category: validCategory,
     original_price: originalPrice,
     discounted_price: discountedPrice,

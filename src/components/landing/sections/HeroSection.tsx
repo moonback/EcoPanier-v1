@@ -75,7 +75,7 @@ export const HeroSection = () => {
               <strong className="text-primary-600">sauvant la planète</strong> et{' '}
               <strong className="text-accent-600">aidant les plus démunis</strong>. 
               <span className="block mt-2 text-lg text-neutral-600">
-                Des paniers de qualité près de chez vous. <span className="font-semibold text-accent-600">Inscription gratuite en 30 secondes.</span>
+                Des paniers près de chez vous. <span className="font-semibold text-accent-600">Inscription gratuite en 30 secondes.</span>
               </span>
             </motion.p>
           </div>

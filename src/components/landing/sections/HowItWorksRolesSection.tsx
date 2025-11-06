@@ -14,7 +14,7 @@ export const HowItWorksRolesSection = () => {
         <SectionHeader
           eyebrow="Comment ça marche"
           title="Quatre étapes simples pour économiser et agir"
-          description="Découvrez des paniers de qualité à prix réduits en quelques clics. Simple, rapide et efficace."
+          description="Découvrez des paniers à prix réduits en quelques clics. Simple, rapide et efficace."
         />
 
         <motion.div

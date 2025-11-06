@@ -102,7 +102,7 @@ export const features: Feature[] = [
   {
     icon: ShoppingBag,
     title: 'Économisez jusqu\'à -70%',
-    description: 'Découvrez des paniers surprises de vos commerçants préférés à prix mini. Des produits de qualité de tous types, jusqu\'à 70% moins cher.',
+    description: 'Découvrez des paniers surprises de vos commerçants préférés à prix mini. Des produits de tous types, jusqu\'à 70% moins cher.',
     color: 'blue',
   },
   {
@@ -168,7 +168,7 @@ export const testimonials: Testimonial[] = [
   {
     name: 'Sophie Martin',
     role: 'Coordinatrice • Association Entraide Paris 18',
-    text: 'Le programme solidaire d\'ÉcoPanier a changé la donne pour nos bénéficiaires. Ils accèdent à des produits de qualité de tous types de commerces, pas à des restes. Le système de QR code préserve leur dignité. C\'est de l\'aide alimentaire réinventée.',
+    text: 'Le programme solidaire d\'ÉcoPanier a changé la donne pour nos bénéficiaires. Ils accèdent à des produits de tous types de commerces, pas à des restes. Le système de QR code préserve leur dignité. C\'est de l\'aide alimentaire réinventée.',
     avatar: '/testimonial/testimonials-3.png',
   },
 ];
@@ -178,10 +178,10 @@ export const userProfiles: UserProfile[] = [
     icon: ShoppingBag,
     title: 'Clients',
     subtitle: 'Consommateurs responsables',
-    description: 'Faites vos courses autrement : des produits de qualité jusqu\'à -70%, issus de tous types de commerces, tout en sauvant la planète, un panier à la fois.',
+    description: 'Faites vos courses autrement : des produits jusqu\'à -70%, issus de tous types de commerces, tout en sauvant la planète, un panier à la fois.',
     benefits: [
       '💰 Économisez jusqu\'à 70% sur vos courses quotidiennes',
-      '✨ Produits variés et de qualité : frais, secs, préparés, boulangerie...',
+      '✨ Produits variés et : frais, secs, préparés, boulangerie...',
       '🌍 Impact concret : 0.9kg de CO₂ évité par repas sauvé',
       '📱 Récupération ultra-simple avec votre QR code personnalisé',
       '📊 Tableau de bord pour suivre votre impact environnemental',
@@ -226,7 +226,7 @@ export const whyReasons: WhyReason[] = [
   {
     icon: DollarSign,
     title: 'Économisez sans Compromis',
-    description: 'Manger mieux sans se ruiner, c\'est possible ! Découvrez des produits de qualité jusqu\'à 70% moins cher : boulangerie, fruits et légumes, épicerie, plats préparés... Nos utilisateurs économisent en moyenne 100€ par mois tout en découvrant de nouvelles saveurs et de nouveaux commerces. Des économies qui ont du goût.',
+    description: 'Manger mieux sans se ruiner, c\'est possible ! Découvrez des produits jusqu\'à 70% moins cher : boulangerie, fruits et légumes, épicerie, plats préparés... Nos utilisateurs économisent en moyenne 100€ par mois tout en découvrant de nouvelles saveurs et de nouveaux commerces. Des économies qui ont du goût.',
     stats: '100€ économisés en moyenne / mois',
     color: 'warning'
   },
@@ -242,7 +242,7 @@ export const whyReasons: WhyReason[] = [
 export const faqItems: FAQItem[] = [
   {
     question: 'Comment garantissez-vous la qualité des produits ?',
-    answer: 'Tous les paniers sont préparés le jour même par nos commerçants partenaires et doivent être récupérés dans les 24h. Ce sont des produits de qualité (frais, secs, préparés, boulangerie...) qui auraient fini à la poubelle, simplement parce qu\'ils n\'ont pas été vendus à temps. Chaque commerçant est responsable de la qualité des produits proposés.'
+    answer: 'Tous les paniers sont préparés le jour même par nos commerçants partenaires et doivent être récupérés dans les 24h. Ce sont des produits (frais, secs, préparés, boulangerie...) qui auraient fini à la poubelle, simplement parce qu\'ils n\'ont pas été vendus à temps. Chaque commerçant est responsable de la qualité des produits proposés.'
   },
   {
     question: 'Que contient un panier surprise ?',

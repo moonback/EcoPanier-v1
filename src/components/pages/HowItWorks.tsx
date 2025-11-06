@@ -50,7 +50,7 @@ export const HowItWorks = () => {
     {
       number: 2,
       title: 'Découvrez les paniers surprises',
-      description: 'Des produits frais de qualité jusqu\'à -70% près de chez vous',
+      description: 'Des produits frais jusqu\'à -70% près de chez vous',
       icon: Search,
       details: [
         '🔍 Parcourez les paniers disponibles sur la carte',

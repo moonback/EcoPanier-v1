@@ -30,7 +30,7 @@ export const LandingPage = () => {
     <div className="min-h-screen bg-neutral-100">
       <SEOHead
         title="ÉcoPanier - Économisez jusqu'à -70% sur vos courses tout en agissant pour la planète"
-        description="Découvrez des paniers surprises de qualité à prix réduits chez vos commerçants locaux. Économisez intelligemment, sauvez des repas du gaspillage, et offrez des paniers suspendus. Chaque achat compte."
+        description="Découvrez des paniers surprises à prix réduits chez vos commerçants locaux. Économisez intelligemment, sauvez des repas du gaspillage, et offrez des paniers suspendus. Chaque achat compte."
         keywords="économies courses, anti-gaspillage alimentaire, paniers suspendus, invendus alimentaires, commerce local, économiser alimentation, solidarité locale, courses pas cher, paniers surprises"
         url="https://ecopanier.fr"
       />

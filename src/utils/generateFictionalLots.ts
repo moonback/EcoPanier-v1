@@ -218,7 +218,7 @@ const LOT_TEMPLATES = [
   },
   {
     title: 'Lot Conserves Premium',
-    description: 'Sélection de conserves de qualité : légumes, poissons, fruits et plats cuisinés. DLC proche.',
+    description: 'Sélection de conserves : légumes, poissons, fruits et plats cuisinés. DLC proche.',
     category: 'epicerie',
     originalPrice: 18.0,
     discountedPrice: 6.0,
