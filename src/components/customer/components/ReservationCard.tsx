@@ -214,37 +214,37 @@ export function ReservationCard({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      <div className={`p-6 ${statusStyles.bg}`}>
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className={`p-4 ${statusStyles.bg}`}>
         {/* En-tête avec titre et statut */}
-        <div className="flex justify-between items-start mb-4">
-          <h3 className="font-bold text-black">{reservation.lots.title}</h3>
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="font-bold text-black text-sm line-clamp-2 flex-1 pr-2">{reservation.lots.title}</h3>
           <span
-            className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles.badge}`}
+            className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${statusStyles.badge}`}
           >
             {statusStyles.label}
           </span>
         </div>
 
         {/* Informations de la réservation */}
-        <div className="space-y-3 text-sm text-gray-700 font-light">
-          <div className="flex items-center gap-2">
-            <MapPin size={16} strokeWidth={1.5} />
-            <span>{reservation.lots.profiles.business_name}</span>
+        <div className="space-y-2 text-xs text-gray-700 font-light">
+          <div className="flex items-center gap-1.5">
+            <MapPin size={14} strokeWidth={1.5} className="flex-shrink-0" />
+            <span className="truncate">{reservation.lots.profiles.business_name}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Clock size={16} strokeWidth={1.5} />
-            <span>{formatDateTime(reservation.lots.pickup_start)}</span>
+          <div className="flex items-center gap-1.5">
+            <Clock size={14} strokeWidth={1.5} className="flex-shrink-0" />
+            <span className="truncate">{formatDateTime(reservation.lots.pickup_start)}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Package size={16} strokeWidth={1.5} />
-            <span>Quantité: {reservation.quantity}</span>
+          <div className="flex items-center gap-1.5">
+            <Package size={14} strokeWidth={1.5} className="flex-shrink-0" />
+            <span>Qté: {reservation.quantity}</span>
           </div>
           {/* Ne pas afficher le PIN pour les dons (c'est le bénéficiaire qui l'utilisera) */}
           {!reservation.is_donation && (
-            <div className="flex items-center gap-2">
-              <Key size={16} strokeWidth={1.5} />
-              <span className="font-mono font-semibold">
+            <div className="flex items-center gap-1.5">
+              <Key size={14} strokeWidth={1.5} className="flex-shrink-0" />
+              <span className="font-mono font-semibold text-xs">
                 PIN: {reservation.pickup_pin}
               </span>
             </div>
@@ -253,7 +253,7 @@ export function ReservationCard({
 
         {/* Badge panier suspendu */}
         {reservation.is_donation && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="mt-3 p-2 bg-gray-50 rounded-lg border border-gray-200">
             <p className="text-xs text-black font-medium">
               Panier Suspendu - Merci pour votre générosité!
             </p>
@@ -270,8 +270,8 @@ export function ReservationCard({
 
         {/* Prix total (masqué pour les dons) */}
         {!reservation.is_donation && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-lg font-bold text-black">
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <p className="text-base font-bold text-black">
               {formatCurrency(reservation.total_price)}
             </p>
           </div>
@@ -279,32 +279,24 @@ export function ReservationCard({
 
         {/* Timer de confirmation automatique */}
         {canConfirmReceipt && remainingSeconds !== null && remainingSeconds > 0 && (
-          <div className="mt-4 p-3 bg-gradient-to-r from-yellow-50 via-orange-50 to-yellow-50 border-2 border-yellow-200 rounded-lg">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center shadow-md">
-                  <Timer size={18} className="text-white" strokeWidth={2.5} />
+          <div className="mt-3 p-2 bg-gradient-to-r from-yellow-50 via-orange-50 to-yellow-50 border-2 border-yellow-200 rounded-lg">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                  <Timer size={14} className="text-white" strokeWidth={2.5} />
                 </div>
-                <div>
-                  <p className="text-xs font-semibold text-gray-900">
-                    Confirmation automatique dans
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-gray-900 truncate">
+                    Auto-confirmation
                   </p>
-                  <p className="text-sm text-gray-600 font-light">
-                    Si vous ne confirmez pas manuellement
+                  <p className="text-xs text-gray-600 font-light truncate">
+                    {Math.floor(remainingSeconds / 60)}:{(remainingSeconds % 60).toString().padStart(2, '0')}
                   </p>
                 </div>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-black text-orange-600 tabular-nums">
-                  {Math.floor(remainingSeconds / 60)}:{(remainingSeconds % 60).toString().padStart(2, '0')}
-                </div>
-                <p className="text-xs text-gray-600 font-medium">
-                  {Math.floor(remainingSeconds / 60)} min {remainingSeconds % 60} sec
-                </p>
               </div>
             </div>
             {/* Barre de progression */}
-            <div className="mt-3 h-2 bg-yellow-200 rounded-full overflow-hidden">
+            <div className="mt-2 h-1.5 bg-yellow-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-1000 ease-linear"
                 style={{
@@ -316,13 +308,13 @@ export function ReservationCard({
         )}
 
         {/* Actions */}
-        <div className="mt-4 flex gap-2">
+        <div className="mt-3 flex gap-2">
           {canShowQRCode && (
             <button
               onClick={() => onShowQRCode(reservation)}
-              className="flex-1 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-sm font-medium"
+              className="flex-1 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-xs font-medium"
             >
-              Voir QR Code
+              QR Code
             </button>
           )}
           {canCancel && (
@@ -330,21 +322,21 @@ export function ReservationCard({
               onClick={() =>
                 onCancel(reservation.id, reservation.lot_id, reservation.quantity)
               }
-              className="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+              className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
               aria-label="Annuler la réservation"
             >
-              <X size={20} strokeWidth={1.5} />
+              <X size={16} strokeWidth={1.5} />
             </button>
           )}
           {reservation.status === 'completed' && !canConfirmReceipt && (
-            <div className="flex-1 py-3 px-4 bg-gray-100 text-black rounded-lg text-sm font-medium text-center">
+            <div className="flex-1 py-2 px-3 bg-gray-100 text-black rounded-lg text-xs font-medium text-center">
               {reservation.customer_confirmed ? (
-                <span className="flex items-center justify-center gap-2">
-                  <CheckCircle size={16} />
-                  Réception confirmée
+                <span className="flex items-center justify-center gap-1.5">
+                  <CheckCircle size={14} />
+                  <span className="truncate">Confirmé</span>
                 </span>
               ) : (
-                '✓ Panier récupéré'
+                <span className="truncate">✓ Récupéré</span>
               )}
             </div>
           )}
@@ -352,15 +344,15 @@ export function ReservationCard({
             <button
               onClick={handleOpenConfirmModal}
               disabled={confirming}
-              className="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-xs font-medium flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <CheckCircle size={16} />
-              Confirmer la réception
+              <CheckCircle size={14} />
+              <span className="truncate">Confirmer</span>
             </button>
           )}
           {reservation.status === 'cancelled' && (
-            <div className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
-              Panier annulé
+            <div className="flex-1 py-2 px-3 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium text-center">
+              <span className="truncate">Annulé</span>
             </div>
           )}
         </div>
