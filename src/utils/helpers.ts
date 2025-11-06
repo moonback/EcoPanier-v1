@@ -185,3 +185,65 @@ export const categoryLabels: Record<string, string> = {
 export const getCategoryLabel = (category: string): string => {
   return categoryLabels[category] || category;
 };
+
+/**
+ * Réserve un lot pour un utilisateur
+ * @param lot - Le lot à réserver
+ * @param quantity - La quantité à réserver
+ * @param userId - L'ID de l'utilisateur
+ * @param isDonation - Si c'est un don (panier suspendu)
+ * @returns Le code PIN de retrait
+ */
+export const reserveLot = async (
+  lot: { id: string; quantity_total: number; quantity_reserved: number; quantity_sold: number; discounted_price: number },
+  quantity: number,
+  userId: string,
+  isDonation: boolean = false
+): Promise<string> => {
+  const { supabase } = await import('../lib/supabase');
+
+  // Vérifier la quantité disponible
+  const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+  if (quantity > availableQty) {
+    throw new Error('Quantité demandée non disponible');
+  }
+
+  const pin = generatePIN();
+  const totalPrice = isDonation ? 0 : lot.discounted_price * quantity;
+
+  // Créer la réservation
+  const { error: reservationError } = await supabase
+    .from('reservations')
+    .insert({
+      lot_id: lot.id,
+      user_id: userId,
+      quantity,
+      total_price: totalPrice,
+      pickup_pin: pin,
+      status: 'pending',
+      is_donation: isDonation,
+    });
+
+  if (reservationError) throw reservationError;
+
+  // Mettre à jour la quantité réservée du lot
+  const { error: updateError } = await supabase
+    .from('lots')
+    .update({
+      quantity_reserved: lot.quantity_reserved + quantity,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', lot.id);
+
+  if (updateError) throw updateError;
+
+  // Enregistrer les métriques d'impact
+  const metricType = isDonation ? 'donations_made' : 'meals_saved';
+  await supabase.from('impact_metrics').insert({
+    user_id: userId,
+    metric_type: metricType,
+    value: quantity,
+  });
+
+  return pin;
+};

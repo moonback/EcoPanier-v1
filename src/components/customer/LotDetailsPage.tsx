@@ -18,7 +18,7 @@ import {
   Navigation,
   Minus,
   Plus,
-  AlertCircle
+  X,
 } from 'lucide-react';
 import { format, differenceInDays, isToday, isTomorrow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -27,7 +27,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { calculateDistance, formatDistance, geocodeAddress } from '../../utils/geocodingService';
 import { supabase } from '../../lib/supabase';
 import { calculateCO2Impact } from '../../hooks/useImpactMetrics';
-import { useLots } from '../../hooks/useLots';
+import { reserveLot as reserveLotUtil } from '../../utils/helpers';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: {
@@ -94,7 +94,6 @@ export function LotDetailsPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<TabId>('product');
   const [distance, setDistance] = useState<number | null>(null);
-  const [distanceLoading, setDistanceLoading] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -103,7 +102,6 @@ export function LotDetailsPage() {
   const [pickupTimeInfo, setPickupTimeInfo] = useState<{ label: string; isAvailable: boolean; timeUntilStart: string | null } | null>(null);
   
   const { profile: userProfile } = useAuthStore();
-  const { reserveLot } = useLots('');
 
   // Charger le lot
   useEffect(() => {
@@ -188,8 +186,6 @@ export function LotDetailsPage() {
     if (activeTab !== 'merchant' && activeTab !== 'product') return;
 
     const calculateUserDistance = async () => {
-      setDistanceLoading(true);
-      
       try {
         let userLat: number | null = null;
         let userLon: number | null = null;
@@ -217,7 +213,6 @@ export function LotDetailsPage() {
         }
 
         if (!userLat || !userLon) {
-          setDistanceLoading(false);
           return;
         }
 
@@ -235,8 +230,6 @@ export function LotDetailsPage() {
         }
       } catch (error) {
         console.error('Erreur lors du calcul de distance:', error);
-      } finally {
-        setDistanceLoading(false);
       }
     };
 
@@ -437,7 +430,7 @@ export function LotDetailsPage() {
     if (!userProfile || availableQty === 0) return;
 
     try {
-      const pin = await reserveLot(lot, quantity, userProfile.id, false);
+      const pin = await reserveLotUtil(lot, quantity, userProfile.id, false);
       alert(`Réservation confirmée! Code PIN: ${pin}`);
       navigate('/dashboard');
     } catch (error) {
@@ -460,7 +453,7 @@ export function LotDetailsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* En-tête avec bouton retour */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-12xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => navigate('/dashboard')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -482,7 +475,7 @@ export function LotDetailsPage() {
         </div>
 
         {/* Navigation par onglets */}
-        <div className="max-w-7xl mx-auto px-4 flex items-center gap-1 border-t border-gray-100">
+        <div className="max-w-12xl mx-auto px-4 flex items-center gap-1 border-t border-gray-100">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -509,19 +502,19 @@ export function LotDetailsPage() {
       </div>
 
       {/* Contenu principal */}
-      <main className="max-w-7xl mx-auto px-4 py-6 pb-24">
+      <main className="max-w-12xl mx-auto px-4 py-6 pb-24">
         {/* Onglet Produit */}
         {activeTab === 'product' && (
           <div className="animate-fade-in grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Colonne gauche : Image */}
             <div className="flex flex-col gap-3">
-              <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group">
+              <div className="relative rounded-lg overflow-hidden bg-gray-100 group">
                 {lot.image_urls && lot.image_urls.length > 0 ? (
                   <>
                     <img
                       src={lot.image_urls[currentImageIndex]}
                       alt={lot.title}
-                      className="w-full h-full object-cover cursor-zoom-in transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-96 object-cover cursor-zoom-in transition-transform duration-300 group-hover:scale-105"
                       onClick={() => setShowImageZoom(true)}
                     />
                     
@@ -1015,43 +1008,7 @@ export function LotDetailsPage() {
           </div>
         )}
 
-        {/* Informations pratiques */}
-        <div className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
-          <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
-            À savoir
-          </h3>
-          <div className="space-y-2 text-sm text-gray-700">
-            {lot.requires_cold_chain && (
-              <div className="flex items-start gap-2">
-                <span className="text-blue-600">❄️</span>
-                <div>
-                  <span className="font-medium">Chaîne du froid requise :</span> Pensez à apporter un sac isotherme pour le transport.
-                </div>
-              </div>
-            )}
-            <div className="flex items-start gap-2">
-              <span className="text-blue-600">🕐</span>
-              <div>
-                <span className="font-medium">Retrait :</span> Entre {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} et {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })} uniquement.
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-blue-600">🔐</span>
-              <div>
-                <span className="font-medium">Code PIN :</span> Vous recevrez un code PIN à 6 chiffres après réservation pour retirer votre panier.
-              </div>
-            </div>
-            {lot.is_urgent && (
-              <div className="flex items-start gap-2">
-                <span className="text-red-600">🔥</span>
-                <div>
-                  <span className="font-medium">Lot urgent :</span> Ce produit doit être retiré rapidement pour éviter le gaspillage.
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        
 
         {/* Bouton d'action fixe en bas */}
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-2xl z-50 p-4">
