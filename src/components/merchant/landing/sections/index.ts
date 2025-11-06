@@ -6,6 +6,7 @@ export { MerchantFeaturesSection } from './MerchantFeaturesSection';
 export { MerchantAdvancedFeaturesSection } from './MerchantAdvancedFeaturesSection';
 export { MerchantTestimonialsSection } from './MerchantTestimonialsSection';
 export { MerchantPricingSection } from './MerchantPricingSection';
+export { MerchantWalletSection } from './MerchantWalletSection';
 export { MerchantFAQSection } from './MerchantFAQSection';
 export { MerchantFinalCTASection } from './MerchantFinalCTASection';
 

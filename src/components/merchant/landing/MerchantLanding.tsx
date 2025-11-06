@@ -14,6 +14,7 @@ import {
   MerchantAdvancedFeaturesSection,
   MerchantTestimonialsSection,
   MerchantPricingSection,
+  MerchantWalletSection,
   MerchantFAQSection,
   MerchantFinalCTASection
 } from './sections';
@@ -65,6 +66,9 @@ export const MerchantLanding = () => {
       
       {/* Section Tarifs (gratuit) */}
       <MerchantPricingSection />
+      
+      {/* Section Portefeuille commerçant */}
+      <MerchantWalletSection />
       
       {/* Section FAQ */}
       <MerchantFAQSection />

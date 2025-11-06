@@ -12,6 +12,7 @@ import {
   SolidarityModelSection,
   ImpactStatsSection,
   TestimonialsSection,
+  WalletSection,
   FinalCTASection
 } from './sections';
 
@@ -61,7 +62,10 @@ export const LandingPage = () => {
       {/* 6. Témoignages - Voix humaines */}
       <TestimonialsSection />
       
-      {/* 7. CTA Final - Appel à l'action */}
+      {/* 7. Portefeuille intégré - Wallet */}
+      <WalletSection />
+      
+      {/* 8. CTA Final - Appel à l'action */}
       <FinalCTASection />
       
       <Footer />

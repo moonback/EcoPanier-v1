@@ -52,7 +52,7 @@ export const MerchantPricingSection = () => {
               <div className="bg-white rounded-xl p-6 mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-700 font-medium">Commission par vente</span>
-                  <span className="text-3xl font-bold text-secondary-600">15%</span>
+                  <span className="text-3xl font-bold text-secondary-600">8%</span>
                 </div>
                 <p className="text-sm text-gray-500">
                   Prélevée uniquement sur les ventes réalisées. Pas de vente = pas de frais.
@@ -65,9 +65,9 @@ export const MerchantPricingSection = () => {
                   <span className="text-gray-900 font-semibold">Exemple concret</span>
                 </div>
                 <p className="text-gray-700 text-sm">
-                  Vous vendez un lot à <strong>10€</strong> → Vous recevez <strong>8,50€</strong> dans votre compte.
+                  Vous vendez un lot à <strong>10€</strong> → Vous recevez <strong>9,20€</strong> dans votre compte.
                   <br />
-                  <span className="text-xs text-gray-500">Commission : 1,50€ (15%)</span>
+                  <span className="text-xs text-gray-500">Commission : 0,80€ (8%)</span>
                 </p>
               </div>
             </div>

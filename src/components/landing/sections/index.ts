@@ -10,5 +10,6 @@ export { WhyEcoPanierSection } from './WhyEcoPanierSection';
 export { SolidarityModelSection } from './SolidarityModelSection';
 export { ImpactStatsSection } from './ImpactStatsSection';
 export { TestimonialsSection } from './TestimonialsSection';
+export { WalletSection } from './WalletSection';
 export { FinalCTASection } from './FinalCTASection';
 
