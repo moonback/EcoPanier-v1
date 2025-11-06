@@ -36,10 +36,26 @@ type Reservation = Database['public']['Tables']['reservations']['Row'] & {
   profiles: { full_name: string };
 };
 
+type SuspendedBasketWithLot = {
+  id: string;
+  amount: number;
+  lot?: {
+    id: string;
+    title: string;
+    status: string;
+    quantity_total: number;
+    quantity_reserved: number;
+    quantity_sold: number;
+    merchant_id: string;
+  } | null;
+};
+
 interface QRData {
-  reservationId: string;
-  pin: string;
-  userId: string;
+  reservationId?: string;
+  pin?: string;
+  userId?: string;
+  beneficiaryId?: string;
+  type?: 'reservation' | 'beneficiary';
 }
 
 export const PickupStation = () => {
@@ -59,6 +75,32 @@ export const PickupStation = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [pinError, setPinError] = useState(false);
   const [todayStats, setTodayStats] = useState<{ completed: number; total: number } | null>(null);
+  const [suspendedBaskets, setSuspendedBaskets] = useState<Array<{
+    id: string;
+    amount: number;
+    lot?: {
+      id: string;
+      title: string;
+      discounted_price: number;
+      original_price: number;
+      category: string;
+      image_urls: string[] | null;
+      pickup_start: string;
+      pickup_end: string;
+      status: string;
+      quantity_total: number;
+      quantity_reserved: number;
+      quantity_sold: number;
+      merchant_id: string;
+    } | null;
+  }>>([]);
+  const [selectedBasketIds, setSelectedBasketIds] = useState<Set<string>>(new Set());
+  const [beneficiaryProfile, setBeneficiaryProfile] = useState<{
+    id: string;
+    full_name: string;
+    role: string;
+    beneficiary_id: string | null;
+  } | null>(null);
 
   // Charger les statistiques du jour au montage
   useEffect(() => {
@@ -97,6 +139,9 @@ export const PickupStation = () => {
     setScannerActive(false);
     setLoading(true);
     setError(null);
+    setSuspendedBaskets([]);
+    setSelectedBasketIds(new Set());
+    setBeneficiaryProfile(null);
 
     if (!profile || profile.role !== 'merchant') {
       setError('Accès réservé aux commerçants');
@@ -105,7 +150,105 @@ export const PickupStation = () => {
     }
 
     try {
-      const qrData: QRData = JSON.parse(data);
+      // Essayer de parser comme JSON (réservation) ou utiliser directement comme UUID (bénéficiaire)
+      let qrData: QRData;
+      let beneficiaryId: string | null = null;
+
+      try {
+        qrData = JSON.parse(data);
+        // Si c'est un JSON avec reservationId, c'est une réservation
+        if (qrData.reservationId) {
+          qrData.type = 'reservation';
+        }
+      } catch {
+        // Si ce n'est pas du JSON, c'est probablement un UUID de bénéficiaire
+        beneficiaryId = data.trim();
+        qrData = { type: 'beneficiary', beneficiaryId };
+      }
+
+      // Si c'est un QR code de bénéficiaire
+      if (qrData.type === 'beneficiary' || beneficiaryId) {
+        const userId = beneficiaryId || qrData.beneficiaryId;
+        if (!userId) {
+          throw new Error('QR code invalide');
+        }
+
+        // Vérifier que c'est un bénéficiaire
+        const { data: beneficiaryData, error: beneficiaryError } = await supabase
+          .from('profiles')
+          .select('id, full_name, role, beneficiary_id')
+          .eq('id', userId)
+          .eq('role', 'beneficiary')
+          .single();
+
+        if (beneficiaryError || !beneficiaryData) {
+          throw new Error('Bénéficiaire introuvable');
+        }
+
+        setBeneficiaryProfile(beneficiaryData);
+
+        // Charger les paniers suspendus disponibles pour ce bénéficiaire et ce commerçant
+        const { data: baskets, error: basketsError } = await supabase
+          .from('suspended_baskets')
+          .select(`
+            *,
+            lot:lots!lot_id(
+              id,
+              title,
+              discounted_price,
+              original_price,
+              category,
+              image_urls,
+              pickup_start,
+              pickup_end,
+              status,
+              quantity_total,
+              quantity_reserved,
+              quantity_sold,
+              merchant_id
+            )
+          `)
+          .eq('status', 'available')
+          .eq('merchant_id', profile.id)
+          .is('claimed_by', null);
+
+        if (basketsError) {
+          console.error('Erreur chargement paniers:', basketsError);
+          throw new Error('Impossible de charger les paniers suspendus');
+        }
+
+        // Filtrer pour ne garder que ceux avec un lot disponible
+        const availableBaskets = (baskets || []).filter((basket: SuspendedBasketWithLot) => {
+          if (!basket.lot) return false;
+          const lot = basket.lot as {
+            id: string;
+            title: string;
+            status: string;
+            quantity_total: number;
+            quantity_reserved: number;
+            quantity_sold: number;
+            merchant_id: string;
+          };
+          const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+          return lot.status === 'available' && lot.merchant_id === profile.id && availableQty > 0;
+        });
+
+        if (availableBaskets.length === 0) {
+          throw new Error('Aucun panier suspendu disponible pour ce bénéficiaire');
+        }
+
+        setSuspendedBaskets(availableBaskets);
+        setReservation(null);
+        setReservations([]);
+        setEnteredPin('');
+        setLoading(false);
+        return;
+      }
+
+      // Sinon, c'est une réservation normale
+      if (!qrData.reservationId) {
+        throw new Error('QR code invalide');
+      }
 
       // Fetch la réservation principale scannée avec filtre par commerçant
       const { data: mainReservation, error: fetchError } = await supabase
@@ -148,7 +291,7 @@ export const PickupStation = () => {
           ),
           profiles(full_name)
         `)
-        .eq('user_id', qrData.userId)
+        .eq('user_id', qrData.userId || '')
         .eq('lots.merchant_id', profile.id)
         .in('status', ['pending', 'confirmed'])
         .order('created_at', { ascending: true });
@@ -164,7 +307,7 @@ export const PickupStation = () => {
         setReservations(typedAllReservations);
         setReservation(null); // Pas de réservation unique
         // Présélectionner la réservation scannée
-        setSelectedReservationIds(new Set([qrData.reservationId]));
+        setSelectedReservationIds(new Set([qrData.reservationId!]));
       } else {
         // Mode standard : une seule réservation
         setReservation(typedMainReservation);
@@ -178,6 +321,8 @@ export const PickupStation = () => {
       setError(errorMessage);
       setReservation(null);
       setReservations([]);
+      setSuspendedBaskets([]);
+      setBeneficiaryProfile(null);
     } finally {
       setLoading(false);
     }
@@ -344,9 +489,117 @@ export const PickupStation = () => {
     }
   };
 
+  // Fonction pour valider les paniers suspendus sélectionnés
+  const handleValidateSuspendedBaskets = async () => {
+    if (selectedBasketIds.size === 0) {
+      setError('Veuillez sélectionner au moins un panier suspendu');
+      return;
+    }
+
+    if (!beneficiaryProfile) {
+      setError('Bénéficiaire introuvable');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { suspendedBasketService } = await import('../../utils/suspendedBasketService');
+      
+      // Valider tous les paniers sélectionnés en parallèle
+      const validationPromises = Array.from(selectedBasketIds).map(async (basketId) => {
+        // Récupérer le panier suspendu et créer une réservation
+        await suspendedBasketService.claimBasket(basketId, beneficiaryProfile.id);
+      });
+
+      await Promise.all(validationPromises);
+
+      // Récupérer les réservations créées pour les marquer comme complétées
+      const { data: newReservations, error: reservationsError } = await supabase
+        .from('reservations')
+        .select('id, lot_id, quantity')
+        .eq('user_id', beneficiaryProfile.id)
+        .in('status', ['confirmed'])
+        .order('created_at', { ascending: false })
+        .limit(selectedBasketIds.size);
+
+      if (!reservationsError && newReservations) {
+        // Marquer les réservations comme complétées
+        const completionPromises = newReservations.map(async (reservation) => {
+          const reservationData = reservation as { id: string; lot_id: string; quantity: number };
+          
+          const { error: updateError } = await supabase
+            .from('reservations')
+            .update({
+              status: 'completed',
+              completed_at: new Date().toISOString(),
+            } as unknown as never)
+            .eq('id', reservationData.id);
+
+          if (updateError) throw updateError;
+
+          // Mettre à jour les quantités du lot
+          const { data: lot, error: lotFetchError } = await supabase
+            .from('lots')
+            .select('quantity_sold, quantity_reserved')
+            .eq('id', reservationData.lot_id)
+            .single();
+
+          if (lotFetchError) throw lotFetchError;
+
+          const lotData = lot as { quantity_sold: number; quantity_reserved: number };
+          const newQuantitySold = (lotData?.quantity_sold || 0) + reservationData.quantity;
+          const newQuantityReserved = Math.max(0, (lotData?.quantity_reserved || 0) - reservationData.quantity);
+
+          const { error: lotUpdateError } = await supabase
+            .from('lots')
+            .update({
+              quantity_sold: newQuantitySold,
+              quantity_reserved: newQuantityReserved,
+            } as unknown as never)
+            .eq('id', reservationData.lot_id);
+
+          if (lotUpdateError) throw lotUpdateError;
+        });
+
+        await Promise.all(completionPromises);
+      }
+
+      setSuccess(true);
+      setSuccessMessage(
+        `🎉 ${selectedBasketIds.size} panier${selectedBasketIds.size > 1 ? 's suspendus' : ' suspendu'} validé${selectedBasketIds.size > 1 ? 's' : ''} avec succès !`
+      );
+      
+      setTimeout(() => {
+        resetState();
+      }, 3000);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la validation des paniers suspendus';
+      setError(errorMessage);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction pour sélectionner/désélectionner un panier suspendu
+  const toggleBasketSelection = (basketId: string) => {
+    const newSelection = new Set(selectedBasketIds);
+    if (newSelection.has(basketId)) {
+      newSelection.delete(basketId);
+    } else {
+      newSelection.add(basketId);
+    }
+    setSelectedBasketIds(newSelection);
+  };
+
   const resetState = () => {
     setReservation(null);
     setReservations([]);
+    setSuspendedBaskets([]);
+    setSelectedBasketIds(new Set());
+    setBeneficiaryProfile(null);
     setSelectedReservationIds(new Set());
     setEnteredPin('');
     setError(null);
@@ -516,7 +769,188 @@ export const PickupStation = () => {
       )}
 
       {/* Contenu principal */}
-      {!reservation && reservations.length === 0 ? (
+      {suspendedBaskets.length > 0 ? (
+        // 🎯 MODE PANIERS SUSPENDUS : Affichage des paniers suspendus disponibles
+        <div className="flex-1 flex flex-col lg:flex-row gap-3 p-3 overflow-hidden relative z-10">
+          {/* Liste des paniers suspendus */}
+          <div className="lg:w-1/2 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden flex flex-col">
+            {/* En-tête */}
+            <div className="bg-gradient-to-r from-accent-600 via-pink-600 to-accent-700 text-white p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                  <Heart size={24} strokeWidth={2.5} className="fill-current" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Paniers Suspendus</h3>
+                  <p className="text-sm text-pink-100">
+                    {beneficiaryProfile?.full_name} • {suspendedBaskets.length} panier{suspendedBaskets.length > 1 ? 's' : ''} disponible{suspendedBaskets.length > 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (selectedBasketIds.size === suspendedBaskets.length) {
+                    setSelectedBasketIds(new Set());
+                  } else {
+                    setSelectedBasketIds(new Set(suspendedBaskets.map((b) => b.id)));
+                  }
+                }}
+                className="px-4 py-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-lg transition-all text-sm font-semibold"
+              >
+                {selectedBasketIds.size === suspendedBaskets.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+              </button>
+            </div>
+
+            {/* Liste scrollable des paniers */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {suspendedBaskets.map((basket, index: number) => {
+                const lot = basket.lot;
+                if (!lot) return null;
+                
+                return (
+                  <div
+                    key={basket.id}
+                    onClick={() => toggleBasketSelection(basket.id)}
+                    className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                      selectedBasketIds.has(basket.id)
+                        ? 'border-accent-500 bg-accent-50 shadow-md'
+                        : 'border-gray-200 bg-white hover:border-accent-300 hover:bg-accent-50/50'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Checkbox */}
+                      <div className={`mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                        selectedBasketIds.has(basket.id)
+                          ? 'bg-accent-600 border-accent-600'
+                          : 'border-gray-300 bg-white'
+                      }`}>
+                        {selectedBasketIds.has(basket.id) && (
+                          <Check size={16} className="text-white" strokeWidth={3} />
+                        )}
+                      </div>
+
+                      {/* Numéro */}
+                      <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+                        <span className="text-white font-bold text-sm">{index + 1}</span>
+                      </div>
+
+                      {/* Image du lot */}
+                      {lot.image_urls && lot.image_urls.length > 0 ? (
+                        <img
+                          src={lot.image_urls[0]}
+                          alt={lot.title}
+                          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Package size={24} className="text-gray-400" />
+                        </div>
+                      )}
+
+                      {/* Contenu */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h4 className="font-bold text-gray-900 text-sm truncate">{lot.title}</h4>
+                          <Heart size={14} className="text-accent-600 flex-shrink-0" strokeWidth={2.5} />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <ShoppingBag size={12} strokeWidth={2} />
+                            <span>Qté: 1</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <Heart size={12} strokeWidth={2} className="text-accent-600" />
+                            <span className="text-accent-600 font-semibold">Gratuit</span>
+                          </div>
+                        </div>
+
+                        <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                          <MapPin size={11} strokeWidth={2} />
+                          <span className="truncate">{profile?.business_name}</span>
+                        </div>
+
+                        {/* Montant offert */}
+                        <div className="mt-2 px-2 py-1 bg-accent-100 rounded text-xs font-semibold text-accent-700">
+                          Offert : {basket.amount.toFixed(2)}€
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Résumé sélection */}
+            <div className="border-t border-gray-200 p-3 bg-gray-50">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600 font-medium">
+                  Sélection : {selectedBasketIds.size}/{suspendedBaskets.length}
+                </span>
+                <span className="font-bold text-accent-700">
+                  {selectedBasketIds.size} panier{selectedBasketIds.size > 1 ? 's' : ''} gratuit{selectedBasketIds.size > 1 ? 's' : ''}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Validation */}
+          <div className="lg:w-1/2 flex flex-col gap-3">
+            <div className="flex-1 bg-gradient-to-br from-white via-accent-50/30 to-white rounded-xl p-4 border border-gray-200 shadow-lg flex flex-col justify-center min-h-0">
+              <div className="text-center mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl mb-3 shadow-lg bg-gradient-to-br from-accent-500 to-pink-600">
+                  <Heart size={24} className="text-white fill-current" strokeWidth={2.5} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">
+                  Validation Paniers Suspendus
+                </h3>
+                <p className="text-xs text-gray-600">
+                  {selectedBasketIds.size > 0
+                    ? `Prêt à valider ${selectedBasketIds.size} panier${selectedBasketIds.size > 1 ? 's' : ''}`
+                    : 'Sélectionnez au moins un panier'}
+                </p>
+              </div>
+
+              {/* Informations bénéficiaire */}
+              {beneficiaryProfile && (
+                <div className="bg-white rounded-lg p-3 border border-gray-200 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User size={16} className="text-gray-600" />
+                    <span className="text-xs font-semibold text-gray-600 uppercase">Bénéficiaire</span>
+                  </div>
+                  <p className="font-bold text-gray-900">{beneficiaryProfile.full_name}</p>
+                  {beneficiaryProfile.beneficiary_id && (
+                    <p className="text-xs text-gray-600 mt-1 font-mono">{beneficiaryProfile.beneficiary_id}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Bouton de validation */}
+              <button
+                onClick={handleValidateSuspendedBaskets}
+                disabled={selectedBasketIds.size === 0 || loading}
+                className={`w-full py-4 rounded-xl font-bold text-white transition-all duration-300 shadow-lg ${
+                  selectedBasketIds.size > 0 && !loading
+                    ? 'bg-gradient-to-r from-accent-600 to-pink-600 hover:from-accent-700 hover:to-pink-700 transform hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-gray-300 cursor-not-allowed'
+                }`}
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Validation...</span>
+                  </div>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <Heart size={18} className="fill-current" />
+                    Valider {selectedBasketIds.size} panier{selectedBasketIds.size > 1 ? 's' : ''}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : !reservation && reservations.length === 0 ? (
         <div className="flex-1 flex items-center justify-center p-6 relative z-10">
           <div className="w-full max-w-7xl">
             
