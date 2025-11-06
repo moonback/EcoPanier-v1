@@ -69,7 +69,7 @@ export const MerchantWalletPage = () => {
         getWalletStats(user.id),
         getWalletTransactionsByType(
           user.id,
-          filterType === 'all' ? undefined : 'merchant_payment',
+          filterType === 'all' ? 'all' : 'merchant_payment',
           TRANSACTIONS_PER_PAGE,
           (currentPage - 1) * TRANSACTIONS_PER_PAGE
         ),
@@ -98,6 +98,7 @@ export const MerchantWalletPage = () => {
   // Effets
   useEffect(() => {
     loadWalletData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, filterType, currentPage]);
 
   // Handlers
@@ -216,9 +217,7 @@ export const MerchantWalletPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <StatCard
               title="Total reçu"
-              value={formatCurrency(
-                stats.totalRecharged + (stats as { totalMerchantPayments?: number }).totalMerchantPayments || 0
-              )}
+              value={formatCurrency(stats.totalRecharged)}
               icon={<TrendingUp className="w-5 h-5" />}
               color="green"
               subtitle={`${stats.transactionCount} transaction${stats.transactionCount > 1 ? 's' : ''}`}

@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
 import { BusinessHoursEditor } from './BusinessHoursEditor';
 import { BusinessLogoUploader } from '../merchant/BusinessLogoUploader';
+import { BankAccountModal } from '../merchant/components/BankAccountModal';
+import { getMerchantBankAccounts, type MerchantBankAccount } from '../../utils/walletService';
 import { useProfileStats } from '../../hooks/useProfileStats';
+import { maskIban } from '../../utils/helpers';
 import type { LucideIcon } from 'lucide-react';
 import {
   User,
@@ -22,7 +25,8 @@ import {
   Clock,
   FileCheck,
   Briefcase,
-  FileText
+  FileText,
+  CreditCard
 } from 'lucide-react';
 
 // Types de commerces disponibles
@@ -71,6 +75,9 @@ export const ProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showBankAccountModal, setShowBankAccountModal] = useState(false);
+  const [bankAccounts, setBankAccounts] = useState<MerchantBankAccount[]>([]);
+  const [loadingBankAccounts, setLoadingBankAccounts] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -90,6 +97,28 @@ export const ProfilePage = () => {
   const [businessHours, setBusinessHours] = useState<BusinessHours | null>(
     profile?.business_hours as BusinessHours | null || null
   );
+
+  // Charger les comptes bancaires pour les commerçants
+  const loadBankAccounts = async () => {
+    if (!user?.id || profile?.role !== 'merchant') return;
+
+    try {
+      setLoadingBankAccounts(true);
+      const accounts = await getMerchantBankAccounts(user.id);
+      setBankAccounts(accounts);
+    } catch (err) {
+      console.error('Erreur lors du chargement des comptes bancaires:', err);
+    } finally {
+      setLoadingBankAccounts(false);
+    }
+  };
+
+  useEffect(() => {
+    if (profile?.role === 'merchant' && user?.id) {
+      loadBankAccounts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.role, user?.id]);
 
   // Role-specific stats
   const getRoleStats = (): ProfileStats[] => {
@@ -867,6 +896,84 @@ export const ProfilePage = () => {
         </div>
       )}
 
+      {/* Bank Accounts Management (Merchant only) */}
+      {profile?.role === 'merchant' && (
+        <div className="mt-6 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-primary-600" />
+                Comptes bancaires
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Gérez vos comptes bancaires pour faciliter les demandes de virement
+              </p>
+            </div>
+            <button
+              onClick={() => setShowBankAccountModal(true)}
+              className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all duration-200 flex items-center gap-2 text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            >
+              <CreditCard size={16} />
+              <span>Gérer les comptes</span>
+            </button>
+          </div>
+
+          {loadingBankAccounts ? (
+            <div className="text-center py-6">
+              <div className="w-6 h-6 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-xs text-gray-500">Chargement des comptes...</p>
+            </div>
+          ) : bankAccounts.length === 0 ? (
+            <div className="p-4 bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl border border-primary-200">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-primary-100 rounded-lg flex-shrink-0">
+                  <CreditCard className="w-5 h-5 text-primary-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900 mb-1">
+                    Aucun compte bancaire enregistré
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    Enregistrez vos comptes bancaires pour ne pas avoir à les ressaisir à chaque demande de virement. 
+                    Vous pouvez définir un compte par défaut qui sera automatiquement sélectionné lors de vos demandes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {bankAccounts.map((account) => (
+                <div
+                  key={account.id}
+                  className="p-4 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <p className="font-medium text-gray-900 text-sm">
+                          {account.account_name}
+                        </p>
+                        {account.is_default && (
+                          <span className="px-2 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded">
+                            Par défaut
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 font-mono mb-1">
+                        {maskIban(account.iban)}
+                      </p>
+                      {account.bic && (
+                        <p className="text-xs text-gray-500 font-mono">{account.bic}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Settings & Danger Zone */}
       <div className="mt-6 space-y-6">
         {/* Account Settings */}
@@ -943,6 +1050,17 @@ export const ProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de gestion des comptes bancaires */}
+      {showBankAccountModal && profile?.role === 'merchant' && (
+        <BankAccountModal
+          onClose={() => setShowBankAccountModal(false)}
+          onSuccess={() => {
+            setShowBankAccountModal(false);
+            loadBankAccounts();
+          }}
+        />
+      )}
     </div>
   );
 };

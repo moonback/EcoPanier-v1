@@ -27,6 +27,34 @@ export const formatDateTime = (date: string): string => {
   }).format(new Date(date));
 };
 
+/**
+ * Masque partiellement un IBAN pour des raisons de sécurité
+ * Affiche les 4 premiers caractères (code pays) et les 4 derniers
+ * Exemple: FR76 1234 5678 9012 3456 7890 123 -> FR76 **** **** **** **** **** 0123
+ */
+export const maskIban = (iban: string): string => {
+  if (!iban || iban.length < 8) return iban;
+  
+  // Nettoyer l'IBAN (supprimer les espaces)
+  const cleanIban = iban.replace(/\s/g, '');
+  
+  // Prendre les 4 premiers caractères (code pays + clé)
+  const prefix = cleanIban.substring(0, 4);
+  
+  // Prendre les 4 derniers caractères
+  const suffix = cleanIban.substring(cleanIban.length - 4);
+  
+  // Calculer le nombre de caractères à masquer
+  const maskedLength = cleanIban.length - 8;
+  const maskedPart = '*'.repeat(Math.max(0, maskedLength));
+  
+  // Reconstruire avec des espaces tous les 4 caractères pour la lisibilité
+  const masked = prefix + maskedPart + suffix;
+  
+  // Formater avec des espaces tous les 4 caractères
+  return masked.match(/.{1,4}/g)?.join(' ') || masked;
+};
+
 export const calculateDistance = (
   lat1: number,
   lon1: number,

@@ -10,6 +10,9 @@ type WalletUpdate = Database['public']['Tables']['wallets']['Update'];
 type WithdrawalRequest = Database['public']['Tables']['withdrawal_requests']['Row'];
 type WithdrawalRequestInsert = Database['public']['Tables']['withdrawal_requests']['Insert'];
 
+// Export des types
+export type { WalletTransaction };
+
 /**
  * Service pour gérer les opérations de wallet
  * Gère la récupération du solde, les recharges, les paiements et l'historique des transactions
@@ -464,7 +467,7 @@ export async function getWalletStats(userId: string): Promise<WalletStats> {
  */
 export async function getWalletTransactionsByType(
   userId: string,
-  type: 'recharge' | 'payment' | 'refund' | 'all',
+  type: 'recharge' | 'payment' | 'refund' | 'merchant_payment' | 'all' | undefined,
   limit: number = 50,
   offset: number = 0
 ): Promise<WalletTransaction[]> {
@@ -476,7 +479,7 @@ export async function getWalletTransactionsByType(
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
-    if (type !== 'all') {
+    if (type && type !== 'all') {
       query = query.eq('type', type);
     }
 
@@ -496,7 +499,7 @@ export async function getWalletTransactionsByType(
  */
 export async function getWalletTransactionsCount(
   userId: string,
-  type?: 'recharge' | 'payment' | 'refund'
+  type?: 'recharge' | 'payment' | 'refund' | 'merchant_payment'
 ): Promise<number> {
   try {
     let query = supabase
