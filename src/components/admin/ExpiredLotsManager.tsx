@@ -6,14 +6,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Gift, TrendingUp, Users, Package, AlertCircle, CheckCircle, Clock, Trash2 } from 'lucide-react';
+import { RefreshCw, Gift, TrendingUp, Users, Package, AlertCircle, CheckCircle, Trash2 } from 'lucide-react';
 import { 
-  convertExpiredLotsToFree, 
-  getExpiringLots, 
   getConversionStats,
   getFreeLots,
   cleanupUnclaimedLots,
-  type ConvertedLotResult 
 } from '../../utils/expiredLotsService';
 import type { Database } from '../../lib/database.types';
 import { format } from 'date-fns';
