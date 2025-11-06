@@ -1,6 +1,6 @@
 // Imports externes
-import { useState, useEffect } from 'react';
-import { Package, User, Clock, Key, MapPin, ShoppingCart, ClipboardList, Eye, EyeOff, Thermometer, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Package, User, Clock, Key, MapPin, ShoppingCart, ClipboardList, Eye, EyeOff, Thermometer, AlertTriangle, Image as ImageIcon, RefreshCw } from 'lucide-react';
 
 // Imports internes
 import { supabase } from '../../lib/supabase';
@@ -26,24 +26,70 @@ export const MerchantReservations = () => {
   // État local
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('pending'); // Par défaut, afficher les en attente
   const [revealedPins, setRevealedPins] = useState<Set<string>>(new Set());
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const subscriptionRef = useRef<any>(null);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
 
   // Effets
   useEffect(() => {
+    if (!profile) return;
+
+    // Charger les réservations au montage
     fetchReservations();
+
+    // Mettre en place l'écoute en temps réel via Supabase Realtime
+    // On écoute toutes les réservations et on filtre côté client
+    const channel = supabase
+      .channel('merchant_reservations_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reservations',
+        },
+        () => {
+          // Rafraîchir les réservations quand il y a un changement
+          fetchReservations(true);
+        }
+      )
+      .subscribe();
+
+    subscriptionRef.current = channel;
+
+    // Polling toutes les 5 secondes pour garantir la mise à jour en temps réel
+    refreshIntervalRef.current = setInterval(() => {
+      fetchReservations(true);
+    }, 5000);
+
+    // Nettoyage
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+      if (subscriptionRef.current) {
+        supabase.removeChannel(subscriptionRef.current);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [profile?.id]);
 
   // Handlers
-  const fetchReservations = async () => {
+  const fetchReservations = async (silent = false) => {
     if (!profile) return;
 
     try {
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
+
       const { data, error } = await supabase
         .from('reservations')
         .select(`
@@ -67,7 +113,12 @@ export const MerchantReservations = () => {
       console.error('Erreur lors de la récupération des réservations:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleManualRefresh = () => {
+    fetchReservations(false);
   };
 
   // Fonction pour obtenir les styles selon le statut
@@ -77,14 +128,14 @@ export const MerchantReservations = () => {
         return {
           bg: 'bg-gradient-to-br from-warning-50 to-white',
           badge: 'bg-gradient-to-r from-warning-100 to-warning-200 text-warning-700 border-warning-300',
-          label: '⏳ En attente',
+          label: '⏳ En attente de paiement',
           emoji: '⏰',
         };
       case 'confirmed':
         return {
           bg: 'bg-gradient-to-br from-primary-50 to-white',
           badge: 'bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 border-primary-300',
-          label: '✓ Confirmé',
+          label: '✓ Payé - En attente de retrait',
           emoji: '✅',
         };
       case 'completed':
@@ -114,6 +165,10 @@ export const MerchantReservations = () => {
   // Filtrer les réservations
   const filteredReservations = reservations.filter((reservation) => {
     if (filter === 'all') return true;
+    if (filter === 'pending') {
+      // Le filtre "pending" inclut aussi les "confirmed" (payées mais pas encore récupérées)
+      return reservation.status === 'pending' || reservation.status === 'confirmed';
+    }
     return reservation.status === filter;
   });
 
@@ -133,7 +188,7 @@ export const MerchantReservations = () => {
   // Statistiques rapides
   const stats = {
     total: reservations.length,
-    pending: reservations.filter((r) => r.status === 'pending').length,
+    pending: reservations.filter((r) => r.status === 'pending' || r.status === 'confirmed').length, // Inclure 'confirmed' dans les en attente
     completed: reservations.filter((r) => r.status === 'completed').length,
     cancelled: reservations.filter((r) => r.status === 'cancelled').length,
   };
@@ -177,22 +232,32 @@ export const MerchantReservations = () => {
       <div className="relative bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-50/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
         
-        <div className="relative flex items-center gap-3 mb-4">
-          <div className="p-2.5 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl shadow-sm">
-            <ClipboardList className="w-5 h-5 text-white" strokeWidth={2} />
+        <div className="relative flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl shadow-sm">
+              <ClipboardList className="w-5 h-5 text-white" strokeWidth={2} />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-xl font-bold text-gray-900">
+                Commandes
+              </h2>
+              <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                </span>
+                En temps réel
+              </p>
+            </div>
           </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold text-gray-900">
-              Commandes
-            </h2>
-            <p className="text-xs text-gray-500 flex items-center gap-1.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
-              </span>
-              En temps réel
-            </p>
-          </div>
+          <button
+            onClick={handleManualRefresh}
+            disabled={refreshing}
+            className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
+            title="Actualiser"
+          >
+            <RefreshCw className={`w-5 h-5 text-gray-600 ${refreshing ? 'animate-spin' : ''}`} />
+          </button>
         </div>
         
         {/* Statistiques compactes */}

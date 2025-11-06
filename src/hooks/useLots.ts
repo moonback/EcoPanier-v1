@@ -117,10 +117,18 @@ export function useLots(selectedCategory: string = ''): UseLotsReturn {
       const totalPrice = isDonation ? 0 : lot.discounted_price * quantity;
       let reservationId: string | undefined;
 
-      // Si paiement via wallet, effectuer le paiement d'abord
+      // Si paiement via wallet, créer la réservation d'abord, puis payer et confirmer
       if (useWallet && totalPrice > 0 && !isDonation) {
         try {
-          // Créer la réservation d'abord pour obtenir l'ID
+          // Vérifier le solde avant de créer la réservation
+          const { getWalletBalance } = await import('../utils/walletService');
+          const balance = await getWalletBalance(userId);
+          
+          if (balance < totalPrice) {
+            throw new Error('Solde insuffisant pour effectuer ce paiement');
+          }
+
+          // Créer la réservation d'abord pour obtenir l'ID (statut 'pending' temporaire)
           const { data: reservationData, error: reservationError } = await supabase
             .from('reservations')
             .insert({
@@ -129,7 +137,7 @@ export function useLots(selectedCategory: string = ''): UseLotsReturn {
               quantity,
               total_price: totalPrice,
               pickup_pin: pin,
-              status: 'pending',
+              status: 'pending', // Temporaire, sera mis à 'confirmed' après paiement
               is_donation: isDonation,
             })
             .select()
@@ -154,7 +162,7 @@ export function useLots(selectedCategory: string = ''): UseLotsReturn {
             }
           );
 
-          // Mettre à jour le statut de la réservation
+          // Mettre à jour le statut de la réservation en 'confirmed' (IMPORTANT: après paiement réussi)
           const { error: updateReservationError } = await supabase
             .from('reservations')
             .update({
@@ -163,9 +171,23 @@ export function useLots(selectedCategory: string = ''): UseLotsReturn {
             })
             .eq('id', reservationId);
 
-          if (updateReservationError) throw updateReservationError;
+          if (updateReservationError) {
+            console.error('Erreur lors de la mise à jour du statut:', updateReservationError);
+            // Si la mise à jour échoue, rembourser le paiement
+            const { refundToWallet } = await import('../utils/walletService');
+            await refundToWallet(
+              userId,
+              totalPrice,
+              `Remboursement suite à échec de confirmation de réservation ${reservationId}`,
+              reservationId,
+              'reservation'
+            );
+            // Supprimer la réservation
+            await supabase.from('reservations').delete().eq('id', reservationId);
+            throw new Error('Erreur lors de la confirmation de la réservation. Le paiement a été remboursé.');
+          }
         } catch (walletError) {
-          // Si le paiement échoue, annuler la réservation si elle a été créée
+          // Si le paiement échoue, supprimer la réservation si elle a été créée
           if (reservationId) {
             await supabase
               .from('reservations')
