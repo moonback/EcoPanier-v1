@@ -50,13 +50,13 @@ export async function getWallet(userId: string): Promise<Wallet | null> {
   try {
     const { data, error } = await supabase
       .from('wallets')
-      .select('*')
+      .select('id, user_id, balance, created_at, updated_at')
       .eq('user_id', userId)
       .single();
 
     if (error) {
-      // Si le wallet n'existe pas, le créer automatiquement
-      if (error.code === 'PGRST116') {
+      // Si le wallet n'existe pas (code PGRST116), le créer automatiquement
+      if (error.code === 'PGRST116' || error.message?.includes('No rows')) {
         const walletData: WalletInsert = {
           user_id: userId,
           balance: 0,
@@ -64,19 +64,48 @@ export async function getWallet(userId: string): Promise<Wallet | null> {
         const { data: newWallet, error: createError } = await supabase
           .from('wallets')
           .insert(walletData as never)
-          .select()
+          .select('id, user_id, balance, created_at, updated_at')
           .single();
 
-        if (createError) throw createError;
+        if (createError) {
+          // Si erreur 409 (Conflict), le wallet existe peut-être déjà, réessayons de le récupérer
+          if (createError.code === '23505' || createError.message?.includes('duplicate') || createError.status === 409) {
+            const { data: existingWallet, error: retryError } = await supabase
+              .from('wallets')
+              .select('id, user_id, balance, created_at, updated_at')
+              .eq('user_id', userId)
+              .single();
+            
+            if (retryError) throw retryError;
+            return existingWallet;
+          }
+          throw createError;
+        }
         return newWallet;
       }
+      
+      // Gérer les erreurs 406 (Not Acceptable) - peut-être un problème de format
+      if (error.status === 406 || error.code === 'PGRST301') {
+        console.warn('Erreur 406 lors de la récupération du wallet, tentative avec format différent');
+        // Réessayer avec un format différent
+        const { data: retryData, error: retryError } = await supabase
+          .from('wallets')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        if (retryError) throw retryError;
+        return retryData;
+      }
+      
       throw error;
     }
 
     return data;
   } catch (error) {
     console.error('Erreur lors de la récupération du wallet:', error);
-    throw new Error('Impossible de récupérer le wallet. Vérifiez votre connexion.');
+    // Ne pas faire échouer l'application, retourner null et laisser l'UI gérer
+    return null;
   }
 }
 
@@ -86,9 +115,14 @@ export async function getWallet(userId: string): Promise<Wallet | null> {
 export async function getWalletBalance(userId: string): Promise<number> {
   try {
     const wallet = await getWallet(userId);
-    return wallet?.balance ?? 0;
+    if (!wallet) {
+      // Si le wallet n'existe pas, retourner 0 sans créer d'erreur
+      return 0;
+    }
+    return wallet.balance ?? 0;
   } catch (error) {
     console.error('Erreur lors de la récupération du solde:', error);
+    // Retourner 0 en cas d'erreur pour ne pas bloquer l'UI
     return 0;
   }
 }
