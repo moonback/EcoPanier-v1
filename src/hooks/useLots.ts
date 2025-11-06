@@ -1,6 +1,10 @@
+// Imports externes
 import { useState, useEffect, useCallback } from 'react';
+
+// Imports internes
 import { supabase } from '../lib/supabase';
 import { generatePIN } from '../utils/helpers';
+import { payFromWallet } from '../utils/walletService';
 import type { Database } from '../lib/database.types';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
@@ -26,7 +30,8 @@ interface UseLotsReturn {
     lot: Lot,
     quantity: number,
     userId: string,
-    isDonation?: boolean
+    isDonation?: boolean,
+    useWallet?: boolean
   ) => Promise<string>;
 }
 
@@ -95,7 +100,8 @@ export function useLots(selectedCategory: string = ''): UseLotsReturn {
     lot: Lot,
     quantity: number,
     userId: string,
-    isDonation: boolean = false
+    isDonation: boolean = false,
+    useWallet: boolean = false
   ): Promise<string> => {
     try {
       setError(null);
@@ -109,21 +115,81 @@ export function useLots(selectedCategory: string = ''): UseLotsReturn {
 
       const pin = generatePIN();
       const totalPrice = isDonation ? 0 : lot.discounted_price * quantity;
+      let reservationId: string | undefined;
 
-      // Créer la réservation
-      const { error: reservationError } = await supabase
-        .from('reservations')
-        .insert({
-          lot_id: lot.id,
-          user_id: userId,
-          quantity,
-          total_price: totalPrice,
-          pickup_pin: pin,
-          status: 'pending',
-          is_donation: isDonation,
-        });
+      // Si paiement via wallet, effectuer le paiement d'abord
+      if (useWallet && totalPrice > 0 && !isDonation) {
+        try {
+          // Créer la réservation d'abord pour obtenir l'ID
+          const { data: reservationData, error: reservationError } = await supabase
+            .from('reservations')
+            .insert({
+              lot_id: lot.id,
+              user_id: userId,
+              quantity,
+              total_price: totalPrice,
+              pickup_pin: pin,
+              status: 'pending',
+              is_donation: isDonation,
+            })
+            .select()
+            .single();
 
-      if (reservationError) throw reservationError;
+          if (reservationError) throw reservationError;
+          if (!reservationData) throw new Error('Impossible de créer la réservation');
+
+          reservationId = reservationData.id;
+
+          // Effectuer le paiement via wallet
+          await payFromWallet(
+            userId,
+            totalPrice,
+            `Paiement pour réservation ${lot.title} (x${quantity})`,
+            reservationId,
+            'reservation',
+            {
+              lot_id: lot.id,
+              lot_title: lot.title,
+              quantity,
+            }
+          );
+
+          // Mettre à jour le statut de la réservation
+          const { error: updateReservationError } = await supabase
+            .from('reservations')
+            .update({
+              status: 'confirmed',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', reservationId);
+
+          if (updateReservationError) throw updateReservationError;
+        } catch (walletError) {
+          // Si le paiement échoue, annuler la réservation si elle a été créée
+          if (reservationId) {
+            await supabase
+              .from('reservations')
+              .delete()
+              .eq('id', reservationId);
+          }
+          throw walletError;
+        }
+      } else {
+        // Créer la réservation sans paiement wallet
+        const { error: reservationError } = await supabase
+          .from('reservations')
+          .insert({
+            lot_id: lot.id,
+            user_id: userId,
+            quantity,
+            total_price: totalPrice,
+            pickup_pin: pin,
+            status: 'pending',
+            is_donation: isDonation,
+          });
+
+        if (reservationError) throw reservationError;
+      }
 
       // Mettre à jour la quantité réservée du lot
       const { error: updateError } = await supabase

@@ -1,5 +1,10 @@
-import { useState } from 'react';
-import { X } from 'lucide-react';
+// Imports externes
+import { useState, useEffect } from 'react';
+import { X, Wallet, CreditCard, AlertCircle } from 'lucide-react';
+
+// Imports internes
+import { useAuthStore } from '../../../stores/authStore';
+import { getWalletBalance } from '../../../utils/walletService';
 import { formatCurrency } from '../../../utils/helpers';
 import type { Database } from '../../../lib/database.types';
 
@@ -13,7 +18,7 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
 interface ReservationModalProps {
   lot: Lot;
   onClose: () => void;
-  onConfirm: (quantity: number) => Promise<void>;
+  onConfirm: (quantity: number, useWallet: boolean) => Promise<void>;
 }
 
 /**
@@ -25,16 +30,50 @@ export function ReservationModal({
   onClose,
   onConfirm,
 }: ReservationModalProps) {
+  // Hooks (stores, contexts, router)
+  const { user } = useAuthStore();
+
+  // État local
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [useWallet, setUseWallet] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [checkingBalance, setCheckingBalance] = useState(false);
 
   const maxQuantity =
     lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+  const totalPrice = lot.discounted_price * quantity;
+  const isFree = lot.is_free || totalPrice === 0;
 
+  // Charger le solde du wallet
+  useEffect(() => {
+    if (user?.id && !isFree) {
+      setCheckingBalance(true);
+      getWalletBalance(user.id)
+        .then((balance) => {
+          setWalletBalance(balance);
+          // Activer automatiquement le wallet si le solde est suffisant
+          if (balance >= totalPrice) {
+            setUseWallet(true);
+          }
+        })
+        .catch((err) => {
+          console.error('Erreur lors de la récupération du solde:', err);
+        })
+        .finally(() => {
+          setCheckingBalance(false);
+        });
+    }
+  }, [user?.id, totalPrice, isFree]);
+
+  // Vérifier si le solde est suffisant
+  const hasEnoughBalance = walletBalance !== null && walletBalance >= totalPrice;
+
+  // Handlers
   const handleConfirm = async () => {
     setLoading(true);
     try {
-      await onConfirm(quantity);
+      await onConfirm(quantity, useWallet && !isFree);
       onClose();
     } catch (error) {
       console.error('Erreur lors de la confirmation:', error);
@@ -91,9 +130,66 @@ export function ReservationModal({
         <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <p className="text-sm font-medium text-gray-700 mb-1">Total</p>
           <p className="text-3xl font-bold text-black">
-            {formatCurrency(lot.discounted_price * quantity)}
+            {isFree ? 'Gratuit' : formatCurrency(totalPrice)}
           </p>
         </div>
+
+        {/* Option de paiement via wallet (si pas gratuit) */}
+        {!isFree && walletBalance !== null && (
+          <div className="mb-6">
+            <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border-2 border-gray-200 hover:border-primary-300 cursor-pointer transition-colors">
+              <input
+                type="checkbox"
+                checked={useWallet}
+                onChange={(e) => setUseWallet(e.target.checked)}
+                disabled={!hasEnoughBalance || loading}
+                className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Wallet className="w-5 h-5 text-primary-600" />
+                  <span className="font-medium text-gray-900">
+                    Payer avec mon wallet
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">
+                    Solde disponible: {formatCurrency(walletBalance)}
+                  </span>
+                  {!hasEnoughBalance && (
+                    <span className="text-red-600 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      Solde insuffisant
+                    </span>
+                  )}
+                </div>
+              </div>
+            </label>
+            {useWallet && hasEnoughBalance && (
+              <div className="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                <p className="text-sm text-green-700">
+                  Le montant de {formatCurrency(totalPrice)} sera débité de votre wallet
+                </p>
+              </div>
+            )}
+            {useWallet && !hasEnoughBalance && (
+              <div className="mt-2 p-3 bg-red-50 rounded-lg border border-red-200">
+                <p className="text-sm text-red-700">
+                  Votre solde est insuffisant. Veuillez recharger votre wallet.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Message si gratuit */}
+        {isFree && (
+          <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+            <p className="text-sm text-green-700 font-medium">
+              Ce lot est gratuit. Aucun paiement requis.
+            </p>
+          </div>
+        )}
 
         {/* Boutons d'action */}
         <div className="flex gap-3">
@@ -106,10 +202,21 @@ export function ReservationModal({
           </button>
           <button
             onClick={handleConfirm}
-            disabled={loading}
-            className="flex-1 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading || (useWallet && !hasEnoughBalance && !isFree) || checkingBalance}
+            className="flex-1 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {loading ? 'Confirmation...' : 'Confirmer'}
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Confirmation...
+              </>
+            ) : (
+              <>
+                {useWallet && !isFree && <Wallet className="w-5 h-5" />}
+                {!useWallet && !isFree && <CreditCard className="w-5 h-5" />}
+                Confirmer
+              </>
+            )}
           </button>
         </div>
       </div>

@@ -5,6 +5,7 @@ import {
   History,
   TrendingUp,
   User,
+  Wallet,
 } from 'lucide-react';
 
 // Imports internes
@@ -13,12 +14,13 @@ import { LotBrowser } from './LotBrowser';
 import { ReservationsList } from './ReservationsList';
 import { ImpactDashboard } from './ImpactDashboard';
 import { CustomerProfilePage } from './CustomerProfilePage';
+import { WalletPage } from './WalletPage';
 import { CustomerHeader } from './CustomerHeader';
 
 import EcoPanierLogo from '/logo.png'; // Import du logo
 
 // Type pour les onglets
-type TabId = 'browse' | 'reservations' | 'impact' | 'profile';
+type TabId = 'browse' | 'reservations' | 'impact' | 'wallet' | 'profile';
 
 /**
  * Dashboard principal pour les clients
@@ -39,6 +41,7 @@ export const CustomerDashboard = () => {
     { id: 'browse' as TabId, label: 'Découvrir', icon: ShoppingBag, emoji: '🛒' },
     { id: 'reservations' as TabId, label: 'Mes paniers', icon: History, emoji: '📦' },
     { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp, emoji: '🌍' },
+    { id: 'wallet' as TabId, label: 'Wallet', icon: Wallet, emoji: '💳' },
     { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
 
@@ -68,6 +71,7 @@ export const CustomerDashboard = () => {
         )}
         {activeTab === 'reservations' && <ReservationsList />}
         {activeTab === 'impact' && <ImpactDashboard />}
+        {activeTab === 'wallet' && <WalletPage />}
         {activeTab === 'profile' && <CustomerProfilePage />}
       </main>
 

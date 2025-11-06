@@ -8,6 +8,9 @@ export type VehicleType = 'bike' | 'ebike' | 'scooter' | 'car' | 'van';
 export type EquipmentType = 'cooler_bag' | 'large_cooler' | 'thermal_box' | 'delivery_bag';
 export type DeliveryZone = 'center' | 'suburbs' | 'outskirts' | 'all';
 export type AvailabilitySlot = 'morning' | 'afternoon' | 'evening' | 'flexible';
+export type WalletTransactionType = 'recharge' | 'payment' | 'refund';
+export type WalletTransactionStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
+export type WalletReferenceType = 'reservation' | 'suspended_basket' | 'mission';
 
 export interface CollectorPreferences {
   vehicle_type: VehicleType;
@@ -373,6 +376,79 @@ export interface Database {
           notes?: string | null;
           verification_document_url?: string | null;
           is_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      wallets: {
+        Row: {
+          id: string;
+          user_id: string;
+          balance: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          balance?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          balance?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      wallet_transactions: {
+        Row: {
+          id: string;
+          wallet_id: string;
+          user_id: string;
+          type: WalletTransactionType;
+          amount: number;
+          balance_before: number;
+          balance_after: number;
+          description: string;
+          reference_id: string | null;
+          reference_type: WalletReferenceType | null;
+          status: WalletTransactionStatus;
+          metadata: Record<string, unknown> | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          wallet_id: string;
+          user_id: string;
+          type: WalletTransactionType;
+          amount: number;
+          balance_before: number;
+          balance_after: number;
+          description: string;
+          reference_id?: string | null;
+          reference_type?: WalletReferenceType | null;
+          status?: WalletTransactionStatus;
+          metadata?: Record<string, unknown> | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          wallet_id?: string;
+          user_id?: string;
+          type?: WalletTransactionType;
+          amount?: number;
+          balance_before?: number;
+          balance_after?: number;
+          description?: string;
+          reference_id?: string | null;
+          reference_type?: WalletReferenceType | null;
+          status?: WalletTransactionStatus;
+          metadata?: Record<string, unknown> | null;
           created_at?: string;
           updated_at?: string;
         };
