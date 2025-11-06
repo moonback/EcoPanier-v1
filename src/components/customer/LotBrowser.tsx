@@ -1,5 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Package, X, Zap, Euro } from 'lucide-react';
 
 // Imports internes
@@ -10,7 +11,6 @@ import { getCategoryLabel } from '../../utils/helpers';
 import {
   LotCard,
   ReservationModal,
-  LotDetailsModal,
   MerchantLotsModal,
   FilterSidebar,
   SkeletonGrid,
@@ -55,11 +55,11 @@ export const LotBrowser = ({
   // État local
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null);
   const [reservationMode, setReservationMode] = useState<'reserve' | null>(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showMerchantLotsModal, setShowMerchantLotsModal] = useState(false);
   const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_FILTERS);
 
   // Hooks (stores, contexts, router)
+  const navigate = useNavigate();
   const { profile } = useAuthStore();
   const { lots, loading, error, reserveLot } = useLots(''); // Charger tous les lots
   
@@ -68,18 +68,11 @@ export const LotBrowser = ({
 
   // Handlers
   const handleViewDetails = (lot: Lot) => {
-    setSelectedLot(lot);
-    setShowDetailsModal(true);
+    navigate(`/dashboard/lot/${lot.id}`);
   };
 
   const handleReserveLot = (lot: Lot) => {
     setSelectedLot(lot);
-    setShowDetailsModal(false);
-    setReservationMode('reserve');
-  };
-
-  const handleReserveFromDetails = () => {
-    setShowDetailsModal(false);
     setReservationMode('reserve');
   };
 
@@ -95,18 +88,6 @@ export const LotBrowser = ({
   const handleCloseModal = () => {
     setSelectedLot(null);
     setReservationMode(null);
-  };
-
-  const handleCloseDetailsModal = () => {
-    setShowDetailsModal(false);
-    setSelectedLot(null);
-  };
-
-  const handleMerchantClick = () => {
-    if (selectedLot) {
-      setShowDetailsModal(false);
-      setShowMerchantLotsModal(true);
-    }
   };
 
   const handleCloseMerchantModal = () => {
@@ -275,15 +256,6 @@ export const LotBrowser = ({
         )}
 
         {/* Modales */}
-
-        {selectedLot && showDetailsModal && (
-          <LotDetailsModal
-            lot={selectedLot}
-            onClose={handleCloseDetailsModal}
-            onReserve={handleReserveFromDetails}
-            onMerchantClick={handleMerchantClick}
-          />
-        )}
 
         {showMerchantLotsModal && selectedLot && (
           <MerchantLotsModal

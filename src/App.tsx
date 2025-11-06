@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { supabase } from './lib/supabase';
@@ -11,6 +12,7 @@ import { HowItWorks } from './components/pages/HowItWorks';
 import { HelpCenter } from './components/pages/HelpCenter';
 import { AuthForm } from './components/auth/AuthForm';
 import { CustomerDashboard } from './components/customer/CustomerDashboard';
+import { LotDetailsPage } from './components/customer/LotDetailsPage';
 import { MerchantDashboard } from './components/merchant/MerchantDashboard';
 import { BeneficiaryDashboard } from './components/beneficiary/BeneficiaryDashboard';
 import { CollectorDashboard } from './components/collector/CollectorDashboard';
@@ -123,6 +125,40 @@ function DashboardRouter() {
   return <ErrorBoundary>{renderDashboard()}</ErrorBoundary>;
 }
 
+// Composant pour protéger les routes nécessitant une authentification
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { user, profile, loading, initialized } = useAuthStore();
+
+  if (!initialized || loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!user) {
+    return <AuthForm />;
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center section-gradient">
+        <div className="max-w-md w-full card p-8 text-center animate-fade-in-up">
+          <h1 className="text-2xl font-bold text-neutral-900 mb-4">Configuration du profil</h1>
+          <p className="text-neutral-600 mb-6 font-medium">
+            Votre profil est en cours de création. Si ce message persiste, veuillez contacter l'administrateur.
+          </p>
+          <button
+            onClick={() => useAuthStore.getState().signOut()}
+            className="btn-primary rounded-xl"
+          >
+            Se déconnecter
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return <ErrorBoundary>{children}</ErrorBoundary>;
+}
+
 function App() {
   return (
     <SettingsProvider>
@@ -149,6 +185,16 @@ function App() {
           
           {/* Route pour le dashboard avec authentification */}
           <Route path="/dashboard" element={<DashboardRouter />} />
+          
+          {/* Route pour les détails d'un lot (protégée) */}
+          <Route 
+            path="/dashboard/lot/:id" 
+            element={
+              <ProtectedRoute>
+                <LotDetailsPage />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Route de connexion explicite */}
           <Route path="/login" element={<DashboardRouter />} />

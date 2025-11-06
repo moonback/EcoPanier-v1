@@ -14,13 +14,18 @@ import {
   CheckCircle,
   Info,
   FileText,
-  Navigation
+  Navigation,
+  Minus,
+  Plus,
+  AlertCircle
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, differenceInDays, isToday, isTomorrow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database } from '../../../lib/database.types';
 import { useAuthStore } from '../../../stores/authStore';
 import { calculateDistance, formatDistance, geocodeAddress } from '../../../utils/geocodingService';
+import { supabase } from '../../../lib/supabase';
+import { calculateCO2Impact } from '../../../hooks/useImpactMetrics';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: {
@@ -39,8 +44,9 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
 interface LotDetailsModalProps {
   lot: Lot;
   onClose: () => void;
-  onReserve: () => void;
+  onReserve: (quantity?: number) => void;
   onMerchantClick?: () => void;
+  onLotSelect?: (lot: Lot) => void;
 }
 
 type TabId = 'product' | 'merchant' | 'details';
@@ -85,7 +91,7 @@ const getBusinessTypeLabel = (type: string | null | undefined): string => {
   return typeLabels[type] || type;
 };
 
-export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: LotDetailsModalProps) {
+export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick, onLotSelect }: LotDetailsModalProps) {
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<TabId>('product');
@@ -93,6 +99,10 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
   const [distanceLoading, setDistanceLoading] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [similarLots, setSimilarLots] = useState<Lot[]>([]);
+  const [similarLotsLoading, setSimilarLotsLoading] = useState(false);
+  const [pickupTimeInfo, setPickupTimeInfo] = useState<{ label: string; isAvailable: boolean; timeUntilStart: string | null } | null>(null);
   
   const { profile: userProfile } = useAuthStore();
   const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
@@ -105,6 +115,22 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
   
   // Vérifier si le compte à rebours doit s'afficher
   const shouldShowCountdown = (lot.is_urgent || availableQty < 3) && availableQty > 0;
+  
+  // Calcul du prix total et de l'impact selon la quantité
+  const totalPrice = (lot.discounted_price * quantity).toFixed(2);
+  const totalSavings = ((lot.original_price - lot.discounted_price) * quantity).toFixed(2);
+  const impactMeals = quantity;
+  const impactCO2 = calculateCO2Impact(quantity);
+  
+  // Badge de disponibilité dynamique
+  const getAvailabilityBadge = () => {
+    if (availableQty === 0) return { text: 'Épuisé', color: 'bg-gray-200 text-gray-600', icon: '❌' };
+    if (availableQty < 2) return { text: 'Dernière chance', color: 'bg-red-100 text-red-700', icon: '⚠️' };
+    if (availableQty < 3) return { text: 'Stock faible', color: 'bg-orange-100 text-orange-700', icon: '📦' };
+    return null;
+  };
+  
+  const availabilityBadge = getAvailabilityBadge();
 
   const nextImage = () => {
     if (lot.image_urls && currentImageIndex < lot.image_urls.length - 1) {
@@ -260,6 +286,124 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
     }
   };
 
+  // Calcul des horaires de retrait intelligents
+  useEffect(() => {
+    const calculatePickupTimeInfo = () => {
+      const now = new Date();
+      const pickupStart = new Date(lot.pickup_start);
+      const pickupEnd = new Date(lot.pickup_end);
+      
+      let label = '';
+      let isAvailable = false;
+      let timeUntilStart: string | null = null;
+      
+      if (isToday(pickupStart)) {
+        label = 'Aujourd\'hui';
+        isAvailable = now >= pickupStart && now <= pickupEnd;
+        if (now < pickupStart) {
+          const diff = pickupStart.getTime() - now.getTime();
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          if (hours > 0) {
+            timeUntilStart = `Dans ${hours}h${minutes.toString().padStart(2, '0')}`;
+          } else {
+            timeUntilStart = `Dans ${minutes}min`;
+          }
+        }
+      } else if (isTomorrow(pickupStart)) {
+        label = 'Demain';
+      } else {
+        const daysDiff = differenceInDays(pickupStart, now);
+        if (daysDiff === 2) {
+          label = 'Après-demain';
+        } else {
+          label = format(pickupStart, 'EEEE dd MMM', { locale: fr });
+        }
+      }
+      
+      setPickupTimeInfo({ label, isAvailable, timeUntilStart });
+    };
+    
+    calculatePickupTimeInfo();
+    const interval = setInterval(calculatePickupTimeInfo, 60000); // Mise à jour toutes les minutes
+    return () => clearInterval(interval);
+  }, [lot.pickup_start, lot.pickup_end]);
+
+  // Récupérer les lots similaires du commerçant
+  useEffect(() => {
+    const fetchSimilarLots = async () => {
+      if (activeTab !== 'merchant') return;
+      
+      setSimilarLotsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('lots')
+          .select(`
+            *,
+            profiles!merchant_id (
+              business_name,
+              business_address,
+              business_logo_url,
+              business_type,
+              business_description,
+              business_email,
+              business_hours,
+              phone,
+              verified
+            )
+          `)
+          .eq('merchant_id', lot.merchant_id)
+          .neq('id', lot.id)
+          .eq('status', 'available')
+          .order('created_at', { ascending: false })
+          .limit(4);
+
+        if (error) throw error;
+
+        // Filtrer les lots disponibles et trier par similarité (catégorie puis prix)
+        const available = (data as Lot[]).filter(l => {
+          const qty = l.quantity_total - l.quantity_reserved - l.quantity_sold;
+          return qty > 0;
+        });
+
+        // Trier : même catégorie d'abord, puis prix proche
+        const sorted = available.sort((a, b) => {
+          const aSameCategory = a.category === lot.category ? 1 : 0;
+          const bSameCategory = b.category === lot.category ? 1 : 0;
+          if (aSameCategory !== bSameCategory) return bSameCategory - aSameCategory;
+          
+          const aPriceDiff = Math.abs(a.discounted_price - lot.discounted_price);
+          const bPriceDiff = Math.abs(b.discounted_price - lot.discounted_price);
+          return aPriceDiff - bPriceDiff;
+        });
+
+        setSimilarLots(sorted.slice(0, 3));
+      } catch (error) {
+        console.error('Erreur lors du chargement des lots similaires:', error);
+      } finally {
+        setSimilarLotsLoading(false);
+      }
+    };
+
+    fetchSimilarLots();
+  }, [lot.merchant_id, lot.id, lot.category, lot.discounted_price, activeTab]);
+
+  // Réinitialiser la quantité quand le lot change
+  useEffect(() => {
+    setQuantity(1);
+  }, [lot.id]);
+
+  // Gérer la quantité
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity < 1) return;
+    if (newQuantity > availableQty) return;
+    setQuantity(newQuantity);
+  };
+
+  const handleReserveWithQuantity = () => {
+    onReserve(quantity);
+  };
+
   const tabs: Array<{ id: TabId; label: string; icon: typeof Package }> = [
     { id: 'product', label: 'Produit', icon: Package },
     { id: 'merchant', label: 'Commerçant', icon: Store },
@@ -272,36 +416,36 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl sm:rounded-2xl max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] lg:max-h-[85vh] flex flex-col overflow-hidden"
+        className="bg-white rounded-xl sm:rounded-2xl max-w-6xl w-full max-h-[98vh] sm:max-h-[95vh] lg:max-h-[92vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header avec onglets */}
         <div className="sticky top-0 z-20 bg-white border-b border-gray-200 flex-shrink-0">
-          <div className="p-2 sm:p-3 lg:p-3 flex items-center justify-between border-b border-gray-100">
+          <div className="p-1.5 sm:p-2 flex items-center justify-between border-b border-gray-100">
             <div className="flex-1 min-w-0">
-              <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">Détails du lot</h2>
+              <h2 className="text-sm sm:text-base font-bold text-gray-900">Détails du lot</h2>
               {/* Compte à rebours d'urgence dans le header */}
               {shouldShowCountdown && timeRemaining !== null && (
-                <div className={`mt-1 inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${
+                <div className={`mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
                   isTimeCritical
                     ? 'bg-red-100 text-red-700 animate-pulse'
                     : 'bg-orange-100 text-orange-700'
                 }`}>
-                  <Clock className="w-3 h-3" strokeWidth={2} />
+                  <Clock className="w-2.5 h-2.5" strokeWidth={2} />
                   <span>Plus que {formatTimeRemaining(timeRemaining)}</span>
                 </div>
               )}
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 sm:p-2 hover:bg-primary-100 rounded-lg transition-colors flex-shrink-0"
-            >
-              <X className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-gray-600" strokeWidth={1.5} />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+              className="p-1 hover:bg-primary-100 rounded-lg transition-colors flex-shrink-0"
+          >
+              <X className="w-4 h-4 text-gray-600" strokeWidth={1.5} />
+          </button>
+        </div>
 
           {/* Navigation par onglets */}
-          <div className="flex items-center gap-1 px-2 sm:px-3 lg:px-4 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-0.5 px-1.5 sm:px-2 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -310,32 +454,32 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm font-medium transition-all relative whitespace-nowrap ${
+                  className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium transition-all relative whitespace-nowrap ${
                     isActive
                       ? 'text-primary-600'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={isActive ? 2 : 1.5} />
+                  <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={isActive ? 2 : 1.5} />
                   <span>{tab.label}</span>
                   {isActive && (
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t-full" />
                   )}
-          </button>
+                </button>
               );
             })}
           </div>
         </div>
 
         {/* Contenu scrollable - Desktop: pas de scroll, Mobile: scroll */}
-        <div className="flex-1 overflow-y-auto lg:overflow-hidden pb-20 sm:pb-6 lg:pb-0">
-          <div className="p-3 sm:p-4 md:p-5 lg:p-6 h-full lg:overflow-y-auto">
+        <div className="flex-1 overflow-y-auto lg:overflow-hidden pb-20 sm:pb-4 lg:pb-0">
+          <div className="p-2 sm:p-3 h-full lg:overflow-y-auto">
             {/* Onglet Produit */}
             {activeTab === 'product' && (
-              <div className="animate-fade-in h-full flex flex-col lg:grid lg:grid-cols-2 lg:gap-6 lg:h-auto">
+              <div className="animate-fade-in h-full flex flex-col lg:grid lg:grid-cols-2 lg:gap-3 lg:h-auto">
                 {/* Colonne gauche : Image */}
-                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-3">
-                  <div className="relative aspect-[4/3] lg:aspect-square rounded-lg sm:rounded-xl overflow-hidden bg-gray-100 group flex-shrink-0">
+                <div className="flex flex-col gap-2">
+                  <div className="relative aspect-[4/3] lg:aspect-square rounded-lg overflow-hidden bg-gray-100 group flex-shrink-0">
               {lot.image_urls && lot.image_urls.length > 0 ? (
                 <>
                   <img
@@ -418,94 +562,125 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                 </div>
 
                 {/* Colonne droite : Informations */}
-                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-3 lg:overflow-y-auto">
+                <div className="flex flex-col gap-2 lg:overflow-y-auto">
                   {/* Titre et catégorie */}
               <div>
-                    <h3 className="text-xl sm:text-2xl lg:text-2xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1.5">
                   {lot.title}
                 </h3>
-                    <span className="inline-flex items-center gap-1.5 bg-primary-50 text-primary-700 text-xs px-2.5 py-1 rounded-full font-medium">
-                      <Package className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    <span className="inline-flex items-center gap-1 bg-primary-50 text-primary-700 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                      <Package className="w-3 h-3" strokeWidth={1.5} />
                   {lot.category}
                 </span>
               </div>
 
               {/* Description */}
-                  <div className="p-3 sm:p-4 bg-gradient-to-br from-gray-50 via-white to-primary-50/30 rounded-lg border border-gray-200 shadow-sm">
-                <h4 className="text-xs sm:text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" strokeWidth={1.5} />
+                  <div className="p-2 bg-gradient-to-br from-gray-50 via-white to-primary-50/30 rounded-lg border border-gray-200 shadow-sm">
+                    <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1.5 flex items-center gap-1">
+                      <FileText className="w-3 h-3 text-primary-600" strokeWidth={1.5} />
                   Description
                 </h4>
-                    <p className="text-xs sm:text-sm text-gray-700 leading-relaxed line-clamp-4 lg:line-clamp-none">
+                    <p className="text-[10px] sm:text-xs text-gray-700 leading-relaxed line-clamp-3 lg:line-clamp-none">
                   {lot.description}
                 </p>
               </div>
 
                   {/* Informations principales en grille compacte */}
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="grid grid-cols-3 gap-1.5">
                 {/* Prix */}
-                    <div className="p-2.5 sm:p-3 bg-gradient-to-br from-primary-50 via-white to-secondary-50/50 rounded-lg border border-primary-100 shadow-sm hover:shadow-md transition-shadow">
-                      <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1.5 flex items-center gap-1">
-                        <span className="text-primary-600 text-xs">💰</span>
-                        <span className="hidden sm:inline">Prix</span>
+                    <div className="p-2 bg-gradient-to-br from-primary-50 via-white to-secondary-50/50 rounded-lg border border-primary-100 shadow-sm hover:shadow-md transition-shadow">
+                      <h4 className="text-[9px] font-bold text-gray-900 mb-1 flex items-center gap-0.5">
+                        <span className="text-primary-600 text-[10px]">💰</span>
+                        <span className="hidden sm:inline text-[9px]">Prix</span>
                   </h4>
-                      <div className="space-y-1">
-                        <div className="text-gray-400 line-through text-xs sm:text-sm font-bold">
+                      <div className="space-y-0.5">
+                        <div className="text-gray-400 line-through text-[10px] sm:text-xs font-bold">
                         {lot.original_price}€
-                        </div>
-                        <div className="text-xl sm:text-2xl lg:text-2xl font-bold text-primary-700">
-                          {lot.discounted_price}€
-                        </div>
-                        <div className="text-[9px] sm:text-xs text-gray-600">
-                          -{discount}%
-                        </div>
                       </div>
+                        <div className="text-lg sm:text-xl font-bold text-primary-700">
+                        {lot.discounted_price}€
+                      </div>
+                        <div className="text-[8px] text-gray-600">
+                          -{discount}%
                     </div>
+                  </div>
+                  </div>
 
                     {/* Disponibilité */}
-                    <div className="p-2.5 sm:p-3 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100 hover:shadow-md transition-shadow">
-                      <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1.5 flex items-center gap-1">
-                        <Package className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary-600" strokeWidth={1.5} />
-                        <span className="hidden sm:inline">Stock</span>
+                    <div className="p-2 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100 hover:shadow-md transition-shadow">
+                      <h4 className="text-[9px] font-bold text-gray-900 mb-1 flex items-center gap-0.5">
+                        <Package className="w-2.5 h-2.5 text-primary-600" strokeWidth={1.5} />
+                        <span className="hidden sm:inline text-[9px]">Stock</span>
                       </h4>
-                      <div className="text-xl sm:text-2xl lg:text-2xl font-bold text-primary-700">
+                      <div className="text-lg sm:text-xl font-bold text-primary-700">
                         {availableQty}
-                        <span className="text-sm sm:text-base font-normal text-gray-500">/{lot.quantity_total}</span>
+                        <span className="text-xs font-normal text-gray-500">/{lot.quantity_total}</span>
                       </div>
-                      <div className="text-[9px] sm:text-xs text-gray-600 mt-1">
-                        {availableQty === 0 ? 'Épuisé' : 'Dispo'}
-                      </div>
-                    </div>
+                      {availabilityBadge && (
+                        <div className={`text-[8px] mt-0.5 px-1 py-0.5 rounded-full font-medium ${availabilityBadge.color}`}>
+                          {availabilityBadge.icon} {availabilityBadge.text}
+                        </div>
+                      )}
+                      {!availabilityBadge && (
+                        <div className="text-[8px] text-gray-600 mt-0.5">
+                          En stock
+                        </div>
+                      )}
+                </div>
 
                     {/* Retrait */}
-                    <div className="p-2.5 sm:p-3 bg-gradient-to-br from-secondary-50 to-white rounded-lg border border-secondary-100 hover:shadow-md transition-shadow">
-                      <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1.5 flex items-center gap-1">
-                        <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-secondary-600" strokeWidth={1.5} />
-                        <span className="hidden sm:inline">Retrait</span>
-                      </h4>
-                      <div className="text-sm sm:text-base font-bold text-secondary-700 mb-0.5">
-                        {format(new Date(lot.pickup_start), 'dd MMM', { locale: fr })}
-                      </div>
-                      <div className="text-[9px] sm:text-xs text-gray-600">
-                        {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
-                      </div>
+                    <div className="p-2 bg-gradient-to-br from-secondary-50 to-white rounded-lg border border-secondary-100 hover:shadow-md transition-shadow">
+                      <h4 className="text-[9px] font-bold text-gray-900 mb-1 flex items-center gap-0.5">
+                        <Clock className="w-2.5 h-2.5 text-secondary-600" strokeWidth={1.5} />
+                        <span className="hidden sm:inline text-[9px]">Retrait</span>
+                    </h4>
+                      {pickupTimeInfo && (
+                        <>
+                          <div className="text-xs sm:text-sm font-bold text-secondary-700 mb-0.5">
+                            {pickupTimeInfo.label}
+                          </div>
+                          <div className="text-[8px] text-gray-600">
+                            {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                          </div>
+                          {pickupTimeInfo.isAvailable && (
+                            <div className="mt-0.5 text-[8px] bg-green-100 text-green-700 px-1 py-0.5 rounded-full font-medium inline-block">
+                              ✓ Maintenant
+                            </div>
+                          )}
+                          {pickupTimeInfo.timeUntilStart && (
+                            <div className="mt-0.5 text-[8px] text-secondary-600">
+                              {pickupTimeInfo.timeUntilStart}
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {!pickupTimeInfo && (
+                        <>
+                          <div className="text-xs sm:text-sm font-bold text-secondary-700 mb-0.5">
+                            {format(new Date(lot.pickup_start), 'dd MMM', { locale: fr })}
+                          </div>
+                          <div className="text-[8px] text-gray-600">
+                            {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
                   {/* Compte à rebours d'urgence */}
                   {shouldShowCountdown && timeRemaining !== null && (
-                    <div className={`mt-2 p-3 rounded-lg border-2 ${
+                    <div className={`mt-1.5 p-2 rounded-lg border-2 ${
                       isTimeCritical
                         ? 'bg-red-50 border-red-300 animate-pulse'
                         : 'bg-orange-50 border-orange-200'
                     }`}>
-                      <div className="flex items-center gap-2">
-                        <Clock className={`w-4 h-4 ${isTimeCritical ? 'text-red-600' : 'text-orange-600'}`} strokeWidth={2} />
+                      <div className="flex items-center gap-1.5">
+                        <Clock className={`w-3.5 h-3.5 ${isTimeCritical ? 'text-red-600' : 'text-orange-600'}`} strokeWidth={2} />
                         <div className="flex-1">
-                          <div className={`text-xs sm:text-sm font-bold ${isTimeCritical ? 'text-red-700' : 'text-orange-700'}`}>
+                          <div className={`text-[10px] sm:text-xs font-bold ${isTimeCritical ? 'text-red-700' : 'text-orange-700'}`}>
                             {isTimeCritical ? '⏰ Dernière chance !' : '⏱️ Temps limité'}
                           </div>
-                          <div className={`text-xs ${isTimeCritical ? 'text-red-600' : 'text-orange-600'}`}>
+                          <div className={`text-[9px] ${isTimeCritical ? 'text-red-600' : 'text-orange-600'}`}>
                             Plus que {formatTimeRemaining(timeRemaining)} pour réserver
                           </div>
                         </div>
@@ -515,28 +690,28 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
 
                   {/* Distance (si disponible) */}
                   {distance !== null && (
-                    <div className="mt-2 p-2.5 sm:p-3 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100">
+                    <div className="mt-1.5 p-2 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100">
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-primary-600" strokeWidth={1.5} />
-                          <span className="text-xs sm:text-sm text-gray-700">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-primary-600" strokeWidth={1.5} />
+                          <span className="text-[10px] sm:text-xs text-gray-700">
                             À {formatDistance(distance)} de vous
-                    </span>
-                  </div>
+                      </span>
+                        </div>
                         <button
                           onClick={openDirections}
-                          className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                          className="inline-flex items-center gap-0.5 text-[10px] text-primary-600 hover:text-primary-700 font-medium hover:underline"
                         >
-                          <Navigation className="w-3 h-3" strokeWidth={2} />
+                          <Navigation className="w-2.5 h-2.5" strokeWidth={2} />
                           <span className="hidden sm:inline">Itinéraire</span>
                         </button>
                       </div>
                     </div>
                   )}
                   {distanceLoading && (
-                    <div className="mt-2 text-xs text-gray-500 text-center">
+                    <div className="mt-1.5 text-[9px] text-gray-500 text-center">
                       Calcul de la distance...
-                    </div>
+                  </div>
                   )}
                 </div>
               </div>
@@ -544,12 +719,13 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
 
             {/* Onglet Commerçant */}
             {activeTab === 'merchant' && (
-              <div className="animate-fade-in h-full flex flex-col lg:grid lg:grid-cols-2 lg:gap-4 lg:h-auto">
-                {/* Colonne gauche : En-tête et description */}
-                <div className="flex flex-col gap-3">
-                  {/* En-tête commerçant */}
-                  <div className="flex items-start gap-3 p-3 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-lg border border-gray-200">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 border border-primary-200">
+              <div className="animate-fade-in h-full flex flex-col gap-2">
+                <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-3 lg:h-auto">
+                  {/* Colonne gauche : En-tête et description */}
+                  <div className="flex flex-col gap-2">
+                    {/* En-tête commerçant */}
+                    <div className="flex items-start gap-2 p-2 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-lg border border-gray-200">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 border border-primary-200">
                       {merchant.business_logo_url ? (
                         <img
                           src={merchant.business_logo_url}
@@ -561,86 +737,86 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                           }}
                         />
                       ) : null}
-                      <Store className={`w-6 h-6 sm:w-8 sm:h-8 text-primary-500 ${merchant.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
+                        <Store className={`w-6 h-6 sm:w-8 sm:h-8 text-primary-500 ${merchant.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">
                         {merchant.business_name}
-                        </h3>
-                        {merchant.verified && (
-                          <span className="inline-flex items-center gap-0.5 bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">
-                            <CheckCircle className="w-2.5 h-2.5" strokeWidth={2} />
-                            <span className="hidden sm:inline">Vérifié</span>
-                          </span>
-                        )}
+                          </h3>
+                          {merchant.verified && (
+                            <span className="inline-flex items-center gap-0.5 bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">
+                              <CheckCircle className="w-2.5 h-2.5" strokeWidth={2} />
+                              <span className="hidden sm:inline">Vérifié</span>
+                            </span>
+                          )}
                       </div>
                       {merchant.business_type && (
                         <span className="inline-block bg-primary-100 text-primary-700 text-[10px] px-2 py-0.5 rounded-full font-medium mb-1">
                           {getBusinessTypeLabel(merchant.business_type)}
                         </span>
                       )}
-                      <div className="text-xs sm:text-sm text-gray-600 flex items-start gap-1 mt-1">
-                        <MapPin className="w-3 h-3 flex-shrink-0 text-gray-500 mt-0.5" strokeWidth={1.5} />
-                        <span className="line-clamp-2">{merchant.business_address}</span>
+                        <div className="text-xs sm:text-sm text-gray-600 flex items-start gap-1 mt-1">
+                          <MapPin className="w-3 h-3 flex-shrink-0 text-gray-500 mt-0.5" strokeWidth={1.5} />
+                          <span className="line-clamp-2">{merchant.business_address}</span>
           </div>
 
-                      {/* Distance et itinéraire */}
-                      {distance !== null && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs sm:text-sm text-primary-600 font-medium">
-                            📍 À {formatDistance(distance)} de vous
+                        {/* Distance et itinéraire */}
+                        {distance !== null && (
+                          <div className="mt-2 flex items-center gap-2">
+                            <span className="text-xs sm:text-sm text-primary-600 font-medium">
+                              📍 À {formatDistance(distance)} de vous
                 </span>
-                          <button
-                            onClick={openDirections}
-                            className="inline-flex items-center gap-1 text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline"
-                          >
-                            <Navigation className="w-3 h-3" strokeWidth={2} />
-                            Itinéraire
-                          </button>
+                            <button
+                              onClick={openDirections}
+                              className="inline-flex items-center gap-1 text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                            >
+                              <Navigation className="w-3 h-3" strokeWidth={2} />
+                              Itinéraire
+                            </button>
               </div>
-                      )}
-                      {distanceLoading && (
-                        <div className="mt-2 text-xs text-gray-500">
-                          Calcul de la distance...
+                        )}
+                        {distanceLoading && (
+                          <div className="mt-2 text-xs text-gray-500">
+                            Calcul de la distance...
             </div>
           )}
 
-                      {onMerchantClick && (
-                        <button
-                          onClick={onMerchantClick}
-                          className="mt-2 text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline"
-                        >
-                          Voir tous les produits →
-                        </button>
-                      )}
+                        {onMerchantClick && (
+                          <button
+                            onClick={onMerchantClick}
+                            className="mt-2 text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                          >
+                            Voir tous les produits →
+                          </button>
+                        )}
                 </div>
               </div>
 
                 {/* Description */}
                 {merchant.business_description && (
-                    <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm flex-1">
+                      <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm flex-1">
                     <div className="flex items-start gap-2 mb-2">
                       <Info className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
                       <div className="flex-1">
-                          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">À propos</h4>
-                          <p className="text-xs sm:text-sm text-gray-700 leading-relaxed line-clamp-6 lg:line-clamp-none">
+                            <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">À propos</h4>
+                            <p className="text-xs sm:text-sm text-gray-700 leading-relaxed line-clamp-6 lg:line-clamp-none">
                           {merchant.business_description}
                         </p>
                       </div>
                     </div>
                   </div>
                 )}
-                </div>
+                  </div>
 
-                {/* Colonne droite : Informations de contact */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-3">
+                  {/* Colonne droite : Informations de contact */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-3">
                   {merchant.business_hours && (
-                    <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-2">
-                        <div className="p-1.5 bg-secondary-100 rounded-lg">
-                          <Clock className="w-4 h-4 text-secondary-600" strokeWidth={1.5} />
-                        </div>
+                          <div className="p-1.5 bg-secondary-100 rounded-lg">
+                            <Clock className="w-4 h-4 text-secondary-600" strokeWidth={1.5} />
+                          </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Horaires</h4>
                           <p className="text-xs sm:text-sm text-gray-700">
@@ -652,11 +828,11 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                   )}
 
                   {merchant.business_email && (
-                    <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-2">
-                        <div className="p-1.5 bg-primary-100 rounded-lg">
-                          <Mail className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
-                        </div>
+                          <div className="p-1.5 bg-primary-100 rounded-lg">
+                            <Mail className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                          </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Email</h4>
                           <a 
@@ -671,11 +847,11 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                   )}
 
                   {merchant.phone && (
-                    <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-2">
-                        <div className="p-1.5 bg-primary-100 rounded-lg">
-                          <Phone className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
-                        </div>
+                          <div className="p-1.5 bg-primary-100 rounded-lg">
+                            <Phone className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                          </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Téléphone</h4>
                           <a 
@@ -688,7 +864,55 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                       </div>
                     </div>
                   )}
+                </div>
               </div>
+
+                {/* Lots similaires du commerçant */}
+                {similarLots.length > 0 && (
+                  <div className="mt-4 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <Package className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                      Autres lots de {merchant.business_name}
+                    </h4>
+                    {similarLotsLoading ? (
+                      <div className="text-xs text-gray-500 text-center py-4">Chargement...</div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {similarLots.map((similarLot) => {
+                          const similarAvailableQty = similarLot.quantity_total - similarLot.quantity_reserved - similarLot.quantity_sold;
+                          return (
+                            <button
+                              key={similarLot.id}
+                              onClick={() => {
+                                if (onLotSelect) {
+                                  onLotSelect(similarLot);
+                                }
+                              }}
+                              className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all text-left"
+                            >
+                              {similarLot.image_urls && similarLot.image_urls.length > 0 && (
+                                <img
+                                  src={similarLot.image_urls[0]}
+                                  alt={similarLot.title}
+                                  className="w-full h-20 object-cover rounded mb-2"
+                                />
+                              )}
+                              <div className="text-xs font-semibold text-gray-900 line-clamp-1 mb-1">
+                                {similarLot.title}
+                              </div>
+                              <div className="text-xs font-bold text-primary-700 mb-1">
+                                {similarLot.discounted_price}€
+                              </div>
+                              <div className="text-[10px] text-gray-500">
+                                {similarAvailableQty} disponible{similarAvailableQty > 1 ? 's' : ''}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
           )}
 
@@ -721,7 +945,7 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                         <div className="text-xs sm:text-sm font-medium text-gray-900">{availableQty}</div>
                       </div>
                     </div>
-                  </div>
+        </div>
 
                   {/* Caractéristiques */}
                   <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -802,23 +1026,108 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                 </div>
               </div>
             )}
+
+            {/* Informations pratiques */}
+            <div className="mt-4 p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+              <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-blue-600" strokeWidth={1.5} />
+                À savoir
+              </h4>
+              <div className="space-y-2 text-xs sm:text-sm text-gray-700">
+                {lot.requires_cold_chain && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-blue-600">❄️</span>
+                    <div>
+                      <span className="font-medium">Chaîne du froid requise :</span> Pensez à apporter un sac isotherme pour le transport.
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-600">🕐</span>
+                  <div>
+                    <span className="font-medium">Retrait :</span> Entre {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} et {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })} uniquement.
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-600">🔐</span>
+                  <div>
+                    <span className="font-medium">Code PIN :</span> Vous recevrez un code PIN à 6 chiffres après réservation pour retirer votre panier.
+                  </div>
+                </div>
+                {lot.is_urgent && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-600">🔥</span>
+                    <div>
+                      <span className="font-medium">Lot urgent :</span> Ce produit doit être retiré rapidement pour éviter le gaspillage.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bouton d'action flottant */}
+        {/* Bouton d'action flottant avec sélecteur de quantité */}
         <div className="fixed bottom-16 left-4 right-4 sm:sticky sm:bottom-0 sm:left-0 sm:right-0 p-3 sm:p-4 lg:p-4 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-2xl z-[100] flex-shrink-0">
+          <div className="space-y-3">
+            {/* Sélecteur de quantité */}
+            {availableQty > 0 && (
+              <div className="flex items-center justify-between gap-3 p-2 bg-gray-50 rounded-lg">
+                <span className="text-xs sm:text-sm font-medium text-gray-700">Quantité :</span>
+                <div className="flex items-center gap-2">
           <button
-            onClick={onReserve}
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                    disabled={quantity <= 1}
+                    className="p-1.5 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Diminuer la quantité"
+                  >
+                    <Minus className="w-4 h-4" strokeWidth={2} />
+                  </button>
+                  <span className="w-8 text-center text-sm font-bold text-gray-900">{quantity}</span>
+                  <button
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                    disabled={quantity >= availableQty}
+                    className="p-1.5 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Augmenter la quantité"
+                  >
+                    <Plus className="w-4 h-4" strokeWidth={2} />
+                  </button>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs sm:text-sm font-bold text-primary-700">{totalPrice}€</div>
+                  {quantity > 1 && (
+                    <div className="text-[10px] text-gray-500">Économie: {totalSavings}€</div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Bouton de réservation */}
+            <button
+              onClick={handleReserveWithQuantity}
             disabled={availableQty === 0}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 lg:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base lg:text-base transition-all ${
+              className={`w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 lg:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base lg:text-base transition-all ${
               availableQty === 0
                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 : 'bg-primary-600 text-white hover:bg-primary-700 shadow-xl hover:shadow-2xl'
             }`}
           >
             <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
-            {availableQty === 0 ? 'Épuisé' : 'Réserver ce panier'}
+              {availableQty === 0 
+                ? 'Épuisé' 
+                : quantity > 1 
+                  ? `Réserver ${quantity} paniers (${totalPrice}€)`
+                  : 'Réserver ce panier'
+              }
           </button>
+            
+            {/* Impact environnemental */}
+            {quantity > 0 && (
+              <div className="text-center text-xs text-gray-600">
+                🌱 {impactMeals} repas sauvés • {impactCO2.toFixed(1)} kg CO₂ évité
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

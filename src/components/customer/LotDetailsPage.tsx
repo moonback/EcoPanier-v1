@@ -1,0 +1,1206 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  ArrowLeft,
+  Package, 
+  MapPin, 
+  Clock, 
+  ShoppingCart, 
+  ZoomIn, 
+  ChevronLeft, 
+  ChevronRight,
+  Store,
+  Mail,
+  Phone,
+  CheckCircle,
+  Info,
+  FileText,
+  Navigation,
+  Minus,
+  Plus,
+  AlertCircle
+} from 'lucide-react';
+import { format, differenceInDays, isToday, isTomorrow } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import type { Database } from '../../lib/database.types';
+import { useAuthStore } from '../../stores/authStore';
+import { calculateDistance, formatDistance, geocodeAddress } from '../../utils/geocodingService';
+import { supabase } from '../../lib/supabase';
+import { calculateCO2Impact } from '../../hooks/useImpactMetrics';
+import { useLots } from '../../hooks/useLots';
+
+type Lot = Database['public']['Tables']['lots']['Row'] & {
+  profiles: {
+    business_name: string;
+    business_address: string;
+    business_logo_url?: string | null;
+    business_type?: string | null;
+    business_description?: string | null;
+    business_email?: string | null;
+    business_hours?: Record<string, { open: string | null; close: string | null; closed: boolean }> | null;
+    phone?: string | null;
+    verified?: boolean;
+  };
+};
+
+type TabId = 'product' | 'merchant' | 'details';
+
+// Fonction pour formater les horaires d'ouverture
+const formatBusinessHours = (
+  businessHours: Record<string, { open: string | null; close: string | null; closed: boolean }> | null | undefined
+): string => {
+  if (!businessHours) return 'Non renseigné';
+
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+  const today = new Date().getDay();
+  const todayKey = days[today === 0 ? 6 : today - 1];
+  const todayHours = businessHours[todayKey];
+
+  if (todayHours?.closed || !todayHours?.open || !todayHours?.close) {
+    return 'Fermé aujourd\'hui';
+  }
+
+  return `Aujourd'hui: ${todayHours.open} - ${todayHours.close}`;
+};
+
+// Fonction pour obtenir le label du type de commerce
+const getBusinessTypeLabel = (type: string | null | undefined): string => {
+  if (!type) return '';
+  
+  const typeLabels: Record<string, string> = {
+    bakery: 'Boulangerie',
+    restaurant: 'Restaurant',
+    supermarket: 'Supermarché',
+    grocery: 'Épicerie',
+    market: 'Marché',
+    cafe: 'Café',
+    patisserie: 'Pâtisserie',
+    butcher: 'Boucherie',
+    fishmonger: 'Poissonnerie',
+    organic: 'Bio',
+    other: 'Autre',
+  };
+
+  return typeLabels[type] || type;
+};
+
+export function LotDetailsPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [lot, setLot] = useState<Lot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showImageZoom, setShowImageZoom] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<TabId>('product');
+  const [distance, setDistance] = useState<number | null>(null);
+  const [distanceLoading, setDistanceLoading] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [similarLots, setSimilarLots] = useState<Lot[]>([]);
+  const [similarLotsLoading, setSimilarLotsLoading] = useState(false);
+  const [pickupTimeInfo, setPickupTimeInfo] = useState<{ label: string; isAvailable: boolean; timeUntilStart: string | null } | null>(null);
+  
+  const { profile: userProfile } = useAuthStore();
+  const { reserveLot } = useLots('');
+
+  // Charger le lot
+  useEffect(() => {
+    const fetchLot = async () => {
+      if (!id) return;
+
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('lots')
+          .select(`
+            *,
+            profiles!merchant_id (
+              business_name,
+              business_address,
+              business_logo_url,
+              business_type,
+              business_description,
+              business_email,
+              business_hours,
+              phone,
+              verified
+            )
+          `)
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        if (data) {
+          setLot(data as Lot);
+        } else {
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du lot:', error);
+        navigate('/dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLot();
+  }, [id, navigate]);
+
+  // Calcul du temps restant jusqu'à la fin du créneau de retrait
+  useEffect(() => {
+    if (!lot) return;
+    
+    const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+    const shouldShowCountdown = (lot.is_urgent || availableQty < 3) && availableQty > 0;
+    
+    if (!shouldShowCountdown) {
+      setTimeRemaining(null);
+      return;
+    }
+
+    const calculateTimeRemaining = () => {
+      const now = new Date();
+      const pickupEnd = new Date(lot.pickup_end);
+      
+      if (pickupEnd <= now) {
+        setTimeRemaining(null);
+        return;
+      }
+
+      const diff = pickupEnd.getTime() - now.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeRemaining({ hours, minutes, seconds });
+    };
+
+    calculateTimeRemaining();
+    const interval = setInterval(calculateTimeRemaining, 1000);
+    return () => clearInterval(interval);
+  }, [lot]);
+
+  // Calcul de la distance entre l'utilisateur et le commerçant
+  useEffect(() => {
+    if (!lot || !lot.profiles?.business_address) return;
+    if (activeTab !== 'merchant' && activeTab !== 'product') return;
+
+    const calculateUserDistance = async () => {
+      setDistanceLoading(true);
+      
+      try {
+        let userLat: number | null = null;
+        let userLon: number | null = null;
+
+        if (userProfile?.latitude && userProfile?.longitude) {
+          userLat = userProfile.latitude;
+          userLon = userProfile.longitude;
+        }
+        else if (navigator.geolocation) {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 5000,
+              enableHighAccuracy: false,
+            });
+          });
+          userLat = position.coords.latitude;
+          userLon = position.coords.longitude;
+        }
+        else if (userProfile?.address) {
+          const userGeocode = await geocodeAddress(userProfile.address);
+          if (userGeocode.success) {
+            userLat = userGeocode.latitude;
+            userLon = userGeocode.longitude;
+          }
+        }
+
+        if (!userLat || !userLon) {
+          setDistanceLoading(false);
+          return;
+        }
+
+        const merchantGeocode = await geocodeAddress(lot.profiles.business_address);
+        if (merchantGeocode.success) {
+          const calculatedDistance = calculateDistance(
+            userLat,
+            userLon,
+            merchantGeocode.latitude,
+            merchantGeocode.longitude
+          );
+
+          setDistance(calculatedDistance);
+          setUserLocation({ lat: userLat, lon: userLon });
+        }
+      } catch (error) {
+        console.error('Erreur lors du calcul de distance:', error);
+      } finally {
+        setDistanceLoading(false);
+      }
+    };
+
+    calculateUserDistance();
+  }, [lot, userProfile, activeTab]);
+
+  // Calcul des horaires de retrait intelligents
+  useEffect(() => {
+    if (!lot) return;
+
+    const calculatePickupTimeInfo = () => {
+      const now = new Date();
+      const pickupStart = new Date(lot.pickup_start);
+      const pickupEnd = new Date(lot.pickup_end);
+      
+      let label = '';
+      let isAvailable = false;
+      let timeUntilStart: string | null = null;
+      
+      if (isToday(pickupStart)) {
+        label = 'Aujourd\'hui';
+        isAvailable = now >= pickupStart && now <= pickupEnd;
+        if (now < pickupStart) {
+          const diff = pickupStart.getTime() - now.getTime();
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          if (hours > 0) {
+            timeUntilStart = `Dans ${hours}h${minutes.toString().padStart(2, '0')}`;
+          } else {
+            timeUntilStart = `Dans ${minutes}min`;
+          }
+        }
+      } else if (isTomorrow(pickupStart)) {
+        label = 'Demain';
+      } else {
+        const daysDiff = differenceInDays(pickupStart, now);
+        if (daysDiff === 2) {
+          label = 'Après-demain';
+        } else {
+          label = format(pickupStart, 'EEEE dd MMM', { locale: fr });
+        }
+      }
+      
+      setPickupTimeInfo({ label, isAvailable, timeUntilStart });
+    };
+    
+    calculatePickupTimeInfo();
+    const interval = setInterval(calculatePickupTimeInfo, 60000);
+    return () => clearInterval(interval);
+  }, [lot]);
+
+  // Récupérer les lots similaires du commerçant
+  useEffect(() => {
+    if (!lot || activeTab !== 'merchant') return;
+
+    const fetchSimilarLots = async () => {
+      setSimilarLotsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('lots')
+          .select(`
+            *,
+            profiles!merchant_id (
+              business_name,
+              business_address,
+              business_logo_url,
+              business_type,
+              business_description,
+              business_email,
+              business_hours,
+              phone,
+              verified
+            )
+          `)
+          .eq('merchant_id', lot.merchant_id)
+          .neq('id', lot.id)
+          .eq('status', 'available')
+          .order('created_at', { ascending: false })
+          .limit(4);
+
+        if (error) throw error;
+
+        const available = (data as Lot[]).filter(l => {
+          const qty = l.quantity_total - l.quantity_reserved - l.quantity_sold;
+          return qty > 0;
+        });
+
+        const sorted = available.sort((a, b) => {
+          const aSameCategory = a.category === lot.category ? 1 : 0;
+          const bSameCategory = b.category === lot.category ? 1 : 0;
+          if (aSameCategory !== bSameCategory) return bSameCategory - aSameCategory;
+          
+          const aPriceDiff = Math.abs(a.discounted_price - lot.discounted_price);
+          const bPriceDiff = Math.abs(b.discounted_price - lot.discounted_price);
+          return aPriceDiff - bPriceDiff;
+        });
+
+        setSimilarLots(sorted.slice(0, 3));
+      } catch (error) {
+        console.error('Erreur lors du chargement des lots similaires:', error);
+      } finally {
+        setSimilarLotsLoading(false);
+      }
+    };
+
+    fetchSimilarLots();
+  }, [lot, activeTab]);
+
+  // Réinitialiser la quantité quand le lot change
+  useEffect(() => {
+    if (lot?.id) {
+      setQuantity(1);
+    }
+  }, [lot?.id]);
+
+  // Early return après tous les hooks
+  if (loading || !lot) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement du lot...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculs et valeurs dérivées (après le check de lot)
+  const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
+  const discount = Math.round(
+    ((lot.original_price - lot.discounted_price) / lot.original_price) * 100
+  );
+
+  const hasMultipleImages = lot.image_urls && lot.image_urls.length > 1;
+  const merchant = lot.profiles;
+  
+  // Vérifier si le compte à rebours doit s'afficher
+  const shouldShowCountdown = (lot.is_urgent || availableQty < 3) && availableQty > 0;
+  
+  // Calcul du prix total et de l'impact selon la quantité
+  const totalPrice = (lot.discounted_price * quantity).toFixed(2);
+  const totalSavings = ((lot.original_price - lot.discounted_price) * quantity).toFixed(2);
+  const impactMeals = quantity;
+  const impactCO2 = calculateCO2Impact(quantity);
+  
+  // Badge de disponibilité dynamique
+  const getAvailabilityBadge = () => {
+    if (availableQty === 0) return { text: 'Épuisé', color: 'bg-gray-200 text-gray-600', icon: '❌' };
+    if (availableQty < 2) return { text: 'Dernière chance', color: 'bg-red-100 text-red-700', icon: '⚠️' };
+    if (availableQty < 3) return { text: 'Stock faible', color: 'bg-orange-100 text-orange-700', icon: '📦' };
+    return null;
+  };
+  
+  const availabilityBadge = getAvailabilityBadge();
+
+  const formatTimeRemaining = (time: { hours: number; minutes: number; seconds: number }): string => {
+    if (time.hours > 0) {
+      return `${time.hours}h${time.minutes.toString().padStart(2, '0')}`;
+    }
+    return `${time.minutes}min${time.seconds.toString().padStart(2, '0')}`;
+  };
+
+  const isTimeCritical = timeRemaining !== null && timeRemaining.hours === 0 && timeRemaining.minutes < 60;
+
+  const nextImage = () => {
+    if (lot.image_urls && currentImageIndex < lot.image_urls.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  const openDirections = () => {
+    if (!merchant.business_address) return;
+
+    const encodedAddress = encodeURIComponent(merchant.business_address);
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+    
+    if (userLocation) {
+      const originUrl = `&origin=${userLocation.lat},${userLocation.lon}`;
+      window.open(`${mapsUrl}${originUrl}`, '_blank');
+    } else {
+      window.open(mapsUrl, '_blank');
+    }
+  };
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity < 1) return;
+    if (newQuantity > availableQty) return;
+    setQuantity(newQuantity);
+  };
+
+  const handleReserve = async () => {
+    if (!userProfile || availableQty === 0) return;
+
+    try {
+      const pin = await reserveLot(lot, quantity, userProfile.id, false);
+      alert(`Réservation confirmée! Code PIN: ${pin}`);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Erreur lors de la réservation:', error);
+      alert('Erreur lors de la réservation. Veuillez réessayer.');
+    }
+  };
+
+  const handleLotSelect = (selectedLot: Lot) => {
+    navigate(`/dashboard/lot/${selectedLot.id}`);
+  };
+
+  const tabs: Array<{ id: TabId; label: string; icon: typeof Package }> = [
+    { id: 'product', label: 'Produit', icon: Package },
+    { id: 'merchant', label: 'Commerçant', icon: Store },
+    { id: 'details', label: 'Détails', icon: FileText },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* En-tête avec bouton retour */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Retour"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-600" strokeWidth={1.5} />
+          </button>
+          <h1 className="text-lg font-bold text-gray-900 flex-1">Détails du lot</h1>
+          {shouldShowCountdown && timeRemaining !== null && (
+            <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${
+              isTimeCritical
+                ? 'bg-red-100 text-red-700 animate-pulse'
+                : 'bg-orange-100 text-orange-700'
+            }`}>
+              <Clock className="w-3 h-3" strokeWidth={2} />
+              <span>Plus que {formatTimeRemaining(timeRemaining)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation par onglets */}
+        <div className="max-w-7xl mx-auto px-4 flex items-center gap-1 border-t border-gray-100">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-all relative ${
+                  isActive
+                    ? 'text-primary-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Icon className="w-4 h-4" strokeWidth={isActive ? 2 : 1.5} />
+                <span>{tab.label}</span>
+                {isActive && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t-full" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Contenu principal */}
+      <main className="max-w-7xl mx-auto px-4 py-6 pb-24">
+        {/* Onglet Produit */}
+        {activeTab === 'product' && (
+          <div className="animate-fade-in grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Colonne gauche : Image */}
+            <div className="flex flex-col gap-3">
+              <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group">
+                {lot.image_urls && lot.image_urls.length > 0 ? (
+                  <>
+                    <img
+                      src={lot.image_urls[currentImageIndex]}
+                      alt={lot.title}
+                      className="w-full h-full object-cover cursor-zoom-in transition-transform duration-300 group-hover:scale-105"
+                      onClick={() => setShowImageZoom(true)}
+                    />
+                    
+                    <button
+                      onClick={() => setShowImageZoom(true)}
+                      className="absolute bottom-2 right-2 bg-primary-600/90 hover:bg-primary-700 text-white p-2 rounded-lg backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 shadow-lg"
+                      aria-label="Zoomer sur l'image"
+                    >
+                      <ZoomIn className="w-4 h-4" strokeWidth={1.5} />
+                    </button>
+
+                    {hasMultipleImages && (
+                      <>
+                        {currentImageIndex > 0 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              prevImage();
+                            }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-primary-600/90 hover:bg-primary-700 text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-lg"
+                            aria-label="Image précédente"
+                          >
+                            <ChevronLeft className="w-4 h-4" strokeWidth={2} />
+                          </button>
+                        )}
+                        
+                        {currentImageIndex < lot.image_urls.length - 1 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              nextImage();
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-600/90 hover:bg-primary-700 text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-lg"
+                            aria-label="Image suivante"
+                          >
+                            <ChevronRight className="w-4 h-4" strokeWidth={2} />
+                          </button>
+                        )}
+
+                        <div className="absolute bottom-2 left-2 bg-primary-600/90 text-white text-xs px-2 py-1 rounded-md backdrop-blur-sm shadow-md">
+                          {currentImageIndex + 1} / {lot.image_urls.length}
+                        </div>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Package className="w-16 h-16 text-gray-300" strokeWidth={1} />
+                  </div>
+                )}
+
+                <div className="absolute top-2 left-2 right-2 flex items-start justify-between">
+                  {lot.is_urgent && (
+                    <span className="inline-flex items-center gap-1 bg-red-600/95 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg">
+                      🔥 Urgent
+                    </span>
+                  )}
+                  <span className="ml-auto bg-primary-600/95 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg">
+                    -{discount}%
+                  </span>
+                </div>
+              </div>
+
+              {/* Caractéristiques */}
+              {lot.requires_cold_chain && (
+                <div className="p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-blue-700">
+                      ❄️ Chaîne du froid requise
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Colonne droite : Informations */}
+            <div className="flex flex-col gap-4">
+              {/* Titre et catégorie */}
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {lot.title}
+                </h2>
+                <span className="inline-flex items-center gap-1.5 bg-primary-50 text-primary-700 text-xs px-3 py-1 rounded-full font-medium">
+                  <Package className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  {lot.category}
+                </span>
+              </div>
+
+              {/* Description */}
+              <div className="p-4 bg-gradient-to-br from-gray-50 via-white to-primary-50/30 rounded-lg border border-gray-200 shadow-sm">
+                <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                  Description
+                </h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {lot.description}
+                </p>
+              </div>
+
+              {/* Informations principales en grille */}
+              <div className="grid grid-cols-3 gap-3">
+                {/* Prix */}
+                <div className="p-3 bg-gradient-to-br from-primary-50 via-white to-secondary-50/50 rounded-lg border border-primary-100 shadow-sm">
+                  <h4 className="text-xs font-bold text-gray-900 mb-2 flex items-center gap-1">
+                    <span className="text-primary-600">💰</span>
+                    Prix
+                  </h4>
+                  <div className="space-y-1">
+                    <div className="text-gray-400 line-through text-sm font-bold">
+                      {lot.original_price}€
+                    </div>
+                    <div className="text-2xl font-bold text-primary-700">
+                      {lot.discounted_price}€
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      -{discount}%
+                    </div>
+                  </div>
+                </div>
+
+                {/* Disponibilité */}
+                <div className="p-3 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100 shadow-sm">
+                  <h4 className="text-xs font-bold text-gray-900 mb-2 flex items-center gap-1">
+                    <Package className="w-3.5 h-3.5 text-primary-600" strokeWidth={1.5} />
+                    Stock
+                  </h4>
+                  <div className="text-2xl font-bold text-primary-700">
+                    {availableQty}
+                    <span className="text-base font-normal text-gray-500">/{lot.quantity_total}</span>
+                  </div>
+                  {availabilityBadge && (
+                    <div className={`text-xs mt-1 px-2 py-1 rounded-full font-medium ${availabilityBadge.color}`}>
+                      {availabilityBadge.icon} {availabilityBadge.text}
+                    </div>
+                  )}
+                  {!availabilityBadge && (
+                    <div className="text-xs text-gray-600 mt-1">
+                      En stock
+                    </div>
+                  )}
+                </div>
+
+                {/* Retrait */}
+                <div className="p-3 bg-gradient-to-br from-secondary-50 to-white rounded-lg border border-secondary-100 shadow-sm">
+                  <h4 className="text-xs font-bold text-gray-900 mb-2 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-secondary-600" strokeWidth={1.5} />
+                    Retrait
+                  </h4>
+                  {pickupTimeInfo && (
+                    <>
+                      <div className="text-base font-bold text-secondary-700 mb-1">
+                        {pickupTimeInfo.label}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                      </div>
+                      {pickupTimeInfo.isAvailable && (
+                        <div className="mt-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium inline-block">
+                          ✓ Disponible maintenant
+                        </div>
+                      )}
+                      {pickupTimeInfo.timeUntilStart && (
+                        <div className="mt-1 text-xs text-secondary-600">
+                          {pickupTimeInfo.timeUntilStart}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Compte à rebours d'urgence */}
+              {shouldShowCountdown && timeRemaining !== null && (
+                <div className={`p-3 rounded-lg border-2 ${
+                  isTimeCritical
+                    ? 'bg-red-50 border-red-300 animate-pulse'
+                    : 'bg-orange-50 border-orange-200'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <Clock className={`w-4 h-4 ${isTimeCritical ? 'text-red-600' : 'text-orange-600'}`} strokeWidth={2} />
+                    <div className="flex-1">
+                      <div className={`text-sm font-bold ${isTimeCritical ? 'text-red-700' : 'text-orange-700'}`}>
+                        {isTimeCritical ? '⏰ Dernière chance !' : '⏱️ Temps limité'}
+                      </div>
+                      <div className={`text-xs ${isTimeCritical ? 'text-red-600' : 'text-orange-600'}`}>
+                        Plus que {formatTimeRemaining(timeRemaining)} pour réserver
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Distance */}
+              {distance !== null && (
+                <div className="p-3 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                      <span className="text-sm text-gray-700">
+                        À {formatDistance(distance)} de vous
+                      </span>
+                    </div>
+                    <button
+                      onClick={openDirections}
+                      className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                    >
+                      <Navigation className="w-3 h-3" strokeWidth={2} />
+                      Itinéraire
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Onglet Commerçant */}
+        {activeTab === 'merchant' && (
+          <div className="animate-fade-in flex flex-col gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Colonne gauche */}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-lg border border-gray-200">
+                  <div className="w-16 h-16 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 border border-primary-200">
+                    {merchant.business_logo_url ? (
+                      <img
+                        src={merchant.business_logo_url}
+                        alt={merchant.business_name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Store className="w-8 h-8 text-primary-500" strokeWidth={1.5} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-xl font-bold text-gray-900 truncate">
+                        {merchant.business_name}
+                      </h3>
+                      {merchant.verified && (
+                        <span className="inline-flex items-center gap-0.5 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full flex-shrink-0">
+                          <CheckCircle className="w-3 h-3" strokeWidth={2} />
+                          <span>Vérifié</span>
+                        </span>
+                      )}
+                    </div>
+                    {merchant.business_type && (
+                      <span className="inline-block bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded-full font-medium mb-2">
+                        {getBusinessTypeLabel(merchant.business_type)}
+                      </span>
+                    )}
+                    <div className="text-sm text-gray-600 flex items-start gap-1 mt-1">
+                      <MapPin className="w-4 h-4 flex-shrink-0 text-gray-500 mt-0.5" strokeWidth={1.5} />
+                      <span>{merchant.business_address}</span>
+                    </div>
+
+                    {distance !== null && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-sm text-primary-600 font-medium">
+                          📍 À {formatDistance(distance)} de vous
+                        </span>
+                        <button
+                          onClick={openDirections}
+                          className="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                        >
+                          <Navigation className="w-4 h-4" strokeWidth={2} />
+                          Itinéraire
+                        </button>
+                      </div>
+                    )}
+
+                    {merchant.business_description && (
+                      <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-2">À propos</h4>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          {merchant.business_description}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Colonne droite */}
+              <div className="grid grid-cols-1 gap-3">
+                {merchant.business_hours && (
+                  <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <div className="flex items-start gap-2">
+                      <div className="p-2 bg-secondary-100 rounded-lg">
+                        <Clock className="w-5 h-5 text-secondary-600" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-1">Horaires</h4>
+                        <p className="text-sm text-gray-700">
+                          {formatBusinessHours(merchant.business_hours)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {merchant.business_email && (
+                  <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <div className="flex items-start gap-2">
+                      <div className="p-2 bg-primary-100 rounded-lg">
+                        <Mail className="w-5 h-5 text-primary-600" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-1">Email</h4>
+                        <a 
+                          href={`mailto:${merchant.business_email}`}
+                          className="text-sm text-primary-600 hover:text-primary-700 hover:underline break-all"
+                        >
+                          {merchant.business_email}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {merchant.phone && (
+                  <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <div className="flex items-start gap-2">
+                      <div className="p-2 bg-primary-100 rounded-lg">
+                        <Phone className="w-5 h-5 text-primary-600" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-1">Téléphone</h4>
+                        <a 
+                          href={`tel:${merchant.phone}`}
+                          className="text-sm text-primary-600 hover:text-primary-700 hover:underline"
+                        >
+                          {merchant.phone}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Lots similaires */}
+            {similarLots.length > 0 && (
+              <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                <h4 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-primary-600" strokeWidth={1.5} />
+                  Autres lots de {merchant.business_name}
+                </h4>
+                {similarLotsLoading ? (
+                  <div className="text-sm text-gray-500 text-center py-4">Chargement...</div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {similarLots.map((similarLot) => {
+                      const similarAvailableQty = similarLot.quantity_total - similarLot.quantity_reserved - similarLot.quantity_sold;
+                      return (
+                        <button
+                          key={similarLot.id}
+                          onClick={() => handleLotSelect(similarLot)}
+                          className="p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all text-left"
+                        >
+                          {similarLot.image_urls && similarLot.image_urls.length > 0 && (
+                            <img
+                              src={similarLot.image_urls[0]}
+                              alt={similarLot.title}
+                              className="w-full h-24 object-cover rounded mb-2"
+                            />
+                          )}
+                          <div className="text-sm font-semibold text-gray-900 line-clamp-1 mb-1">
+                            {similarLot.title}
+                          </div>
+                          <div className="text-sm font-bold text-primary-700 mb-1">
+                            {similarLot.discounted_price}€
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {similarAvailableQty} disponible{similarAvailableQty > 1 ? 's' : ''}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Onglet Détails */}
+        {activeTab === 'details' && (
+          <div className="animate-fade-in grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Colonne gauche */}
+            <div className="flex flex-col gap-3">
+              <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <Info className="w-5 h-5 text-primary-600" strokeWidth={1.5} />
+                  Informations générales
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Catégorie</div>
+                    <div className="text-sm font-medium text-gray-900">{lot.category}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Statut</div>
+                    <div className="text-sm font-medium text-gray-900 capitalize">{lot.status}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Quantité totale</div>
+                    <div className="text-sm font-medium text-gray-900">{lot.quantity_total}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Disponibilité</div>
+                    <div className="text-sm font-medium text-gray-900">{availableQty}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-primary-600" strokeWidth={1.5} />
+                  Caractéristiques
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <span className="text-sm text-gray-700">Chaîne du froid</span>
+                    <span className={`text-sm font-medium ${lot.requires_cold_chain ? 'text-blue-600' : 'text-gray-400'}`}>
+                      {lot.requires_cold_chain ? 'Oui ❄️' : 'Non'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <span className="text-sm text-gray-700">Lot urgent</span>
+                    <span className={`text-sm font-medium ${lot.is_urgent ? 'text-red-600' : 'text-gray-400'}`}>
+                      {lot.is_urgent ? 'Oui 🔥' : 'Non'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <span className="text-sm text-gray-700">Lot gratuit</span>
+                    <span className={`text-sm font-medium ${lot.is_free ? 'text-green-600' : 'text-gray-400'}`}>
+                      {lot.is_free ? 'Oui 🎁' : 'Non'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Colonne droite */}
+            <div className="flex flex-col gap-3">
+              <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary-600" strokeWidth={1.5} />
+                  Informations de retrait
+                </h3>
+                <div className="space-y-2">
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Date de début</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {format(new Date(lot.pickup_start), 'dd MMM yyyy', { locale: fr })} à {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Date de fin</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {format(new Date(lot.pickup_end), 'dd MMM yyyy', { locale: fr })} à {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100 shadow-sm">
+                <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <span className="text-primary-600">💰</span>
+                  Détails des prix
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                    <span className="text-sm text-gray-700">Prix original</span>
+                    <span className="text-sm font-bold text-gray-400 line-through">{lot.original_price}€</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                    <span className="text-sm text-gray-700">Prix réduit</span>
+                    <span className="text-lg font-bold text-primary-700">{lot.discounted_price}€</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-primary-100 rounded-lg">
+                    <span className="text-sm font-medium text-gray-900">Économie</span>
+                    <span className="text-base font-bold text-primary-700">
+                      {(lot.original_price - lot.discounted_price).toFixed(2)}€ ({discount}%)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Informations pratiques */}
+        <div className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+          <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
+            À savoir
+          </h3>
+          <div className="space-y-2 text-sm text-gray-700">
+            {lot.requires_cold_chain && (
+              <div className="flex items-start gap-2">
+                <span className="text-blue-600">❄️</span>
+                <div>
+                  <span className="font-medium">Chaîne du froid requise :</span> Pensez à apporter un sac isotherme pour le transport.
+                </div>
+              </div>
+            )}
+            <div className="flex items-start gap-2">
+              <span className="text-blue-600">🕐</span>
+              <div>
+                <span className="font-medium">Retrait :</span> Entre {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })} et {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })} uniquement.
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-blue-600">🔐</span>
+              <div>
+                <span className="font-medium">Code PIN :</span> Vous recevrez un code PIN à 6 chiffres après réservation pour retirer votre panier.
+              </div>
+            </div>
+            {lot.is_urgent && (
+              <div className="flex items-start gap-2">
+                <span className="text-red-600">🔥</span>
+                <div>
+                  <span className="font-medium">Lot urgent :</span> Ce produit doit être retiré rapidement pour éviter le gaspillage.
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bouton d'action fixe en bas */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-2xl z-50 p-4">
+          <div className="max-w-7xl mx-auto space-y-3">
+            {/* Sélecteur de quantité */}
+            {availableQty > 0 && (
+              <div className="flex items-center justify-between gap-3 p-2 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium text-gray-700">Quantité :</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                    disabled={quantity <= 1}
+                    className="p-1.5 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Diminuer la quantité"
+                  >
+                    <Minus className="w-4 h-4" strokeWidth={2} />
+                  </button>
+                  <span className="w-8 text-center text-sm font-bold text-gray-900">{quantity}</span>
+                  <button
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                    disabled={quantity >= availableQty}
+                    className="p-1.5 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Augmenter la quantité"
+                  >
+                    <Plus className="w-4 h-4" strokeWidth={2} />
+                  </button>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-bold text-primary-700">{totalPrice}€</div>
+                  {quantity > 1 && (
+                    <div className="text-xs text-gray-500">Économie: {totalSavings}€</div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Bouton de réservation */}
+            <button
+              onClick={handleReserve}
+              disabled={availableQty === 0}
+              className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-base transition-all ${
+                availableQty === 0
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-primary-600 text-white hover:bg-primary-700 shadow-xl hover:shadow-2xl'
+              }`}
+            >
+              <ShoppingCart className="w-5 h-5" strokeWidth={2} />
+              {availableQty === 0 
+                ? 'Épuisé' 
+                : quantity > 1 
+                  ? `Réserver ${quantity} paniers (${totalPrice}€)`
+                  : 'Réserver ce panier'
+              }
+            </button>
+            
+            {/* Impact environnemental */}
+            {quantity > 0 && (
+              <div className="text-center text-xs text-gray-600">
+                🌱 {impactMeals} repas sauvés • {impactCO2.toFixed(1)} kg CO₂ évité
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* Modal Zoom Image Plein Écran */}
+      {showImageZoom && lot.image_urls && lot.image_urls.length > 0 && (
+        <div 
+          className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setShowImageZoom(false)}
+        >
+          <button
+            onClick={() => setShowImageZoom(false)}
+            className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full backdrop-blur-sm transition-all z-10"
+            aria-label="Fermer le zoom"
+          >
+            <X className="w-6 h-6" strokeWidth={2} />
+          </button>
+
+          <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
+            <img
+              src={lot.image_urls[currentImageIndex]}
+              alt={lot.title}
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {hasMultipleImages && (
+              <>
+                {currentImageIndex > 0 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevImage();
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-4 rounded-full backdrop-blur-sm transition-all"
+                    aria-label="Image précédente"
+                  >
+                    <ChevronLeft className="w-8 h-8" strokeWidth={2} />
+                  </button>
+                )}
+                
+                {currentImageIndex < lot.image_urls.length - 1 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextImage();
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-4 rounded-full backdrop-blur-sm transition-all"
+                    aria-label="Image suivante"
+                  >
+                    <ChevronRight className="w-8 h-8" strokeWidth={2} />
+                  </button>
+                )}
+
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full backdrop-blur-sm text-sm font-medium">
+                  {currentImageIndex + 1} / {lot.image_urls.length}
+                </div>
+              </>
+            )}
+          </div>
+
+          {hasMultipleImages && (
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm max-w-[90vw] overflow-x-auto">
+              {lot.image_urls.map((url, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentImageIndex(index);
+                  }}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${
+                    index === currentImageIndex 
+                      ? 'border-white scale-110' 
+                      : 'border-transparent opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img
+                    src={url}
+                    alt={`${lot.title} - ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
