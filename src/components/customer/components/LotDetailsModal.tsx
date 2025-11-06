@@ -12,7 +12,8 @@ import {
   Mail,
   Phone,
   CheckCircle,
-  Info
+  Info,
+  FileText
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -38,6 +39,8 @@ interface LotDetailsModalProps {
   onReserve: () => void;
   onMerchantClick?: () => void;
 }
+
+type TabId = 'product' | 'merchant' | 'details';
 
 // Fonction pour formater les horaires d'ouverture
 const formatBusinessHours = (
@@ -82,6 +85,7 @@ const getBusinessTypeLabel = (type: string | null | undefined): string => {
 export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: LotDetailsModalProps) {
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<TabId>('product');
   
   const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
   const discount = Math.round(
@@ -103,31 +107,69 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
     }
   };
 
+  const tabs: Array<{ id: TabId; label: string; icon: typeof Package }> = [
+    { id: 'product', label: 'Produit', icon: Package },
+    { id: 'merchant', label: 'Commerçant', icon: Store },
+    { id: 'details', label: 'Détails', icon: FileText },
+  ];
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl sm:rounded-2xl max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto pb-24 sm:pb-6"
+        className="bg-white rounded-xl sm:rounded-2xl max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] lg:max-h-[85vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-white to-primary-50/30 border-b border-gray-200/50 p-3 sm:p-4 flex items-center justify-between">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900">Détails du lot</h2>
+        {/* Header avec onglets */}
+        <div className="sticky top-0 z-20 bg-white border-b border-gray-200 flex-shrink-0">
+          <div className="p-2 sm:p-3 lg:p-3 flex items-center justify-between border-b border-gray-100">
+            <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">Détails du lot</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-primary-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" strokeWidth={1.5} />
+              className="p-1.5 sm:p-2 hover:bg-primary-100 rounded-lg transition-colors"
+            >
+              <X className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-gray-600" strokeWidth={1.5} />
+            </button>
+          </div>
+
+          {/* Navigation par onglets */}
+          <div className="flex items-center gap-1 px-2 sm:px-3 lg:px-4 overflow-x-auto scrollbar-hide">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm font-medium transition-all relative whitespace-nowrap ${
+                    isActive
+                      ? 'text-primary-600'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={isActive ? 2 : 1.5} />
+                  <span>{tab.label}</span>
+                  {isActive && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-t-full" />
+                  )}
           </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="p-4 sm:p-6 md:p-8 lg:p-12">
-          {/* Grille principale : Image + Infos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-            {/* Image principale avec zoom */}
-            <div className="relative aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 group">
+        {/* Contenu scrollable - Desktop: pas de scroll, Mobile: scroll */}
+        <div className="flex-1 overflow-y-auto lg:overflow-hidden pb-20 sm:pb-6 lg:pb-0">
+          <div className="p-3 sm:p-4 md:p-5 lg:p-6 h-full lg:overflow-y-auto">
+            {/* Onglet Produit */}
+            {activeTab === 'product' && (
+              <div className="animate-fade-in h-full flex flex-col lg:grid lg:grid-cols-2 lg:gap-6 lg:h-auto">
+                {/* Colonne gauche : Image */}
+                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-3">
+                  <div className="relative aspect-[4/3] lg:aspect-square rounded-lg sm:rounded-xl overflow-hidden bg-gray-100 group flex-shrink-0">
               {lot.image_urls && lot.image_urls.length > 0 ? (
                 <>
                   <img
@@ -137,16 +179,14 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                     onClick={() => setShowImageZoom(true)}
                   />
                   
-                  {/* Bouton zoom */}
                   <button
                     onClick={() => setShowImageZoom(true)}
-                    className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 bg-primary-600/90 hover:bg-primary-700 text-white p-1.5 sm:p-2 rounded-lg backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 shadow-lg"
+                          className="absolute bottom-2 right-2 bg-primary-600/90 hover:bg-primary-700 text-white p-1.5 rounded-lg backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 shadow-lg"
                     aria-label="Zoomer sur l'image"
                   >
-                    <ZoomIn className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
+                          <ZoomIn className="w-4 h-4" strokeWidth={1.5} />
                   </button>
 
-                  {/* Navigation images si plusieurs */}
                   {hasMultipleImages && (
                     <>
                       {currentImageIndex > 0 && (
@@ -155,10 +195,10 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                             e.stopPropagation();
                             prevImage();
                           }}
-                          className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 bg-primary-600/90 hover:bg-primary-700 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm transition-all shadow-lg"
+                                className="absolute left-2 top-1/2 -translate-y-1/2 bg-primary-600/90 hover:bg-primary-700 text-white p-1.5 rounded-full backdrop-blur-sm transition-all shadow-lg"
                           aria-label="Image précédente"
                         >
-                          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
+                                <ChevronLeft className="w-4 h-4" strokeWidth={2} />
                         </button>
                       )}
                       
@@ -168,15 +208,14 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                             e.stopPropagation();
                             nextImage();
                           }}
-                          className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-primary-600/90 hover:bg-primary-700 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-sm transition-all shadow-lg"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-600/90 hover:bg-primary-700 text-white p-1.5 rounded-full backdrop-blur-sm transition-all shadow-lg"
                           aria-label="Image suivante"
                         >
-                          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
+                                <ChevronRight className="w-4 h-4" strokeWidth={2} />
                         </button>
                       )}
 
-                      {/* Indicateur de position */}
-                      <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 bg-primary-600/90 text-white text-[10px] sm:text-xs px-2 py-1 rounded-md backdrop-blur-sm shadow-md">
+                            <div className="absolute bottom-2 left-2 bg-primary-600/90 text-white text-[10px] px-2 py-1 rounded-md backdrop-blur-sm shadow-md">
                         {currentImageIndex + 1} / {lot.image_urls.length}
                       </div>
                     </>
@@ -184,104 +223,120 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                 </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <Package className="w-24 h-24 text-gray-300" strokeWidth={1} />
+                        <Package className="w-16 h-16 text-gray-300" strokeWidth={1} />
                 </div>
               )}
 
-              {/* Badges sur l'image */}
-              <div className="absolute top-2 sm:top-3 left-2 sm:left-3 right-2 sm:right-3 flex items-start justify-between">
+                    <div className="absolute top-2 left-2 right-2 flex items-start justify-between">
                 {lot.is_urgent && (
-                  <span className="inline-flex items-center gap-1 sm:gap-1.5 bg-red-600/95 backdrop-blur-sm text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-medium shadow-lg">
+                        <span className="inline-flex items-center gap-1 bg-red-600/95 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg">
                     🔥 Urgent
                   </span>
                 )}
-                <span className="ml-auto bg-primary-600/95 backdrop-blur-sm text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium shadow-lg">
+                      <span className="ml-auto bg-primary-600/95 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg">
                   -{discount}%
                 </span>
               </div>
             </div>
 
-            {/* Informations principales */}
-            <div className="space-y-3 sm:space-y-4">
-              {/* Titre */}
+                  {/* Caractéristiques */}
+                  {lot.requires_cold_chain && (
+                    <div className="p-2.5 sm:p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs sm:text-sm font-medium text-blue-700">
+                          ❄️ Chaîne du froid requise
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Colonne droite : Informations */}
+                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-3 lg:overflow-y-auto">
+                  {/* Titre et catégorie */}
               <div>
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-xl sm:text-2xl lg:text-2xl font-bold text-gray-900 mb-2">
                   {lot.title}
                 </h3>
-                <span className="inline-flex items-center gap-1.5 bg-primary-50 text-primary-700 text-xs sm:text-sm px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-medium">
-                  <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={1.5} />
+                    <span className="inline-flex items-center gap-1.5 bg-primary-50 text-primary-700 text-xs px-2.5 py-1 rounded-full font-medium">
+                      <Package className="w-3.5 h-3.5" strokeWidth={1.5} />
                   {lot.category}
                 </span>
               </div>
 
               {/* Description */}
-              <div className="p-3 sm:p-4 bg-gradient-to-br from-gray-50 via-white to-primary-50/30 rounded-xl border border-gray-200 shadow-sm">
+                  <div className="p-3 sm:p-4 bg-gradient-to-br from-gray-50 via-white to-primary-50/30 rounded-lg border border-gray-200 shadow-sm">
                 <h4 className="text-xs sm:text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
-                  <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" strokeWidth={1.5} />
+                      <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" strokeWidth={1.5} />
                   Description
                 </h4>
-                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-gray-700 leading-relaxed line-clamp-4 lg:line-clamp-none">
                   {lot.description}
                 </p>
               </div>
 
-              {/* Prix et Commerçant sur la même ligne */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                  {/* Informations principales en grille compacte */}
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {/* Prix */}
-                <div className="p-3 sm:p-4 bg-gradient-to-br from-primary-50 via-white to-secondary-50/50 rounded-xl border border-primary-100 shadow-sm hover:shadow-md transition-shadow">
-                  <h4 className="text-xs sm:text-sm font-bold text-gray-900 mb-2 sm:mb-3 flex items-center gap-1.5">
-                    <span className="text-primary-600">💰</span>
-                    Prix
+                    <div className="p-2.5 sm:p-3 bg-gradient-to-br from-primary-50 via-white to-secondary-50/50 rounded-lg border border-primary-100 shadow-sm hover:shadow-md transition-shadow">
+                      <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1.5 flex items-center gap-1">
+                        <span className="text-primary-600 text-xs">💰</span>
+                        <span className="hidden sm:inline">Prix</span>
                   </h4>
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <div className="text-[10px] sm:text-xs text-gray-600 font-medium mb-1">Prix initial</div>
-                      <div className="text-gray-400 line-through text-base sm:text-lg font-bold">
+                      <div className="space-y-1">
+                        <div className="text-gray-400 line-through text-xs sm:text-sm font-bold">
                         {lot.original_price}€
+                        </div>
+                        <div className="text-xl sm:text-2xl lg:text-2xl font-bold text-primary-700">
+                          {lot.discounted_price}€
+                        </div>
+                        <div className="text-[9px] sm:text-xs text-gray-600">
+                          -{discount}%
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-[10px] sm:text-xs text-gray-600 font-medium mb-1">Prix réduit</div>
-                      <div className="text-2xl sm:text-3xl font-bold text-primary-700 bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
-                        {lot.discounted_price}€
+
+                    {/* Disponibilité */}
+                    <div className="p-2.5 sm:p-3 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100 hover:shadow-md transition-shadow">
+                      <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1.5 flex items-center gap-1">
+                        <Package className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary-600" strokeWidth={1.5} />
+                        <span className="hidden sm:inline">Stock</span>
+                      </h4>
+                      <div className="text-xl sm:text-2xl lg:text-2xl font-bold text-primary-700">
+                        {availableQty}
+                        <span className="text-sm sm:text-base font-normal text-gray-500">/{lot.quantity_total}</span>
+                      </div>
+                      <div className="text-[9px] sm:text-xs text-gray-600 mt-1">
+                        {availableQty === 0 ? 'Épuisé' : 'Dispo'}
                       </div>
                     </div>
-                  </div>
-                  <div className="text-center mt-3">
-                    <span className="inline-block bg-gradient-to-r from-primary-600 to-primary-700 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium shadow-md hover:shadow-lg transition-shadow">
-                      Économisez {(lot.original_price - lot.discounted_price).toFixed(2)}€ ({discount}%)
-                    </span>
+
+                    {/* Retrait */}
+                    <div className="p-2.5 sm:p-3 bg-gradient-to-br from-secondary-50 to-white rounded-lg border border-secondary-100 hover:shadow-md transition-shadow">
+                      <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1.5 flex items-center gap-1">
+                        <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-secondary-600" strokeWidth={1.5} />
+                        <span className="hidden sm:inline">Retrait</span>
+                      </h4>
+                      <div className="text-sm sm:text-base font-bold text-secondary-700 mb-0.5">
+                        {format(new Date(lot.pickup_start), 'dd MMM', { locale: fr })}
+                      </div>
+                      <div className="text-[9px] sm:text-xs text-gray-600">
+                        {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </div>
+            )}
 
-                {/* Commerçant avec logo - Cliquable */}
-                <div 
-                  className={`p-3 sm:p-4 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-xl border border-gray-200 transition-all ${
-                    onMerchantClick 
-                      ? 'cursor-pointer hover:bg-primary-50 hover:border-primary-300 hover:shadow-md' 
-                      : ''
-                  }`}
-                  onClick={onMerchantClick}
-                >
-                  <div className="flex items-start justify-between mb-2 sm:mb-3">
-                    <h4 className="text-xs sm:text-sm font-bold text-gray-900 flex items-center gap-2">
-                      <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" strokeWidth={1.5} />
-                      Commerçant
-                    </h4>
-                    {merchant.verified && (
-                      <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded-full">
-                        <CheckCircle className="w-3 h-3" strokeWidth={2} />
-                        Vérifié
-                      </span>
-                    )}
-                    {onMerchantClick && (
-                      <span className="text-[10px] sm:text-xs text-primary-600 font-medium hover:text-primary-700">
-                        Voir tous →
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-start gap-2 sm:gap-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 border border-primary-200">
+            {/* Onglet Commerçant */}
+            {activeTab === 'merchant' && (
+              <div className="animate-fade-in h-full flex flex-col lg:grid lg:grid-cols-2 lg:gap-4 lg:h-auto">
+                {/* Colonne gauche : En-tête et description */}
+                <div className="flex flex-col gap-3">
+                  {/* En-tête commerçant */}
+                  <div className="flex items-start gap-3 p-3 bg-gradient-to-br from-gray-50 to-primary-50/30 rounded-lg border border-gray-200">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center overflow-hidden flex-shrink-0 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 border border-primary-200">
                       {merchant.business_logo_url ? (
                         <img
                           src={merchant.business_logo_url}
@@ -293,109 +348,64 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                           }}
                         />
                       ) : null}
-                      <Store className={`w-5 h-5 sm:w-6 sm:h-6 text-primary-500 ${merchant.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
+                      <Store className={`w-6 h-6 sm:w-8 sm:h-8 text-primary-500 ${merchant.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-gray-900 text-sm sm:text-base mb-1 truncate flex items-center gap-2">
-                        {merchant.business_name}
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">
+                          {merchant.business_name}
+                        </h3>
+                        {merchant.verified && (
+                          <span className="inline-flex items-center gap-0.5 bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">
+                            <CheckCircle className="w-2.5 h-2.5" strokeWidth={2} />
+                            <span className="hidden sm:inline">Vérifié</span>
+                          </span>
+                        )}
                       </div>
                       {merchant.business_type && (
                         <span className="inline-block bg-primary-100 text-primary-700 text-[10px] px-2 py-0.5 rounded-full font-medium mb-1">
                           {getBusinessTypeLabel(merchant.business_type)}
                         </span>
                       )}
-                      <div className="text-xs sm:text-sm text-gray-600 font-light flex items-start gap-1 mt-1">
-                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0 text-gray-500 mt-0.5" strokeWidth={1.5} />
-                        <span className="truncate">{merchant.business_address}</span>
+                      <div className="text-xs sm:text-sm text-gray-600 flex items-start gap-1 mt-1">
+                        <MapPin className="w-3 h-3 flex-shrink-0 text-gray-500 mt-0.5" strokeWidth={1.5} />
+                        <span className="line-clamp-2">{merchant.business_address}</span>
                       </div>
+                      {onMerchantClick && (
+                        <button
+                          onClick={onMerchantClick}
+                          className="mt-2 text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline"
+                        >
+                          Voir tous les produits →
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Informations complémentaires - Responsive */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
-            {/* Disponibilité */}
-            <div className="p-2.5 sm:p-3 bg-gradient-to-br from-primary-50 to-white rounded-xl border border-primary-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 sm:p-2 bg-primary-100 rounded-lg">
-                  <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" strokeWidth={1.5} />
-                </div>
-                <div className="flex-1">
-                  <div className="text-[9px] sm:text-[10px] text-gray-600 font-light">Disponible</div>
-                  <div className="text-lg sm:text-xl font-bold text-primary-700">
-                    {availableQty}
-                    <span className="text-xs sm:text-sm font-normal text-gray-500">/{lot.quantity_total}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Horaire de retrait */}
-            <div className="p-2.5 sm:p-3 bg-gradient-to-br from-secondary-50 to-white rounded-xl border border-secondary-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 sm:p-2 bg-secondary-100 rounded-lg">
-                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary-600" strokeWidth={1.5} />
-                </div>
-                <div className="flex-1">
-                  <div className="text-[9px] sm:text-[10px] text-gray-600 font-light">Retrait</div>
-                  <div className="text-xs sm:text-sm font-bold text-secondary-700">
-                    {format(new Date(lot.pickup_start), 'dd MMM', { locale: fr })}
-                  </div>
-                  <div className="text-[9px] sm:text-[10px] text-gray-600 font-light">
-                    {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Caractéristiques */}
-          {lot.requires_cold_chain && (
-            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
-              <div className="flex items-center gap-2">
-                <span className="text-xs sm:text-sm font-medium text-blue-700">
-                  ❄️ Produit nécessitant une chaîne du froid
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Section Informations Commerçant Complètes */}
-          {(merchant.business_description || merchant.business_hours || merchant.business_email || merchant.phone) && (
-            <div className="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-br from-gray-50 via-white to-primary-50/20 rounded-xl border border-gray-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="p-2 bg-primary-100 rounded-lg">
-                  <Store className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" strokeWidth={1.5} />
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900">À propos du commerçant</h3>
-              </div>
-
-              <div className="space-y-3 sm:space-y-4">
-                {/* Description */}
-                {merchant.business_description && (
-                  <div className="p-3 sm:p-4 bg-white rounded-lg border border-gray-100">
-                    <div className="flex items-start gap-2 mb-2">
-                      <Info className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                      <div className="flex-1">
-                        <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Description</h4>
-                        <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
-                          {merchant.business_description}
-                        </p>
+                  {/* Description */}
+                  {merchant.business_description && (
+                    <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm flex-1">
+                      <div className="flex items-start gap-2 mb-2">
+                        <Info className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                        <div className="flex-1">
+                          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">À propos</h4>
+                          <p className="text-xs sm:text-sm text-gray-700 leading-relaxed line-clamp-6 lg:line-clamp-none">
+                            {merchant.business_description}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
-                {/* Informations de contact */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  {/* Horaires */}
+                {/* Colonne droite : Informations de contact */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-3">
                   {merchant.business_hours && (
-                    <div className="p-3 sm:p-4 bg-white rounded-lg border border-gray-100">
+                    <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-2">
-                        <Clock className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                        <div className="p-1.5 bg-secondary-100 rounded-lg">
+                          <Clock className="w-4 h-4 text-secondary-600" strokeWidth={1.5} />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Horaires</h4>
                           <p className="text-xs sm:text-sm text-gray-700">
@@ -406,11 +416,12 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                     </div>
                   )}
 
-                  {/* Email */}
                   {merchant.business_email && (
-                    <div className="p-3 sm:p-4 bg-white rounded-lg border border-gray-100">
+                    <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-2">
-                        <Mail className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                        <div className="p-1.5 bg-primary-100 rounded-lg">
+                          <Mail className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Email</h4>
                           <a 
@@ -424,11 +435,12 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                     </div>
                   )}
 
-                  {/* Téléphone */}
                   {merchant.phone && (
-                    <div className="p-3 sm:p-4 bg-white rounded-lg border border-gray-100">
+                    <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-2">
-                        <Phone className="w-4 h-4 text-primary-600 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                        <div className="p-1.5 bg-primary-100 rounded-lg">
+                          <Phone className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">Téléphone</h4>
                           <a 
@@ -443,17 +455,127 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                   )}
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
+            {/* Onglet Détails */}
+            {activeTab === 'details' && (
+              <div className="animate-fade-in h-full flex flex-col lg:grid lg:grid-cols-2 lg:gap-4 lg:h-auto">
+                {/* Colonne gauche */}
+                <div className="flex flex-col gap-3">
+                  {/* Informations générales */}
+                  <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <Info className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                      Informations générales
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Catégorie</div>
+                        <div className="text-xs sm:text-sm font-medium text-gray-900">{lot.category}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Statut</div>
+                        <div className="text-xs sm:text-sm font-medium text-gray-900 capitalize">{lot.status}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Quantité totale</div>
+                        <div className="text-xs sm:text-sm font-medium text-gray-900">{lot.quantity_total}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Disponibilité</div>
+                        <div className="text-xs sm:text-sm font-medium text-gray-900">{availableQty}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Caractéristiques */}
+                  <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <Package className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                      Caractéristiques
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                        <span className="text-xs sm:text-sm text-gray-700">Chaîne du froid</span>
+                        <span className={`text-xs sm:text-sm font-medium ${lot.requires_cold_chain ? 'text-blue-600' : 'text-gray-400'}`}>
+                          {lot.requires_cold_chain ? 'Oui ❄️' : 'Non'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                        <span className="text-xs sm:text-sm text-gray-700">Lot urgent</span>
+                        <span className={`text-xs sm:text-sm font-medium ${lot.is_urgent ? 'text-red-600' : 'text-gray-400'}`}>
+                          {lot.is_urgent ? 'Oui 🔥' : 'Non'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                        <span className="text-xs sm:text-sm text-gray-700">Lot gratuit</span>
+                        <span className={`text-xs sm:text-sm font-medium ${lot.is_free ? 'text-green-600' : 'text-gray-400'}`}>
+                          {lot.is_free ? 'Oui 🎁' : 'Non'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Colonne droite */}
+                <div className="flex flex-col gap-3">
+                  {/* Informations de retrait */}
+                  <div className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-primary-600" strokeWidth={1.5} />
+                      Informations de retrait
+                    </h4>
+                    <div className="space-y-2">
+                      <div>
+                        <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Date de début</div>
+                        <div className="text-xs sm:text-sm font-medium text-gray-900">
+                          {format(new Date(lot.pickup_start), 'dd MMM yyyy', { locale: fr })} à {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Date de fin</div>
+                        <div className="text-xs sm:text-sm font-medium text-gray-900">
+                          {format(new Date(lot.pickup_end), 'dd MMM yyyy', { locale: fr })} à {format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Prix détaillé */}
+                  <div className="p-3 bg-gradient-to-br from-primary-50 to-white rounded-lg border border-primary-100 shadow-sm">
+                    <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <span className="text-primary-600">💰</span>
+                      Détails des prix
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                        <span className="text-xs sm:text-sm text-gray-700">Prix original</span>
+                        <span className="text-sm font-bold text-gray-400 line-through">{lot.original_price}€</span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                        <span className="text-xs sm:text-sm text-gray-700">Prix réduit</span>
+                        <span className="text-lg font-bold text-primary-700">{lot.discounted_price}€</span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-primary-100 rounded-lg">
+                        <span className="text-xs sm:text-sm font-medium text-gray-900">Économie</span>
+                        <span className="text-sm sm:text-base font-bold text-primary-700">
+                          {(lot.original_price - lot.discounted_price).toFixed(2)}€ ({discount}%)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Bouton d'action flottant - Fixed au-dessus de la nav mobile */}
-        <div className="fixed bottom-16 left-4 right-4 sm:sticky sm:bottom-0 sm:left-0 sm:right-0 p-4 sm:p-6 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl z-[100]">
+        {/* Bouton d'action flottant */}
+        <div className="fixed bottom-16 left-4 right-4 sm:sticky sm:bottom-0 sm:left-0 sm:right-0 p-3 sm:p-4 lg:p-4 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-2xl z-[100] flex-shrink-0">
           <button
             onClick={onReserve}
             disabled={availableQty === 0}
-            className={`w-full flex items-center justify-center gap-2 sm:gap-2.5 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all ${
+            className={`w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 lg:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base lg:text-base transition-all ${
               availableQty === 0
                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 : 'bg-primary-600 text-white hover:bg-primary-700 shadow-xl hover:shadow-2xl'
@@ -471,7 +593,6 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
           className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center p-2 sm:p-4"
           onClick={() => setShowImageZoom(false)}
         >
-          {/* Bouton fermer */}
           <button
             onClick={() => setShowImageZoom(false)}
             className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-white/10 hover:bg-white/20 text-white p-2 sm:p-3 rounded-full backdrop-blur-sm transition-all z-10"
@@ -480,7 +601,6 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
             <X className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2} />
           </button>
 
-          {/* Image zoomée */}
           <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
             <img
               src={lot.image_urls[currentImageIndex]}
@@ -489,7 +609,6 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
               onClick={(e) => e.stopPropagation()}
             />
 
-            {/* Navigation si plusieurs images */}
             {hasMultipleImages && (
               <>
                 {currentImageIndex > 0 && (
@@ -518,7 +637,6 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
                   </button>
                 )}
 
-                {/* Compteur d'images */}
                 <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full backdrop-blur-sm text-xs sm:text-sm font-medium">
                   {currentImageIndex + 1} / {lot.image_urls.length}
                 </div>
@@ -526,7 +644,6 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
             )}
           </div>
 
-          {/* Miniatures si plusieurs images */}
           {hasMultipleImages && (
             <div className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2 p-1.5 sm:p-2 bg-black/50 rounded-lg backdrop-blur-sm max-w-[90vw] overflow-x-auto">
               {lot.image_urls.map((url, index) => (
@@ -556,4 +673,3 @@ export function LotDetailsModal({ lot, onClose, onReserve, onMerchantClick }: Lo
     </div>
   );
 }
-
