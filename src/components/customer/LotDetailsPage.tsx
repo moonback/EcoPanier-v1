@@ -502,7 +502,7 @@ export function LotDetailsPage() {
       </div>
 
       {/* Contenu principal */}
-      <main className="max-w-12xl mx-auto px-4 py-6 pb-24">
+      <main className="max-w-12xl mx-auto px-4 py-6 pb-36">
         {/* Onglet Produit */}
         {activeTab === 'product' && (
           <div className="animate-fade-in grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1012,16 +1012,16 @@ export function LotDetailsPage() {
 
         {/* Bouton d'action fixe en bas */}
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-2xl z-50 p-4">
-          <div className="max-w-7xl mx-auto space-y-3">
-            {/* Sélecteur de quantité */}
-            {availableQty > 0 && (
-              <div className="flex items-center justify-between gap-3 p-2 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Quantité :</span>
-                <div className="flex items-center gap-2">
+          <div className="max-w-7xl mx-auto flex flex-col gap-2">
+            <div className="flex flex-row items-center gap-3">
+              {/* Sélecteur de quantité à gauche */}
+              {availableQty > 0 && (
+                <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-2 py-1">
+                  <span className="text-xs font-medium text-gray-700">Qté</span>
                   <button
                     onClick={() => handleQuantityChange(quantity - 1)}
                     disabled={quantity <= 1}
-                    className="p-1.5 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-1 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     aria-label="Diminuer la quantité"
                   >
                     <Minus className="w-4 h-4" strokeWidth={2} />
@@ -1030,46 +1030,50 @@ export function LotDetailsPage() {
                   <button
                     onClick={() => handleQuantityChange(quantity + 1)}
                     disabled={quantity >= availableQty}
-                    className="p-1.5 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-1 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     aria-label="Augmenter la quantité"
                   >
                     <Plus className="w-4 h-4" strokeWidth={2} />
                   </button>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-bold text-primary-700">{totalPrice}€</div>
-                  {quantity > 1 && (
-                    <div className="text-xs text-gray-500">Économie: {totalSavings}€</div>
-                  )}
-                </div>
-              </div>
-            )}
-            
-            {/* Bouton de réservation */}
-            <button
-              onClick={handleReserve}
-              disabled={availableQty === 0}
-              className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-base transition-all ${
-                availableQty === 0
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-primary-600 text-white hover:bg-primary-700 shadow-xl hover:shadow-2xl'
-              }`}
-            >
-              <ShoppingCart className="w-5 h-5" strokeWidth={2} />
-              {availableQty === 0 
-                ? 'Épuisé' 
-                : quantity > 1 
+              )}
+
+              {/* Bouton de réservation: compact et prend le reste */}
+              <button
+                onClick={handleReserve}
+                disabled={availableQty === 0}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-base transition-all ${
+                  availableQty === 0
+                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    : 'bg-primary-600 text-white hover:bg-primary-700 shadow-xl hover:shadow-2xl'
+                }`}
+              >
+                <ShoppingCart className="w-5 h-5" strokeWidth={2} />
+                {availableQty === 0
+                  ? 'Épuisé'
+                  : quantity > 1
                   ? `Réserver ${quantity} paniers (${totalPrice}€)`
-                  : 'Réserver ce panier'
-              }
-            </button>
-            
-            {/* Impact environnemental */}
-            {quantity > 0 && (
-              <div className="text-center text-xs text-gray-600">
-                🌱 {impactMeals} repas sauvés • {impactCO2.toFixed(1)} kg CO₂ évité
+                  : 'Réserver ce panier'}
+              </button>
+            </div>
+
+            {/* Ligne économie + impact */}
+            <div className="flex flex-row items-center justify-between px-1 mt-1">
+              <div>
+                {availableQty > 0 && quantity > 1 && (
+                  <span className="text-xs text-gray-500">
+                    Économie: {totalSavings}€
+                  </span>
+                )}
               </div>
-            )}
+              <div>
+                {quantity > 0 && (
+                  <span className="text-xs text-gray-600">
+                    🌱 {impactMeals} repas sauvés • {impactCO2.toFixed(1)} kg CO₂ évité
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </main>
