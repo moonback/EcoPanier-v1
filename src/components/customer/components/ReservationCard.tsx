@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Package, MapPin, Clock, Key, X, CheckCircle, AlertCircle, Wallet } from 'lucide-react';
-import { differenceInMinutes } from 'date-fns';
+import { useState, useEffect, useRef } from 'react';
+import { Package, MapPin, Clock, Key, X, CheckCircle, AlertCircle, Wallet, Timer } from 'lucide-react';
+import { differenceInMinutes, differenceInSeconds } from 'date-fns';
 import { formatCurrency, formatDateTime } from '../../../utils/helpers';
 import type { Database } from '../../../lib/database.types';
 
@@ -33,6 +33,16 @@ export function ReservationCard({
 }: ReservationCardProps) {
   const [confirming, setConfirming] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+  const autoConfirmTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasAutoConfirmedRef = useRef(false);
+  const onConfirmReceiptRef = useRef(onConfirmReceipt);
+  
+  // Mettre à jour la ref quand la fonction change
+  useEffect(() => {
+    onConfirmReceiptRef.current = onConfirmReceipt;
+  }, [onConfirmReceipt]);
   // Fonction pour obtenir les styles selon le statut
   const getStatusStyles = () => {
     switch (reservation.status) {
@@ -90,6 +100,96 @@ export function ReservationCard({
     !reservation.customer_confirmed && 
     !reservation.is_donation &&
     onConfirmReceipt;
+
+  // Timer visuel et confirmation automatique après 30 minutes du scan QR code
+  useEffect(() => {
+    // Réinitialiser les refs si la réservation change
+    if (autoConfirmTimerRef.current) {
+      clearTimeout(autoConfirmTimerRef.current);
+      autoConfirmTimerRef.current = null;
+    }
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
+    }
+    hasAutoConfirmedRef.current = false;
+    setRemainingSeconds(null);
+
+    // Vérifier les conditions pour la confirmation automatique
+    if (
+      reservation.status === 'completed' &&
+      !reservation.customer_confirmed &&
+      !reservation.is_donation &&
+      reservation.completed_at &&
+      onConfirmReceiptRef.current
+    ) {
+      const completedAt = new Date(reservation.completed_at);
+      const now = new Date();
+      const secondsSinceCompleted = differenceInSeconds(now, completedAt);
+      const totalSeconds = 30 * 60; // 30 minutes en secondes
+      const remaining = Math.max(0, totalSeconds - secondsSinceCompleted);
+
+      // Mettre à jour le timer visuel
+      setRemainingSeconds(remaining);
+
+      // Si déjà 30 minutes ou plus, confirmer immédiatement
+      if (secondsSinceCompleted >= totalSeconds) {
+        if (!hasAutoConfirmedRef.current) {
+          hasAutoConfirmedRef.current = true;
+          setRemainingSeconds(0);
+          onConfirmReceiptRef.current(reservation.id).catch((error) => {
+            console.error('Erreur lors de la confirmation automatique:', error);
+            hasAutoConfirmedRef.current = false; // Réessayer au prochain check
+          });
+        }
+      } else {
+        // Mettre à jour le timer chaque seconde
+        countdownIntervalRef.current = setInterval(() => {
+          const now = new Date();
+          const secondsSinceCompleted = differenceInSeconds(now, completedAt);
+          const remaining = Math.max(0, totalSeconds - secondsSinceCompleted);
+          
+          setRemainingSeconds(remaining);
+
+          // Si le temps est écoulé, confirmer
+          if (remaining === 0 && !hasAutoConfirmedRef.current) {
+            hasAutoConfirmedRef.current = true;
+            if (onConfirmReceiptRef.current) {
+              onConfirmReceiptRef.current(reservation.id).catch((error) => {
+                console.error('Erreur lors de la confirmation automatique:', error);
+                hasAutoConfirmedRef.current = false;
+              });
+            }
+          }
+        }, 1000);
+
+        // Programmer la confirmation automatique dans le temps restant (backup)
+        const remainingMs = remaining * 1000;
+        autoConfirmTimerRef.current = setTimeout(() => {
+          if (!hasAutoConfirmedRef.current && onConfirmReceiptRef.current) {
+            hasAutoConfirmedRef.current = true;
+            setRemainingSeconds(0);
+            onConfirmReceiptRef.current(reservation.id).catch((error) => {
+              console.error('Erreur lors de la confirmation automatique:', error);
+              hasAutoConfirmedRef.current = false;
+            });
+          }
+        }, remainingMs);
+      }
+    }
+
+    // Cleanup
+    return () => {
+      if (autoConfirmTimerRef.current) {
+        clearTimeout(autoConfirmTimerRef.current);
+        autoConfirmTimerRef.current = null;
+      }
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+    };
+  }, [reservation.id, reservation.status, reservation.customer_confirmed, reservation.completed_at, reservation.is_donation]);
 
   const handleConfirmReceipt = async () => {
     if (!onConfirmReceipt) return;
@@ -174,6 +274,44 @@ export function ReservationCard({
             <p className="text-lg font-bold text-black">
               {formatCurrency(reservation.total_price)}
             </p>
+          </div>
+        )}
+
+        {/* Timer de confirmation automatique */}
+        {canConfirmReceipt && remainingSeconds !== null && remainingSeconds > 0 && (
+          <div className="mt-4 p-3 bg-gradient-to-r from-yellow-50 via-orange-50 to-yellow-50 border-2 border-yellow-200 rounded-lg">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center shadow-md">
+                  <Timer size={18} className="text-white" strokeWidth={2.5} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-900">
+                    Confirmation automatique dans
+                  </p>
+                  <p className="text-sm text-gray-600 font-light">
+                    Si vous ne confirmez pas manuellement
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-black text-orange-600 tabular-nums">
+                  {Math.floor(remainingSeconds / 60)}:{(remainingSeconds % 60).toString().padStart(2, '0')}
+                </div>
+                <p className="text-xs text-gray-600 font-medium">
+                  {Math.floor(remainingSeconds / 60)} min {remainingSeconds % 60} sec
+                </p>
+              </div>
+            </div>
+            {/* Barre de progression */}
+            <div className="mt-3 h-2 bg-yellow-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-1000 ease-linear"
+                style={{
+                  width: `${(remainingSeconds / (30 * 60)) * 100}%`,
+                }}
+              />
+            </div>
           </div>
         )}
 
