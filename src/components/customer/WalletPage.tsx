@@ -146,46 +146,46 @@ export const WalletPage = () => {
   // Render principal
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* En-tête avec solde */}
-        <div className="card p-8 bg-gradient-to-br from-primary-500 to-primary-700 text-white relative overflow-hidden">
+        <div className="card p-4 sm:p-6 md:p-8 bg-gradient-to-br from-primary-500 to-primary-700 text-white relative overflow-hidden">
           {/* Décoration de fond */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24" />
+          <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 bg-white/10 rounded-full -mr-16 sm:-mr-24 md:-mr-32 -mt-16 sm:-mt-24 md:-mt-32" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-36 sm:h-36 md:w-48 md:h-48 bg-white/5 rounded-full -ml-12 sm:-ml-18 md:-ml-24 -mb-12 sm:-mb-18 md:-mb-24" />
 
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-              <Wallet className="w-8 h-8" />
-              <h1 className="text-2xl font-bold">Mon Portefeuille</h1>
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Wallet className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Mon Portefeuille</h1>
               </div>
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors disabled:opacity-50"
+                className="p-1.5 sm:p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors disabled:opacity-50"
                 aria-label="Actualiser"
               >
                 <RefreshCw
-                  className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`}
+                  className={`w-4 h-4 sm:w-5 sm:h-5 ${refreshing ? 'animate-spin' : ''}`}
                 />
               </button>
             </div>
 
-            <div className="mb-6">
-              <p className="text-primary-100 text-sm mb-2">Solde disponible</p>
-              <p className="text-4xl font-bold">{formatCurrency(balance)}</p>
+            <div className="mb-4 sm:mb-6">
+              <p className="text-primary-100 text-xs sm:text-sm mb-1 sm:mb-2">Solde disponible</p>
+              <p className="text-2xl sm:text-3xl md:text-4xl font-bold break-words">{formatCurrency(balance)}</p>
             </div>
 
             {/* Alerte solde faible */}
             {(isLowBalance || hasNoBalance) && (
-              <div className="mb-4 p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-white mb-1">
+              <div className="mb-3 sm:mb-4 p-3 sm:p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-white mb-1 text-sm sm:text-base">
                       {hasNoBalance ? 'Solde vide' : 'Solde faible'}
                     </p>
-                    <p className="text-sm text-primary-100">
+                    <p className="text-xs sm:text-sm text-primary-100">
                       {hasNoBalance
                         ? 'Rechargez votre portefeuille pour continuer à faire des réservations.'
                         : `Votre solde est inférieur à ${formatCurrency(LOW_BALANCE_THRESHOLD)}. Pensez à recharger.`}
@@ -197,17 +197,18 @@ export const WalletPage = () => {
 
             <button
               onClick={handleRecharge}
-              className="w-full py-3 bg-white text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg"
+              className="w-full py-2.5 sm:py-3 bg-white text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base"
             >
-              <Plus className="w-5 h-5" />
-              Recharger mon portefeuille
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Recharger mon portefeuille</span>
+              <span className="sm:hidden">Recharger</span>
             </button>
           </div>
         </div>
 
         {/* Statistiques */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <StatCard
               title="Total rechargé"
               value={formatCurrency(stats.totalRecharged)}
@@ -240,35 +241,35 @@ export const WalletPage = () => {
         )}
 
         {/* Historique des transactions */}
-        <div className="card p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <History className="w-5 h-5 text-gray-600" />
-              <h2 className="text-xl font-bold text-gray-900">
+        <div className="card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 flex-wrap">
+              <History className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                 Historique des transactions
               </h2>
-              <span className="text-sm text-gray-500">
+              <span className="text-xs sm:text-sm text-gray-500">
                 ({totalTransactions} transaction{totalTransactions > 1 ? 's' : ''})
               </span>
             </div>
           </div>
 
           {/* Filtres */}
-          <div className="mb-6 flex flex-wrap gap-2">
+          <div className="mb-4 sm:mb-6 flex flex-wrap gap-2">
             <button
               onClick={() => handleFilterChange('all')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 ${
                 filterType === 'all'
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              <Filter className="w-4 h-4" />
+              <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Toutes
             </button>
             <button
               onClick={() => handleFilterChange('recharge')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 filterType === 'recharge'
                   ? 'bg-green-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -278,7 +279,7 @@ export const WalletPage = () => {
             </button>
             <button
               onClick={() => handleFilterChange('payment')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 filterType === 'payment'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -288,7 +289,7 @@ export const WalletPage = () => {
             </button>
             <button
               onClick={() => handleFilterChange('refund')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 filterType === 'refund'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -299,20 +300,20 @@ export const WalletPage = () => {
           </div>
 
           {transactions.length === 0 ? (
-            <div className="text-center py-12">
-              <History className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">
+            <div className="text-center py-8 sm:py-12">
+              <History className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-3 sm:mb-4" />
+              <p className="text-sm sm:text-base text-gray-500 px-4">
                 {filterType === 'all'
                   ? 'Aucune transaction pour le moment'
                   : `Aucune transaction de type "${filterType}"`}
               </p>
-              <p className="text-sm text-gray-400 mt-2">
+              <p className="text-xs sm:text-sm text-gray-400 mt-2 px-4">
                 {filterType === 'all' && 'Rechargez votre portefeuille pour commencer'}
               </p>
             </div>
           ) : (
             <>
-              <div className="space-y-4 mb-6">
+              <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                 {transactions.map((transaction) => (
                   <TransactionItem
                     key={transaction.id}
@@ -323,25 +324,25 @@ export const WalletPage = () => {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-600">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 pt-4 border-t border-gray-200">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     Page {currentPage} sur {totalPages}
                   </p>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     <button
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 text-sm"
                     >
                       <ChevronLeft className="w-4 h-4" />
-                      Précédent
+                      <span className="hidden sm:inline">Précédent</span>
                     </button>
                     <button
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 text-sm"
                     >
-                      Suivant
+                      <span className="hidden sm:inline">Suivant</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -383,16 +384,16 @@ function StatCard({ title, value, icon, color, subtitle }: StatCardProps) {
   };
 
   return (
-    <div className="card p-6 bg-white">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+    <div className="card p-4 sm:p-5 md:p-6 bg-white">
+      <div className="flex items-start justify-between mb-3 sm:mb-4">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900 break-words">{value}</p>
         </div>
-        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>{icon}</div>
+        <div className={`p-2 sm:p-2.5 md:p-3 rounded-lg flex-shrink-0 ${colorClasses[color]}`}>{icon}</div>
       </div>
       {subtitle && (
-        <p className="text-xs text-gray-500 mt-2">{subtitle}</p>
+        <p className="text-xs text-gray-500 mt-1 sm:mt-2">{subtitle}</p>
       )}
     </div>
   );
@@ -423,52 +424,115 @@ function TransactionItem({ transaction }: TransactionItemProps) {
   };
 
   return (
-    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-      <div className="flex items-center gap-4 flex-1">
-        {/* Icône */}
-        <div
-          className={`p-3 rounded-lg ${
-            isPositive
-              ? 'bg-green-100 text-green-600'
-              : 'bg-red-100 text-red-600'
-          }`}
-        >
-          {isPositive ? (
-            <ArrowUp className="w-5 h-5" />
-          ) : (
-            <ArrowDown className="w-5 h-5" />
-          )}
+    <div className="bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+      {/* Layout Desktop/Tablette : Horizontal */}
+      <div className="hidden sm:flex items-center justify-between p-3 sm:p-4">
+        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+          {/* Icône */}
+          <div
+            className={`p-2 sm:p-2.5 md:p-3 rounded-lg flex-shrink-0 ${
+              isPositive
+                ? 'bg-green-100 text-green-600'
+                : 'bg-red-100 text-red-600'
+            }`}
+          >
+            {isPositive ? (
+              <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
+            ) : (
+              <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5" />
+            )}
+          </div>
+
+          {/* Détails */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <p className="font-medium text-gray-900 text-sm sm:text-base truncate">{transaction.description}</p>
+              <span className="px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 rounded flex-shrink-0">
+                {getTypeLabel()}
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-gray-500">
+              {formatDateTime(transaction.created_at)}
+            </p>
+            {transaction.reference_type && (
+              <p className="text-xs text-gray-400 mt-1">
+                Référence: {transaction.reference_type}
+              </p>
+            )}
+          </div>
+
+          {/* Montant */}
+          <div className="text-right flex-shrink-0 ml-2">
+            <p
+              className={`font-bold text-base sm:text-lg ${
+                isPositive ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {isPositive ? '+' : '-'}
+              {formatCurrency(Math.abs(transaction.amount))}
+            </p>
+            <p className="text-xs text-gray-500">
+              Solde: {formatCurrency(transaction.balance_after)}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Layout Mobile : Vertical */}
+      <div className="sm:hidden p-3 space-y-3">
+        {/* En-tête avec icône et montant */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            {/* Icône */}
+            <div
+              className={`p-2 rounded-lg flex-shrink-0 ${
+                isPositive
+                  ? 'bg-green-100 text-green-600'
+                  : 'bg-red-100 text-red-600'
+              }`}
+            >
+              {isPositive ? (
+                <ArrowUp className="w-4 h-4" />
+              ) : (
+                <ArrowDown className="w-4 h-4" />
+              )}
+            </div>
+
+            {/* Description */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <p className="font-medium text-gray-900 text-sm">{transaction.description}</p>
+                <span className="px-1.5 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 rounded flex-shrink-0">
+                  {getTypeLabel()}
+                </span>
+              </div>
+              <p className="text-xs text-gray-500">
+                {formatDateTime(transaction.created_at)}
+              </p>
+            </div>
+          </div>
+
+          {/* Montant */}
+          <div className="text-right flex-shrink-0">
+            <p
+              className={`font-bold text-base ${
+                isPositive ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {isPositive ? '+' : '-'}
+              {formatCurrency(Math.abs(transaction.amount))}
+            </p>
+          </div>
         </div>
 
-        {/* Détails */}
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <p className="font-medium text-gray-900">{transaction.description}</p>
-            <span className="px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-700 rounded">
-              {getTypeLabel()}
-            </span>
-          </div>
-          <p className="text-sm text-gray-500">
-            {formatDateTime(transaction.created_at)}
-          </p>
+        {/* Informations supplémentaires */}
+        <div className="flex items-center justify-between pt-2 border-t border-gray-200">
           {transaction.reference_type && (
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-400">
               Référence: {transaction.reference_type}
             </p>
           )}
-        </div>
-
-        {/* Montant */}
-        <div className="text-right">
-          <p
-            className={`font-bold text-lg ${
-              isPositive ? 'text-green-600' : 'text-red-600'
-            }`}
-          >
-            {isPositive ? '+' : '-'}
-            {formatCurrency(Math.abs(transaction.amount))}
-          </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 ml-auto">
             Solde: {formatCurrency(transaction.balance_after)}
           </p>
         </div>
