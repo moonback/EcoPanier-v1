@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { X, Wallet, CreditCard, AlertCircle, CheckCircle } from 'lucide-react';
+import { X, Wallet, AlertCircle, CheckCircle, Plus, Minus } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../../stores/authStore';
@@ -124,30 +124,117 @@ export function ReservationModal({
         <div className="mb-6">
           <label
             htmlFor="quantity"
-            className="block text-sm font-medium text-black mb-2"
+            className="block text-sm font-medium text-black mb-3"
           >
             Quantité
           </label>
-          <input
-            id="quantity"
-            type="number"
-            min="1"
-            max={maxQuantity}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-black focus:ring-2 focus:ring-gray-200 transition-all text-base"
-          />
-          <p className="text-xs text-gray-600 mt-2 font-light">
-            Maximum disponible: {maxQuantity}
-          </p>
+          
+          {/* Contrôleur de quantité avec boutons +/- */}
+          <div className="flex items-center gap-3">
+            {/* Bouton diminuer */}
+            <button
+              type="button"
+              onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+              disabled={quantity <= 1 || loading}
+              className="w-12 h-12 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-primary-600 hover:bg-primary-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-transparent group"
+              aria-label="Diminuer la quantité"
+            >
+              <Minus 
+                size={20} 
+                className={`${quantity <= 1 ? 'text-gray-400' : 'text-gray-700 group-hover:text-primary-600'}`}
+                strokeWidth={2.5}
+              />
+            </button>
+
+            {/* Input de quantité */}
+            <div className="flex-1 relative">
+              <input
+                id="quantity"
+                type="number"
+                min="1"
+                max={maxQuantity}
+                value={quantity}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value) || 1;
+                  const clampedValue = Math.max(1, Math.min(maxQuantity, value));
+                  setQuantity(clampedValue);
+                }}
+                onBlur={(e) => {
+                  // S'assurer que la valeur est valide au blur
+                  const value = parseInt(e.target.value) || 1;
+                  const clampedValue = Math.max(1, Math.min(maxQuantity, value));
+                  setQuantity(clampedValue);
+                }}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary-600 focus:ring-2 focus:ring-primary-200 transition-all text-center text-lg font-semibold text-black"
+                disabled={loading}
+              />
+            </div>
+
+            {/* Bouton augmenter */}
+            <button
+              type="button"
+              onClick={() => setQuantity((prev) => Math.min(maxQuantity, prev + 1))}
+              disabled={quantity >= maxQuantity || loading}
+              className="w-12 h-12 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-primary-600 hover:bg-primary-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-transparent group"
+              aria-label="Augmenter la quantité"
+            >
+              <Plus 
+                size={20} 
+                className={`${quantity >= maxQuantity ? 'text-gray-400' : 'text-gray-700 group-hover:text-primary-600'}`}
+                strokeWidth={2.5}
+              />
+            </button>
+          </div>
+
+          {/* Informations sur la disponibilité */}
+          <div className="mt-3 flex items-center justify-between">
+            <p className="text-xs text-gray-600 font-light">
+              <span className="font-medium">Maximum disponible:</span> {maxQuantity}
+            </p>
+            {quantity === maxQuantity && (
+              <p className="text-xs text-amber-600 font-medium flex items-center gap-1">
+                <AlertCircle size={12} />
+                Stock limité
+              </p>
+            )}
+            {quantity > 1 && (
+              <p className="text-xs text-gray-500 font-light">
+                {quantity} unités
+              </p>
+            )}
+          </div>
+
+          {/* Barre de progression visuelle (optionnelle) */}
+          {maxQuantity > 0 && (
+            <div className="mt-3">
+              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary-600 transition-all duration-300 rounded-full"
+                  style={{ width: `${Math.min(100, (quantity / maxQuantity) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Affichage du total */}
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-sm font-medium text-gray-700 mb-1">Total</p>
-          <p className="text-3xl font-bold text-black">
+        <div className="mb-6 p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg border-2 border-primary-200">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-gray-700">Total</p>
+            {!isFree && quantity > 1 && (
+              <p className="text-xs text-gray-600">
+                {formatCurrency(lot.discounted_price)} × {quantity}
+              </p>
+            )}
+          </div>
+          <p className="text-3xl font-bold text-primary-700">
             {isFree ? 'Gratuit' : formatCurrency(totalPrice)}
           </p>
+          {!isFree && quantity > 1 && (
+            <p className="text-xs text-gray-600 mt-1">
+              Prix unitaire: {formatCurrency(lot.discounted_price)}
+            </p>
+          )}
         </div>
 
         {/* Option de paiement via wallet (si pas gratuit) */}
