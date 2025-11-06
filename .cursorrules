@@ -11,12 +11,13 @@ Elle connecte commerçants, clients, bénéficiaires et collecteurs pour sauver 
 - Soutenir les commerces locaux engagés
 - Faciliter la logistique solidaire avec les collecteurs
 
-### Utilisateurs (5 rôles)
+### Utilisateurs (6 rôles)
 1. **Client** : Achète des lots à prix réduits, offre des paniers suspendus
 2. **Commerçant** : Crée des lots d'invendus, gère une station de retrait, utilise l'IA pour analyser les images
 3. **Bénéficiaire** : Accède aux lots gratuits et paniers suspendus (max 2/jour)
-4. **Collecteur** : Effectue les livraisons solidaires contre rémunération
-5. **Admin** : Gère la plateforme, les utilisateurs et les paramètres
+4. **Association** : Enregistre et gère les bénéficiaires partenaires, statistiques avancées, export de données
+5. **Collecteur** : Effectue les livraisons solidaires contre rémunération
+6. **Admin** : Gère la plateforme, les utilisateurs et les paramètres
 
 ---
 
@@ -83,7 +84,7 @@ src/
 interface UserProfile {
   id: string;
   fullName: string;
-  role: 'customer' | 'merchant' | 'beneficiary' | 'collector' | 'admin';
+  role: 'customer' | 'merchant' | 'beneficiary' | 'association' | 'collector' | 'admin';
 }
 
 function fetchProfile(userId: string): Promise<UserProfile> {
