@@ -11,6 +11,7 @@ import {
   type MerchantBankAccount,
 } from '../../../utils/walletService';
 import { maskIban } from '../../../utils/helpers';
+import { PasswordConfirmationModal } from '../../shared/PasswordConfirmationModal';
 
 interface BankAccountModalProps {
   onClose: () => void;
@@ -35,6 +36,9 @@ export function BankAccountModal({ onClose, onSuccess }: BankAccountModalProps) 
   const [bic, setBic] = useState<string>('');
   const [isDefault, setIsDefault] = useState<boolean>(false);
   const [saving, setSaving] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'save' | 'delete' | null>(null);
+  const [pendingAccountId, setPendingAccountId] = useState<string | null>(null);
 
   // Charger les comptes bancaires
   useEffect(() => {
@@ -109,6 +113,14 @@ export function BankAccountModal({ onClose, onSuccess }: BankAccountModalProps) 
       return;
     }
 
+    // Demander confirmation par mot de passe
+    setPendingAction('save');
+    setShowPasswordModal(true);
+  };
+
+  const executeSave = async () => {
+    if (!user?.id) return;
+
     setSaving(true);
     setError(null);
 
@@ -138,15 +150,25 @@ export function BankAccountModal({ onClose, onSuccess }: BankAccountModalProps) 
     }
   };
 
-  const handleDelete = async (accountId: string) => {
+  const handleDelete = (accountId: string) => {
     if (!user?.id) return;
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce compte bancaire ?')) return;
 
+    // Demander confirmation par mot de passe
+    setPendingAction('delete');
+    setPendingAccountId(accountId);
+    setShowPasswordModal(true);
+  };
+
+  const executeDelete = async () => {
+    if (!user?.id || !pendingAccountId) return;
+
     try {
       setError(null);
-      await deleteMerchantBankAccount(accountId, user.id);
+      await deleteMerchantBankAccount(pendingAccountId, user.id);
       await loadAccounts();
       onSuccess();
+      setPendingAccountId(null);
     } catch (err) {
       console.error('Erreur lors de la suppression:', err);
       setError(
@@ -342,6 +364,36 @@ export function BankAccountModal({ onClose, onSuccess }: BankAccountModalProps) 
           </div>
         )}
       </div>
+
+      {/* Modal de confirmation par mot de passe */}
+      <PasswordConfirmationModal
+        isOpen={showPasswordModal}
+        onClose={() => {
+          setShowPasswordModal(false);
+          setPendingAction(null);
+          setPendingAccountId(null);
+        }}
+        onConfirm={async () => {
+          if (pendingAction === 'save') {
+            await executeSave();
+          } else if (pendingAction === 'delete') {
+            await executeDelete();
+          }
+        }}
+        title={
+          pendingAction === 'save'
+            ? 'Confirmer la modification'
+            : 'Confirmer la suppression'
+        }
+        message={
+          pendingAction === 'save'
+            ? 'Veuillez entrer votre mot de passe pour modifier ce compte bancaire'
+            : 'Veuillez entrer votre mot de passe pour supprimer ce compte bancaire'
+        }
+        confirmButtonText={
+          pendingAction === 'save' ? 'Modifier' : 'Supprimer'
+        }
+      />
     </div>
   );
 }

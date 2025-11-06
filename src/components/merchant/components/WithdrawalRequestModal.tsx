@@ -14,6 +14,7 @@ import {
   type MerchantBankAccount,
 } from '../../../utils/walletService';
 import { formatCurrency } from '../../../utils/helpers';
+import { PasswordConfirmationModal } from '../../shared/PasswordConfirmationModal';
 
 interface WithdrawalRequestModalProps {
   onClose: () => void;
@@ -46,6 +47,7 @@ export function WithdrawalRequestModal({
   const [loading, setLoading] = useState(false);
   const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   // Charger les comptes bancaires
   useEffect(() => {
@@ -127,7 +129,7 @@ export function WithdrawalRequestModal({
     setError(null);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!user?.id) {
       setError('Vous devez être connecté pour demander un virement');
       return;
@@ -168,6 +170,35 @@ export function WithdrawalRequestModal({
         return;
       }
 
+      finalAccountName = bankAccountName.trim();
+      finalIban = bankAccountIban.replace(/\s/g, '');
+      finalBic = bankAccountBic.trim() || undefined;
+    }
+
+    // Demander confirmation par mot de passe
+    setShowPasswordModal(true);
+  };
+
+  const executeSubmit = async () => {
+    if (!user?.id) return;
+
+    const numericAmount = parseFloat(amount);
+
+    // Déterminer les informations bancaires à utiliser
+    let finalAccountName: string;
+    let finalIban: string;
+    let finalBic: string | undefined;
+
+    if (useSavedAccount && selectedAccountId) {
+      const selectedAccount = bankAccounts.find((acc) => acc.id === selectedAccountId);
+      if (!selectedAccount) {
+        setError('Compte bancaire sélectionné introuvable');
+        return;
+      }
+      finalAccountName = selectedAccount.account_name;
+      finalIban = selectedAccount.iban;
+      finalBic = selectedAccount.bic || undefined;
+    } else {
       finalAccountName = bankAccountName.trim();
       finalIban = bankAccountIban.replace(/\s/g, '');
       finalBic = bankAccountBic.trim() || undefined;
@@ -491,6 +522,16 @@ export function WithdrawalRequestModal({
           </button>
         </div>
       </div>
+
+      {/* Modal de confirmation par mot de passe */}
+      <PasswordConfirmationModal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        onConfirm={executeSubmit}
+        title="Confirmer la demande de virement"
+        message="Veuillez entrer votre mot de passe pour confirmer cette demande de virement"
+        confirmButtonText="Demander le virement"
+      />
     </div>
   );
 }
