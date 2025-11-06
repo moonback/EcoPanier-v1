@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { X, Wallet, CreditCard, AlertCircle } from 'lucide-react';
+import { X, Wallet, CreditCard, AlertCircle, CheckCircle } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../../stores/authStore';
@@ -52,28 +52,44 @@ export function ReservationModal({
       getWalletBalance(user.id)
         .then((balance) => {
           setWalletBalance(balance);
+          // Pour les lots payants, le wallet est obligatoire
           // Activer automatiquement le wallet si le solde est suffisant
           if (balance >= totalPrice) {
             setUseWallet(true);
+          } else {
+            // Si le solde est insuffisant, garder useWallet à false
+            // pour empêcher la confirmation
+            setUseWallet(false);
           }
         })
         .catch((err) => {
           console.error('Erreur lors de la récupération du solde:', err);
+          setWalletBalance(null);
         })
         .finally(() => {
           setCheckingBalance(false);
         });
+    } else if (isFree) {
+      // Pour les lots gratuits, pas besoin de vérifier le solde
+      setWalletBalance(null);
+      setUseWallet(false);
     }
   }, [user?.id, totalPrice, isFree]);
 
   // Vérifier si le solde est suffisant
   const hasEnoughBalance = walletBalance !== null && walletBalance >= totalPrice;
+  
+  // Pour les lots payants, le paiement via wallet est obligatoire
+  const canConfirm = isFree || (useWallet && hasEnoughBalance);
 
   // Handlers
   const handleConfirm = async () => {
+    // Pour les lots payants, s'assurer que useWallet est true
+    const shouldUseWallet = !isFree && hasEnoughBalance;
+    
     setLoading(true);
     try {
-      await onConfirm(quantity, useWallet && !isFree);
+      await onConfirm(quantity, shouldUseWallet);
       onClose();
     } catch (error) {
       console.error('Erreur lors de la confirmation:', error);
@@ -137,48 +153,64 @@ export function ReservationModal({
         {/* Option de paiement via wallet (si pas gratuit) */}
         {!isFree && walletBalance !== null && (
           <div className="mb-6">
-            <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border-2 border-gray-200 hover:border-primary-300 cursor-pointer transition-colors">
-              <input
-                type="checkbox"
-                checked={useWallet}
-                onChange={(e) => setUseWallet(e.target.checked)}
-                disabled={!hasEnoughBalance || loading}
-                className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <Wallet className="w-5 h-5 text-primary-600" />
-                  <span className="font-medium text-gray-900">
-                    Payer avec mon portefeuille
+            <div className="p-4 bg-primary-50 rounded-lg border-2 border-primary-200">
+              <div className="flex items-center gap-3 mb-2">
+                <Wallet className="w-5 h-5 text-primary-600" />
+                <span className="font-medium text-gray-900">
+                  Paiement via portefeuille (obligatoire)
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm mb-3">
+                <span className="text-gray-600">
+                  Solde disponible: {formatCurrency(walletBalance)}
+                </span>
+                {!hasEnoughBalance && (
+                  <span className="text-red-600 flex items-center gap-1 font-medium">
+                    <AlertCircle className="w-4 h-4" />
+                    Solde insuffisant
                   </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">
-                    Solde disponible: {formatCurrency(walletBalance)}
+                )}
+                {hasEnoughBalance && (
+                  <span className="text-green-600 flex items-center gap-1 font-medium">
+                    <CheckCircle className="w-4 h-4" />
+                    Solde suffisant
                   </span>
-                  {!hasEnoughBalance && (
-                    <span className="text-red-600 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      Solde insuffisant
-                    </span>
-                  )}
+                )}
+              </div>
+              {hasEnoughBalance && (
+                <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-sm text-green-700">
+                    Le montant de {formatCurrency(totalPrice)} sera débité de votre portefeuille lors de la confirmation.
+                  </p>
                 </div>
-              </div>
-            </label>
-            {useWallet && hasEnoughBalance && (
-              <div className="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-sm text-green-700">
-                  Le montant de {formatCurrency(totalPrice)} sera débité de votre portefeuille
-                </p>
-              </div>
-            )}
-            {useWallet && !hasEnoughBalance && (
-              <div className="mt-2 p-3 bg-red-50 rounded-lg border border-red-200">
-                <p className="text-sm text-red-700">
-                  Votre solde est insuffisant. Veuillez recharger votre portefeuille.
-                </p>
-              </div>
-            )}
+              )}
+              {!hasEnoughBalance && (
+                <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                  <p className="text-sm text-red-700 mb-2">
+                    Votre solde est insuffisant. Veuillez recharger votre portefeuille pour continuer.
+                  </p>
+                  <button
+                    onClick={() => {
+                      onClose();
+                      // Rediriger vers la page wallet (vous pouvez ajuster le chemin selon votre routing)
+                      window.location.href = '/dashboard?tab=wallet';
+                    }}
+                    className="text-sm text-primary-600 hover:text-primary-700 font-medium underline"
+                  >
+                    Recharger mon portefeuille →
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {/* Message si le wallet n'a pas été chargé */}
+        {!isFree && walletBalance === null && !checkingBalance && (
+          <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <p className="text-sm text-yellow-700">
+              Impossible de vérifier votre solde. Veuillez réessayer.
+            </p>
           </div>
         )}
 
@@ -202,7 +234,7 @@ export function ReservationModal({
           </button>
           <button
             onClick={handleConfirm}
-            disabled={loading || (useWallet && !hasEnoughBalance && !isFree) || checkingBalance}
+            disabled={loading || !canConfirm || checkingBalance}
             className="flex-1 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
@@ -212,9 +244,9 @@ export function ReservationModal({
               </>
             ) : (
               <>
-                {useWallet && !isFree && <Wallet className="w-5 h-5" />}
-                {!useWallet && !isFree && <CreditCard className="w-5 h-5" />}
-                Confirmer
+                {!isFree && <Wallet className="w-5 h-5" />}
+                {isFree && <CheckCircle className="w-5 h-5" />}
+                Confirmer la réservation
               </>
             )}
           </button>

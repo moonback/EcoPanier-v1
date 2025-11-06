@@ -27,7 +27,8 @@ import { useAuthStore } from '../../stores/authStore';
 import { calculateDistance, formatDistance, geocodeAddress } from '../../utils/geocodingService';
 import { supabase } from '../../lib/supabase';
 import { calculateCO2Impact } from '../../hooks/useImpactMetrics';
-import { reserveLot as reserveLotUtil } from '../../utils/helpers';
+import { useLots } from '../../hooks/useLots';
+import { ReservationModal } from './components/ReservationModal';
 
 type Lot = Database['public']['Tables']['lots']['Row'] & {
   profiles: {
@@ -100,8 +101,10 @@ export function LotDetailsPage() {
   const [similarLots, setSimilarLots] = useState<Lot[]>([]);
   const [similarLotsLoading, setSimilarLotsLoading] = useState(false);
   const [pickupTimeInfo, setPickupTimeInfo] = useState<{ label: string; isAvailable: boolean; timeUntilStart: string | null } | null>(null);
+  const [showReservationModal, setShowReservationModal] = useState(false);
   
   const { profile: userProfile } = useAuthStore();
+  const { reserveLot } = useLots('');
 
   // Charger le lot
   useEffect(() => {
@@ -426,16 +429,22 @@ export function LotDetailsPage() {
     setQuantity(newQuantity);
   };
 
-  const handleReserve = async () => {
+  const handleReserve = () => {
     if (!userProfile || availableQty === 0) return;
+    setShowReservationModal(true);
+  };
+
+  const handleConfirmReservation = async (reservationQuantity: number, useWallet: boolean) => {
+    if (!userProfile) return;
 
     try {
-      const pin = await reserveLotUtil(lot, quantity, userProfile.id, false);
+      const pin = await reserveLot(lot, reservationQuantity, userProfile.id, false, useWallet);
       alert(`Réservation confirmée! Code PIN: ${pin}`);
+      setShowReservationModal(false);
       navigate('/dashboard');
     } catch (error) {
       console.error('Erreur lors de la réservation:', error);
-      alert('Erreur lors de la réservation. Veuillez réessayer.');
+      throw error; // Laisser la modal gérer l'affichage de l'erreur
     }
   };
 
@@ -1160,6 +1169,15 @@ export function LotDetailsPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Modal de réservation avec paiement */}
+      {showReservationModal && lot && (
+        <ReservationModal
+          lot={lot}
+          onClose={() => setShowReservationModal(false)}
+          onConfirm={handleConfirmReservation}
+        />
       )}
     </div>
   );
