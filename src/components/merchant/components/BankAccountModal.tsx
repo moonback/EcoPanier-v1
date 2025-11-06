@@ -10,6 +10,7 @@ import {
   getMerchantBankAccounts,
   type MerchantBankAccount,
 } from '../../../utils/walletService';
+import { maskIban } from '../../../utils/helpers';
 
 interface BankAccountModalProps {
   onClose: () => void;
@@ -313,7 +314,7 @@ export function BankAccountModal({ onClose, onSuccess }: BankAccountModalProps) 
                       )}
                     </div>
                     <p className="text-xs sm:text-sm text-gray-600 font-mono mb-1">
-                      {account.iban.match(/.{1,4}/g)?.join(' ') || account.iban}
+                      {maskIban(account.iban)}
                     </p>
                     {account.bic && (
                       <p className="text-xs text-gray-500 font-mono">{account.bic}</p>
