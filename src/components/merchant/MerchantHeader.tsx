@@ -85,6 +85,45 @@ export const MerchantHeader = ({
   useEffect(() => {
     if (showStats && profile?.id) {
       fetchQuickStats();
+
+      // Rafraîchir les statistiques toutes les 10 secondes
+      const interval = setInterval(() => {
+        fetchQuickStats();
+      }, 10000);
+
+      // Écouter les changements en temps réel
+      const channel = supabase
+        .channel('merchant_stats_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'reservations',
+          },
+          () => {
+            // Rafraîchir les stats quand il y a un changement de réservation
+            fetchQuickStats();
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'lots',
+          },
+          () => {
+            // Rafraîchir les stats quand il y a un changement de lot
+            fetchQuickStats();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        clearInterval(interval);
+        supabase.removeChannel(channel);
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showStats, profile?.id]);
@@ -107,7 +146,8 @@ export const MerchantHeader = ({
 
       const activeLotsCount = lots?.length || 0;
 
-      // Récupérer les réservations en attente avec relation
+      // Récupérer les réservations en attente avec relation (pending + confirmed)
+      // 'pending' = en attente de paiement, 'confirmed' = payé mais pas encore récupéré
       const { data: pendingReservations, error: pendingError } = await supabase
         .from('reservations')
         .select(`
@@ -117,7 +157,7 @@ export const MerchantHeader = ({
             merchant_id
           )
         `)
-        .eq('status', 'pending')
+        .in('status', ['pending', 'confirmed'])
         .eq('lots.merchant_id', profile.id);
 
       if (pendingError) throw pendingError;
