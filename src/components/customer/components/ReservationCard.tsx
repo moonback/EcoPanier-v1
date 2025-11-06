@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Package, MapPin, Clock, Key, X, CheckCircle } from 'lucide-react';
+import { Package, MapPin, Clock, Key, X, CheckCircle, AlertCircle, Wallet } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
 import { formatCurrency, formatDateTime } from '../../../utils/helpers';
 import type { Database } from '../../../lib/database.types';
@@ -32,6 +32,7 @@ export function ReservationCard({
   onConfirmReceipt,
 }: ReservationCardProps) {
   const [confirming, setConfirming] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   // Fonction pour obtenir les styles selon le statut
   const getStatusStyles = () => {
     switch (reservation.status) {
@@ -92,14 +93,11 @@ export function ReservationCard({
 
   const handleConfirmReceipt = async () => {
     if (!onConfirmReceipt) return;
-    
-    if (!confirm('Confirmez-vous avoir bien reçu ce lot ? Le commerçant sera payé.')) {
-      return;
-    }
 
     setConfirming(true);
     try {
       await onConfirmReceipt(reservation.id);
+      setShowConfirmModal(false);
     } catch (error) {
       alert(
         error instanceof Error
@@ -109,6 +107,10 @@ export function ReservationCard({
     } finally {
       setConfirming(false);
     }
+  };
+
+  const handleOpenConfirmModal = () => {
+    setShowConfirmModal(true);
   };
 
   return (
@@ -210,21 +212,12 @@ export function ReservationCard({
           )}
           {canConfirmReceipt && (
             <button
-              onClick={handleConfirmReceipt}
+              onClick={handleOpenConfirmModal}
               disabled={confirming}
               className="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {confirming ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Confirmation...
-                </>
-              ) : (
-                <>
-                  <CheckCircle size={16} />
-                  Confirmer la réception
-                </>
-              )}
+              <CheckCircle size={16} />
+              Confirmer la réception
             </button>
           )}
           {reservation.status === 'cancelled' && (
@@ -234,6 +227,109 @@ export function ReservationCard({
           )}
         </div>
       </div>
+
+      {/* Modal de confirmation de réception */}
+      {showConfirmModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => !confirming && setShowConfirmModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 border-b-2 border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <AlertCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-gray-900">Confirmer la réception</h3>
+                    <p className="text-sm text-gray-600 mt-1">Action importante</p>
+                  </div>
+                </div>
+                {!confirming && (
+                  <button
+                    onClick={() => setShowConfirmModal(false)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    aria-label="Fermer"
+                  >
+                    <X size={20} className="text-gray-400" />
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
+                <p className="text-sm font-semibold text-gray-900 mb-2">
+                  Confirmez-vous avoir bien reçu ce lot ?
+                </p>
+                <p className="text-sm text-gray-700">
+                  Le commerçant sera payé dès la confirmation.
+                </p>
+              </div>
+
+              {/* Détails de la réservation */}
+              <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Lot:</span>
+                  <span className="text-sm font-semibold text-gray-900">{reservation.lots.title}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Quantité:</span>
+                  <span className="text-sm font-semibold text-gray-900">{reservation.quantity}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Commerçant:</span>
+                  <span className="text-sm font-semibold text-gray-900">{reservation.lots.profiles.business_name}</span>
+                </div>
+                <div className="flex items-center justify-between border-t border-gray-200 pt-2 mt-2">
+                  <span className="text-sm font-semibold text-gray-900">Montant:</span>
+                  <span className="text-lg font-black text-green-600">{formatCurrency(reservation.total_price)}</span>
+                </div>
+              </div>
+
+              {/* Avertissement */}
+              <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <Wallet className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-blue-800">
+                  <span className="font-semibold">Important:</span> En confirmant, vous validez que vous avez bien récupéré le lot. Le paiement sera effectué au commerçant.
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  disabled={confirming}
+                  className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-colors disabled:opacity-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleConfirmReceipt}
+                  disabled={confirming}
+                  className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {confirming ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Confirmation...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={18} />
+                      Confirmer la réception
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
