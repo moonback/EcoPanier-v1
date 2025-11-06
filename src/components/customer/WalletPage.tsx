@@ -79,7 +79,7 @@ export const WalletPage = () => {
       setError(
         err instanceof Error
           ? err.message
-          : 'Impossible de charger les données du wallet. Vérifiez votre connexion.'
+          : 'Impossible de charger les données du portefeuille. Vérifiez votre connexion.'
       );
     } finally {
       setLoading(false);
@@ -124,7 +124,7 @@ export const WalletPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-4" />
-          <p className="text-gray-600">Chargement du wallet...</p>
+              <p className="text-gray-600">Chargement du portefeuille...</p>
         </div>
       </div>
     );
@@ -156,8 +156,8 @@ export const WalletPage = () => {
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <Wallet className="w-8 h-8" />
-                <h1 className="text-2xl font-bold">Mon Wallet</h1>
+              <Wallet className="w-8 h-8" />
+              <h1 className="text-2xl font-bold">Mon Portefeuille</h1>
               </div>
               <button
                 onClick={handleRefresh}
@@ -187,7 +187,7 @@ export const WalletPage = () => {
                     </p>
                     <p className="text-sm text-primary-100">
                       {hasNoBalance
-                        ? 'Rechargez votre wallet pour continuer à faire des réservations.'
+                        ? 'Rechargez votre portefeuille pour continuer à faire des réservations.'
                         : `Votre solde est inférieur à ${formatCurrency(LOW_BALANCE_THRESHOLD)}. Pensez à recharger.`}
                     </p>
                   </div>
@@ -200,7 +200,7 @@ export const WalletPage = () => {
               className="w-full py-3 bg-white text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg"
             >
               <Plus className="w-5 h-5" />
-              Recharger mon wallet
+              Recharger mon portefeuille
             </button>
           </div>
         </div>
@@ -307,7 +307,7 @@ export const WalletPage = () => {
                   : `Aucune transaction de type "${filterType}"`}
               </p>
               <p className="text-sm text-gray-400 mt-2">
-                {filterType === 'all' && 'Rechargez votre wallet pour commencer'}
+                {filterType === 'all' && 'Rechargez votre portefeuille pour commencer'}
               </p>
             </div>
           ) : (

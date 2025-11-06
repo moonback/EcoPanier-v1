@@ -45,7 +45,7 @@ export function RechargeModal({ onClose, onSuccess }: RechargeModalProps) {
 
   const handleRecharge = async () => {
     if (!user?.id) {
-      setError('Vous devez être connecté pour recharger votre wallet');
+      setError('Vous devez être connecté pour recharger votre portefeuille');
       return;
     }
 
@@ -80,7 +80,7 @@ export function RechargeModal({ onClose, onSuccess }: RechargeModalProps) {
       setError(
         err instanceof Error
           ? err.message
-          : 'Impossible de recharger le wallet. Vérifiez votre connexion.'
+          : 'Impossible de recharger le portefeuille. Vérifiez votre connexion.'
       );
     } finally {
       setLoading(false);
@@ -98,7 +98,7 @@ export function RechargeModal({ onClose, onSuccess }: RechargeModalProps) {
               <Wallet className="w-6 h-6 text-primary-600" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900">
-              Recharger mon wallet
+              Recharger mon portefeuille
             </h3>
           </div>
           <button
@@ -184,7 +184,7 @@ export function RechargeModal({ onClose, onSuccess }: RechargeModalProps) {
               </p>
               <p className="text-xs text-blue-700">
                 La recharge sera effectuée immédiatement. Vous pourrez utiliser
-                ce montant pour payer vos réservations.
+                ce montant pour payer vos réservations avec votre portefeuille.
               </p>
             </div>
           </div>

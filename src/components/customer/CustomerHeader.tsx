@@ -267,7 +267,7 @@ export const CustomerHeader = ({
     const stats = [
       {
         icon: Wallet,
-        label: 'Wallet',
+        label: 'Portefeuille',
         value: formatCurrency(quickStats.walletBalance),
         show: true, // Toujours afficher le wallet
         color: 'primary',

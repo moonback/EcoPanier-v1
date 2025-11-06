@@ -149,7 +149,7 @@ export function ReservationModal({
                 <div className="flex items-center gap-2 mb-1">
                   <Wallet className="w-5 h-5 text-primary-600" />
                   <span className="font-medium text-gray-900">
-                    Payer avec mon wallet
+                    Payer avec mon portefeuille
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -168,14 +168,14 @@ export function ReservationModal({
             {useWallet && hasEnoughBalance && (
               <div className="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
                 <p className="text-sm text-green-700">
-                  Le montant de {formatCurrency(totalPrice)} sera débité de votre wallet
+                  Le montant de {formatCurrency(totalPrice)} sera débité de votre portefeuille
                 </p>
               </div>
             )}
             {useWallet && !hasEnoughBalance && (
               <div className="mt-2 p-3 bg-red-50 rounded-lg border border-red-200">
                 <p className="text-sm text-red-700">
-                  Votre solde est insuffisant. Veuillez recharger votre wallet.
+                  Votre solde est insuffisant. Veuillez recharger votre portefeuille.
                 </p>
               </div>
             )}

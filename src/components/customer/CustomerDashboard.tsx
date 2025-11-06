@@ -41,7 +41,7 @@ export const CustomerDashboard = () => {
     { id: 'browse' as TabId, label: 'Découvrir', icon: ShoppingBag, emoji: '🛒' },
     { id: 'reservations' as TabId, label: 'Mes paniers', icon: History, emoji: '📦' },
     { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp, emoji: '🌍' },
-    { id: 'wallet' as TabId, label: 'Wallet', icon: Wallet, emoji: '💳' },
+    { id: 'wallet' as TabId, label: 'Portefeuille', icon: Wallet, emoji: '💳' },
     { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
 
