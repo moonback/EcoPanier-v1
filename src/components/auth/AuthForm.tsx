@@ -157,10 +157,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
       {/* Bouton retour accueil */}
       <button
         onClick={() => navigate('/')}
-        className="absolute top-6 left-6 z-30 flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-black rounded-xl hover:bg-white transition-all font-medium shadow-lg hover:shadow-xl group"
+        className="absolute top-6 left-6 z-30 flex items-center gap-2 px-5 py-2.5 bg-white/95 backdrop-blur-md text-gray-900 rounded-xl hover:bg-white transition-all duration-200 font-semibold shadow-md hover:shadow-xl group border border-gray-200/50"
       >
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-        <span className="hidden sm:inline">Retour accueil</span>
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
+        <span className="hidden sm:inline text-sm">Retour accueil</span>
       </button>
 
       {/* Colonne gauche - Photo/Vidéo FIXE */}
@@ -177,60 +177,60 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
         </video>
         
         {/* Overlay avec contenu */}
-        <div className="relative z-10 flex flex-col items-center justify-center w-full px-8 py-6 text-white">
-          <div className="w-full max-w-2xl space-y-6">
+        <div className="relative z-10 flex flex-col items-center justify-center w-full px-10 py-8 text-white">
+          <div className="w-full max-w-2xl space-y-8">
             {/* Logo et titre */}
-            <div className="text-center space-y-2">
-              <h1 className="text-4xl font-black leading-tight">
+            <div className="text-center space-y-3 animate-fade-in-up">
+              <h1 className="text-5xl font-black leading-tight tracking-tight">
                 Sauvez des repas,<br />Économisez, Aidez ! 🌍
               </h1>
-              <p className="text-base text-white/90 font-light">
+              <p className="text-lg text-white/95 font-light leading-relaxed">
                 La plateforme anti-gaspillage qui profite à tous
               </p>
             </div>
 
             {/* Avantages en 2 colonnes compactes */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-5 animate-fade-in-up">
               {/* Colonne CLIENTS */}
-              <div className="space-y-3">
-                <h3 className="text-base font-bold flex items-center gap-2 pb-1.5 border-b border-white/20">
-                  <span className="text-lg">🛒</span>
-                  Clients
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2.5 pb-2 border-b border-white/30">
+                  <span className="text-xl">🛒</span>
+                  <span>Clients</span>
                 </h3>
                 
-                <div className="space-y-2">
-                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md flex-shrink-0">
-                        <span className="text-base">💰</span>
+                <div className="space-y-3">
+                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 group">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                        <span className="text-lg">💰</span>
                       </div>
-                      <div className="font-bold text-sm">Jusqu'à -70%</div>
+                      <div className="font-bold text-base">Jusqu'à -70%</div>
                     </div>
-                    <div className="text-xs text-white/75 font-light leading-snug">
-                      Produits de qualité à petits prix
+                    <div className="text-xs text-white/90 font-light leading-relaxed">
+                      Produits à petits prix
                     </div>
                   </div>
 
-                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-md flex-shrink-0">
-                        <span className="text-base">🌍</span>
+                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 group">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                        <span className="text-lg">🌍</span>
                       </div>
-                      <div className="font-bold text-sm">Impact écologique</div>
+                      <div className="font-bold text-base">Impact écologique</div>
                     </div>
-                    <div className="text-xs text-white/75 font-light leading-snug">
+                    <div className="text-xs text-white/90 font-light leading-relaxed">
                       0.9 kg CO₂ évités par panier
                     </div>
                   </div>
 
-                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-md flex-shrink-0">
-                        <span className="text-base">❤️</span>
+                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 group">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                        <span className="text-lg">❤️</span>
                       </div>
-                      <div className="font-bold text-sm">Soyez solidaire</div>
+                      <div className="font-bold text-base">Soyez solidaire</div>
                     </div>
-                    <div className="text-xs text-white/75 font-light leading-snug">
+                    <div className="text-xs text-white/90 font-light leading-relaxed">
                       Offrez des paniers aux démunis
                     </div>
                   </div>
@@ -238,45 +238,45 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               </div>
 
               {/* Colonne BÉNÉFICIAIRES */}
-              <div className="space-y-3">
-                <h3 className="text-base font-bold flex items-center gap-2 pb-1.5 border-b border-white/20">
-                  <span className="text-lg">🤝</span>
-                  Bénéficiaires
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2.5 pb-2 border-b border-white/30">
+                  <span className="text-xl">🤝</span>
+                  <span>Bénéficiaires</span>
                 </h3>
                 
-                <div className="space-y-2">
-                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-md flex-shrink-0">
-                        <span className="text-base">🎁</span>
+                <div className="space-y-3">
+                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 group">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                        <span className="text-lg">🎁</span>
                       </div>
-                      <div className="font-bold text-sm">2 paniers/jour</div>
+                      <div className="font-bold text-base">2 paniers/jour</div>
                     </div>
-                    <div className="text-xs text-white/75 font-light leading-snug">
+                    <div className="text-xs text-white/90 font-light leading-relaxed">
                       Paniers suspendus gratuits
                     </div>
                   </div>
 
-                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-md flex-shrink-0">
-                        <span className="text-base">✨</span>
+                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 group">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                        <span className="text-lg">✨</span>
                       </div>
-                      <div className="font-bold text-sm">Accès simple</div>
+                      <div className="font-bold text-base">Accès simple</div>
                     </div>
-                    <div className="text-xs text-white/75 font-light leading-snug">
+                    <div className="text-xs text-white/90 font-light leading-relaxed">
                       Juste votre ID, aucun papier
                     </div>
                   </div>
 
-                  <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-md flex-shrink-0">
-                        <span className="text-base">🏪</span>
+                  <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 group">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                        <span className="text-lg">🏪</span>
                       </div>
-                      <div className="font-bold text-sm">Produits frais</div>
+                      <div className="font-bold text-base">Produits frais</div>
                     </div>
-                    <div className="text-xs text-white/75 font-light leading-snug">
+                    <div className="text-xs text-white/90 font-light leading-relaxed">
                       Qualité des commerces locaux
                     </div>
                   </div>
@@ -285,18 +285,18 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
             </div>
 
             {/* Stats d'impact compactes */}
-            <div className="grid grid-cols-3 gap-3 pt-3 border-t border-white/20">
-              <div className="text-center">
-                <div className="text-2xl font-black text-white mb-0.5">12K+</div>
-                <div className="text-xs text-white/70 font-light">Paniers sauvés</div>
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/30 animate-fade-in-up">
+              <div className="text-center p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg">
+                <div className="text-3xl font-black text-white mb-1">12K+</div>
+                <div className="text-xs text-white/90 font-medium">Paniers sauvés</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-black text-white mb-0.5">10T</div>
-                <div className="text-xs text-white/70 font-light">CO₂ évités</div>
+              <div className="text-center p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg">
+                <div className="text-3xl font-black text-white mb-1">10T</div>
+                <div className="text-xs text-white/90 font-medium">CO₂ évités</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-black text-white mb-0.5">500+</div>
-                <div className="text-xs text-white/70 font-light">Commerçants</div>
+              <div className="text-center p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg">
+                <div className="text-3xl font-black text-white mb-1">500+</div>
+                <div className="text-xs text-white/90 font-medium">Commerçants</div>
               </div>
             </div>
           </div>
@@ -304,20 +304,20 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
       </div>
 
       {/* Colonne droite - Formulaire */}
-      <div className="flex-1 lg:ml-[50%] flex items-center justify-center p-6 overflow-y-auto">
+      <div className="flex-1 lg:ml-[50%] flex items-center justify-center p-6 sm:p-8 overflow-y-auto bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-xl w-full">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-10 animate-fade-in-up">
           <img
             src="/logo.png"
             alt="Logo EcoPanier"
-            className="w-32 mx-auto mb-4 rounded-lg shadow-lg bg-white object-contain"
+            className="w-36 mx-auto mb-6 rounded-2xl shadow-xl bg-white p-2 object-contain"
             draggable={false}
           />
-          <h2 className="text-2xl font-bold text-black mb-2">
-            {mode === 'signin' ? 'Bon retour parmi nous !' : 'Rejoignez l\'aventure ! 🌍'}
+          <h2 className="text-3xl font-black text-gray-900 mb-3 tracking-tight">
+            {mode === 'signin' ? 'Bon retour parmi nous ! 👋' : 'Rejoignez l\'aventure ! 🌍'}
           </h2>
-          <p className="text-sm text-gray-600 font-light">
+          <p className="text-base text-gray-600 font-light leading-relaxed">
             {mode === 'signin' 
               ? 'Connectez-vous pour continuer à sauver des paniers' 
               : 'Créez votre compte en 2 minutes et faites la différence'}
@@ -325,7 +325,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
         </div>
 
         {/* Onglets Mode */}
-        <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-lg">
+        <div className="flex gap-3 mb-8 p-1.5 bg-gray-100 rounded-xl shadow-inner">
           <button
             type="button"
             onClick={() => {
@@ -335,10 +335,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               setConfirmPassword('');
               setAcceptTerms(false);
             }}
-            className={`flex-1 py-3 rounded-lg font-medium text-sm transition-all ${
+            className={`flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
               mode === 'signin'
-                ? 'bg-black text-white'
-                : 'text-gray-600 hover:text-black'
+                ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg'
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             Connexion
@@ -351,10 +351,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               setSuccess('');
               setRememberMe(false);
             }}
-            className={`flex-1 py-3 rounded-lg font-medium text-sm transition-all ${
+            className={`flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
               mode === 'signup'
-                ? 'bg-black text-white'
-                : 'text-gray-600 hover:text-black'
+                ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg'
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             Inscription
@@ -363,139 +363,155 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'signup' && (
-            <div>
-              <label className="block text-sm font-medium text-black mb-3">
+            <div className="mb-6">
+              <label className="block text-base font-bold text-gray-900 mb-4">
                 Quel est votre profil ? 🎯
               </label>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Client */}
                 <button
                   type="button"
                   onClick={() => setRole('customer')}
-                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
+                  className={`group p-5 rounded-xl border-2 transition-all duration-200 text-left relative overflow-hidden ${
                     role === 'customer'
-                      ? 'border-primary-600 bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-lg'
-                      : 'border-gray-200 bg-white text-black hover:border-primary-300 hover:shadow-md'
+                      ? 'border-primary-600 bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-xl scale-105'
+                      : 'border-gray-200 bg-white text-gray-900 hover:border-primary-300 hover:shadow-lg hover:-translate-y-0.5'
                   }`}
                 >
-                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'customer' ? 'bg-white/20' : 'bg-primary-50'}`}>
-                    <ShoppingCart size={20} strokeWidth={2} className={role === 'customer' ? 'text-white' : 'text-primary-600'} />
+                  <div className={`p-3 rounded-xl inline-flex mb-3 ${role === 'customer' ? 'bg-white/20' : 'bg-primary-50'} group-hover:scale-110 transition-transform duration-200`}>
+                    <ShoppingCart size={22} strokeWidth={2} className={role === 'customer' ? 'text-white' : 'text-primary-600'} />
                   </div>
-                  <div className="font-semibold text-sm">🛒 Client</div>
-                  <div className={`text-xs mt-1 ${role === 'customer' ? 'text-white/80' : 'text-gray-500'}`}>
+                  <div className="font-bold text-sm mb-1">🛒 Client</div>
+                  <div className={`text-xs ${role === 'customer' ? 'text-white/90' : 'text-gray-600'}`}>
                     Économiser -70%
                   </div>
-                  {role === 'customer' && <span className="absolute top-2 right-2 text-xs">✓</span>}
+                  {role === 'customer' && (
+                    <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
+                      <CheckCircle2 size={14} className="text-primary-600" />
+                    </div>
+                  )}
                 </button>
 
                 {/* Commerçant */}
                 <button
                   type="button"
                   onClick={() => setRole('merchant')}
-                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
+                  className={`group p-5 rounded-xl border-2 transition-all duration-200 text-left relative overflow-hidden ${
                     role === 'merchant'
-                      ? 'border-secondary-600 bg-gradient-to-br from-secondary-600 to-secondary-700 text-white shadow-lg'
-                      : 'border-gray-200 bg-white text-black hover:border-secondary-300 hover:shadow-md'
+                      ? 'border-secondary-600 bg-gradient-to-br from-secondary-600 to-secondary-700 text-white shadow-xl scale-105'
+                      : 'border-gray-200 bg-white text-gray-900 hover:border-secondary-300 hover:shadow-lg hover:-translate-y-0.5'
                   }`}
                 >
-                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'merchant' ? 'bg-white/20' : 'bg-secondary-50'}`}>
-                    <Store size={20} strokeWidth={2} className={role === 'merchant' ? 'text-white' : 'text-secondary-600'} />
+                  <div className={`p-3 rounded-xl inline-flex mb-3 ${role === 'merchant' ? 'bg-white/20' : 'bg-secondary-50'} group-hover:scale-110 transition-transform duration-200`}>
+                    <Store size={22} strokeWidth={2} className={role === 'merchant' ? 'text-white' : 'text-secondary-600'} />
                   </div>
-                  <div className="font-semibold text-sm">🏪 Commerçant</div>
-                  <div className={`text-xs mt-1 ${role === 'merchant' ? 'text-white/80' : 'text-gray-500'}`}>
+                  <div className="font-bold text-sm mb-1">🏪 Commerçant</div>
+                  <div className={`text-xs ${role === 'merchant' ? 'text-white/90' : 'text-gray-600'}`}>
                     Valoriser invendus
                   </div>
-                  {role === 'merchant' && <span className="absolute top-2 right-2 text-xs">✓</span>}
+                  {role === 'merchant' && (
+                    <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
+                      <CheckCircle2 size={14} className="text-secondary-600" />
+                    </div>
+                  )}
                 </button>
 
                 {/* Bénéficiaire */}
                 <button
                   type="button"
                   onClick={() => setRole('beneficiary')}
-                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
+                  className={`group p-5 rounded-xl border-2 transition-all duration-200 text-left relative overflow-hidden ${
                     role === 'beneficiary'
-                      ? 'border-accent-600 bg-gradient-to-br from-accent-600 to-accent-700 text-white shadow-lg'
-                      : 'border-gray-200 bg-white text-black hover:border-accent-300 hover:shadow-md'
+                      ? 'border-accent-600 bg-gradient-to-br from-accent-600 to-accent-700 text-white shadow-xl scale-105'
+                      : 'border-gray-200 bg-white text-gray-900 hover:border-accent-300 hover:shadow-lg hover:-translate-y-0.5'
                   }`}
                 >
-                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'beneficiary' ? 'bg-white/20' : 'bg-accent-50'}`}>
-                    <Heart size={20} strokeWidth={2} className={role === 'beneficiary' ? 'text-white' : 'text-accent-600'} />
+                  <div className={`p-3 rounded-xl inline-flex mb-3 ${role === 'beneficiary' ? 'bg-white/20' : 'bg-accent-50'} group-hover:scale-110 transition-transform duration-200`}>
+                    <Heart size={22} strokeWidth={2} className={role === 'beneficiary' ? 'text-white' : 'text-accent-600'} />
                   </div>
-                  <div className="font-semibold text-sm">🤝 Bénéficiaire</div>
-                  <div className={`text-xs mt-1 ${role === 'beneficiary' ? 'text-white/80' : 'text-gray-500'}`}>
+                  <div className="font-bold text-sm mb-1">🤝 Bénéficiaire</div>
+                  <div className={`text-xs ${role === 'beneficiary' ? 'text-white/90' : 'text-gray-600'}`}>
                     Aide gratuite
                   </div>
-                  {role === 'beneficiary' && <span className="absolute top-2 right-2 text-xs">✓</span>}
+                  {role === 'beneficiary' && (
+                    <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
+                      <CheckCircle2 size={14} className="text-accent-600" />
+                    </div>
+                  )}
                 </button>
 
                 {/* Association */}
                 <button
                   type="button"
                   onClick={() => setRole('association')}
-                  className={`group p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden ${
+                  className={`group p-5 rounded-xl border-2 transition-all duration-200 text-left relative overflow-hidden ${
                     role === 'association'
-                      ? 'border-purple-600 bg-gradient-to-br from-purple-600 to-purple-700 text-white shadow-lg'
-                      : 'border-gray-200 bg-white text-black hover:border-purple-300 hover:shadow-md'
+                      ? 'border-purple-600 bg-gradient-to-br from-purple-600 to-purple-700 text-white shadow-xl scale-105'
+                      : 'border-gray-200 bg-white text-gray-900 hover:border-purple-300 hover:shadow-lg hover:-translate-y-0.5'
                   }`}
                 >
-                  <div className={`p-2 rounded-lg inline-flex mb-2 ${role === 'association' ? 'bg-white/20' : 'bg-purple-50'}`}>
-                    <FileText size={20} strokeWidth={2} className={role === 'association' ? 'text-white' : 'text-purple-600'} />
+                  <div className={`p-3 rounded-xl inline-flex mb-3 ${role === 'association' ? 'bg-white/20' : 'bg-purple-50'} group-hover:scale-110 transition-transform duration-200`}>
+                    <FileText size={22} strokeWidth={2} className={role === 'association' ? 'text-white' : 'text-purple-600'} />
                   </div>
-                  <div className="font-semibold text-sm">🏛️ Association</div>
-                  <div className={`text-xs mt-1 ${role === 'association' ? 'text-white/80' : 'text-gray-500'}`}>
+                  <div className="font-bold text-sm mb-1">🏛️ Association</div>
+                  <div className={`text-xs ${role === 'association' ? 'text-white/90' : 'text-gray-600'}`}>
                     Enregistrer bénéficiaires
                   </div>
-                  {role === 'association' && <span className="absolute top-2 right-2 text-xs">✓</span>}
+                  {role === 'association' && (
+                    <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
+                      <CheckCircle2 size={14} className="text-purple-600" />
+                    </div>
+                  )}
                 </button>
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-black mb-2">
+            <label className="block text-sm font-semibold text-gray-900 mb-2.5">
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={2} />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                className="w-full pl-12 pr-12 py-3.5 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all duration-200 outline-none font-light shadow-sm hover:shadow-md"
                 placeholder="votre@email.com"
                 required
               />
               {/* Validation email en temps réel (inscription uniquement) */}
               {mode === 'signup' && email && !isEmailValid(email) && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
                   <AlertCircle size={18} className="text-red-500" />
                 </div>
               )}
               {mode === 'signup' && email && isEmailValid(email) && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
                   <CheckCircle2 size={18} className="text-green-500" />
                 </div>
               )}
             </div>
             {mode === 'signup' && email && !isEmailValid(email) && (
-              <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1.5">
-                <AlertCircle size={12} />
+              <p className="text-xs text-red-600 mt-2 flex items-center gap-2 font-medium">
+                <AlertCircle size={14} />
                 <span>Veuillez entrer une adresse email valide</span>
               </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-black mb-2">
+            <label className="block text-sm font-semibold text-gray-900 mb-2.5">
               Mot de passe
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={2} />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-11 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                className="w-full pl-12 pr-12 py-3.5 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all duration-200 outline-none font-light shadow-sm hover:shadow-md"
                 placeholder="••••••••"
                 required
                 minLength={6}
@@ -503,29 +519,29 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
               >
-                {showPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
+                {showPassword ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
               </button>
             </div>
             {/* Indicateur de force du mot de passe (inscription uniquement) */}
             {mode === 'signup' && password && (
-              <div className="mt-2 space-y-1.5">
-                <div className="flex gap-1">
+              <div className="mt-3 space-y-2">
+                <div className="flex gap-2">
                   {[...Array(5)].map((_, i) => (
                     <div
                       key={i}
-                      className={`h-1 flex-1 rounded-full transition-all ${
+                      className={`h-2 flex-1 rounded-full transition-all duration-300 ${
                         i < passwordStrength.score ? passwordStrength.color : 'bg-gray-200'
                       }`}
                     />
                   ))}
                 </div>
                 {passwordStrength.label && (
-                  <p className="text-xs flex items-center gap-1.5">
-                    <Shield size={12} className={passwordStrength.score >= 4 ? 'text-green-600' : 'text-gray-400'} />
-                    <span className="text-gray-600">
-                      Force du mot de passe : <span className="font-semibold">{passwordStrength.label}</span>
+                  <p className="text-xs flex items-center gap-2 font-medium">
+                    <Shield size={14} className={passwordStrength.score >= 4 ? 'text-green-600' : passwordStrength.score >= 3 ? 'text-amber-500' : 'text-red-500'} />
+                    <span className={`${passwordStrength.score >= 4 ? 'text-green-600' : passwordStrength.score >= 3 ? 'text-amber-600' : 'text-red-600'}`}>
+                      Force du mot de passe : <span className="font-bold">{passwordStrength.label}</span>
                     </span>
                   </p>
                 )}
@@ -537,16 +553,16 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
             <div className="space-y-4">
               {/* Confirmation du mot de passe */}
               <div>
-                <label className="block text-sm font-medium text-black mb-2">
+                <label className="block text-sm font-semibold text-gray-900 mb-2.5">
                   Confirmer le mot de passe
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={1.5} />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} strokeWidth={2} />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-11 py-3 rounded-lg border-2 border-gray-300 bg-white text-black placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all outline-none font-light"
+                    className="w-full pl-12 pr-12 py-3.5 rounded-xl border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all duration-200 outline-none font-light shadow-sm hover:shadow-md"
                     placeholder="••••••••"
                     required
                     minLength={6}
@@ -554,14 +570,14 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
                   >
-                    {showConfirmPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
+                    {showConfirmPassword ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
                   </button>
                 </div>
                 {/* Validation visuelle de la correspondance */}
                 {confirmPassword && (
-                  <p className={`text-xs mt-1.5 flex items-center gap-1.5 ${
+                  <p className={`text-xs mt-2.5 flex items-center gap-2 font-medium ${
                     password === confirmPassword ? 'text-green-600' : 'text-red-600'
                   }`}>
                     {password === confirmPassword ? (
@@ -883,19 +899,23 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           )}
 
           {error && (
-            <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl">
-              <div className="flex items-start gap-3">
-                <span className="text-lg">⚠️</span>
-                <p className="text-sm text-red-800 font-light flex-1">{error}</p>
+            <div className="p-5 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-xl shadow-sm animate-fade-in-up">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <AlertCircle size={18} className="text-white" />
+                </div>
+                <p className="text-sm text-red-800 font-medium flex-1 leading-relaxed">{error}</p>
               </div>
             </div>
           )}
 
           {success && (
-            <div className="p-4 bg-success-50 border-2 border-success-200 rounded-xl">
-              <div className="flex items-start gap-3">
-                <span className="text-lg">✅</span>
-                <p className="text-sm text-success-800 font-light flex-1">{success}</p>
+            <div className="p-5 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl shadow-sm animate-fade-in-up">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <CheckCircle2 size={18} className="text-white" />
+                </div>
+                <p className="text-sm text-green-800 font-medium flex-1 leading-relaxed">{success}</p>
               </div>
             </div>
           )}
@@ -903,29 +923,29 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-xl font-semibold text-base transition-all focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 focus:ring-primary-100 mt-2 shadow-lg hover:shadow-xl"
+            className="w-full py-4 rounded-xl font-bold text-base transition-all duration-200 focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 focus:ring-primary-100 mt-2 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 disabled:hover:translate-y-0"
           >
             {loading ? (
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-3">
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
                 <span>Chargement...</span>
               </div>
             ) : mode === 'signin' ? (
               <span className="flex items-center justify-center gap-2">
                 <span>Se connecter</span>
-                <span>→</span>
+                <span className="text-lg">→</span>
               </span>
             ) : (
               <span className="flex items-center justify-center gap-2">
                 <span>Créer mon compte gratuitement</span>
-                <span>🚀</span>
+                <span className="text-lg">🚀</span>
               </span>
             )}
           </button>
         </form>
 
         {/* Lien pour changer de mode */}
-        <div className="mt-6 text-center">
+        <div className="mt-8 text-center">
           <button
             type="button"
             onClick={() => {
@@ -940,9 +960,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 setRememberMe(false);
               }
             }}
-            className="text-sm text-gray-600 hover:text-black font-light"
+            className="text-sm text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-200"
           >
-            {mode === 'signin' ? "Pas encore de compte ? S'inscrire" : 'Déjà un compte ? Se connecter'}
+            {mode === 'signin' ? "Pas encore de compte ? " : 'Déjà un compte ? '}
+            <span className="text-primary-600 hover:text-primary-700 underline">{mode === 'signin' ? "S'inscrire" : 'Se connecter'}</span>
           </button>
         </div>
 
