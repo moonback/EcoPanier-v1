@@ -408,8 +408,8 @@ export const PickupStation = () => {
           
           <p className="text-lg text-gray-600 mb-8 font-light leading-relaxed">
             {selectedReservationIds.size > 1 
-              ? `Tous les paniers ont été remis avec succès ! Merci de votre engagement anti-gaspi ! 💚`
-              : `Le panier a été remis avec succès. Merci de votre engagement anti-gaspi ! 💚`
+              ? `Tous les paniers ont été remis avec succès! 💚`
+              : `Le panier a été remis avec succès! 💚`
             }
           </p>
           

@@ -11,7 +11,10 @@ import { formatCurrency, formatDateTime, getCategoryLabel } from '../../utils/he
 import type { Database } from '../../lib/database.types';
 
 type Reservation = Database['public']['Tables']['reservations']['Row'] & {
-  lots: Database['public']['Tables']['lots']['Row'];
+  customer_confirmed?: boolean | null;
+  lots: Database['public']['Tables']['lots']['Row'] & {
+    merchant_id: string;
+  };
   profiles: {
     full_name: string;
     phone: string;
@@ -122,7 +125,30 @@ export const MerchantReservations = () => {
   };
 
   // Fonction pour obtenir les styles selon le statut
-  const getStatusStyles = (status: string) => {
+  const getStatusStyles = (reservation: Reservation) => {
+    const status = reservation.status;
+    
+    // Pour les réservations confirmées, vérifier si le client a confirmé la réception
+    if (status === 'confirmed') {
+      if (reservation.customer_confirmed) {
+        // Payé et confirmé par le client - prêt pour le retrait
+        return {
+          bg: 'bg-gradient-to-br from-primary-50 to-white',
+          badge: 'bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 border-primary-300',
+          label: '✓ Payé - Prêt pour retrait',
+          emoji: '✅',
+        };
+      } else {
+        // Payé mais pas encore confirmé par le client - en attente de confirmation
+        return {
+          bg: 'bg-gradient-to-br from-blue-50 to-white',
+          badge: 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-300',
+          label: '💳 Payé - En attente confirmation client',
+          emoji: '💳',
+        };
+      }
+    }
+    
     switch (status) {
       case 'pending':
         return {
@@ -130,13 +156,6 @@ export const MerchantReservations = () => {
           badge: 'bg-gradient-to-r from-warning-100 to-warning-200 text-warning-700 border-warning-300',
           label: '⏳ En attente de paiement',
           emoji: '⏰',
-        };
-      case 'confirmed':
-        return {
-          bg: 'bg-gradient-to-br from-primary-50 to-white',
-          badge: 'bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 border-primary-300',
-          label: '✓ Payé - En attente de retrait',
-          emoji: '✅',
         };
       case 'completed':
         return {
@@ -166,7 +185,11 @@ export const MerchantReservations = () => {
   const filteredReservations = reservations.filter((reservation) => {
     if (filter === 'all') return true;
     if (filter === 'pending') {
-      // Le filtre "pending" inclut aussi les "confirmed" (payées mais pas encore récupérées)
+      // Le filtre "pending" inclut :
+      // - Les réservations en attente de paiement (status='pending')
+      // - Les réservations payées mais non confirmées par le client (status='confirmed' et customer_confirmed=false/null)
+      // - Les réservations payées et confirmées mais pas encore récupérées (status='confirmed' et customer_confirmed=true)
+      // Toutes les réservations qui ne sont pas encore complétées ou annulées
       return reservation.status === 'pending' || reservation.status === 'confirmed';
     }
     return reservation.status === filter;
@@ -337,7 +360,7 @@ export const MerchantReservations = () => {
       {/* Liste des réservations compacte */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {filteredReservations.map((reservation) => {
-          const statusStyles = getStatusStyles(reservation.status);
+          const statusStyles = getStatusStyles(reservation);
           const isPinRevealed = revealedPins.has(reservation.id);
 
           // Calcul du pourcentage de remise
@@ -380,8 +403,9 @@ export const MerchantReservations = () => {
                       <h3 className="text-sm font-bold text-gray-900 flex-1 line-clamp-1">
                         {reservation.lots.title}
                       </h3>
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-bold border whitespace-nowrap flex-shrink-0 ${statusStyles.badge}`}>
-                        {statusStyles.emoji}
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-bold border whitespace-nowrap flex-shrink-0 ${statusStyles.badge}`} title={statusStyles.label}>
+                        <span className="mr-1">{statusStyles.emoji}</span>
+                        <span className="hidden sm:inline">{statusStyles.label.split(' ')[0]}</span>
                       </span>
                     </div>
                     
@@ -493,6 +517,24 @@ export const MerchantReservations = () => {
                     </span>
                   )}
                 </div>
+
+                {/* Badge d'information pour les commandes payées mais non confirmées */}
+                {reservation.status === 'confirmed' && !reservation.customer_confirmed && (
+                  <div className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-xs text-blue-700 font-medium text-center">
+                      💳 Commandé et payé • En attente de confirmation de réception par le client
+                    </p>
+                  </div>
+                )}
+                
+                {/* Badge d'information pour les commandes confirmées par le client */}
+                {reservation.status === 'confirmed' && reservation.customer_confirmed && (
+                  <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+                    <p className="text-xs text-green-700 font-medium text-center">
+                      ✅ Réception confirmée par le client • Prêt pour retrait
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           );

@@ -79,8 +79,7 @@ export const LotBrowser = ({
   const handleConfirmReservation = async (quantity: number, useWallet: boolean) => {
     if (!selectedLot || !profile) return;
 
-    const pin = await reserveLot(selectedLot, quantity, profile.id, false, useWallet);
-    alert(`Réservation confirmée! Code PIN: ${pin}`);
+    await reserveLot(selectedLot, quantity, profile.id, false, useWallet);
     setSelectedLot(null);
     setReservationMode(null);
   };
