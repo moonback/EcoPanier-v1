@@ -10,6 +10,8 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
+  ArrowDownCircle,
+  X,
 } from 'lucide-react';
 
 // Imports internes
@@ -19,10 +21,15 @@ import {
   getWalletTransactionsByType,
   getWalletStats,
   getWalletTransactionsCount,
+  getWithdrawalRequests,
+  cancelWithdrawalRequest,
+  MIN_WITHDRAWAL_AMOUNT,
   type WalletTransaction as WalletTransactionType,
   type WalletStats,
+  type WithdrawalRequest,
 } from '../../utils/walletService';
 import { formatCurrency, formatDateTime } from '../../utils/helpers';
+import { WithdrawalRequestModal } from './components/WithdrawalRequestModal';
 
 // Constantes
 const TRANSACTIONS_PER_PAGE = 20;
@@ -39,12 +46,14 @@ export const MerchantWalletPage = () => {
   const [balance, setBalance] = useState<number>(0);
   const [stats, setStats] = useState<WalletStats | null>(null);
   const [transactions, setTransactions] = useState<WalletTransactionType[]>([]);
+  const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'merchant_payment'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalTransactions, setTotalTransactions] = useState(0);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
 
   // Charger les données du wallet
   const loadWalletData = async () => {
@@ -52,7 +61,7 @@ export const MerchantWalletPage = () => {
 
     try {
       setError(null);
-      const [walletBalance, walletStats, transactionsData, totalCount] = await Promise.all([
+      const [walletBalance, walletStats, transactionsData, totalCount, withdrawalRequestsData] = await Promise.all([
         getWalletBalance(user.id),
         getWalletStats(user.id),
         getWalletTransactionsByType(
@@ -62,12 +71,14 @@ export const MerchantWalletPage = () => {
           (currentPage - 1) * TRANSACTIONS_PER_PAGE
         ),
         getWalletTransactionsCount(user.id, filterType === 'all' ? undefined : 'merchant_payment'),
+        getWithdrawalRequests(user.id),
       ]);
 
       setBalance(walletBalance);
       setStats(walletStats);
       setTransactions(transactionsData);
       setTotalTransactions(totalCount);
+      setWithdrawalRequests(withdrawalRequestsData);
     } catch (err) {
       console.error('Erreur lors du chargement du wallet:', err);
       setError(
@@ -158,7 +169,7 @@ export const MerchantWalletPage = () => {
               <p className="text-2xl sm:text-3xl md:text-4xl font-bold break-words">{formatCurrency(balance)}</p>
             </div>
 
-            <div className="p-3 sm:p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+            <div className="p-3 sm:p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 mb-3 sm:mb-4">
               <div className="flex items-start gap-2 sm:gap-3">
                 <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-200 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
@@ -171,6 +182,20 @@ export const MerchantWalletPage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Bouton de demande de virement */}
+            <button
+              onClick={() => setShowWithdrawalModal(true)}
+              disabled={balance < MIN_WITHDRAWAL_AMOUNT}
+              className="w-full py-2.5 sm:py-3 bg-white text-success-600 rounded-lg hover:bg-success-50 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ArrowDownCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              {balance < MIN_WITHDRAWAL_AMOUNT ? (
+                <span>Minimum {formatCurrency(MIN_WITHDRAWAL_AMOUNT)} requis</span>
+              ) : (
+                <span>Demander un virement</span>
+              )}
+            </button>
           </div>
         </div>
 
@@ -294,7 +319,56 @@ export const MerchantWalletPage = () => {
             </>
           )}
         </div>
+
+        {/* Historique des demandes de virement */}
+        {withdrawalRequests.length > 0 && (
+          <div className="card p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
+              <ArrowDownCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                Demandes de virement
+              </h2>
+              <span className="text-xs sm:text-sm text-gray-500">
+                ({withdrawalRequests.length} demande{withdrawalRequests.length > 1 ? 's' : ''})
+              </span>
+            </div>
+
+            <div className="space-y-3 sm:space-y-4">
+              {withdrawalRequests.map((request) => (
+                <WithdrawalRequestItem
+                  key={request.id}
+                  request={request}
+                  onCancel={async () => {
+                    if (!user?.id) return;
+                    try {
+                      await cancelWithdrawalRequest(request.id, user.id);
+                      await loadWalletData();
+                    } catch (err) {
+                      alert(
+                        err instanceof Error
+                          ? err.message
+                          : 'Erreur lors de l\'annulation de la demande'
+                      );
+                    }
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Modal de demande de virement */}
+      {showWithdrawalModal && (
+        <WithdrawalRequestModal
+          onClose={() => setShowWithdrawalModal(false)}
+          onSuccess={() => {
+            setShowWithdrawalModal(false);
+            loadWalletData();
+          }}
+          currentBalance={balance}
+        />
+      )}
     </div>
   );
 };
@@ -459,6 +533,121 @@ function TransactionItem({ transaction }: TransactionItemProps) {
             Solde: {formatCurrency(transaction.balance_after)}
           </p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Composant pour afficher une demande de virement
+ */
+interface WithdrawalRequestItemProps {
+  request: WithdrawalRequest;
+  onCancel: () => void;
+}
+
+function WithdrawalRequestItem({ request, onCancel }: WithdrawalRequestItemProps) {
+  const getStatusStyles = () => {
+    switch (request.status) {
+      case 'pending':
+        return {
+          bg: 'bg-yellow-50',
+          badge: 'bg-yellow-100 text-yellow-700',
+          label: 'En attente',
+        };
+      case 'approved':
+        return {
+          bg: 'bg-blue-50',
+          badge: 'bg-blue-100 text-blue-700',
+          label: 'Approuvée',
+        };
+      case 'processing':
+        return {
+          bg: 'bg-purple-50',
+          badge: 'bg-purple-100 text-purple-700',
+          label: 'En traitement',
+        };
+      case 'completed':
+        return {
+          bg: 'bg-green-50',
+          badge: 'bg-green-100 text-green-700',
+          label: 'Complétée',
+        };
+      case 'rejected':
+        return {
+          bg: 'bg-red-50',
+          badge: 'bg-red-100 text-red-700',
+          label: 'Rejetée',
+        };
+      case 'cancelled':
+        return {
+          bg: 'bg-gray-50',
+          badge: 'bg-gray-100 text-gray-700',
+          label: 'Annulée',
+        };
+      default:
+        return {
+          bg: 'bg-gray-50',
+          badge: 'bg-gray-100 text-gray-700',
+          label: request.status,
+        };
+    }
+  };
+
+  const statusStyles = getStatusStyles();
+  const canCancel = request.status === 'pending';
+
+  return (
+    <div className={`p-3 sm:p-4 rounded-lg border ${statusStyles.bg} border-gray-200`}>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className={`px-2 py-1 rounded text-xs font-medium ${statusStyles.badge}`}>
+              {statusStyles.label}
+            </span>
+            <span className="text-xs text-gray-500">
+              {formatDateTime(request.created_at)}
+            </span>
+          </div>
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Montant demandé :</span>
+              <span className="font-medium text-gray-900">{formatCurrency(request.requested_amount)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Commission :</span>
+              <span className="font-medium text-red-600">-{formatCurrency(request.commission_amount)}</span>
+            </div>
+            <div className="flex justify-between text-sm pt-1 border-t border-gray-200">
+              <span className="font-medium text-gray-900">Montant net :</span>
+              <span className="font-bold text-green-600">{formatCurrency(request.net_amount)}</span>
+            </div>
+            {request.bank_account_name && (
+              <p className="text-xs text-gray-500 mt-2">
+                Compte : {request.bank_account_name} - {request.bank_account_iban?.slice(0, 4)}****{request.bank_account_iban?.slice(-4)}
+              </p>
+            )}
+            {request.rejection_reason && (
+              <p className="text-xs text-red-600 mt-2">
+                Raison du rejet : {request.rejection_reason}
+              </p>
+            )}
+            {request.processed_at && (
+              <p className="text-xs text-gray-500 mt-2">
+                Traité le : {formatDateTime(request.processed_at)}
+              </p>
+            )}
+          </div>
+        </div>
+        {canCancel && (
+          <button
+            onClick={onCancel}
+            className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1.5 sm:flex-shrink-0"
+          >
+            <X size={14} />
+            Annuler
+          </button>
+        )}
       </div>
     </div>
   );

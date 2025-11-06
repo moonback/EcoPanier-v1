@@ -11,6 +11,7 @@ export type AvailabilitySlot = 'morning' | 'afternoon' | 'evening' | 'flexible';
 export type WalletTransactionType = 'recharge' | 'payment' | 'refund' | 'merchant_payment';
 export type WalletTransactionStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
 export type WalletReferenceType = 'reservation' | 'suspended_basket' | 'mission';
+export type WithdrawalRequestStatus = 'pending' | 'approved' | 'processing' | 'completed' | 'rejected' | 'cancelled';
 
 export interface CollectorPreferences {
   vehicle_type: VehicleType;
@@ -449,6 +450,56 @@ export interface Database {
           reference_type?: WalletReferenceType | null;
           status?: WalletTransactionStatus;
           metadata?: Record<string, unknown> | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      withdrawal_requests: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          wallet_id: string;
+          requested_amount: number;
+          commission_amount: number;
+          net_amount: number;
+          status: WithdrawalRequestStatus;
+          bank_account_name: string | null;
+          bank_account_iban: string | null;
+          bank_account_bic: string | null;
+          rejection_reason: string | null;
+          processed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          wallet_id: string;
+          requested_amount: number;
+          commission_amount: number;
+          net_amount: number;
+          status?: WithdrawalRequestStatus;
+          bank_account_name?: string | null;
+          bank_account_iban?: string | null;
+          bank_account_bic?: string | null;
+          rejection_reason?: string | null;
+          processed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          wallet_id?: string;
+          requested_amount?: number;
+          commission_amount?: number;
+          net_amount?: number;
+          status?: WithdrawalRequestStatus;
+          bank_account_name?: string | null;
+          bank_account_iban?: string | null;
+          bank_account_bic?: string | null;
+          rejection_reason?: string | null;
+          processed_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

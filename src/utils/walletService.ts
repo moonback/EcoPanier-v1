@@ -7,6 +7,8 @@ type WalletTransaction = Database['public']['Tables']['wallet_transactions']['Ro
 type WalletInsert = Database['public']['Tables']['wallets']['Insert'];
 type WalletTransactionInsert = Database['public']['Tables']['wallet_transactions']['Insert'];
 type WalletUpdate = Database['public']['Tables']['wallets']['Update'];
+type WithdrawalRequest = Database['public']['Tables']['withdrawal_requests']['Row'];
+type WithdrawalRequestInsert = Database['public']['Tables']['withdrawal_requests']['Insert'];
 
 /**
  * Service pour gérer les opérations de wallet
@@ -684,4 +686,184 @@ export async function confirmReceiptAndPayMerchant(
     );
   }
 }
+
+// Constantes pour les virements
+const MIN_WITHDRAWAL_AMOUNT = 100; // Montant minimum en euros
+const WITHDRAWAL_COMMISSION_RATE = 0.08; // 8% de commission
+
+/**
+ * Calcule le montant net après commission pour un virement
+ * @param requestedAmount - Montant demandé
+ * @returns Object avec commissionAmount et netAmount
+ */
+export function calculateWithdrawalAmounts(requestedAmount: number): {
+  commissionAmount: number;
+  netAmount: number;
+} {
+  const commissionAmount = requestedAmount * WITHDRAWAL_COMMISSION_RATE;
+  const netAmount = requestedAmount - commissionAmount;
+  return { commissionAmount, netAmount };
+}
+
+/**
+ * Crée une demande de virement pour un commerçant
+ * @param merchantId - ID du commerçant
+ * @param requestedAmount - Montant demandé (minimum 100€)
+ * @param bankAccountName - Nom du titulaire du compte
+ * @param bankAccountIban - IBAN du compte
+ * @param bankAccountBic - BIC du compte (optionnel)
+ */
+export async function createWithdrawalRequest(
+  merchantId: string,
+  requestedAmount: number,
+  bankAccountName: string,
+  bankAccountIban: string,
+  bankAccountBic?: string
+): Promise<WithdrawalRequest> {
+  try {
+    // Vérifier le montant minimum
+    if (requestedAmount < MIN_WITHDRAWAL_AMOUNT) {
+      throw new Error(`Le montant minimum pour un virement est de ${formatCurrency(MIN_WITHDRAWAL_AMOUNT)}`);
+    }
+
+    // Récupérer le wallet du commerçant
+    const wallet = await getWallet(merchantId);
+    if (!wallet) {
+      throw new Error('Wallet introuvable');
+    }
+
+    // Vérifier que le solde est suffisant
+    if (wallet.balance < requestedAmount) {
+      throw new Error(
+        `Solde insuffisant. Solde disponible: ${formatCurrency(wallet.balance)}, montant demandé: ${formatCurrency(requestedAmount)}`
+      );
+    }
+
+    // Calculer la commission et le montant net
+    const { commissionAmount, netAmount } = calculateWithdrawalAmounts(requestedAmount);
+
+    // Créer la demande de virement
+    const withdrawalData: WithdrawalRequestInsert = {
+      merchant_id: merchantId,
+      wallet_id: wallet.id,
+      requested_amount: requestedAmount,
+      commission_amount: commissionAmount,
+      net_amount: netAmount,
+      status: 'pending',
+      bank_account_name: bankAccountName,
+      bank_account_iban: bankAccountIban,
+      bank_account_bic: bankAccountBic ?? null,
+    };
+
+    const { data: withdrawalRequest, error: withdrawalError } = await supabase
+      .from('withdrawal_requests')
+      .insert(withdrawalData as never)
+      .select()
+      .single();
+
+    if (withdrawalError) throw withdrawalError;
+
+    // Créer une notification pour le commerçant
+    await createNotification(merchantId, {
+      title: 'Demande de virement créée',
+      message: `Votre demande de virement de ${formatCurrency(requestedAmount)} (net: ${formatCurrency(netAmount)} après commission) a été créée et est en attente de validation.`,
+      type: 'info',
+    });
+
+    return withdrawalRequest;
+  } catch (error) {
+    console.error('Erreur lors de la création de la demande de virement:', error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : 'Impossible de créer la demande de virement. Vérifiez votre connexion.'
+    );
+  }
+}
+
+/**
+ * Récupère les demandes de virement d'un commerçant
+ * @param merchantId - ID du commerçant
+ * @param status - Filtrer par statut (optionnel)
+ */
+export async function getWithdrawalRequests(
+  merchantId: string,
+  status?: WithdrawalRequest['status']
+): Promise<WithdrawalRequest[]> {
+  try {
+    let query = supabase
+      .from('withdrawal_requests')
+      .select('*')
+      .eq('merchant_id', merchantId)
+      .order('created_at', { ascending: false });
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    return (data as WithdrawalRequest[]) ?? [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des demandes de virement:', error);
+    throw new Error('Impossible de récupérer les demandes de virement. Vérifiez votre connexion.');
+  }
+}
+
+/**
+ * Annule une demande de virement en attente
+ * @param withdrawalRequestId - ID de la demande de virement
+ * @param merchantId - ID du commerçant (pour vérification)
+ */
+export async function cancelWithdrawalRequest(
+  withdrawalRequestId: string,
+  merchantId: string
+): Promise<void> {
+  try {
+    // Vérifier que la demande appartient au commerçant et est en attente
+    const { data: request, error: fetchError } = await supabase
+      .from('withdrawal_requests')
+      .select('*')
+      .eq('id', withdrawalRequestId)
+      .eq('merchant_id', merchantId)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (!request) {
+      throw new Error('Demande de virement introuvable');
+    }
+
+    if ((request as WithdrawalRequest).status !== 'pending') {
+      throw new Error('Seules les demandes en attente peuvent être annulées');
+    }
+
+    // Mettre à jour le statut
+    const { error: updateError } = await supabase
+      .from('withdrawal_requests')
+      .update({ status: 'cancelled' } as never)
+      .eq('id', withdrawalRequestId);
+
+    if (updateError) throw updateError;
+
+    // Créer une notification
+    await createNotification(merchantId, {
+      title: 'Demande de virement annulée',
+      message: `Votre demande de virement de ${formatCurrency((request as WithdrawalRequest).requested_amount)} a été annulée.`,
+      type: 'info',
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\'annulation de la demande de virement:', error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : 'Impossible d\'annuler la demande de virement. Vérifiez votre connexion.'
+    );
+  }
+}
+
+// Export des types et constantes
+export type { WithdrawalRequest };
+export { MIN_WITHDRAWAL_AMOUNT, WITHDRAWAL_COMMISSION_RATE };
 
