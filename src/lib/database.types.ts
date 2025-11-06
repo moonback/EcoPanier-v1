@@ -8,7 +8,7 @@ export type VehicleType = 'bike' | 'ebike' | 'scooter' | 'car' | 'van';
 export type EquipmentType = 'cooler_bag' | 'large_cooler' | 'thermal_box' | 'delivery_bag';
 export type DeliveryZone = 'center' | 'suburbs' | 'outskirts' | 'all';
 export type AvailabilitySlot = 'morning' | 'afternoon' | 'evening' | 'flexible';
-export type WalletTransactionType = 'recharge' | 'payment' | 'refund';
+export type WalletTransactionType = 'recharge' | 'payment' | 'refund' | 'merchant_payment';
 export type WalletTransactionStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
 export type WalletReferenceType = 'reservation' | 'suspended_basket' | 'mission';
 

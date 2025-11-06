@@ -517,3 +517,171 @@ export async function getWalletTransactionsCount(
   }
 }
 
+/**
+ * Payer un commerçant quand le client confirme la réception d'un lot
+ * @param reservationId - ID de la réservation
+ * @param merchantId - ID du commerçant
+ * @param amount - Montant à payer au commerçant
+ * @param description - Description du paiement
+ */
+export async function payMerchantOnConfirmation(
+  reservationId: string,
+  merchantId: string,
+  amount: number,
+  description: string
+): Promise<WalletTransaction> {
+  try {
+    if (amount <= 0) {
+      throw new Error('Le montant doit être supérieur à 0');
+    }
+
+    // Récupérer le wallet du commerçant
+    const merchantWallet = await getWallet(merchantId);
+    if (!merchantWallet) {
+      throw new Error('Wallet du commerçant introuvable');
+    }
+
+    const balanceBefore = merchantWallet.balance;
+    const balanceAfter = balanceBefore + amount;
+
+    // Créer la transaction de paiement au commerçant
+    const transactionData: WalletTransactionInsert = {
+      wallet_id: merchantWallet.id,
+      user_id: merchantId,
+      type: 'merchant_payment',
+      amount: amount, // Montant positif pour un paiement reçu
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      description,
+      reference_id: reservationId,
+      reference_type: 'reservation',
+      status: 'completed',
+      metadata: null,
+    };
+    const { data: transaction, error: transactionError } = await supabase
+      .from('wallet_transactions')
+      .insert(transactionData as never)
+      .select()
+      .single();
+
+    if (transactionError) throw transactionError;
+
+    // Mettre à jour le solde du wallet du commerçant
+    const updateData: WalletUpdate = {
+      balance: balanceAfter,
+      updated_at: new Date().toISOString(),
+    };
+    const { error: updateError } = await supabase
+      .from('wallets')
+      .update(updateData as never)
+      .eq('id', merchantWallet.id);
+
+    if (updateError) throw updateError;
+
+    // Créer une notification pour le commerçant
+    await createNotification(merchantId, {
+      title: 'Paiement reçu',
+      message: `Vous avez reçu ${formatCurrency(amount)} suite à la confirmation de réception d'un lot. Nouveau solde: ${formatCurrency(balanceAfter)}`,
+      type: 'success',
+    });
+
+    return transaction;
+  } catch (error) {
+    console.error('Erreur lors du paiement au commerçant:', error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : 'Impossible d\'effectuer le paiement au commerçant. Vérifiez votre connexion.'
+    );
+  }
+}
+
+/**
+ * Confirme la réception d'un lot par le client et paie le commerçant
+ * @param reservationId - ID de la réservation
+ * @param customerId - ID du client
+ */
+export async function confirmReceiptAndPayMerchant(
+  reservationId: string,
+  customerId: string
+): Promise<void> {
+  try {
+    // Récupérer la réservation avec le lot et le merchant_id
+    const { data: reservation, error: reservationError } = await supabase
+      .from('reservations')
+      .select(`
+        *,
+        lots!inner(
+          merchant_id,
+          discounted_price
+        )
+      `)
+      .eq('id', reservationId)
+      .eq('user_id', customerId)
+      .single();
+
+    if (reservationError) throw reservationError;
+    if (!reservation) {
+      throw new Error('Réservation introuvable');
+    }
+
+    // Type assertion pour la réservation avec relations
+    const reservationData = reservation as {
+      status: string;
+      customer_confirmed?: boolean;
+      total_price: number;
+      lots: { merchant_id: string; discounted_price: number; title?: string };
+    };
+
+    // Vérifier que la réservation est complétée
+    if (reservationData.status !== 'completed') {
+      throw new Error('La réservation doit être complétée avant de confirmer la réception');
+    }
+
+    // Vérifier que le client n'a pas déjà confirmé
+    if (reservationData.customer_confirmed) {
+      throw new Error('Vous avez déjà confirmé la réception de ce lot');
+    }
+
+    const merchantId = reservationData.lots.merchant_id;
+    const amount = reservationData.total_price;
+
+    // Si le montant est > 0, payer le commerçant
+    if (amount > 0) {
+      await payMerchantOnConfirmation(
+        reservationId,
+        merchantId,
+        amount,
+        `Paiement pour la réservation ${reservationId} - ${reservationData.lots.title || 'Lot'}`
+      );
+    }
+
+    // Mettre à jour la réservation pour marquer comme confirmée
+    const { error: updateError } = await supabase
+      .from('reservations')
+      .update({
+        customer_confirmed: true,
+        updated_at: new Date().toISOString(),
+      } as never)
+      .eq('id', reservationId);
+
+    if (updateError) throw updateError;
+
+    // Créer une notification pour le client
+    await createNotification(customerId, {
+      title: 'Réception confirmée',
+      message: amount > 0
+        ? `Vous avez confirmé la réception. Le commerçant a reçu ${formatCurrency(amount)}.`
+        : 'Vous avez confirmé la réception de votre lot.',
+      type: 'success',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la confirmation de réception:', error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : 'Impossible de confirmer la réception. Vérifiez votre connexion.'
+    );
+  }
+}
+

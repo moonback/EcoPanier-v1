@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useCallback } from 'react';
-import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2, Gift, CheckSquare, Square, Eye, EyeOff } from 'lucide-react';
+import { Package, TrendingUp, Scan, User, ClipboardList, Truck, Plus, Wand2, Gift, CheckSquare, Square, Eye, EyeOff, Wallet } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -10,10 +10,11 @@ import { SalesStats } from './SalesStats';
 import { MissionsManagement } from './MissionsManagement';
 import { ProfilePage } from '../shared/ProfilePage';
 import { MerchantHeader } from './MerchantHeader';
+import { MerchantWalletPage } from './WalletPage';
 import { generateFictionalLots } from '../../utils/generateFictionalLots';
 
 // Type pour les onglets
-type TabId = 'lots' | 'reservations' | 'missions' | 'stats' | 'profile';
+type TabId = 'lots' | 'reservations' | 'missions' | 'stats' | 'wallet' | 'profile';
 
 /**
  * Dashboard principal pour les commerçants
@@ -102,6 +103,7 @@ export const MerchantDashboard = () => {
     { id: 'reservations' as TabId, label: 'Commandes', icon: ClipboardList, emoji: '📋' },
     { id: 'missions' as TabId, label: 'Missions', icon: Truck, emoji: '🚚' },
     { id: 'stats' as TabId, label: 'Stats', icon: TrendingUp, emoji: '📊' },
+    { id: 'wallet' as TabId, label: 'Portefeuille', icon: Wallet, emoji: '💰' },
     { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
 
@@ -225,6 +227,7 @@ export const MerchantDashboard = () => {
         {activeTab === 'reservations' && <MerchantReservations />}
         {activeTab === 'missions' && <MissionsManagement />}
         {activeTab === 'stats' && <SalesStats />}
+        {activeTab === 'wallet' && <MerchantWalletPage />}
         {activeTab === 'profile' && <ProfilePage />}
       </main>
 

@@ -5,6 +5,7 @@ import { Package } from 'lucide-react';
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
 import { useReservations } from '../../hooks/useReservations';
+import { confirmReceiptAndPayMerchant } from '../../utils/walletService';
 import {
   ReservationCard,
   QRCodeModal,
@@ -34,8 +35,8 @@ export const ReservationsList = () => {
   );
 
   // Hooks (stores, contexts, router)
-  const { profile } = useAuthStore();
-  const { reservations, loading, error, cancelReservation } = useReservations(
+  const { profile, user } = useAuthStore();
+  const { reservations, loading, error, cancelReservation, refetch } = useReservations(
     profile?.id
   );
 
@@ -55,6 +56,21 @@ export const ReservationsList = () => {
           ? err.message
           : 'Erreur lors de l\'annulation de la réservation'
       );
+    }
+  };
+
+  const handleConfirmReceipt = async (reservationId: string) => {
+    if (!user?.id) {
+      alert('Vous devez être connecté pour confirmer la réception');
+      return;
+    }
+
+    try {
+      await confirmReceiptAndPayMerchant(reservationId, user.id);
+      // Rafraîchir la liste des réservations
+      await refetch();
+    } catch (err) {
+      throw err; // L'erreur sera gérée par ReservationCard
     }
   };
 
@@ -111,6 +127,7 @@ export const ReservationsList = () => {
             reservation={reservation}
             onShowQRCode={setSelectedReservation}
             onCancel={handleCancelReservation}
+            onConfirmReceipt={handleConfirmReceipt}
           />
         ))}
       </div>

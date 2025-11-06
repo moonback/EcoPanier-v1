@@ -1,9 +1,11 @@
-import { Package, MapPin, Clock, Key, X } from 'lucide-react';
+import { useState } from 'react';
+import { Package, MapPin, Clock, Key, X, CheckCircle } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
 import { formatCurrency, formatDateTime } from '../../../utils/helpers';
 import type { Database } from '../../../lib/database.types';
 
 type Reservation = Database['public']['Tables']['reservations']['Row'] & {
+  customer_confirmed?: boolean;
   lots: Database['public']['Tables']['lots']['Row'] & {
     profiles: {
       business_name: string;
@@ -16,6 +18,7 @@ interface ReservationCardProps {
   reservation: Reservation;
   onShowQRCode: (reservation: Reservation) => void;
   onCancel: (reservationId: string, lotId: string, quantity: number) => void;
+  onConfirmReceipt?: (reservationId: string) => Promise<void>;
 }
 
 /**
@@ -26,7 +29,9 @@ export function ReservationCard({
   reservation,
   onShowQRCode,
   onCancel,
+  onConfirmReceipt,
 }: ReservationCardProps) {
+  const [confirming, setConfirming] = useState(false);
   // Fonction pour obtenir les styles selon le statut
   const getStatusStyles = () => {
     switch (reservation.status) {
@@ -79,6 +84,32 @@ export function ReservationCard({
     : true;
   
   const canCancel = reservation.status === 'pending' && isDonationCancellable;
+  const canConfirmReceipt = 
+    reservation.status === 'completed' && 
+    !reservation.customer_confirmed && 
+    !reservation.is_donation &&
+    onConfirmReceipt;
+
+  const handleConfirmReceipt = async () => {
+    if (!onConfirmReceipt) return;
+    
+    if (!confirm('Confirmez-vous avoir bien reçu ce lot ? Le commerçant sera payé.')) {
+      return;
+    }
+
+    setConfirming(true);
+    try {
+      await onConfirmReceipt(reservation.id);
+    } catch (error) {
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la confirmation de réception'
+      );
+    } finally {
+      setConfirming(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
@@ -165,10 +196,36 @@ export function ReservationCard({
               <X size={20} strokeWidth={1.5} />
             </button>
           )}
-          {reservation.status === 'completed' && (
+          {reservation.status === 'completed' && !canConfirmReceipt && (
             <div className="flex-1 py-3 px-4 bg-gray-100 text-black rounded-lg text-sm font-medium text-center">
-              ✓ Panier récupéré
+              {reservation.customer_confirmed ? (
+                <span className="flex items-center justify-center gap-2">
+                  <CheckCircle size={16} />
+                  Réception confirmée
+                </span>
+              ) : (
+                '✓ Panier récupéré'
+              )}
             </div>
+          )}
+          {canConfirmReceipt && (
+            <button
+              onClick={handleConfirmReceipt}
+              disabled={confirming}
+              className="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {confirming ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Confirmation...
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={16} />
+                  Confirmer la réception
+                </>
+              )}
+            </button>
           )}
           {reservation.status === 'cancelled' && (
             <div className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
