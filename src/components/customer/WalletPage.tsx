@@ -90,6 +90,7 @@ export const WalletPage = () => {
   // Effets
   useEffect(() => {
     loadWalletData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, filterType, currentPage]);
 
   // Handlers
@@ -408,7 +409,6 @@ interface TransactionItemProps {
 
 function TransactionItem({ transaction }: TransactionItemProps) {
   const isPositive = transaction.type === 'recharge' || transaction.type === 'refund';
-  const isPayment = transaction.type === 'payment';
 
   const getTypeLabel = () => {
     switch (transaction.type) {
