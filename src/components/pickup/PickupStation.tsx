@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { QRScanner } from '../shared/QRScanner';
 import { PickupHelp } from './PickupHelp';
 import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../stores/authStore';
 import { 
   Package, 
   CheckCircle, 
@@ -42,6 +43,10 @@ interface QRData {
 }
 
 export const PickupStation = () => {
+  // Hooks (stores, contexts, router)
+  const { profile } = useAuthStore();
+
+  // État local
   const [scannerActive, setScannerActive] = useState(false);
   const [helpActive, setHelpActive] = useState(false);
   const [reservation, setReservation] = useState<Reservation | null>(null);
@@ -58,6 +63,8 @@ export const PickupStation = () => {
   // Charger les statistiques du jour au montage
   useEffect(() => {
     const loadTodayStats = async () => {
+      if (!profile || profile.role !== 'merchant') return;
+
       try {
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
@@ -66,7 +73,11 @@ export const PickupStation = () => {
 
         const { data, error: statsError } = await supabase
           .from('reservations')
-          .select('status')
+          .select(`
+            status,
+            lots!inner(merchant_id)
+          `)
+          .eq('lots.merchant_id', profile.id)
           .gte('created_at', todayStart.toISOString())
           .lte('created_at', todayEnd.toISOString());
 
@@ -80,31 +91,39 @@ export const PickupStation = () => {
     };
 
     loadTodayStats();
-  }, [success]); // Recharger après chaque succès
+  }, [success, profile]); // Recharger après chaque succès
 
   const handleScan = async (data: string) => {
     setScannerActive(false);
     setLoading(true);
     setError(null);
 
+    if (!profile || profile.role !== 'merchant') {
+      setError('Accès réservé aux commerçants');
+      setLoading(false);
+      return;
+    }
+
     try {
       const qrData: QRData = JSON.parse(data);
 
-      // Fetch la réservation principale scannée
+      // Fetch la réservation principale scannée avec filtre par commerçant
       const { data: mainReservation, error: fetchError } = await supabase
         .from('reservations')
         .select(`
           *,
-          lots(
+          lots!inner(
             *,
+            merchant_id,
             profiles(business_name, business_address, business_logo_url)
           ),
           profiles(full_name)
         `)
         .eq('id', qrData.reservationId)
+        .eq('lots.merchant_id', profile.id)
         .single();
 
-      if (fetchError) throw new Error('Réservation introuvable');
+      if (fetchError) throw new Error('Réservation introuvable ou n\'appartient pas à votre commerce');
 
       const typedMainReservation = mainReservation as Reservation;
 
@@ -117,18 +136,20 @@ export const PickupStation = () => {
         throw new Error('Cette réservation a été annulée');
       }
 
-      // 🎯 MODE MULTI-RETRAIT : Chercher TOUTES les réservations actives de cet utilisateur
+      // 🎯 MODE MULTI-RETRAIT : Chercher TOUTES les réservations actives de cet utilisateur pour CE COMMERÇANT
       const { data: allUserReservations, error: allReservationsError } = await supabase
         .from('reservations')
         .select(`
           *,
-          lots(
+          lots!inner(
             *,
+            merchant_id,
             profiles(business_name, business_address, business_logo_url)
           ),
           profiles(full_name)
         `)
         .eq('user_id', qrData.userId)
+        .eq('lots.merchant_id', profile.id)
         .in('status', ['pending', 'confirmed'])
         .order('created_at', { ascending: true });
 
@@ -347,6 +368,23 @@ export const PickupStation = () => {
     // Mode Standard
     return reservation && reservation.pickup_pin === enteredPin;
   };
+
+  // Early return si l'utilisateur n'est pas un commerçant
+  if (!profile || profile.role !== 'merchant') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="bg-white rounded-3xl p-12 max-w-md w-full text-center shadow-2xl">
+          <div className="w-28 h-28 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl">
+            <Lock size={56} className="text-white" strokeWidth={2.5} />
+          </div>
+          <h2 className="text-4xl font-bold text-black mb-3">Accès Refusé</h2>
+          <p className="text-lg text-gray-600 mb-8 font-light leading-relaxed">
+            La Station de Retrait est réservée aux commerçants uniquement.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (success) {
     return (
