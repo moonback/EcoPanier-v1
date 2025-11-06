@@ -1,12 +1,13 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { LogOut, type LucideIcon, Package, ShoppingBag, Heart, Sparkles, TrendingDown, Filter } from 'lucide-react';
+import { LogOut, type LucideIcon, Package, ShoppingBag, Heart, Sparkles, TrendingDown, Filter, Wallet } from 'lucide-react';
 import { ReactNode } from 'react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
 import { formatCurrency } from '../../utils/helpers';
+import { getWalletBalance } from '../../utils/walletService';
 
 // Types
 interface ActionButton {
@@ -50,6 +51,7 @@ interface QuickStats {
   mealsSaved: number;
   moneySaved: number;
   donationsMade: number;
+  walletBalance: number;
 }
 
 /**
@@ -77,6 +79,7 @@ export const CustomerHeader = ({
     mealsSaved: 0,
     moneySaved: 0,
     donationsMade: 0,
+    walletBalance: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
 
@@ -107,30 +110,40 @@ export const CustomerHeader = ({
     try {
       setLoadingStats(true);
 
-      // Récupérer les réservations actives (pending, confirmed)
-      const { data: activeReservations, error: reservationsError } = await supabase
-        .from('reservations')
-        .select('quantity, total_price, is_donation')
-        .eq('user_id', profile.id)
-        .in('status', ['pending', 'confirmed']);
+      // Récupérer les données en parallèle
+      const [
+        activeReservationsResult,
+        completedReservationsResult,
+        walletBalance,
+      ] = await Promise.all([
+        // Récupérer les réservations actives (pending, confirmed)
+        supabase
+          .from('reservations')
+          .select('quantity, total_price, is_donation')
+          .eq('user_id', profile.id)
+          .in('status', ['pending', 'confirmed']),
+        // Récupérer les réservations complétées pour calculer l'impact
+        supabase
+          .from('reservations')
+          .select(`
+            quantity,
+            total_price,
+            is_donation,
+            lots!inner(
+              original_price,
+              discounted_price
+            )
+          `)
+          .eq('user_id', profile.id)
+          .eq('status', 'completed'),
+        // Récupérer le solde du wallet
+        getWalletBalance(profile.id).catch(() => 0),
+      ]);
 
+      const { data: activeReservations, error: reservationsError } = activeReservationsResult;
       if (reservationsError) throw reservationsError;
 
-      // Récupérer les réservations complétées pour calculer l'impact
-      const { data: completedReservations, error: completedError } = await supabase
-        .from('reservations')
-        .select(`
-          quantity,
-          total_price,
-          is_donation,
-          lots!inner(
-            original_price,
-            discounted_price
-          )
-        `)
-        .eq('user_id', profile.id)
-        .eq('status', 'completed');
-
+      const { data: completedReservations, error: completedError } = completedReservationsResult;
       if (completedError) throw completedError;
 
       // Calculer les statistiques
@@ -159,6 +172,7 @@ export const CustomerHeader = ({
         mealsSaved,
         moneySaved,
         donationsMade,
+        walletBalance,
       });
     } catch (error) {
       console.error('Erreur lors de la récupération des statistiques:', error);
@@ -251,6 +265,13 @@ export const CustomerHeader = ({
     if (!showStats) return null;
 
     const stats = [
+      {
+        icon: Wallet,
+        label: 'Wallet',
+        value: formatCurrency(quickStats.walletBalance),
+        show: true, // Toujours afficher le wallet
+        color: 'primary',
+      },
       {
         icon: ShoppingBag,
         label: 'En cours',
