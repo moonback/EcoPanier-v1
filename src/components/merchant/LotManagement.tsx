@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
-import { deleteImages } from '../../utils/helpers';
+import { deleteImages, formatCurrency, formatDate } from '../../utils/helpers';
 import {
   LotCard,
   LotFormModal,
@@ -15,7 +15,9 @@ import {
   InfoModal,
   type Lot,
 } from './lot-management';
-import { Trash2, Gift } from 'lucide-react';
+import { Trash2, Gift, Crown } from 'lucide-react';
+import { MERCHANT_DAILY_LOT_LIMIT, MERCHANT_SUBSCRIPTION_PRICE, fetchMerchantSubscriptionInfo, getMerchantLotQuota } from '../../utils/subscriptionService';
+import type { MerchantLotQuota, MerchantSubscriptionInfo } from '../../utils/subscriptionService';
 
 interface LotManagementProps {
   onCreateLotClick?: (handler: () => void) => void;
@@ -51,18 +53,120 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
   const [lotToDelete, setLotToDelete] = useState<Lot | null>(null);
   const [processingDelete, setProcessingDelete] = useState(false);
   const { profile } = useAuthStore();
+  const [subscriptionInfo, setSubscriptionInfo] = useState<MerchantSubscriptionInfo | null>(null);
+  const [lotQuota, setLotQuota] = useState<MerchantLotQuota | null>(null);
+
+  const showQuotaLimitModal = useCallback(
+    (customMessage?: string) => {
+      setInfoMessage(
+        customMessage ??
+          `Vous avez atteint la limite quotidienne de ${MERCHANT_DAILY_LOT_LIMIT} lots.\n\nActivez l'abonnement commerçant depuis votre Portefeuille pour publier en illimité.`
+      );
+      setShowInfoModal(true);
+    },
+    [setInfoMessage, setShowInfoModal]
+  );
+
+  const loadSubscriptionInfo = useCallback(async () => {
+    if (!profile?.id) return;
+
+    try {
+      const info = await fetchMerchantSubscriptionInfo(profile.id);
+      setSubscriptionInfo(info);
+      const quota = await getMerchantLotQuota(profile.id, info);
+      setLotQuota(quota);
+    } catch (error) {
+      console.error("Erreur lors du chargement des informations d'abonnement:", error);
+    }
+  }, [profile?.id, profile?.subscription_status, profile?.subscription_expires_at]);
+
+  useEffect(() => {
+    loadSubscriptionInfo();
+  }, [loadSubscriptionInfo]);
+
+  const refreshLotQuota = useCallback(async () => {
+    if (!profile?.id) return;
+
+    try {
+      const quota = await getMerchantLotQuota(profile.id, subscriptionInfo ?? undefined);
+      setLotQuota(quota);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du quota de lots:', error);
+    }
+  }, [profile?.id, subscriptionInfo]);
+
+  const ensureCanCreateLot = useCallback(async () => {
+    if (!profile?.id) {
+      return false;
+    }
+
+    let info = subscriptionInfo;
+
+    if (!info) {
+      try {
+        info = await fetchMerchantSubscriptionInfo(profile.id);
+        setSubscriptionInfo(info);
+      } catch (error) {
+        console.error("Erreur lors de la récupération du statut d'abonnement:", error);
+        setErrorMessage("Impossible de vérifier votre abonnement. Veuillez réessayer.");
+        setShowErrorModal(true);
+        return false;
+      }
+    }
+
+    if (info.status === 'active') {
+      setLotQuota({
+        limit: null,
+        used: 0,
+        remaining: null,
+        hasActiveSubscription: true,
+      });
+      return true;
+    }
+
+    try {
+      const quota = await getMerchantLotQuota(profile.id, info);
+      setLotQuota(quota);
+
+      if (!quota.hasActiveSubscription && quota.limit !== null && quota.remaining !== null && quota.remaining <= 0) {
+        showQuotaLimitModal();
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la vérification du quota de publication:', error);
+      setErrorMessage('Impossible de vérifier votre quota de publication. Veuillez réessayer.');
+      setShowErrorModal(true);
+      return false;
+    }
+  }, [profile?.id, subscriptionInfo, showQuotaLimitModal, setErrorMessage, setShowErrorModal]);
+
+  const hasActiveSubscription = subscriptionInfo?.status === 'active';
+  const remainingLots = !hasActiveSubscription ? lotQuota?.remaining ?? null : null;
+  const remainingLotsLabel =
+    remainingLots === null
+      ? null
+      : remainingLots <= 0
+        ? "Aucune publication restante aujourd'hui"
+        : `${remainingLots} lot${remainingLots > 1 ? 's' : ''} restant${remainingLots > 1 ? 's' : ''} aujourd'hui`;
 
   // Enregistrer le handler pour ouvrir le modal de création depuis le header
   useEffect(() => {
     if (onCreateLotClick) {
       const handleCreate = () => {
-        setEditingLot(null);
-        setShowModal(true);
+        void (async () => {
+          const canCreate = await ensureCanCreateLot();
+          if (!canCreate) {
+            return;
+          }
+          setEditingLot(null);
+          setShowModal(true);
+        })();
       };
       onCreateLotClick(handleCreate);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [onCreateLotClick, ensureCanCreateLot]);
 
   // Enregistrer le handler pour passer tous les lots en don depuis le header
   useEffect(() => {
@@ -160,12 +264,13 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
 
       if (refreshError) throw refreshError;
       setLots(updatedData);
+      refreshLotQuota();
     } catch (error) {
       console.error('Error fetching lots:', error);
     } finally {
       setLoading(false);
     }
-  }, [profile, cleanupOldSoldOutLots]);
+  }, [profile, cleanupOldSoldOutLots, refreshLotQuota]);
 
   useEffect(() => {
     fetchLots();
@@ -619,6 +724,65 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
 
       </div>
 
+      {subscriptionInfo && (
+        <div className="mb-6">
+          <div
+            className={`card border p-4 sm:p-5 ${
+              hasActiveSubscription
+                ? 'border-emerald-200 bg-emerald-50/90'
+                : 'border-amber-200 bg-amber-50/90'
+            }`}
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl text-white ${
+                    hasActiveSubscription ? 'bg-emerald-500' : 'bg-amber-500'
+                  }`}
+                >
+                  <Crown className="h-6 w-6" strokeWidth={2.5} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-semibold text-gray-900">
+                    {hasActiveSubscription
+                      ? 'Abonnement commerçant actif'
+                      : `Limite quotidienne de ${MERCHANT_DAILY_LOT_LIMIT} lots`}
+                  </h3>
+                  <p className="text-sm text-gray-700">
+                    {hasActiveSubscription
+                      ? `Publication illimitée jusqu'au ${
+                          subscriptionInfo.expiresAt
+                            ? formatDate(subscriptionInfo.expiresAt)
+                            : 'prochain renouvellement'
+                        }.`
+                      : `Publiez jusqu'à ${MERCHANT_DAILY_LOT_LIMIT} lots par jour sans abonnement.`}
+                  </p>
+                  {!hasActiveSubscription && remainingLotsLabel && (
+                    <p className="text-sm font-semibold text-gray-800">
+                      {remainingLotsLabel}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {hasActiveSubscription ? (
+                <div className="text-sm font-semibold text-emerald-700 sm:text-right">
+                  {subscriptionInfo.expiresAt
+                    ? `Renouvellement le ${formatDate(subscriptionInfo.expiresAt)}`
+                    : 'Renouvellement automatique actif'}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-800 sm:text-right">
+                  <p className="font-semibold">Passez à l'abonnement illimité</p>
+                  <p className="text-gray-600">
+                    Activez-le dans l'onglet Portefeuille pour {formatCurrency(MERCHANT_SUBSCRIPTION_PRICE)} / mois.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Barre d'actions flottante */}
       {selectionMode && selectedLotIds.size > 0 && (
         <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-white border-t-2 border-gray-300 shadow-2xl animate-fade-in-up" style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
@@ -749,7 +913,11 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
           <h3 className="text-xl font-bold text-gray-900 mb-2">Aucun produit disponible</h3>
           <p className="text-gray-600 mb-6">Commencez par créer votre premier panier anti-gaspi !</p>
           <button
-            onClick={() => {
+            onClick={async () => {
+              const canCreate = await ensureCanCreateLot();
+              if (!canCreate) {
+                return;
+              }
               setEditingLot(null);
               setShowModal(true);
             }}
@@ -765,6 +933,9 @@ export const LotManagement = ({ onCreateLotClick, onMakeAllFreeClick, onSelectio
         <LotFormModal
           editingLot={editingLot}
           merchantId={profile.id}
+          hasActiveSubscription={hasActiveSubscription}
+          dailyLotLimit={MERCHANT_DAILY_LOT_LIMIT}
+          onQuotaExceeded={showQuotaLimitModal}
           onClose={() => {
             setShowModal(false);
             setEditingLot(null);

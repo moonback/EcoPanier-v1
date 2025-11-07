@@ -1,5 +1,5 @@
 // Imports externes
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Wallet,
   ArrowUp,
@@ -18,6 +18,7 @@ import {
   Hash,
   FileText,
   Eye,
+  Crown,
 } from 'lucide-react';
 
 // Imports internes
@@ -34,10 +35,18 @@ import {
   type WalletStats,
   type WithdrawalRequest,
 } from '../../utils/walletService';
-import { formatCurrency, formatDateTime } from '../../utils/helpers';
+import { formatCurrency, formatDateTime, formatDate } from '../../utils/helpers';
 import { WithdrawalRequestModal } from './components/WithdrawalRequestModal';
 import { BankAccountModal } from './components/BankAccountModal';
 import { supabase } from '../../lib/supabase';
+import {
+  MERCHANT_DAILY_LOT_LIMIT,
+  MERCHANT_SUBSCRIPTION_DURATION_DAYS,
+  MERCHANT_SUBSCRIPTION_PRICE,
+  activateMerchantSubscription,
+  fetchMerchantSubscriptionInfo,
+} from '../../utils/subscriptionService';
+import type { MerchantSubscriptionInfo } from '../../utils/subscriptionService';
 
 // Constantes
 const TRANSACTIONS_PER_PAGE = 20;
@@ -57,7 +66,7 @@ type ReservationWithLot = {
  */
 export const MerchantWalletPage = () => {
   // Hooks (stores, contexts, router)
-  const { user } = useAuthStore();
+  const { user, fetchProfile } = useAuthStore();
 
   // État local
   const [balance, setBalance] = useState<number>(0);
@@ -73,6 +82,11 @@ export const MerchantWalletPage = () => {
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [showBankAccountModal, setShowBankAccountModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<WalletTransactionType | null>(null);
+  const [subscriptionInfo, setSubscriptionInfo] = useState<MerchantSubscriptionInfo | null>(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
+  const [subscriptionSuccessMessage, setSubscriptionSuccessMessage] = useState<string | null>(null);
+  const [processingSubscription, setProcessingSubscription] = useState(false);
 
   // Enrichir les transactions avec les titres des lots depuis les réservations
   const enrichTransactionsWithLotTitles = async (
@@ -201,16 +215,45 @@ export const MerchantWalletPage = () => {
     }
   };
 
+  const loadSubscriptionInfo = useCallback(async () => {
+    if (!user?.id) {
+      setSubscriptionInfo(null);
+      setSubscriptionLoading(false);
+      return;
+    }
+
+    try {
+      setSubscriptionLoading(true);
+      setSubscriptionError(null);
+      const info = await fetchMerchantSubscriptionInfo(user.id);
+      setSubscriptionInfo(info);
+    } catch (error) {
+      console.error("Erreur lors du chargement de l'abonnement commerçant:", error);
+      setSubscriptionError(
+        error instanceof Error
+          ? error.message
+          : "Impossible de charger les informations d'abonnement. Réessayez plus tard."
+      );
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  }, [user?.id]);
+
   // Effets
   useEffect(() => {
     loadWalletData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, filterType, currentPage]);
 
+  useEffect(() => {
+    loadSubscriptionInfo();
+  }, [loadSubscriptionInfo]);
+
   // Handlers
   const handleRefresh = () => {
     setRefreshing(true);
     loadWalletData();
+    void loadSubscriptionInfo();
   };
 
   const handleFilterChange = (type: 'all' | 'merchant_payment') => {
@@ -218,8 +261,54 @@ export const MerchantWalletPage = () => {
     setCurrentPage(1);
   };
 
+  const handleSubscribe = async () => {
+    if (!user?.id) return;
+
+    try {
+      setProcessingSubscription(true);
+      setSubscriptionError(null);
+      setSubscriptionSuccessMessage(null);
+
+      const info = await activateMerchantSubscription(user.id);
+      setSubscriptionInfo(info);
+      setSubscriptionSuccessMessage(
+        info.expiresAt
+          ? `Abonnement activé. Renouvellement le ${formatDate(info.expiresAt)}.`
+          : 'Abonnement activé avec succès.'
+      );
+
+      await fetchProfile();
+      await loadWalletData();
+    } catch (error) {
+      console.error("Erreur lors de l'activation de l'abonnement commerçant:", error);
+      setSubscriptionError(
+        error instanceof Error
+          ? error.message
+          : "Impossible d'activer l'abonnement. Vérifiez votre solde et réessayez."
+      );
+    } finally {
+      setProcessingSubscription(false);
+    }
+  };
+
   // Calculs
   const totalPages = Math.ceil(totalTransactions / TRANSACTIONS_PER_PAGE);
+  const isSubscriptionActive = subscriptionInfo?.status === 'active';
+  const subscriptionExpiryLabel =
+    isSubscriptionActive && subscriptionInfo?.expiresAt
+      ? formatDate(subscriptionInfo.expiresAt)
+      : null;
+  const subscriptionDaysLabel =
+    isSubscriptionActive && typeof subscriptionInfo?.daysRemaining === 'number'
+      ? subscriptionInfo.daysRemaining === 0
+        ? "Expire aujourd'hui"
+        : `${subscriptionInfo.daysRemaining} jour${subscriptionInfo.daysRemaining > 1 ? 's' : ''} restant${subscriptionInfo.daysRemaining > 1 ? 's' : ''}`
+      : null;
+  const subscriptionButtonLabel = processingSubscription
+    ? 'Paiement en cours...'
+    : isSubscriptionActive
+      ? `Prolonger de ${MERCHANT_SUBSCRIPTION_DURATION_DAYS} jours`
+      : 'Activer maintenant';
 
   // Early returns
   if (loading) {
@@ -314,6 +403,66 @@ export const MerchantWalletPage = () => {
                   <span>Virement</span>
                 )}
               </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Abonnement commerçant */}
+        <div className="card p-4 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
+                  <Crown className="h-5 w-5" strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Abonnement commerçant</h2>
+                  <p className="text-sm text-gray-600">
+                    Publiez en illimité vos lots et dépassez la limite de {MERCHANT_DAILY_LOT_LIMIT} lots par jour.
+                  </p>
+                </div>
+              </div>
+
+              {subscriptionLoading ? (
+                <p className="text-sm text-gray-500">Chargement du statut d'abonnement...</p>
+              ) : (
+                <>
+                  <p className={`text-sm ${isSubscriptionActive ? 'text-emerald-700' : 'text-gray-700'}`}>
+                    {isSubscriptionActive
+                      ? subscriptionExpiryLabel
+                        ? `Abonnement actif. Renouvellement le ${subscriptionExpiryLabel}.`
+                        : 'Abonnement actif.'
+                      : 'Aucun abonnement actif pour le moment.'}
+                  </p>
+                  {subscriptionDaysLabel && (
+                    <p className="text-xs font-medium text-emerald-600">{subscriptionDaysLabel}</p>
+                  )}
+                </>
+              )}
+
+              {subscriptionError && (
+                <p className="text-sm text-red-600">{subscriptionError}</p>
+              )}
+              {subscriptionSuccessMessage && (
+                <p className="text-sm text-emerald-600">{subscriptionSuccessMessage}</p>
+              )}
+            </div>
+
+            <div className="flex flex-col items-stretch gap-2 sm:items-end">
+              <div className="text-sm font-medium text-gray-800">
+                {formatCurrency(MERCHANT_SUBSCRIPTION_PRICE)} / {MERCHANT_SUBSCRIPTION_DURATION_DAYS} jours
+              </div>
+              <button
+                onClick={handleSubscribe}
+                disabled={processingSubscription || subscriptionLoading || !user?.id}
+                className="btn-primary inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {processingSubscription && <RefreshCw className="h-4 w-4 animate-spin" />}
+                {subscriptionButtonLabel}
+              </button>
+              <p className="text-xs text-gray-500 sm:text-right">
+                Le montant sera débité de votre portefeuille instantanément.
+              </p>
             </div>
           </div>
         </div>

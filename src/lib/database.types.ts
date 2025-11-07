@@ -10,7 +10,7 @@ export type DeliveryZone = 'center' | 'suburbs' | 'outskirts' | 'all';
 export type AvailabilitySlot = 'morning' | 'afternoon' | 'evening' | 'flexible';
 export type WalletTransactionType = 'recharge' | 'payment' | 'refund' | 'merchant_payment';
 export type WalletTransactionStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
-export type WalletReferenceType = 'reservation' | 'suspended_basket' | 'mission';
+export type WalletReferenceType = 'reservation' | 'suspended_basket' | 'mission' | 'subscription';
 export type WithdrawalRequestStatus = 'pending' | 'approved' | 'processing' | 'completed' | 'rejected' | 'cancelled';
 
 export interface CollectorPreferences {
@@ -46,6 +46,9 @@ export interface Database {
           longitude: number | null;
           beneficiary_id: string | null;
           verified: boolean;
+          subscription_status: 'none' | 'active' | 'expired';
+          subscription_plan: string | null;
+          subscription_expires_at: string | null;
           collector_preferences: CollectorPreferences | null;
           created_at: string;
           updated_at: string;
@@ -69,6 +72,9 @@ export interface Database {
           longitude?: number | null;
           beneficiary_id?: string | null;
           verified?: boolean;
+          subscription_status?: 'none' | 'active' | 'expired';
+          subscription_plan?: string | null;
+          subscription_expires_at?: string | null;
           collector_preferences?: CollectorPreferences | null;
           created_at?: string;
           updated_at?: string;
@@ -92,6 +98,9 @@ export interface Database {
           longitude?: number | null;
           beneficiary_id?: string | null;
           verified?: boolean;
+          subscription_status?: 'none' | 'active' | 'expired';
+          subscription_plan?: string | null;
+          subscription_expires_at?: string | null;
           collector_preferences?: CollectorPreferences | null;
           created_at?: string;
           updated_at?: string;
@@ -532,6 +541,47 @@ export interface Database {
           iban?: string;
           bic?: string | null;
           is_default?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      merchant_subscriptions: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          plan: string;
+          amount: number;
+          status: 'active' | 'expired' | 'cancelled';
+          starts_at: string;
+          ends_at: string;
+          wallet_transaction_id: string | null;
+          metadata: Record<string, unknown> | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          plan: string;
+          amount: number;
+          status?: 'active' | 'expired' | 'cancelled';
+          starts_at: string;
+          ends_at: string;
+          wallet_transaction_id?: string | null;
+          metadata?: Record<string, unknown> | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          plan?: string;
+          amount?: number;
+          status?: 'active' | 'expired' | 'cancelled';
+          starts_at?: string;
+          ends_at?: string;
+          wallet_transaction_id?: string | null;
+          metadata?: Record<string, unknown> | null;
           created_at?: string;
           updated_at?: string;
         };

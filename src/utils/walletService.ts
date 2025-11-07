@@ -218,7 +218,7 @@ export async function payFromWallet(
   amount: number,
   description: string,
   referenceId?: string,
-  referenceType?: 'reservation' | 'suspended_basket' | 'mission',
+  referenceType?: 'reservation' | 'suspended_basket' | 'mission' | 'subscription',
   metadata?: Record<string, unknown>
 ): Promise<WalletTransaction> {
   try {

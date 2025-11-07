@@ -9,11 +9,14 @@ import { ScheduleStep } from './steps/ScheduleStep';
 import { OptionsStep } from './steps/OptionsStep';
 import { useLotForm } from './useLotForm';
 import type { Lot, LotInsert, LotUpdate } from './types';
-import { format, startOfDay, addDays } from 'date-fns';
+import { format, startOfDay, endOfDay, addDays } from 'date-fns';
 
 interface LotFormModalProps {
   editingLot: Lot | null;
   merchantId: string;
+  hasActiveSubscription: boolean;
+  dailyLotLimit: number;
+  onQuotaExceeded: () => void;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -21,10 +24,14 @@ interface LotFormModalProps {
 export const LotFormModal = ({
   editingLot,
   merchantId,
+  hasActiveSubscription,
+  dailyLotLimit,
+  onQuotaExceeded,
   onClose,
   onSuccess,
 }: LotFormModalProps) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [quotaError, setQuotaError] = useState<string | null>(null);
   const formState = useLotForm(editingLot);
 
   const totalSteps = editingLot ? 4 : 5;
@@ -81,8 +88,32 @@ export const LotFormModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setQuotaError(null);
 
     try {
+      if (!editingLot && !hasActiveSubscription) {
+        const startOfToday = startOfDay(new Date()).toISOString();
+        const endOfToday = endOfDay(new Date()).toISOString();
+
+        const { count, error: countError } = await supabase
+          .from('lots')
+          .select('id', { count: 'exact', head: true })
+          .eq('merchant_id', merchantId)
+          .gte('created_at', startOfToday)
+          .lte('created_at', endOfToday);
+
+        if (countError) {
+          throw countError;
+        }
+
+        const used = count ?? 0;
+        if (used >= dailyLotLimit) {
+          setQuotaError(`Vous avez atteint la limite quotidienne de ${dailyLotLimit} lots.`);
+          onQuotaExceeded();
+          return;
+        }
+      }
+
       if (editingLot) {
         const updateData: LotUpdate = {
           title: formState.formData.title,
@@ -131,6 +162,7 @@ export const LotFormModal = ({
       }
 
       onSuccess();
+      setQuotaError(null);
       onClose();
       formState.resetForm();
     } catch (error) {
@@ -142,6 +174,7 @@ export const LotFormModal = ({
   const handleClose = () => {
     onClose();
     formState.resetForm();
+    setQuotaError(null);
   };
 
   const canProceed = formState.canProceedToNextStep(currentStep, !!editingLot);
@@ -176,6 +209,11 @@ export const LotFormModal = ({
         {/* Contenu du formulaire */}
         <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
           <form onSubmit={handleSubmit}>
+            {quotaError && (
+              <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                {quotaError}
+              </div>
+            )}
             {/* Étape 1 : Analyse IA (uniquement en création) */}
             {!editingLot && currentStep === 1 && (
               <AIAnalysisStep formState={formState} onNextStep={nextStep} />
