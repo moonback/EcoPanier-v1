@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { UserRole } from '../../lib/database.types';
-import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, Heart, FileText, FileCheck, Briefcase, ArrowLeft, Eye, EyeOff, Shield, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, Building, ShoppingCart, Store, FileText, FileCheck, Briefcase, ArrowLeft, Eye, EyeOff, Shield, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 // Types de commerces disponibles
 const BUSINESS_TYPES = [
@@ -416,30 +416,6 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   )}
                 </button>
 
-                {/* Bénéficiaire */}
-                <button
-                  type="button"
-                  onClick={() => setRole('beneficiary')}
-                  className={`group p-5 rounded-xl border-2 transition-all duration-200 text-left relative overflow-hidden ${
-                    role === 'beneficiary'
-                      ? 'border-accent-600 bg-gradient-to-br from-accent-600 to-accent-700 text-white shadow-xl scale-105'
-                      : 'border-gray-200 bg-white text-gray-900 hover:border-accent-300 hover:shadow-lg hover:-translate-y-0.5'
-                  }`}
-                >
-                  <div className={`p-3 rounded-xl inline-flex mb-3 ${role === 'beneficiary' ? 'bg-white/20' : 'bg-accent-50'} group-hover:scale-110 transition-transform duration-200`}>
-                    <Heart size={22} strokeWidth={2} className={role === 'beneficiary' ? 'text-white' : 'text-accent-600'} />
-                  </div>
-                  <div className="font-bold text-sm mb-1">🤝 Bénéficiaire</div>
-                  <div className={`text-xs ${role === 'beneficiary' ? 'text-white/90' : 'text-gray-600'}`}>
-                    Recevez 2 paniers/jour
-                  </div>
-                  {role === 'beneficiary' && (
-                    <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
-                      <CheckCircle2 size={14} className="text-accent-600" />
-                    </div>
-                  )}
-                </button>
-
                 {/* Association */}
                 <button
                   type="button"
@@ -463,6 +439,9 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     </div>
                   )}
                 </button>
+              </div>
+              <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/80 px-4 py-3 text-xs text-blue-900">
+                Les bénéficiaires sont inscrits directement par une association partenaire. Contactez votre structure référente pour obtenir un accès.
               </div>
             </div>
           )}
