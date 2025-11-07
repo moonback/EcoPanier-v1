@@ -21,10 +21,10 @@
 ### 🎬 Vidéo de présentation
 
 <video controls width="100%" poster="/public/logo.png">
-  <source src="/public/EcoPanier.mp4" type="video/mp4" />
+  <source src="./public/EcoPanier.mp4" type="video/mp4" />
   Votre navigateur ne supporte pas la lecture vidéo intégrée. Vous pouvez
   télécharger la vidéo en cliquant sur ce lien :
-  <a href="/public/EcoPanier.mp4">EcoPanier – Du Déchet à l'Espoir</a>.
+  <a href="./public/EcoPanier.mp4">EcoPanier – Du Déchet à l'Espoir</a>.
 </video>
 
 ### 🎯 Mission
