@@ -717,7 +717,7 @@ export const PickupStation = () => {
 
   return (
     <>
-      <div className="relative min-h-screen bg-neutral-50">
+      <div className="relative min-h-screen bg-neutral-50 bg-[url('/slide-5.png')] bg-cover bg-center bg-fixed">
         <div className="absolute inset-0 section-gradient opacity-70"></div>
 
         <div className="relative flex min-h-screen flex-col overflow-y-auto lg:overflow-hidden">
