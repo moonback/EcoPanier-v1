@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type SyntheticEvent } from 'react';
 import { QRScanner } from '../shared/QRScanner';
 import { PickupHelp } from './PickupHelp';
 import { supabase } from '../../lib/supabase';
@@ -101,6 +101,14 @@ export const PickupStation = () => {
     role: string;
     beneficiary_id: string | null;
   } | null>(null);
+
+  const merchantLogoUrl = profile?.business_logo_url || '/logo-retrait.png';
+  const merchantLogoAlt = profile?.business_name ? `Logo ${profile.business_name}` : 'Logo EcoPanier';
+
+  const handleMerchantLogoError = (event: SyntheticEvent<HTMLImageElement>) => {
+    event.currentTarget.onerror = null;
+    event.currentTarget.src = '/logo-retrait.png';
+  };
 
   // Charger les statistiques du jour au montage
   useEffect(() => {
@@ -708,7 +716,7 @@ export const PickupStation = () => {
 
   return (
     <>
-      <div className="h-screen flex flex-col relative overflow-hidden" style={{
+      <div className="min-h-screen lg:h-screen flex flex-col relative overflow-y-auto lg:overflow-hidden" style={{
         backgroundImage: 'url("/slide-3.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -718,13 +726,28 @@ export const PickupStation = () => {
         <div className="absolute inset-0 bg-white/50 pointer-events-none"></div>
 
       {/* Header */}
-      <div className="sticky top-0 bg-gradient-to-r from-white via-primary-50/30 to-white border-b-2 border-gray-100 px-6 py-4 shadow-sm z-20 backdrop-blur-sm">
-        <div className="flex items-center justify-between">
-          {/* Logo et stats à gauche */}
-          <div className="flex items-center gap-4 w-1/3">
-            <img src="/logo-retrait.png" alt="EcoPanier" className="h-10 rounded-xl object-contain shadow-md" />
+      <div className="sticky top-0 bg-gradient-to-r from-white via-primary-50/30 to-white border-b-2 border-gray-100 px-4 sm:px-6 py-4 shadow-sm z-20 backdrop-blur-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Logo commerçant et stats */}
+          <div className="flex items-center justify-between sm:justify-start gap-3">
+            <div className="flex items-center gap-3">
+              <div className="relative flex items-center justify-center overflow-hidden h-12 w-12 bg-white rounded-xl shadow-md">
+                <img
+                  src={merchantLogoUrl}
+                  alt={merchantLogoAlt}
+                  className="h-full w-full object-cover"
+                  onError={handleMerchantLogoError}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-gray-900">
+                  {profile?.business_name ?? 'EcoPanier'}
+                </span>
+                <span className="text-xs font-medium text-gray-500">Mode commerçant</span>
+              </div>
+            </div>
             {todayStats && (
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-success-100 rounded-lg border border-success-200">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-success-100 rounded-lg border border-success-200">
                 <CheckCircle size={14} className="text-success-600" strokeWidth={2.5} />
                 <span className="text-xs font-bold text-success-700">
                   {todayStats.completed}/{todayStats.total} aujourd'hui
@@ -732,21 +755,22 @@ export const PickupStation = () => {
               </div>
             )}
           </div>
-          
-          {/* Titre centré */}
-          <div className="flex-1 text-center">
-            <h1 className="text-xl font-bold text-black flex items-center justify-center gap-2">
-              <Scan size={24} className="text-primary-600" strokeWidth={2} />
+
+          {/* Titre */}
+          <div className="flex flex-col items-start sm:items-center gap-1 text-left sm:text-center">
+            <h1 className="text-lg sm:text-xl font-bold text-black flex items-center gap-2">
+              <Scan size={22} className="text-primary-600" strokeWidth={2} />
               <span>Station de Retrait</span>
             </h1>
             <p className="text-xs text-gray-600 font-medium">Scannez • Validez • Remettez</p>
           </div>
-          
-          {/* Bouton aide à droite */}
-          <div className="w-1/3 flex justify-end">
+
+          {/* Bouton aide */}
+          <div className="flex justify-end">
             <button
               onClick={() => setHelpActive(true)}
               className="p-2.5 hover:bg-primary-50 rounded-xl transition-all group"
+              aria-label="Ouvrir l'aide"
             >
               <HelpCircle size={20} className="text-gray-700 group-hover:text-primary-600" strokeWidth={2} />
             </button>
@@ -854,7 +878,7 @@ export const PickupStation = () => {
                           <Heart size={14} className="text-accent-600 flex-shrink-0" strokeWidth={2.5} />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                           <div className="flex items-center gap-1 text-gray-600">
                             <ShoppingBag size={12} strokeWidth={2} />
                             <span>Qté: 1</span>
@@ -883,7 +907,7 @@ export const PickupStation = () => {
 
             {/* Résumé sélection */}
             <div className="border-t border-gray-200 p-3 bg-gray-50">
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 text-sm">
                 <span className="text-gray-600 font-medium">
                   Sélection : {selectedBasketIds.size}/{suspendedBaskets.length}
                 </span>
@@ -1229,7 +1253,7 @@ export const PickupStation = () => {
 
             {/* Résumé sélection */}
             <div className="border-t border-gray-200 p-3 bg-gray-50">
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 text-sm">
                 <span className="text-gray-600 font-medium">
                   Sélection : {selectedReservationIds.size}/{reservations.length}
                 </span>
@@ -1357,7 +1381,7 @@ export const PickupStation = () => {
             </div>
 
             {/* Boutons d'action */}
-            <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-shrink-0">
               <button
                 onClick={resetState}
                 className="py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 border-2 border-gray-200 transition-all font-bold text-sm shadow-md hover:shadow-lg"
@@ -1470,7 +1494,7 @@ export const PickupStation = () => {
                 </div>
 
                 {/* Quantité et Prix */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="bg-gradient-to-r from-green-50 to-green-100/50 rounded-lg p-2.5 border border-green-200">
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <Package size={12} className="text-green-600" strokeWidth={2} />
@@ -1676,7 +1700,7 @@ export const PickupStation = () => {
             </div>
 
             {/* Boutons d'action */}
-            <div className="grid grid-cols-2 gap-2 flex-shrink-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-shrink-0">
               <button
                 onClick={resetState}
                 className="py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 border-2 border-gray-200 transition-all font-bold text-sm shadow-md hover:shadow-lg"
