@@ -129,7 +129,7 @@ export const howItWorks: HowItWorksStep[] = [
   {
     step: 1,
     title: 'Explorez les paniers près de chez vous',
-    description: 'Parcourez les paniers surprises disponibles dans votre quartier. Filtrez par type de commerce, prix ou catégorie de produits.',
+    description: 'Parcourez les paniers invendus disponibles dans votre quartier. Filtrez par type de commerce, prix ou catégorie de produits.',
     icon: MapPin,
   },
   {
@@ -156,7 +156,7 @@ export const testimonials: Testimonial[] = [
   {
     name: 'Marie Laurent',
     role: 'Cliente depuis 6 mois • Nantes',
-    text: 'Chaque semaine, je récupère 2-3 paniers surprises de ma boulangerie préférée. J\'ai économisé plus de 300€ en 6 mois et je mange mieux ! En plus, je sais que j\'aide des familles du quartier. C\'est devenu un réflexe pour moi.',
+    text: 'Chaque semaine, je récupère 2-3 paniers invendus de ma boulangerie préférée. J\'ai économisé plus de 300€ en 6 mois et je mange mieux ! En plus, je sais que j\'aide des familles du quartier. C\'est devenu un réflexe pour moi.',
     avatar: '/testimonial/testimonials-1.png',
   },
   {
@@ -168,7 +168,7 @@ export const testimonials: Testimonial[] = [
   {
     name: 'Sophie Martin',
     role: 'Coordinatrice • Association Entraide Paris 18',
-    text: 'Le programme solidaire d\'ÉcoPanier a changé la donne pour nos bénéficiaires. Ils accèdent à des produits de tous types de commerces, pas à des restes. Le système de QR code préserve leur dignité. C\'est de l\'aide alimentaire réinventée.',
+    text: 'Le programme solidaire d\'ÉcoPanier a changé la donne pour nos bénéficiaires. Ils accèdent à des produits de tous types de commerces, pas à des invendus. Le système de QR code préserve leur dignité. C\'est de l\'aide alimentaire réinventée.',
     avatar: '/testimonial/testimonials-3.png',
   },
 ];
@@ -178,14 +178,14 @@ export const userProfiles: UserProfile[] = [
     icon: ShoppingBag,
     title: 'Clients',
     subtitle: 'Consommateurs responsables',
-    description: 'Faites vos courses autrement : des produits jusqu\'à -70%, issus de tous types de commerces, tout en sauvant la planète, un panier à la fois.',
+    description: 'Faites vos courses autrement : des produits invendus jusqu\'à -70%, issus de tous types de commerces, tout en sauvant la planète, un panier à la fois.',
     benefits: [
       '💰 Économisez jusqu\'à 70% sur vos courses quotidiennes',
-      '✨ Produits variés et : frais, secs, préparés, boulangerie...',
+      '✨ Produits invendus variés et : frais, secs, préparés, boulangerie...',
       '🌍 Impact concret : 0.9kg de CO₂ évité par repas sauvé',
       '📱 Récupération ultra-simple avec votre QR code personnalisé',
       '📊 Tableau de bord pour suivre votre impact environnemental',
-      '❤️ Possibilité d\'offrir des paniers suspendus solidaires'
+      '❤️ Possibilité d\'offrir des paniers invendus suspendus solidaires'
     ],
     color: 'primary',
     emoji: '🛒'
@@ -196,7 +196,7 @@ export const userProfiles: UserProfile[] = [
     subtitle: 'Accès à l\'aide alimentaire',
     description: 'Bénéficiez d\'un soutien alimentaire solidaire grâce aux dons de votre communauté. Accédez à de bons produits chaque jour en toute dignité.',
     benefits: [
-      '🎁 Jusqu\'à 2 paniers solidaires par jour, soutenus par la communauté',
+      '🎁 Jusqu\'à 2 paniers invendus solidaires par jour, soutenus par la communauté',
       '🏪 Produits variés issus des commerçants engagés de votre quartier',
       '✨ Même qualité que tous les autres paniers de la plateforme',
       '📱 Retrait simple et discret avec votre QR code personnel',
@@ -212,7 +212,7 @@ export const whyReasons: WhyReason[] = [
   {
     icon: Leaf,
     title: 'Agissez pour la Planète',
-    description: 'En France, 10 millions de tonnes de nourriture finissent à la poubelle chaque année. C\'est un désastre écologique. Avec ÉcoPanier, chaque panier que vous sauvez évite 0.9kg de CO₂ dans l\'atmosphère. Un petit geste qui compte vraiment : ensemble, nous avons déjà évité l\'équivalent de 15 tonnes de CO₂.',
+    description: 'En France, 10 millions de tonnes de nourriture finissent à la poubelle chaque année. C\'est un désastre écologique. Avec ÉcoPanier, chaque panier invendu que vous sauvez évite 0.9kg de CO₂ dans l\'atmosphère. Un petit geste qui compte vraiment : ensemble, nous avons déjà évité l\'équivalent de 15 tonnes de CO₂.',
     stats: '15 tonnes de CO₂ évitées',
     color: 'success'
   },
@@ -245,7 +245,7 @@ export const faqItems: FAQItem[] = [
     answer: 'Tous les paniers sont préparés le jour même par nos commerçants partenaires et doivent être récupérés dans les 24h. Ce sont des produits (frais, secs, préparés, boulangerie...) qui auraient fini à la poubelle, simplement parce qu\'ils n\'ont pas été vendus à temps. Chaque commerçant est responsable de la qualité des produits proposés.'
   },
   {
-    question: 'Que contient un panier surprise ?',
+    question: 'Que contient un panier invendus ?',
     answer: 'Le contenu varie selon le type de commerce : pain et viennoiseries (boulangeries), fruits et légumes (primeurs), plats préparés (traiteurs), produits d\'épicerie (supérettes), pâtisseries, fromages, viandes, poissons, etc. La composition exacte est indiquée lors de la réservation pour éviter les mauvaises surprises. C\'est l\'aventure gourmande garantie !'
   },
   {
@@ -319,19 +319,19 @@ export const whyPillars: WhyPillar[] = [
   {
     icon: Recycle,
     title: 'Réduction du gaspillage',
-    description: 'Sauvez des repas avant qu\'ils ne soient jetés. Chaque panier récupéré évite 0.9kg de CO₂ dans l\'atmosphère.',
+    description: 'Transformez chaque panier invendu en repas sauvé. En quelques clics, vous offrez une seconde vie aux produits et évitez 0.9kg de CO₂ par portion.',
     color: 'success'
   },
   {
     icon: HandHeart,
     title: 'Solidarité intégrée',
-    description: 'Offrez des lots gratuits aux bénéficiaires ou achetez des paniers suspendus. La solidarité est au cœur du système.',
+    description: 'Activez la solidarité de proximité : financez un panier suspendu, soutenez une famille et créez un cercle vertueux dans votre quartier.',
     color: 'accent'
   },
   {
     icon: TrendingUp,
     title: 'Suivi transparent',
-    description: 'Mesurez votre impact réel : repas sauvés, CO₂ évité, dons effectués. Tableaux de bord pour tous les acteurs.',
+    description: 'Suivez vos résultats en direct : repas sauvés, CO₂ évité, dons offerts. Un tableau de bord clair pour piloter votre impact positif.',
     color: 'primary'
   }
 ];
