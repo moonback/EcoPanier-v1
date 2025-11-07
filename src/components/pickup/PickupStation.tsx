@@ -182,15 +182,41 @@ export const PickupStation = () => {
           throw new Error('QR code invalide');
         }
 
-        // Vérifier que c'est un bénéficiaire
-        const { data: beneficiaryData, error: beneficiaryError } = await supabase
-          .from('profiles')
-          .select('id, full_name, role, beneficiary_id')
-          .eq('id', userId)
-          .eq('role', 'beneficiary')
-          .single();
+        const identifier = userId.trim();
+        if (!identifier) {
+          throw new Error('QR code invalide');
+        }
 
-        if (beneficiaryError || !beneficiaryData) {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+        type BeneficiaryIdentifierColumn = 'id' | 'beneficiary_id';
+        const fetchBeneficiary = async (
+          column: BeneficiaryIdentifierColumn,
+          value: string
+        ) => {
+          const { data, error: fetchError } = await supabase
+            .from('profiles')
+            .select('id, full_name, role, beneficiary_id')
+            .eq('role', 'beneficiary')
+            .eq(column, value)
+            .maybeSingle();
+
+          if (fetchError && fetchError.code !== 'PGRST116') {
+            throw fetchError;
+          }
+
+          return data;
+        };
+
+        let beneficiaryData =
+          uuidRegex.test(identifier) ? await fetchBeneficiary('id', identifier) : null;
+
+        if (!beneficiaryData) {
+          const normalizedBeneficiaryId = identifier.toUpperCase();
+          beneficiaryData = await fetchBeneficiary('beneficiary_id', normalizedBeneficiaryId);
+        }
+
+        if (!beneficiaryData) {
           throw new Error('Bénéficiaire introuvable');
         }
 
