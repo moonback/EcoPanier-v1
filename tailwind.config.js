@@ -156,6 +156,8 @@ export default {
         'float': 'float 6s ease-in-out infinite',
         'pulse-soft': 'pulse-soft 3s ease-in-out infinite',
         'shimmer': 'shimmer 2s linear infinite',
+        'shake': 'shake 0.5s ease-in-out',
+        'success-progress': 'success-progress 3s linear forwards',
       },
       keyframes: {
         'fade-in': {
@@ -181,6 +183,15 @@ export default {
         'shimmer': {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' },
+        },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-10px)' },
+          '75%': { transform: 'translateX(10px)' },
+        },
+        'success-progress': {
+          '0%': { width: '100%' },
+          '100%': { width: '0%' },
         },
       },
       backgroundImage: {

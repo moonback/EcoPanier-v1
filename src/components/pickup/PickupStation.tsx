@@ -58,6 +58,10 @@ interface QRData {
   type?: 'reservation' | 'beneficiary';
 }
 
+const PIN_INPUT_LENGTH = 6;
+const STATION_BACKGROUND = "bg-[url('/slide-5.png')] bg-cover bg-center bg-fixed";
+const SUCCESS_OVERLAY = 'bg-gradient-to-br from-success-600/90 via-success-500/90 to-success-600/90';
+
 export const PickupStation = () => {
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
@@ -645,7 +649,7 @@ export const PickupStation = () => {
 
   // Validation visuelle du PIN en temps réel
   const pinMatch = () => {
-    if (enteredPin.length !== 6) return false;
+    if (enteredPin.length !== PIN_INPUT_LENGTH) return false;
     
     // Mode Multi-Retrait
     if (reservations.length > 1) {
@@ -676,74 +680,46 @@ export const PickupStation = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden" style={{
-        backgroundImage: 'url("/slide-5.png")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-      }}>
-        {/* Overlay pour améliorer la lisibilité */}
-        <div className="absolute inset-0 bg-gradient-to-br from-success-600/90 via-success-500/90 to-success-600/90"></div>
-        
-        <div className="bg-white rounded-3xl p-12 max-w-md w-full text-center shadow-2xl relative z-10">
-          <div className="w-28 h-28 bg-gradient-to-br from-success-500 to-success-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl animate-pulse">
-            <CheckCircle size={56} className="text-white" strokeWidth={2.5} />
+      <div className={`relative flex min-h-screen items-center justify-center overflow-hidden p-6 ${STATION_BACKGROUND}`}>
+        <div className={`absolute inset-0 ${SUCCESS_OVERLAY}`}></div>
+
+        <div className="relative p-10 w-full max-w-sm bg-white/95 text-center rounded-3xl shadow-2xl backdrop-blur z-10">
+          <div className="flex items-center justify-center mx-auto mb-6 h-24 w-24 bg-gradient-to-br from-success-500 to-success-600 rounded-2xl shadow-xl animate-pulse">
+            <CheckCircle size={48} className="text-white" strokeWidth={2.5} />
           </div>
-          
-          <h2 className="text-4xl font-bold text-black mb-3">
-            {successMessage || '🎉 Retrait Validé !'}
+
+          <h2 className="mb-3 text-3xl font-bold text-gray-900">
+            {successMessage || '🎉 Retrait validé !'}
           </h2>
-          
-          <p className="text-lg text-gray-600 mb-8 font-light leading-relaxed">
-            {selectedReservationIds.size > 1 
-              ? `Tous les paniers ont été remis avec succès! 💚`
-              : `Le panier a été remis avec succès! 💚`
-            }
+
+          <p className="mb-8 text-sm font-medium text-gray-600">
+            {selectedReservationIds.size > 1
+              ? 'Tous les paniers ont été remis avec succès ! 💚'
+              : 'Le panier a été remis avec succès ! 💚'}
           </p>
-          
-          <div className="mb-8">
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-success-500 to-success-600 rounded-full animate-[shrink_3s_linear]"></div>
+
+          <div className="mb-8 space-y-2">
+            <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+              <div className="h-full w-full rounded-full bg-gradient-to-r from-success-500 to-success-600 animate-success-progress"></div>
             </div>
-            <p className="text-sm text-gray-500 mt-3 font-medium">⏱️ Retour automatique dans 3 secondes...</p>
+            <p className="text-xs font-semibold text-gray-500">⏱️ Retour automatique dans 3 secondes...</p>
           </div>
-          
+
           <button
+            type="button"
             onClick={resetState}
-            className="w-full py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all font-semibold text-lg shadow-lg"
+            className="w-full rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 py-4 text-sm font-semibold text-white shadow-lg transition-all hover:from-primary-700 hover:to-primary-800"
           >
             Nouveau retrait →
           </button>
         </div>
-
-        <style>{`
-          @keyframes shrink {
-            from { width: 100%; }
-            to { width: 0%; }
-          }
-          @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-          }
-          .animate-shake {
-            animation: shake 0.5s ease-in-out;
-          }
-          @keyframes fade-in {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .animate-fade-in {
-            animation: fade-in 0.3s ease-out;
-          }
-        `}</style>
       </div>
     );
   }
 
   return (
     <>
-      <div className="relative min-h-screen bg-neutral-50 bg-[url('/slide-5.png')] bg-cover bg-center bg-fixed">
+      <div className={`relative min-h-screen bg-neutral-50 ${STATION_BACKGROUND}`}>
         <div className="absolute inset-0 section-gradient opacity-70"></div>
 
         <div className="relative flex min-h-screen flex-col overflow-y-auto lg:overflow-hidden">
@@ -778,18 +754,7 @@ export const PickupStation = () => {
                 )}
               </div>
 
-              {/* Titre */}
-              <div className="flex flex-col items-start gap-1 text-left sm:items-center">
-                <span className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700 shadow-sm">
-                  <Sparkles size={12} />
-                  Espace commerçant
-                </span>
-                <h1 className="flex items-center gap-2 text-lg font-bold text-gray-900 sm:text-xl">
-                  <Scan size={22} className="text-primary-600" strokeWidth={2} />
-                  Station de Retrait
-                </h1>
-                <p className="text-xs font-medium text-gray-600">Scannez • Validez • Remettez</p>
-              </div>
+              
 
               {/* Actions header */}
               <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
@@ -815,7 +780,7 @@ export const PickupStation = () => {
           {/* Message d'erreur */}
           {error && (
             <div className="relative z-10 px-4 pt-4 sm:px-6 lg:px-10">
-              <div className="mx-auto flex w-full max-w-4xl items-start gap-3 rounded-2xl border border-red-100 bg-red-50/90 p-4 shadow-lg">
+              <div className="mx-auto flex w-full max-w-4xl items-start gap-3 rounded-2xl border border-red-100 bg-red-50/90 p-4 shadow-lg" role="alert">
                 <AlertCircle size={20} className="text-red-600" />
                 <p className="flex-1 text-sm font-medium text-red-800">{error}</p>
                 <button
@@ -830,7 +795,7 @@ export const PickupStation = () => {
 
           {/* Contenu principal */}
           <div className="relative z-10 flex-1 px-4 pb-6 pt-4 sm:px-6 lg:px-10">
-            <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-col gap-4 lg:gap-6">
               {suspendedBaskets.length > 0 ? (
         // 🎯 MODE PANIERS SUSPENDUS : Affichage des paniers suspendus disponibles
         <div className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-2">
@@ -1079,9 +1044,9 @@ export const PickupStation = () => {
         </div>
       ) : reservations.length > 1 ? (
         // 🎯 MODE MULTI-RETRAIT : Plusieurs réservations actives
-        <div className="flex-1 flex flex-col lg:flex-row gap-3 p-3 overflow-hidden relative z-10">
+        <div className="relative z-10 flex flex-1 flex-col gap-4 overflow-hidden p-3 md:flex-row md:gap-5 md:p-4">
           {/* Liste des réservations */}
-          <div className="lg:w-1/2 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden flex flex-col">
+          <div className="flex flex-col overflow-hidden md:w-1/2 bg-white rounded-2xl border border-gray-200 shadow-lg">
             {/* En-tête Mode Multi-Retrait */}
             <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -1196,7 +1161,7 @@ export const PickupStation = () => {
           </div>
 
           {/* Validation PIN (même logique qu'avant) */}
-          <div className="lg:w-1/2 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 md:w-1/2">
             <div className="flex-1 bg-gradient-to-br from-white via-warning-50/30 to-white rounded-xl p-4 border border-gray-200 shadow-lg flex flex-col justify-center min-h-0">
               <div className="text-center mb-4">
                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl mb-3 shadow-lg transition-all duration-300 ${
@@ -1232,7 +1197,7 @@ export const PickupStation = () => {
                   <input
                     type="text"
                     inputMode="numeric"
-                    maxLength={6}
+                    maxLength={PIN_INPUT_LENGTH}
                     value={enteredPin}
                     onChange={(e) => {
                       setEnteredPin(e.target.value.replace(/\D/g, ''));
@@ -1249,11 +1214,13 @@ export const PickupStation = () => {
                     placeholder="● ● ● ● ● ●"
                     autoFocus
                     disabled={loading}
+                    aria-label="Code PIN à 6 chiffres"
+                    aria-invalid={pinError}
                   />
                   
                   {/* Indicateurs visuels */}
                   <div className="mt-2 flex justify-center gap-1.5">
-                    {[...Array(6)].map((_, i) => {
+                    {[...Array(PIN_INPUT_LENGTH)].map((_, i) => {
                       const isFilled = i < enteredPin.length;
                       const isCorrect = pinMatch() && isFilled;
                       const isWrong = pinError && isFilled;
@@ -1318,7 +1285,12 @@ export const PickupStation = () => {
               </button>
               <button
                 onClick={handleValidatePin}
-                disabled={selectedReservationIds.size === 0 || enteredPin.length !== 6 || loading || !pinMatch()}
+                disabled={
+                  selectedReservationIds.size === 0 ||
+                  enteredPin.length !== PIN_INPUT_LENGTH ||
+                  loading ||
+                  !pinMatch()
+                }
                 className={`py-3 rounded-lg transition-all font-bold text-sm shadow-lg flex items-center justify-center gap-2 ${
                   pinMatch() && !loading && selectedReservationIds.size > 0
                     ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 hover:shadow-xl transform hover:scale-[1.02]'
@@ -1342,9 +1314,9 @@ export const PickupStation = () => {
         </div>
       ) : reservation ? (
         // MODE STANDARD : Une seule réservation
-        <div className="flex-1 flex flex-col lg:flex-row gap-3 p-3 overflow-hidden relative z-10">
+        <div className="relative z-10 flex flex-1 flex-col gap-4 overflow-hidden p-3 md:flex-row md:gap-5 md:p-4">
           {/* Détails de la réservation */}
-          <div className="lg:w-1/2 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden flex flex-col">
+          <div className="flex flex-col overflow-hidden md:w-1/2 bg-white rounded-2xl border border-gray-200 shadow-lg">
             {/* En-tête avec image */}
             <div className="relative flex-shrink-0">
               {reservation.lots.image_urls && reservation.lots.image_urls.length > 0 ? (
@@ -1516,7 +1488,7 @@ export const PickupStation = () => {
           </div>
 
           {/* Validation PIN */}
-          <div className="lg:w-1/2 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 md:w-1/2">
             <div className="flex-1 bg-gradient-to-br from-white via-warning-50/30 to-white rounded-xl p-4 border border-gray-200 shadow-lg flex flex-col justify-center min-h-0">
               <div className="text-center mb-4">
                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl mb-3 shadow-lg transition-all duration-300 ${
@@ -1551,7 +1523,7 @@ export const PickupStation = () => {
                   <input
                     type="text"
                     inputMode="numeric"
-                    maxLength={6}
+                    maxLength={PIN_INPUT_LENGTH}
                     value={enteredPin}
                     onChange={(e) => {
                       setEnteredPin(e.target.value.replace(/\D/g, ''));
@@ -1568,11 +1540,13 @@ export const PickupStation = () => {
                     placeholder="● ● ● ● ● ●"
                     autoFocus
                     disabled={loading}
+                    aria-label="Code PIN à 6 chiffres"
+                    aria-invalid={pinError}
                   />
                   
                   {/* Indicateurs visuels améliorés */}
                   <div className="mt-2 flex justify-center gap-1.5">
-                    {[...Array(6)].map((_, i) => {
+                    {[...Array(PIN_INPUT_LENGTH)].map((_, i) => {
                       const isFilled = i < enteredPin.length;
                       const isCorrect = pinMatch() && isFilled;
                       const isWrong = pinError && isFilled;
@@ -1637,7 +1611,11 @@ export const PickupStation = () => {
               </button>
               <button
                 onClick={handleValidatePin}
-                disabled={enteredPin.length !== 6 || loading || !pinMatch()}
+                disabled={
+                  enteredPin.length !== PIN_INPUT_LENGTH ||
+                  loading ||
+                  !pinMatch()
+                }
                 className={`py-3 rounded-lg transition-all font-bold text-sm shadow-lg flex items-center justify-center gap-2 ${
                   pinMatch() && !loading
                     ? 'bg-gradient-to-r from-success-600 to-success-700 text-white hover:from-success-700 hover:to-success-800 hover:shadow-xl transform hover:scale-[1.02]'
