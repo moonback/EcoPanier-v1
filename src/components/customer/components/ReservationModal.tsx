@@ -41,6 +41,7 @@ export function ReservationModal({
   const [useWallet, setUseWallet] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [checkingBalance, setCheckingBalance] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const maxQuantity =
     lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
@@ -89,17 +90,18 @@ export function ReservationModal({
     // Pour les lots payants, s'assurer que useWallet est true
     const shouldUseWallet = !isFree && hasEnoughBalance;
     
+    setErrorMessage(null);
     setLoading(true);
     try {
       await onConfirm(quantity, shouldUseWallet);
       onClose();
     } catch (error) {
       console.error('Erreur lors de la confirmation:', error);
-      alert(
+      const message =
         error instanceof Error
           ? error.message
-          : 'Erreur lors de la réservation'
-      );
+          : 'Erreur lors de la réservation. Veuillez réessayer.';
+      setErrorMessage(message);
     } finally {
       setLoading(false);
     }
@@ -107,7 +109,7 @@ export function ReservationModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full p-8">
+      <div className="bg-white rounded-2xl max-w-4xl w-full p-8">
         {/* En-tête */}
         <div className="flex items-start justify-between mb-6">
           <h3 className="text-2xl font-bold text-black pr-4">
@@ -308,6 +310,14 @@ export function ReservationModal({
           <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
             <p className="text-sm text-green-700 font-medium">
               Ce lot est gratuit. Aucun paiement requis.
+            </p>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
+            <p className="text-sm text-red-700">
+              {errorMessage}
             </p>
           </div>
         )}

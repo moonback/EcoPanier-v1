@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
+import {
   ArrowLeft,
-  Package, 
-  MapPin, 
-  Clock, 
-  ShoppingCart, 
-  ZoomIn, 
-  ChevronLeft, 
+  Package,
+  MapPin,
+  Clock,
+  ZoomIn,
+  ChevronLeft,
   ChevronRight,
   Store,
   Mail,
@@ -16,330 +15,56 @@ import {
   Info,
   FileText,
   Navigation,
-  Minus,
-  Plus,
   X,
 } from 'lucide-react';
-import { format, differenceInDays, isToday, isTomorrow } from 'date-fns';
+import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import type { Database } from '../../lib/database.types';
 import { useAuthStore } from '../../stores/authStore';
-import { calculateDistance, formatDistance, geocodeAddress } from '../../utils/geocodingService';
-import { supabase } from '../../lib/supabase';
+import { formatDistance } from '../../utils/geocodingService';
 import { calculateCO2Impact } from '../../hooks/useImpactMetrics';
 import { useLots } from '../../hooks/useLots';
+import {
+  useLotDetails,
+  type TimeRemaining,
+  type TabId,
+  type LotWithProfile,
+} from '../../hooks/useLotDetails';
 import { ReservationModal } from './components/ReservationModal';
-
-type Lot = Database['public']['Tables']['lots']['Row'] & {
-  profiles: {
-    business_name: string;
-    business_address: string;
-    business_logo_url?: string | null;
-    business_type?: string | null;
-    business_description?: string | null;
-    business_email?: string | null;
-    business_hours?: Record<string, { open: string | null; close: string | null; closed: boolean }> | null;
-    phone?: string | null;
-    verified?: boolean;
-  };
-};
-
-type TabId = 'product' | 'merchant' | 'details';
-
-// Fonction pour formater les horaires d'ouverture
-const formatBusinessHours = (
-  businessHours: Record<string, { open: string | null; close: string | null; closed: boolean }> | null | undefined
-): string => {
-  if (!businessHours) return 'Non renseigné';
-
-  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-
-  const today = new Date().getDay();
-  const todayKey = days[today === 0 ? 6 : today - 1];
-  const todayHours = businessHours[todayKey];
-
-  if (todayHours?.closed || !todayHours?.open || !todayHours?.close) {
-    return 'Fermé aujourd\'hui';
-  }
-
-  return `Aujourd'hui: ${todayHours.open} - ${todayHours.close}`;
-};
-
-// Fonction pour obtenir le label du type de commerce
-const getBusinessTypeLabel = (type: string | null | undefined): string => {
-  if (!type) return '';
-  
-  const typeLabels: Record<string, string> = {
-    bakery: 'Boulangerie',
-    restaurant: 'Restaurant',
-    supermarket: 'Supermarché',
-    grocery: 'Épicerie',
-    market: 'Marché',
-    cafe: 'Café',
-    patisserie: 'Pâtisserie',
-    butcher: 'Boucherie',
-    fishmonger: 'Poissonnerie',
-    organic: 'Bio',
-    other: 'Autre',
-  };
-
-  return typeLabels[type] || type;
-};
+import { formatBusinessHours, getBusinessTypeLabel } from '../../utils/merchantHelpers';
+import { LotReservationBar } from './components/lot-details/LotReservationBar';
 
 export function LotDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [lot, setLot] = useState<Lot | null>(null);
-  const [loading, setLoading] = useState(true);
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<TabId>('product');
-  const [distance, setDistance] = useState<number | null>(null);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [similarLots, setSimilarLots] = useState<Lot[]>([]);
-  const [similarLotsLoading, setSimilarLotsLoading] = useState(false);
-  const [pickupTimeInfo, setPickupTimeInfo] = useState<{ label: string; isAvailable: boolean; timeUntilStart: string | null } | null>(null);
   const [showReservationModal, setShowReservationModal] = useState(false);
-  
+  const [reservationStatus, setReservationStatus] = useState<
+    | { type: 'success'; message: string; pin?: string }
+    | { type: 'error'; message: string }
+    | null
+  >(null);
+
   const { profile: userProfile } = useAuthStore();
   const { reserveLot } = useLots('');
 
-  // Charger le lot
-  useEffect(() => {
-    const fetchLot = async () => {
-      if (!id) return;
-
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('lots')
-          .select(`
-            *,
-            profiles!merchant_id (
-              business_name,
-              business_address,
-              business_logo_url,
-              business_type,
-              business_description,
-              business_email,
-              business_hours,
-              phone,
-              verified
-            )
-          `)
-          .eq('id', id)
-          .single();
-
-        if (error) throw error;
-        if (data) {
-          setLot(data as Lot);
-        } else {
-          navigate('/dashboard');
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement du lot:', error);
-        navigate('/dashboard');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLot();
-  }, [id, navigate]);
-
-  // Calcul du temps restant jusqu'à la fin du créneau de retrait
-  useEffect(() => {
-    if (!lot) return;
-    
-    const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
-    const shouldShowCountdown = (lot.is_urgent || availableQty < 3) && availableQty > 0;
-    
-    if (!shouldShowCountdown) {
-      setTimeRemaining(null);
-      return;
-    }
-
-    const calculateTimeRemaining = () => {
-      const now = new Date();
-      const pickupEnd = new Date(lot.pickup_end);
-      
-      if (pickupEnd <= now) {
-        setTimeRemaining(null);
-        return;
-      }
-
-      const diff = pickupEnd.getTime() - now.getTime();
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-      setTimeRemaining({ hours, minutes, seconds });
-    };
-
-    calculateTimeRemaining();
-    const interval = setInterval(calculateTimeRemaining, 1000);
-    return () => clearInterval(interval);
-  }, [lot]);
-
-  // Calcul de la distance entre l'utilisateur et le commerçant
-  useEffect(() => {
-    if (!lot || !lot.profiles?.business_address) return;
-    if (activeTab !== 'merchant' && activeTab !== 'product') return;
-
-    const calculateUserDistance = async () => {
-      try {
-        let userLat: number | null = null;
-        let userLon: number | null = null;
-
-        if (userProfile?.latitude && userProfile?.longitude) {
-          userLat = userProfile.latitude;
-          userLon = userProfile.longitude;
-        }
-        else if (navigator.geolocation) {
-          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              timeout: 5000,
-              enableHighAccuracy: false,
-            });
-          });
-          userLat = position.coords.latitude;
-          userLon = position.coords.longitude;
-        }
-        else if (userProfile?.address) {
-          const userGeocode = await geocodeAddress(userProfile.address);
-          if (userGeocode.success) {
-            userLat = userGeocode.latitude;
-            userLon = userGeocode.longitude;
-          }
-        }
-
-        if (!userLat || !userLon) {
-          return;
-        }
-
-        const merchantGeocode = await geocodeAddress(lot.profiles.business_address);
-        if (merchantGeocode.success) {
-          const calculatedDistance = calculateDistance(
-            userLat,
-            userLon,
-            merchantGeocode.latitude,
-            merchantGeocode.longitude
-          );
-
-          setDistance(calculatedDistance);
-          setUserLocation({ lat: userLat, lon: userLon });
-        }
-      } catch (error) {
-        console.error('Erreur lors du calcul de distance:', error);
-      }
-    };
-
-    calculateUserDistance();
-  }, [lot, userProfile, activeTab]);
-
-  // Calcul des horaires de retrait intelligents
-  useEffect(() => {
-    if (!lot) return;
-
-    const calculatePickupTimeInfo = () => {
-      const now = new Date();
-      const pickupStart = new Date(lot.pickup_start);
-      const pickupEnd = new Date(lot.pickup_end);
-      
-      let label = '';
-      let isAvailable = false;
-      let timeUntilStart: string | null = null;
-      
-      if (isToday(pickupStart)) {
-        label = 'Aujourd\'hui';
-        isAvailable = now >= pickupStart && now <= pickupEnd;
-        if (now < pickupStart) {
-          const diff = pickupStart.getTime() - now.getTime();
-          const hours = Math.floor(diff / (1000 * 60 * 60));
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          if (hours > 0) {
-            timeUntilStart = `Dans ${hours}h${minutes.toString().padStart(2, '0')}`;
-          } else {
-            timeUntilStart = `Dans ${minutes}min`;
-          }
-        }
-      } else if (isTomorrow(pickupStart)) {
-        label = 'Demain';
-      } else {
-        const daysDiff = differenceInDays(pickupStart, now);
-        if (daysDiff === 2) {
-          label = 'Après-demain';
-        } else {
-          label = format(pickupStart, 'EEEE dd MMM', { locale: fr });
-        }
-      }
-      
-      setPickupTimeInfo({ label, isAvailable, timeUntilStart });
-    };
-    
-    calculatePickupTimeInfo();
-    const interval = setInterval(calculatePickupTimeInfo, 60000);
-    return () => clearInterval(interval);
-  }, [lot]);
-
-  // Récupérer les lots similaires du commerçant
-  useEffect(() => {
-    if (!lot || activeTab !== 'merchant') return;
-
-    const fetchSimilarLots = async () => {
-      setSimilarLotsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('lots')
-          .select(`
-            *,
-            profiles!merchant_id (
-              business_name,
-              business_address,
-              business_logo_url,
-              business_type,
-              business_description,
-              business_email,
-              business_hours,
-              phone,
-              verified
-            )
-          `)
-          .eq('merchant_id', lot.merchant_id)
-          .neq('id', lot.id)
-          .eq('status', 'available')
-          .order('created_at', { ascending: false })
-          .limit(4);
-
-        if (error) throw error;
-
-        const available = (data as Lot[]).filter(l => {
-          const qty = l.quantity_total - l.quantity_reserved - l.quantity_sold;
-          return qty > 0;
-        });
-
-        const sorted = available.sort((a, b) => {
-          const aSameCategory = a.category === lot.category ? 1 : 0;
-          const bSameCategory = b.category === lot.category ? 1 : 0;
-          if (aSameCategory !== bSameCategory) return bSameCategory - aSameCategory;
-          
-          const aPriceDiff = Math.abs(a.discounted_price - lot.discounted_price);
-          const bPriceDiff = Math.abs(b.discounted_price - lot.discounted_price);
-          return aPriceDiff - bPriceDiff;
-        });
-
-        setSimilarLots(sorted.slice(0, 3));
-      } catch (error) {
-        console.error('Erreur lors du chargement des lots similaires:', error);
-      } finally {
-        setSimilarLotsLoading(false);
-      }
-    };
-
-    fetchSimilarLots();
-  }, [lot, activeTab]);
+  const {
+    lot,
+    loading,
+    error,
+    timeRemaining,
+    pickupTimeInfo,
+    distance,
+    userLocation,
+    similarLots,
+    similarLotsLoading,
+    availableQuantity,
+    shouldShowCountdown,
+    isTimeCritical,
+    refresh,
+  } = useLotDetails({ lotId: id, activeTab, userProfile: userProfile ?? null });
 
   // Réinitialiser la quantité quand le lot change
   useEffect(() => {
@@ -348,29 +73,73 @@ export function LotDetailsPage() {
     }
   }, [lot?.id]);
 
-  // Early return après tous les hooks
-  if (loading || !lot) {
+  if (loading && !lot) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4" />
           <p className="text-gray-600">Chargement du lot...</p>
         </div>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="card max-w-md w-full text-center space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900">Oups...</h2>
+          <p className="text-gray-600">{error}</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="btn-secondary"
+            >
+              Retour au tableau de bord
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                void refresh();
+              }}
+              className="btn-primary"
+            >
+              Réessayer
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!lot) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="card max-w-md w-full text-center space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900">Lot introuvable</h2>
+          <p className="text-gray-600">
+            Le lot que vous recherchez n'existe plus ou a été retiré. Retournez au tableau de bord pour découvrir d'autres paniers.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="btn-primary"
+          >
+            Explorer les paniers
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Calculs et valeurs dérivées (après le check de lot)
-  const availableQty = lot.quantity_total - lot.quantity_reserved - lot.quantity_sold;
   const discount = Math.round(
     ((lot.original_price - lot.discounted_price) / lot.original_price) * 100
   );
 
   const hasMultipleImages = lot.image_urls && lot.image_urls.length > 1;
   const merchant = lot.profiles;
-  
-  // Vérifier si le compte à rebours doit s'afficher
-  const shouldShowCountdown = (lot.is_urgent || availableQty < 3) && availableQty > 0;
   
   // Calcul du prix total et de l'impact selon la quantité
   const totalPrice = (lot.discounted_price * quantity).toFixed(2);
@@ -380,22 +149,20 @@ export function LotDetailsPage() {
   
   // Badge de disponibilité dynamique
   const getAvailabilityBadge = () => {
-    if (availableQty === 0) return { text: 'Épuisé', color: 'bg-gray-200 text-gray-600', icon: '❌' };
-    if (availableQty < 2) return { text: 'Dernière chance', color: 'bg-red-100 text-red-700', icon: '⚠️' };
-    if (availableQty < 3) return { text: 'Stock faible', color: 'bg-orange-100 text-orange-700', icon: '📦' };
+    if (availableQuantity === 0) return { text: 'Épuisé', color: 'bg-gray-200 text-gray-600', icon: '❌' };
+    if (availableQuantity < 2) return { text: 'Dernière chance', color: 'bg-red-100 text-red-700', icon: '⚠️' };
+    if (availableQuantity < 3) return { text: 'Stock faible', color: 'bg-orange-100 text-orange-700', icon: '📦' };
     return null;
   };
   
   const availabilityBadge = getAvailabilityBadge();
 
-  const formatTimeRemaining = (time: { hours: number; minutes: number; seconds: number }): string => {
+  const formatTimeRemaining = (time: TimeRemaining): string => {
     if (time.hours > 0) {
       return `${time.hours}h${time.minutes.toString().padStart(2, '0')}`;
     }
     return `${time.minutes}min${time.seconds.toString().padStart(2, '0')}`;
   };
-
-  const isTimeCritical = timeRemaining !== null && timeRemaining.hours === 0 && timeRemaining.minutes < 60;
 
   const nextImage = () => {
     if (lot.image_urls && currentImageIndex < lot.image_urls.length - 1) {
@@ -425,30 +192,34 @@ export function LotDetailsPage() {
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) return;
-    if (newQuantity > availableQty) return;
+    if (newQuantity > availableQuantity) return;
     setQuantity(newQuantity);
   };
 
   const handleReserve = () => {
-    if (!userProfile || availableQty === 0) return;
+    if (!userProfile || availableQuantity === 0) return;
+    setReservationStatus(null);
     setShowReservationModal(true);
   };
 
   const handleConfirmReservation = async (reservationQuantity: number, useWallet: boolean) => {
-    if (!userProfile) return;
+    if (!userProfile || !lot) return;
 
     try {
       const pin = await reserveLot(lot, reservationQuantity, userProfile.id, false, useWallet);
-      alert(`Réservation confirmée! Code PIN: ${pin}`);
       setShowReservationModal(false);
-      navigate('/dashboard');
+      setReservationStatus({
+        type: 'success',
+        message: 'Réservation confirmée. Retrouvez votre code PIN ci-dessous.',
+        pin,
+      });
     } catch (error) {
       console.error('Erreur lors de la réservation:', error);
       throw error; // Laisser la modal gérer l'affichage de l'erreur
     }
   };
 
-  const handleLotSelect = (selectedLot: Lot) => {
+  const handleLotSelect = (selectedLot: LotWithProfile) => {
     navigate(`/dashboard/lot/${selectedLot.id}`);
   };
 
@@ -509,6 +280,47 @@ export function LotDetailsPage() {
           })}
         </div>
       </div>
+
+      {reservationStatus && (
+        <div className="max-w-12xl mx-auto px-4 pt-4">
+          <div
+            className={`rounded-xl border p-4 sm:p-5 shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${
+              reservationStatus.type === 'success'
+                ? 'border-green-200 bg-green-50'
+                : 'border-red-200 bg-red-50'
+            }`}
+          >
+            <div className="flex-1">
+              <p className={`text-sm font-semibold ${reservationStatus.type === 'success' ? 'text-green-700' : 'text-red-700'}`}>
+                {reservationStatus.message}
+              </p>
+              {reservationStatus.type === 'success' && reservationStatus.pin && (
+                <p className="mt-1 text-xs font-mono text-gray-800">
+                  Code PIN: <span className="text-base font-bold tracking-widest">{reservationStatus.pin}</span>
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              {reservationStatus.type === 'success' && (
+                <button
+                  type="button"
+                  onClick={() => navigate('/dashboard?tab=reservations')}
+                  className="btn-primary"
+                >
+                  Voir mes réservations
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setReservationStatus(null)}
+                className="btn-secondary"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Contenu principal */}
       <main className="max-w-12xl mx-auto px-4 py-6 pb-36">
@@ -651,7 +463,7 @@ export function LotDetailsPage() {
                     Stock
                   </h4>
                   <div className="text-2xl font-bold text-primary-700">
-                    {availableQty}
+                    {availableQuantity}
                     <span className="text-base font-normal text-gray-500">/{lot.quantity_total}</span>
                   </div>
                   {availabilityBadge && (
@@ -935,7 +747,7 @@ export function LotDetailsPage() {
                   </div>
                   <div>
                     <div className="text-xs text-gray-600 mb-1">Disponibilité</div>
-                    <div className="text-sm font-medium text-gray-900">{availableQty}</div>
+                    <div className="text-sm font-medium text-gray-900">{availableQuantity}</div>
                   </div>
                 </div>
               </div>
@@ -1019,72 +831,17 @@ export function LotDetailsPage() {
 
         
 
-        {/* Bouton d'action fixe en bas */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-2xl z-50 p-4">
-          <div className="max-w-7xl mx-auto flex flex-col gap-2">
-            <div className="flex flex-row items-center gap-3">
-              {/* Sélecteur de quantité à gauche */}
-              {availableQty > 0 && (
-                <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-2 py-1">
-                  <span className="text-xs font-medium text-gray-700">Qté</span>
-                  <button
-                    onClick={() => handleQuantityChange(quantity - 1)}
-                    disabled={quantity <= 1}
-                    className="p-1 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    aria-label="Diminuer la quantité"
-                  >
-                    <Minus className="w-4 h-4" strokeWidth={2} />
-                  </button>
-                  <span className="w-8 text-center text-sm font-bold text-gray-900">{quantity}</span>
-                  <button
-                    onClick={() => handleQuantityChange(quantity + 1)}
-                    disabled={quantity >= availableQty}
-                    className="p-1 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    aria-label="Augmenter la quantité"
-                  >
-                    <Plus className="w-4 h-4" strokeWidth={2} />
-                  </button>
-                </div>
-              )}
-
-              {/* Bouton de réservation: compact et prend le reste */}
-              <button
-                onClick={handleReserve}
-                disabled={availableQty === 0}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-base transition-all ${
-                  availableQty === 0
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                    : 'bg-primary-600 text-white hover:bg-primary-700 shadow-xl hover:shadow-2xl'
-                }`}
-              >
-                <ShoppingCart className="w-5 h-5" strokeWidth={2} />
-                {availableQty === 0
-                  ? 'Épuisé'
-                  : quantity > 1
-                  ? `Réserver ${quantity} paniers (${totalPrice}€)`
-                  : 'Réserver ce panier'}
-              </button>
-            </div>
-
-            {/* Ligne économie + impact */}
-            <div className="flex flex-row items-center justify-between px-1 mt-1">
-              <div>
-                {availableQty > 0 && quantity > 1 && (
-                  <span className="text-xs text-gray-500">
-                    Économie: {totalSavings}€
-                  </span>
-                )}
-              </div>
-              <div>
-                {quantity > 0 && (
-                  <span className="text-xs text-gray-600">
-                    🌱 {impactMeals} repas sauvés • {impactCO2.toFixed(1)} kg CO₂ évité
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <LotReservationBar
+          availableQuantity={availableQuantity}
+          quantity={quantity}
+          totalPrice={totalPrice}
+          totalSavings={totalSavings}
+          impactMeals={impactMeals}
+          impactCO2={impactCO2}
+          onDecrease={() => handleQuantityChange(quantity - 1)}
+          onIncrease={() => handleQuantityChange(quantity + 1)}
+          onReserve={handleReserve}
+        />
       </main>
 
       {/* Modal Zoom Image Plein Écran */}

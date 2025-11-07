@@ -1,17 +1,15 @@
 // Imports externes
 import { useState, useCallback } from 'react';
-import { Package, TrendingUp, Scan, User, ClipboardList, Plus, Wand2, Gift, CheckSquare, Square, Eye, EyeOff, Wallet } from 'lucide-react';
+import { Package, TrendingUp, Scan, User, ClipboardList, Plus, Gift, CheckSquare, Square, Eye, EyeOff, Wallet } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
 import { LotManagement } from './LotManagement';
 import { MerchantReservations } from './MerchantReservations';
 import { SalesStats } from './SalesStats';
-// import { MissionsManagement } from './MissionsManagement'; // Temporairement désactivé
 import { ProfilePage } from '../shared/ProfilePage';
 import { MerchantHeader } from './MerchantHeader';
 import { MerchantWalletPage } from './WalletPage';
-import { generateFictionalLots } from '../../utils/generateFictionalLots';
 
 // Type pour les onglets
 type TabId = 'lots' | 'reservations' | 'stats' | 'wallet' | 'profile';
@@ -29,7 +27,6 @@ export const MerchantDashboard = () => {
   const [selectionModeHandler, setSelectionModeHandler] = useState<(() => void) | null>(null);
   const [isSelectionModeActive, setIsSelectionModeActive] = useState(false);
   const [eligibleLotsCount, setEligibleLotsCount] = useState(0);
-  const [isGeneratingLots, setIsGeneratingLots] = useState(false);
   const [toggleSoldOutHandler, setToggleSoldOutHandler] = useState<(() => void) | null>(null);
   const [soldOutCount, setSoldOutCount] = useState(0);
   const [isSoldOutHidden, setIsSoldOutHidden] = useState(true);
@@ -61,41 +58,7 @@ export const MerchantDashboard = () => {
     setIsSoldOutHidden(isHidden);
   }, []);
 
-  // Handler pour générer 30 lots fictifs
-  const handleGenerateFictionalLots = async () => {
-    if (!profile?.id) {
-      alert('Erreur : Profil non trouvé');
-      return;
-    }
-
-    const confirmed = window.confirm(
-      '⚠️ Voulez-vous créer 30 produits de démonstration ?\n\n' +
-      'Cette action créera 30 lots fictifs variés avec des images.\n' +
-      'Parfait pour tester la plateforme !'
-    );
-
-    if (!confirmed) return;
-
-    setIsGeneratingLots(true);
-
-    try {
-      const result = await generateFictionalLots(profile.id);
-
-      if (result.success) {
-        alert(`✅ Succès !\n\n${result.count} produits de démonstration créés avec succès.`);
-        // Rafraîchir l'onglet des lots
-        setActiveTab('lots');
-        window.location.reload();
-      } else {
-        alert(`❌ Erreur lors de la création des produits :\n\n${result.error}`);
-      }
-    } catch (error) {
-      console.error('Erreur génération lots:', error);
-      alert('❌ Erreur lors de la création des produits. Veuillez réessayer.');
-    } finally {
-      setIsGeneratingLots(false);
-    }
-  };
+  
 
   // Configuration des onglets
   const tabs = [
@@ -108,35 +71,30 @@ export const MerchantDashboard = () => {
 
   // Render principal
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* En-tête amélioré */}
+    <div className="min-h-screen bg-[url('/slide-8.png')] bg-cover bg-center bg-fixed ">
+      {/* En-tête amélioré avec un style renforcé */}
       <MerchantHeader
         logo={
           profile?.business_logo_url ? (
             <img
               src={profile.business_logo_url}
               alt={profile.business_name || 'Logo du commerce'}
-              className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-lg"
+              className="w-16 h-16 rounded-3xl object-cover border-4 border-white shadow-xl transition-transform hover:scale-105"
             />
           ) : undefined
         }
         title={profile?.business_name || profile?.full_name || 'Commerçant'}
-        // subtitle="Valorisez vos invendus, réduisez le gaspillage ! 💚"
+        subtitle={profile?.business_description || "Valorisez vos invendus, réduisez le gaspillage ! 💚"}
         defaultIcon="🏪"
-        showStats={true}
         actions={[
           {
             label: 'Créer un panier',
             icon: Plus,
             onClick: () => {
-              // Basculer vers l'onglet "lots" si nécessaire
               if (activeTab !== 'lots') {
                 setActiveTab('lots');
-                // Attendre que le composant soit monté avant d'appeler le handler
                 setTimeout(() => {
-                  if (createLotHandler) {
-                    createLotHandler();
-                  }
+                  if (createLotHandler) createLotHandler();
                 }, 100);
               } else if (createLotHandler) {
                 createLotHandler();
@@ -146,124 +104,115 @@ export const MerchantDashboard = () => {
             mobileLabel: 'Créer',
           },
           {
-            label: isGeneratingLots ? 'Création...' : '30 Démos',
-            icon: Wand2,
-            onClick: handleGenerateFictionalLots,
-            variant: 'secondary' as const,
-            mobileLabel: 'Démo',
-            disabled: isGeneratingLots,
-          },
-          {
             label: 'Station Retrait',
             icon: Scan,
             onClick: () => window.open('/pickup', '_blank'),
             variant: 'secondary' as const,
             mobileLabel: 'Station',
           },
-          ...(selectionModeHandler ? [{
-            label: isSelectionModeActive ? 'Mode sélection' : 'Sélectionner',
-            icon: isSelectionModeActive ? CheckSquare : Square,
-            onClick: () => {
-              // Basculer vers l'onglet "lots" si nécessaire
-              if (activeTab !== 'lots') {
-                setActiveTab('lots');
-                setTimeout(() => {
-                  if (selectionModeHandler) {
-                    selectionModeHandler();
-                  }
-                }, 100);
-              } else if (selectionModeHandler) {
-                selectionModeHandler();
-              }
-            },
-            variant: (isSelectionModeActive ? 'primary' : 'secondary') as 'primary' | 'secondary',
-            mobileLabel: isSelectionModeActive ? 'Mode' : 'Sélectionner',
-          }] : []),
-          ...(eligibleLotsCount > 0 && makeAllFreeHandler ? [{
-            label: `Tout passer en don (${eligibleLotsCount})`,
-            icon: Gift,
-            onClick: () => {
-              // Basculer vers l'onglet "lots" si nécessaire
-              if (activeTab !== 'lots') {
-                setActiveTab('lots');
-                setTimeout(() => {
-                  if (makeAllFreeHandler) {
-                    makeAllFreeHandler();
-                  }
-                }, 100);
-              } else if (makeAllFreeHandler) {
-                makeAllFreeHandler();
-              }
-            },
-            variant: 'secondary' as const,
-            mobileLabel: `Don (${eligibleLotsCount})`,
-          }] : []),
-          ...(toggleSoldOutHandler && soldOutCount > 0 && activeTab === 'lots' ? [{
-            label: isSoldOutHidden ? `Afficher épuisés (${soldOutCount})` : `Masquer épuisés (${soldOutCount})`,
-            icon: isSoldOutHidden ? Eye : EyeOff,
-            onClick: () => {
-              if (toggleSoldOutHandler) {
-                toggleSoldOutHandler();
-              }
-            },
-            variant: 'secondary' as const,
-            mobileLabel: isSoldOutHidden ? `Afficher (${soldOutCount})` : `Masquer (${soldOutCount})`,
-          }] : []),
+          ...(selectionModeHandler
+            ? [
+                {
+                  label: isSelectionModeActive ? 'Mode sélection' : 'Sélectionner',
+                  icon: isSelectionModeActive ? CheckSquare : Square,
+                  onClick: () => {
+                    if (activeTab !== 'lots') {
+                      setActiveTab('lots');
+                      setTimeout(() => {
+                        if (selectionModeHandler) selectionModeHandler();
+                      }, 100);
+                    } else if (selectionModeHandler) {
+                      selectionModeHandler();
+                    }
+                  },
+                  variant: (isSelectionModeActive ? 'primary' : 'secondary') as 'primary' | 'secondary',
+                  mobileLabel: isSelectionModeActive ? 'Mode' : 'Sélectionner',
+                },
+              ]
+            : []),
+          ...(eligibleLotsCount > 0 && makeAllFreeHandler
+            ? [
+                {
+                  label: `Tout passer en don (${eligibleLotsCount})`,
+                  icon: Gift,
+                  onClick: () => {
+                    if (activeTab !== 'lots') {
+                      setActiveTab('lots');
+                      setTimeout(() => {
+                        if (makeAllFreeHandler) makeAllFreeHandler();
+                      }, 100);
+                    } else if (makeAllFreeHandler) {
+                      makeAllFreeHandler();
+                    }
+                  },
+                  variant: 'secondary' as const,
+                  mobileLabel: `Don (${eligibleLotsCount})`,
+                },
+              ]
+            : []),
+          ...(toggleSoldOutHandler && soldOutCount > 0 && activeTab === 'lots'
+            ? [
+                {
+                  label: isSoldOutHidden
+                    ? `Afficher épuisés (${soldOutCount})`
+                    : `Masquer épuisés (${soldOutCount})`,
+                  icon: isSoldOutHidden ? Eye : EyeOff,
+                  onClick: () => {
+                    if (toggleSoldOutHandler) toggleSoldOutHandler();
+                  },
+                  variant: 'secondary' as const,
+                  mobileLabel: isSoldOutHidden
+                    ? `Afficher (${soldOutCount})`
+                    : `Masquer (${soldOutCount})`,
+                },
+              ]
+            : []),
         ]}
       />
 
-      {/* Contenu principal */}
-      <main className="max-w-12xl mx-auto px-6 py-6 pb-24">
-        {activeTab === 'lots' && (
-          <LotManagement 
-            onCreateLotClick={handleCreateLotClick}
-            onMakeAllFreeClick={handleMakeAllFreeClick}
-            onSelectionModeClick={handleSelectionModeClick}
-            onSelectionModeChange={handleSelectionModeChange}
-            onToggleSoldOutClick={handleToggleSoldOutClick}
-          />
-        )}
-        {activeTab === 'reservations' && <MerchantReservations />}
-        {/* {activeTab === 'missions' && <MissionsManagement />} Temporairement désactivé */}
-        {activeTab === 'stats' && <SalesStats />}
-        {activeTab === 'wallet' && <MerchantWalletPage />}
-        {activeTab === 'profile' && <ProfilePage />}
+      {/* Contenu principal avec animation et responsive */}
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-8 pb-28 transition-all">
+        <div className="rounded-3xl shadow-md bg-white p-4 sm:p-8 min-h-[400px]">
+          {activeTab === 'lots' && (
+            <LotManagement
+              onCreateLotClick={handleCreateLotClick}
+              onMakeAllFreeClick={handleMakeAllFreeClick}
+              onSelectionModeClick={handleSelectionModeClick}
+              onSelectionModeChange={handleSelectionModeChange}
+              onToggleSoldOutClick={handleToggleSoldOutClick}
+            />
+          )}
+          {activeTab === 'reservations' && <MerchantReservations />}
+          {/* {activeTab === 'missions' && <MissionsManagement />} Temporairement désactivé */}
+          {activeTab === 'stats' && <SalesStats />}
+          {activeTab === 'wallet' && <MerchantWalletPage />}
+          {activeTab === 'profile' && <ProfilePage />}
+        </div>
       </main>
 
-      {/* Barre de navigation fixe en bas */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+      {/* Barre de navigation stylisée en bas */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur border-t border-gray-200 z-50">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
-
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
-                    isActive
-                      ? 'text-secondary-600'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
+                  className={`relative flex flex-col items-center justify-center gap-1 px-2 py-3 flex-1 transition-all
+                    ${isActive ? 'text-secondary-700 font-semibold scale-105' : 'text-gray-500 hover:text-secondary-500'} group`}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   {isActive && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-b-full" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-1 bg-gradient-to-r from-secondary-400 to-secondary-600 rounded-b-full animate-fade-in" />
                   )}
-                  <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
-                    <Icon
-                      size={20}
-                      strokeWidth={isActive ? 2.5 : 1.5}
-                    />
+                  <div className={`transition-transform group-hover:scale-110 ${isActive ? 'scale-125' : ''}`}>
+                    <Icon size={22} strokeWidth={isActive ? 2.2 : 1.6} />
                   </div>
-                  <span
-                    className={`text-[10px] transition-all ${
-                      isActive ? 'font-bold' : 'font-light'
-                    }`}
-                  >
+                  <span className={`text-[11px] transition-all ${isActive ? 'font-bold' : 'font-normal'} tracking-wide`}>
                     {tab.label}
                   </span>
                 </button>
