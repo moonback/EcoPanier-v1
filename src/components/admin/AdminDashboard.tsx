@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, ChevronLeft, ChevronRight, Home, Menu, X, MapPin, Package, Gift, Search, Bell, Zap, Moon, Sun, BarChart3, MessageSquare, HelpCircle, Wallet, ArrowDownCircle } from 'lucide-react';
+import { Users, LogOut, User, Shield, Settings, TrendingUp, Activity, History, FileText, ChevronLeft, ChevronRight, Home, Menu, X, MapPin, Package, Gift, Search, Bell, Zap, Moon, Sun, BarChart3, MessageSquare, HelpCircle, Wallet, ArrowDownCircle, Globe2 } from 'lucide-react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
@@ -18,9 +18,10 @@ import { LotModeration } from './LotModeration';
 import { ExpiredLotsManager } from './ExpiredLotsManager';
 import { WalletManagement } from './WalletManagement';
 import { WithdrawalManagement } from './WithdrawalManagement';
+import { Impact360Dashboard } from '../shared/impact/Impact360Dashboard';
 
 // Type pour les onglets
-type TabId = 'stats' | 'users' | 'lots' | 'expired-lots' | 'analytics' | 'logs' | 'reports' | 'settings' | 'history' | 'profile' | 'geocode' | 'wallets' | 'withdrawals';
+type TabId = 'stats' | 'users' | 'lots' | 'expired-lots' | 'analytics' | 'impact360' | 'logs' | 'reports' | 'settings' | 'history' | 'profile' | 'geocode' | 'wallets' | 'withdrawals';
 
 /**
  * Dashboard principal pour les administrateurs
@@ -177,6 +178,7 @@ export const AdminDashboard = () => {
       title: 'Analytics',
       items: [
         { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'success', emoji: '📊' },
+        { id: 'impact360', label: 'Impact 360°', icon: Globe2, color: 'primary', emoji: '🌍' },
         { id: 'reports', label: 'Rapports', icon: FileText, color: 'warning', emoji: '📄' },
         { id: 'logs', label: 'Logs d\'activité', icon: Activity, color: 'primary', emoji: '📝' },
       ]
@@ -678,6 +680,7 @@ export const AdminDashboard = () => {
             {activeTab === 'lots' && <LotModeration />}
             {activeTab === 'expired-lots' && <ExpiredLotsManager />}
             {activeTab === 'analytics' && <AdvancedAnalytics />}
+            {activeTab === 'impact360' && <Impact360Dashboard />}
             {activeTab === 'reports' && <ReportsGenerator />}
             {activeTab === 'logs' && <ActivityLogs />}
             {activeTab === 'settings' && <PlatformSettings />}
