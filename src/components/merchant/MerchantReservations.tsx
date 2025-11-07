@@ -1,6 +1,6 @@
 // Imports externes
 import { useState, useEffect, useRef } from 'react';
-import { Package, User, Clock, Key, MapPin, ShoppingCart, ClipboardList, Eye, EyeOff, Thermometer, AlertTriangle, Image as ImageIcon, RefreshCw } from 'lucide-react';
+import { Package, User, Clock, ShoppingCart, ClipboardList, Thermometer, AlertTriangle, Image as ImageIcon, RefreshCw, Phone } from 'lucide-react';
 
 // Imports internes
 import { supabase } from '../../lib/supabase';
@@ -8,6 +8,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { formatCurrency, formatDateTime, getCategoryLabel } from '../../utils/helpers';
 
 // Imports types
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Database } from '../../lib/database.types';
 
 type Reservation = Database['public']['Tables']['reservations']['Row'] & {
@@ -30,10 +31,9 @@ export const MerchantReservations = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('pending'); // Par défaut, afficher les en attente
-  const [revealedPins, setRevealedPins] = useState<Set<string>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const subscriptionRef = useRef<any>(null);
+  const subscriptionRef = useRef<RealtimeChannel | null>(null);
 
   // Hooks (stores, contexts, router)
   const { profile } = useAuthStore();
@@ -143,7 +143,7 @@ export const MerchantReservations = () => {
         return {
           bg: 'bg-gradient-to-br from-blue-50 to-white',
           badge: 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-300',
-          label: '💳 Payé - En attente confirmation client',
+          label: 'Payé - En attente confirmation client',
           emoji: '💳',
         };
       }
@@ -194,19 +194,6 @@ export const MerchantReservations = () => {
     }
     return reservation.status === filter;
   });
-
-  // Handler pour révéler/masquer le PIN
-  const togglePinReveal = (reservationId: string) => {
-    setRevealedPins((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(reservationId)) {
-        newSet.delete(reservationId);
-      } else {
-        newSet.add(reservationId);
-      }
-      return newSet;
-    });
-  };
 
   // Statistiques rapides
   const stats = {
@@ -361,17 +348,11 @@ export const MerchantReservations = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {filteredReservations.map((reservation) => {
           const statusStyles = getStatusStyles(reservation);
-          const isPinRevealed = revealedPins.has(reservation.id);
 
           // Calcul du pourcentage de remise
           const discountPercent = reservation.lots.original_price > 0
             ? Math.round(((reservation.lots.original_price - reservation.lots.discounted_price) / reservation.lots.original_price) * 100)
             : 0;
-
-          // Formatage des heures de retrait
-          const pickupStart = new Date(reservation.lots.pickup_start);
-          const pickupEnd = new Date(reservation.lots.pickup_end);
-          const pickupTime = `${pickupStart.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - ${pickupEnd.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
 
           return (
             <div
@@ -439,7 +420,9 @@ export const MerchantReservations = () => {
                 <div className="flex items-center gap-1.5 mb-2 text-xs text-gray-700 bg-gray-50 rounded-lg px-2 py-1.5 border border-gray-200">
                   <Clock size={12} className="text-gray-400 flex-shrink-0" />
                   <span className="font-medium">Retrait :</span>
-                  <span className="font-semibold text-gray-900">{pickupTime}</span>
+                  <span className="font-semibold text-gray-900">
+                    {formatDateTime(reservation.lots.pickup_start)} - {formatDateTime(reservation.lots.pickup_end)}
+                  </span>
                 </div>
 
                 {/* Informations client compactes */}
@@ -456,41 +439,11 @@ export const MerchantReservations = () => {
                   </div>
                   {reservation.profiles.phone && (
                     <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                      <MapPin size={12} className="text-gray-400" />
+                      <Phone size={12} className="text-gray-400" />
                       <span className="truncate">{reservation.profiles.phone}</span>
                     </div>
                   )}
                 </div>
-
-                {/* Code PIN compact avec bouton révéler */}
-                <div className="mb-2">
-                  <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg border border-gray-200">
-                    <button
-                      onClick={() => togglePinReveal(reservation.id)}
-                      className="flex items-center justify-center w-6 h-6 rounded hover:bg-gray-200 transition-colors flex-shrink-0"
-                      title={isPinRevealed ? 'Masquer le PIN' : 'Révéler le PIN'}
-                    >
-                      {isPinRevealed ? (
-                        <EyeOff size={14} className="text-gray-600" />
-                      ) : (
-                        <Eye size={14} className="text-gray-600" />
-                      )}
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      {isPinRevealed ? (
-                        <div className="flex items-center gap-1.5">
-                          <Key size={12} className="text-primary-600 flex-shrink-0" />
-                          <span className="font-mono text-sm font-bold text-gray-900 tracking-wider">
-                            {reservation.pickup_pin}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-500 font-medium">Cliquez pour révéler le PIN</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
                 {/* Prix et badge don compact */}
                 <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                   <div className="flex items-center gap-2">
@@ -522,19 +475,12 @@ export const MerchantReservations = () => {
                 {reservation.status === 'confirmed' && !reservation.customer_confirmed && (
                   <div className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-xs text-blue-700 font-medium text-center">
-                      💳 Commandé et payé • En attente de confirmation de réception par le client
+                      💳 Payé - En attente de retrait par le client
                     </p>
                   </div>
                 )}
                 
-                {/* Badge d'information pour les commandes confirmées par le client */}
-                {reservation.status === 'confirmed' && reservation.customer_confirmed && (
-                  <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-xs text-green-700 font-medium text-center">
-                      ✅ Réception confirmée par le client • Prêt pour retrait
-                    </p>
-                  </div>
-                )}
+                
               </div>
             </div>
           );
