@@ -8,37 +8,33 @@ const benefits = [
   {
     title: 'Création ultra-rapide',
     items: [
-      'IA EcoPanier : analyse automatique en 30 secondes',
-      'Formulaire guidé optimisé mobile & desktop',
-      'Prévisualisation immédiate du lot',
-      'Contrôle qualité avant publication',
+      'IA EcoPanier : fiches complètes générées en 30 secondes',
+      'Formulaire express adapté mobile & desktop',
+      'Prévisualisation et validation avant publication',
     ],
   },
   {
     title: 'Gestion simplifiée',
     items: [
-      'Station de retrait intégrée avec QR + PIN',
+      'Station de retrait intégrée (QR + PIN)',
       'Notifications temps réel pour chaque commande',
-      'Vue calendrier des lots à préparer',
-      'Rapports quotidiens envoyés par email',
+      'Vue agenda des retraits et stocks restants',
     ],
   },
   {
     title: 'Modèle transparent',
     items: [
-      "Inscription 100 % gratuite, sans abonnement",
-      'Commission unique de 15 %',
-      'Virements automatiques hebdomadaires',
-      'Factures et exports comptables disponibles',
+      'Inscription gratuite & commission unique de 8 %',
+      'Plan Premium illimité à 29,90 €/mois, activable à la demande',
+      'Virements automatiques et exports comptables inclus',
     ],
   },
   {
     title: 'Impact & visibilité',
     items: [
-      'Profil mis en avant sur la carte interactive',
-      'Statistiques d’impact environnemental détaillées',
-      'Participation au programme solidaire local',
-      'Kit communication prêt à l’emploi',
+      'Profil vérifié mis en avant sur la carte ÉcoPanier',
+      'Statistiques d’impact environnemental en direct',
+      'Kit de communication clé en main pour votre boutique',
     ],
   },
 ];

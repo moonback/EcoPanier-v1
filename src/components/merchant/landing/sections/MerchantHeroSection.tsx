@@ -1,24 +1,24 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Store } from 'lucide-react';
+import { ArrowRight, Crown, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { PageSection } from '../../../shared/layout/PageSection';
 
 const heroHighlights = [
   {
-    icon: Store,
-    label: '+500 commerçants engagés',
+    icon: Sparkles,
+    label: 'Lots publiés en 2 minutes',
   },
   {
-    icon: Sparkles,
-    label: 'Lots créés en 2 min avec l’IA',
+    icon: Crown,
+    label: 'Option Premium illimitée',
   },
 ];
 
 const heroStats = [
   { value: '0 €', label: "Frais d'inscription" },
-  { value: '15 %', label: 'Commission unique' },
-  { value: '30 %', label: 'Invendus valorisés en moyenne' },
+  { value: '8 %', label: 'Commission sur les ventes' },
+  { value: '20 lots', label: 'par jour inclus dans le plan gratuit' },
 ];
 
 export const MerchantHeroSection = () => {
@@ -48,12 +48,12 @@ export const MerchantHeroSection = () => {
             })}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-5">
             <h1 className="text-4xl font-semibold text-neutral-900 sm:text-5xl">
-              Transformez vos invendus en revenus récurrents et en impact positif.
+              Transformez vos invendus en chiffre d’affaires récurrent, sans complexité.
             </h1>
             <p className="max-w-xl text-lg leading-relaxed text-neutral-600">
-              ÉcoPanier automatise la création de vos lots, attire de nouveaux clients responsables et vous permet de participer à la solidarité alimentaire locale.
+              ÉcoPanier digitalise vos paniers anti-gaspi, automatise la mise en vente et fidélise une clientèle locale engagée.
             </p>
           </div>
 
@@ -89,10 +89,10 @@ export const MerchantHeroSection = () => {
               Des résultats mesurables
             </p>
             <p className="text-2xl font-semibold text-neutral-900">
-              Nos commerçants pilotes valorisent en moyenne 30 % de leurs invendus dès le premier mois.
+              Nos commerçants valorisent jusqu’à 30 % de leurs invendus dès le premier mois.
             </p>
             <p className="text-sm text-neutral-600">
-              Chiffres issus des tests 2025 réalisés auprès de boulangeries, primeurs et traiteurs franciliens.
+              Données 2025 issues de boulangeries, primeurs et traiteurs franciliens partenaires.
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-3">

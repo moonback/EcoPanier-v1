@@ -7,52 +7,52 @@ import { SectionHeader } from '../../../shared/layout/SectionHeader';
 const advancedModules = [
   {
     icon: Brain,
-    title: 'IA EcoPanier ',
-    description: 'Reconnaissance automatique des produits, génération de fiches complètes et estimation de prix basée sur l’historique.',
+    title: 'IA EcoPanier Pro',
+    description: 'Reconnaissance produit, pricing dynamique et suggestions de packs sur la base de vos ventes.',
     details: [
-      'Propositions éditables en un clic',
-      'Suggestion de lots récurrents',
-      'Suivi du taux de conformité IA',
+      'Titres, descriptions et visuels optimisés',
+      'Suggestions automatiques de réassort',
+      'Score de confiance IA suivi dans le temps',
     ],
   },
   {
     icon: Trash2,
-    title: 'Nettoyage automatique',
-    description: 'Archivage des lots expirés, alertes sur les stocks restants et suppression automatique des contenus obsolètes.',
+    title: 'Nettoyage intelligent',
+    description: 'Archivage automatique des lots épuisés, alertes stocks bas et rappels de retrait.',
     details: [
-      'Rappels avant expiration des créneaux',
-      'Archivage sécurisé des statistiques',
-      'Notifications hebdomadaires de synthèse',
+      'Rappels avant fin de créneau',
+      'Suppression sécurisée des visuels obsolètes',
+      'Synthèse hebdo envoyée par email',
     ],
   },
   {
     icon: BarChart3,
     title: 'Analytics avancés',
-    description: 'Tableaux de bord multi-indicateurs pour comprendre vos performances et optimiser vos horaires de retrait.',
+    description: 'Indicateurs consolidés pour piloter vos ventes, vos marges et votre impact.',
     details: [
-      'Tendances sur 6 mois',
-      'Comparaison par catégorie',
-      'Impact CO₂ et repas sauvés',
+      'Tendances 6 mois multi-catégories',
+      'Histogrammes des créneaux performants',
+      'Rapports CO₂, repas sauvés et dons',
     ],
   },
   {
     icon: Shield,
     title: 'Sécurité & conformité',
-    description: 'Gestion des consentements bénéficiaires, audit des actions et conformité RGPD vérifiée par un tiers.',
+    description: 'Gestion RGPD, audit des actions et contrôle des accès par collaborateur.',
     details: [
-      'Chiffrement des données sensibles',
+      'Chiffrement bout à bout',
       'Journal d’audit exportable',
-      'Droit à l’oubli simplifié',
+      'Gestion simplifiée du droit à l’oubli',
     ],
   },
   {
     icon: Download,
-    title: 'Exports complets',
-    description: 'Accédez à toutes vos données au format CSV/JSON pour votre comptabilité et vos reporting internes.',
+    title: 'Exports premium',
+    description: 'Exports CSV/JSON planifiables pour votre comptabilité et vos outils BI.',
     details: [
-      'Exports planifiables par email',
-      'Historique des réservations détaillé',
-      'Intégration facile avec Excel ou BI',
+      'Programmation mensuelle ou hebdo',
+      'Historique complet des transactions',
+      'Connecteurs Excel & Google Sheets',
     ],
   },
 ];
@@ -63,9 +63,9 @@ export const MerchantAdvancedFeaturesSection = () => {
       <div className="flex flex-col gap-10">
         <SectionHeader
           align="center"
-          eyebrow="Fonctionnalités avancées"
-          title="Des outils professionnels pour aller plus loin"
-          description="Pensés pour les enseignes multi-sites comme pour les artisans indépendants."
+          eyebrow="Fonctionnalités premium"
+          title="Des outils professionnels pour accélérer"
+          description="Inclus dans le plan Premium illimité, pour les commerces qui veulent aller plus vite et piloter précis."
         />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -98,6 +98,10 @@ export const MerchantAdvancedFeaturesSection = () => {
               </motion.div>
             );
           })}
+        </div>
+
+        <div className="rounded-3xl border border-primary-200 bg-primary-50/60 px-6 py-5 text-center text-sm text-primary-800">
+          Inclus dans le plan Premium illimité (29,90&nbsp;€/mois) — activation en un clic depuis votre portefeuille marchand.
         </div>
       </div>
     </PageSection>

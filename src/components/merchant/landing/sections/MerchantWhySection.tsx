@@ -7,27 +7,27 @@ import { SectionHeader } from '../../../shared/layout/SectionHeader';
 const reasons = [
   {
     icon: DollarSign,
-    title: 'Récupérez vos pertes',
-    description: "Valorisez jusqu'à 30 % du prix initial de vos invendus au lieu de les jeter. Chaque lot sauvé devient un revenu complémentaire.",
-    stats: 'Jusqu’à 500 € par mois récupérés',
+    title: 'Rentabilisez vos invendus',
+    description: 'Générez du chiffre d’affaires additionnel en quelques ventes par semaine au lieu de jeter.',
+    stats: 'Jusqu’à 500 € / mois récupérés',
   },
   {
     icon: TrendingUp,
-    title: 'Attirez de nouveaux clients',
-    description: '70 % des utilisateurs découvrant un commerce via ÉcoPanier y reviennent ensuite. Générez du trafic qualifié sans budget marketing.',
-    stats: '+30 % de nouveaux clients au bout de 3 mois',
+    title: 'Attirez du trafic qualifié',
+    description: '70 % des acheteurs reviennent en boutique. Boostez vos heures creuses sans budget marketing.',
+    stats: '+30 % de nouveaux clients en 3 mois',
   },
   {
     icon: Leaf,
     title: 'Réduisez votre impact CO₂',
-    description: 'Chaque panier sauvé évite 0,9 kg de CO₂. Votre tableau de bord met en avant vos indicateurs environnementaux en temps réel.',
-    stats: '15 tonnes de CO₂ évitées sur nos pilotes 2025',
+    description: 'Chaque panier sauvé évite 0,9 kg de CO₂. Suivez vos indicateurs RSE en temps réel.',
+    stats: '15 t de CO₂ évitées (pilotes 2025)',
   },
   {
     icon: Heart,
-    title: 'Renforcez la solidarité locale',
-    description: 'Activez les paniers solidaires pour soutenir les bénéficiaires de votre quartier et renforcer votre ancrage local.',
-    stats: '5 000+ personnes aidées grâce aux commerçants partenaires',
+    title: 'Renforcez votre image locale',
+    description: 'Activez les paniers solidaires pour soutenir les bénéficiaires de votre quartier et fédérer votre communauté.',
+    stats: '5 000+ personnes aidées',
   },
 ];
 

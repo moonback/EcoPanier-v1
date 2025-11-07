@@ -9,48 +9,44 @@ const steps = [
     step: 'Étape 1',
     title: 'Inscrivez-vous gratuitement',
     description:
-      'Renseignez vos informations professionnelles et paramétrez vos horaires de retrait. Votre profil est validé en moins de 24 heures.',
+      'Complétez votre profil, définissez vos créneaux de retrait et publiez votre première offre en moins de 24 h.',
     icon: UserPlus,
     details: [
-      "Inscription en ligne, sans matériel dédié",
-      'Ajout de plusieurs points de vente possible',
-      'Paramètres de retrait personnalisables',
+      'Inscription 100 % en ligne, multi-points de vente',
+      'Créneaux et équipes paramétrables en autonomie',
     ],
   },
   {
     step: 'Étape 2',
     title: 'Créez vos lots avec l’IA',
     description:
-      'Prenez une photo de vos invendus : l’IA propose un titre, une description et un prix suggéré que vous ajustez en un clic.',
+      'Photographiez vos invendus : l’IA génère le titre, la description et le prix optimisé. Vous validez et publiez.',
     icon: Camera,
     details: [
-      'Analyse IA en 30 secondes',
-      'Bibliothèque d’images et de descriptions enregistrée',
-      'Gestion des stocks et lots récurrents',
+      'Analyse IA et proposition en 30 secondes',
+      'Bibliothèque de lots récurrents et duplication',
     ],
   },
   {
     step: 'Étape 3',
     title: 'Les clients réservent et paient en ligne',
     description:
-      'Vous recevez des notifications instantanées, les paiements sont sécurisés et vos lots apparaissent automatiquement sur la carte publique.',
+      'Vos paniers sont visibles sur l’app ÉcoPanier, les paiements sont sécurisés et vous recevez chaque notification en temps réel.',
     icon: Smartphone,
     details: [
-      'Paiement sécurisé et commission prélevée automatiquement',
-      'Notifications email et SMS en temps réel',
-      'Tableau de bord unifié pour suivre vos ventes',
+      'Paiements sécurisés, commission automatique',
+      'Suivi des ventes sur un tableau de bord unique',
     ],
   },
   {
     step: 'Étape 4',
     title: 'Validez les retraits en 30 secondes',
     description:
-      'Scan du QR code, confirmation du PIN et remise du panier. Votre virement hebdomadaire est ensuite automatisé.',
+      'Scannez le QR code, confirmez le PIN : la commande est servie et le virement hebdomadaire se déclenche automatiquement.',
     icon: QrCode,
     details: [
-      'Station de retrait web ou tablette',
-      'Historique des retraits et incidents',
-      'Exports comptables et rapports automatiques',
+      'Station de retrait accessible sur tablette ou PC',
+      'Historique des retraits et exports comptables inclus',
     ],
   },
 ];
