@@ -18,6 +18,15 @@
 
 **EcoPanier** est une plateforme innovante de lutte contre le gaspillage alimentaire qui intègre un volet de solidarité sociale unique : **les lots gratuits pour bénéficiaires**. Les commerçants valorisent leurs invendus en créant des lots à prix réduits (jusqu'à -70%) pour les clients, et des lots 100% gratuits exclusifs pour les personnes en situation de précarité.
 
+### 🎬 Vidéo de présentation
+
+<video controls width="100%" poster="/public/logo.png">
+  <source src="./EcoPanier__Du_Déchet_à_l_Espoir.mp4" type="video/mp4" />
+  Votre navigateur ne supporte pas la lecture vidéo intégrée. Vous pouvez
+  télécharger la vidéo en cliquant sur ce lien :
+  <a href="./EcoPanier__Du_Déchet_à_l_Espoir.mp4">EcoPanier – Du Déchet à l'Espoir</a>.
+</video>
+
 ### 🎯 Mission
 
 - **Réduire le gaspillage** : Sauver les invendus alimentaires avant qu'ils ne finissent à la poubelle
