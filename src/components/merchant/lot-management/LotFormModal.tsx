@@ -216,7 +216,11 @@ export const LotFormModal = ({
             )}
             {/* Étape 1 : Analyse IA (uniquement en création) */}
             {!editingLot && currentStep === 1 && (
-              <AIAnalysisStep formState={formState} onNextStep={nextStep} />
+              <AIAnalysisStep
+                formState={formState}
+                onNextStep={nextStep}
+                hasActiveSubscription={hasActiveSubscription}
+              />
             )}
 
             {/* Étape 2 (création) ou Étape 1 (édition) : Informations de base */}
