@@ -4,13 +4,14 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSettings } from '../../contexts/SettingsContext';
 import { FreeLotsList } from './FreeLotsList';
 import { BeneficiaryReservations } from './BeneficiaryReservations';
+import { AvailableSuspendedBaskets } from './AvailableSuspendedBaskets';
 import { QRCodeDisplay } from '../shared/QRCodeDisplay';
 import { ProfilePage } from '../shared/ProfilePage';
 import { DashboardHeader } from '../shared/DashboardHeader';
 import { Heart, History, QrCode, AlertCircle, User } from 'lucide-react';
 
 export const BeneficiaryDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'browse' | 'reservations' | 'qrcode' | 'profile'>('browse');
+  const [activeTab, setActiveTab] = useState<'browse' | 'suspended' | 'reservations' | 'qrcode' | 'profile'>('browse');
   const [dailyCount, setDailyCount] = useState(0);
   const { profile, signOut } = useAuthStore();
   const { settings } = useSettings();
@@ -44,7 +45,8 @@ export const BeneficiaryDashboard = () => {
   }, [checkDailyLimit]);
 
   const tabs = [
-    { id: 'browse', label: 'Paniers solidaires', icon: Heart, emoji: '🎁' },
+    { id: 'browse', label: 'Lots gratuits', icon: Heart, emoji: '🎁' },
+    { id: 'suspended', label: 'Paniers suspendus', icon: Heart, emoji: '❤️' },
     { id: 'reservations', label: 'Mes Paniers', icon: History, emoji: '📦' },
     { id: 'qrcode', label: 'QR Code', icon: QrCode, emoji: '📱' },
     { id: 'profile', label: 'Profil', icon: User, emoji: '👤' },
@@ -128,6 +130,7 @@ export const BeneficiaryDashboard = () => {
         {activeTab === 'browse' && (
           <FreeLotsList dailyCount={dailyCount} onReservationMade={checkDailyLimit} />
         )}
+        {activeTab === 'suspended' && <AvailableSuspendedBaskets />}
         {activeTab === 'reservations' && <BeneficiaryReservations />}
         {activeTab === 'qrcode' && (
           <div className="flex justify-center">
@@ -153,7 +156,7 @@ export const BeneficiaryDashboard = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'browse' | 'reservations' | 'qrcode' | 'profile')}
+                  onClick={() => setActiveTab(tab.id as 'browse' | 'suspended' | 'reservations' | 'qrcode' | 'profile')}
                   className={`relative flex flex-col items-center justify-center gap-1 px-4 py-3 flex-1 transition-all ${
                     isActive
                       ? 'text-accent-600'

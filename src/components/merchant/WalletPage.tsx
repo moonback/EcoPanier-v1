@@ -42,6 +42,15 @@ import { supabase } from '../../lib/supabase';
 // Constantes
 const TRANSACTIONS_PER_PAGE = 20;
 
+// Types
+type ReservationWithLot = {
+  id: string;
+  quantity: number;
+  lots: {
+    title: string;
+  };
+};
+
 /**
  * Page wallet pour les commerçants
  * Affiche le solde, statistiques des paiements reçus et l'historique des transactions
@@ -101,10 +110,10 @@ export const MerchantWalletPage = () => {
 
       // Créer une map des réservations par ID
       const reservationsMap = new Map(
-        (reservations || []).map((res: any) => {
-          // Accéder au titre du lot (peut être dans res.lots ou res.lot selon la structure)
-          const lotTitle = (res.lots?.title || res.lot?.title || 'Lot') as string;
-          const quantity = (res.quantity || 1) as number;
+        (reservations || []).map((res: ReservationWithLot) => {
+          // Accéder au titre du lot (la requête utilise lots!inner donc c'est toujours res.lots)
+          const lotTitle = res.lots?.title || 'Lot';
+          const quantity = res.quantity || 1;
           
           return [
             res.id,
@@ -240,7 +249,7 @@ export const MerchantWalletPage = () => {
   // Render principal
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="max-w-12xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* En-tête avec solde */}
         <div className="card p-4 sm:p-6 md:p-8 bg-gradient-to-br from-success-500 to-success-700 text-white relative overflow-hidden">
           {/* Décoration de fond */}
@@ -278,7 +287,7 @@ export const MerchantWalletPage = () => {
                     Paiements reçus
                   </p>
                   <p className="text-xs sm:text-sm text-success-100">
-                    Vous recevez les paiements lorsque vos clients confirment la réception de leurs lots.
+                    Vous recevez les paiements lorsque vos clients confirment la réception de leurs lots ou automatiquement 30 minutes après avoir flasher le QR code retrait du panier.
                   </p>
                 </div>
               </div>

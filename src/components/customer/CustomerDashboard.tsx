@@ -7,6 +7,7 @@ import {
   TrendingUp,
   User,
   Wallet,
+  Heart,
 } from 'lucide-react';
 
 // Imports internes
@@ -16,12 +17,13 @@ import { ReservationsList } from './ReservationsList';
 import { ImpactDashboard } from './ImpactDashboard';
 import { CustomerProfilePage } from './CustomerProfilePage';
 import { WalletPage } from './WalletPage';
+import { SuspendedBasketsPage } from './SuspendedBasketsPage';
 import { CustomerHeader } from './CustomerHeader';
 
 import EcoPanierLogo from '/logo.png'; // Import du logo
 
 // Type pour les onglets
-type TabId = 'browse' | 'reservations' | 'impact' | 'wallet' | 'profile';
+type TabId = 'browse' | 'reservations' | 'impact' | 'wallet' | 'suspended' | 'profile';
 
 /**
  * Dashboard principal pour les clients
@@ -39,7 +41,7 @@ export const CustomerDashboard = () => {
 
   // Lire le paramètre 'tab' de l'URL ou utiliser 'browse' par défaut
   const tabFromUrl = searchParams.get('tab') as TabId | null;
-  const validTabs: TabId[] = ['browse', 'reservations', 'impact', 'wallet', 'profile'];
+  const validTabs: TabId[] = ['browse', 'reservations', 'impact', 'wallet', 'suspended', 'profile'];
   const initialTab: TabId = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'browse';
   
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
@@ -64,6 +66,7 @@ export const CustomerDashboard = () => {
     { id: 'reservations' as TabId, label: 'Mes paniers', icon: History, emoji: '📦' },
     { id: 'impact' as TabId, label: 'Mon impact', icon: TrendingUp, emoji: '🌍' },
     { id: 'wallet' as TabId, label: 'Portefeuille', icon: Wallet, emoji: '💳' },
+    { id: 'suspended' as TabId, label: 'Solidarité', icon: Heart, emoji: '❤️' },
     { id: 'profile' as TabId, label: 'Profil', icon: User, emoji: '👤' },
   ];
 
@@ -94,6 +97,7 @@ export const CustomerDashboard = () => {
         {activeTab === 'reservations' && <ReservationsList />}
         {activeTab === 'impact' && <ImpactDashboard />}
         {activeTab === 'wallet' && <WalletPage />}
+        {activeTab === 'suspended' && <SuspendedBasketsPage />}
         {activeTab === 'profile' && <CustomerProfilePage />}
       </main>
 
