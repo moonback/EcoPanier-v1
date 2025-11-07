@@ -142,7 +142,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           verified: false,
           collector_preferences: null
         });
-        setSuccess('🎉 Félicitations ! Votre compte a été créé avec succès. Vérifiez votre email pour activer votre compte et commencer à sauver des paniers !');
+        setSuccess('Compte créé ! Vérifiez votre e-mail pour l\'activer.');
         setLoading(false);
       }
     } catch (err) {
@@ -182,10 +182,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
             {/* Logo et titre */}
             <div className="text-center space-y-3 animate-fade-in-up">
               <h1 className="text-5xl font-black leading-tight tracking-tight">
-                Sauvez des repas,<br />Économisez, Aidez ! 🌍
+                Chaque panier compte 🌍
               </h1>
               <p className="text-lg text-white/95 font-light leading-relaxed">
-                La plateforme anti-gaspillage qui profite à tous
+                La plateforme solidaire qui lutte contre le gaspillage
               </p>
             </div>
 
@@ -204,10 +204,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                       <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
                         <span className="text-lg">💰</span>
                       </div>
-                      <div className="font-bold text-base">Jusqu'à -70%</div>
+                      <div className="font-bold text-base">-70% sur les invendus</div>
                     </div>
                     <div className="text-xs text-white/90 font-light leading-relaxed">
-                      Produits à petits prix
+                      Réduisez vos dépenses
                     </div>
                   </div>
 
@@ -216,10 +216,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                       <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
                         <span className="text-lg">🌍</span>
                       </div>
-                      <div className="font-bold text-base">Impact écologique</div>
+                      <div className="font-bold text-base">Impact positif</div>
                     </div>
                     <div className="text-xs text-white/90 font-light leading-relaxed">
-                      0.9 kg CO₂ évités par panier
+                      0,9 kg de CO₂ évités/panier
                     </div>
                   </div>
 
@@ -228,10 +228,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                       <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
                         <span className="text-lg">❤️</span>
                       </div>
-                      <div className="font-bold text-base">Soyez solidaire</div>
+                      <div className="font-bold text-base">Solidarité</div>
                     </div>
                     <div className="text-xs text-white/90 font-light leading-relaxed">
-                      Offrez des paniers aux démunis
+                      Financez un panier suspendu
                     </div>
                   </div>
                 </div>
@@ -253,7 +253,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                       <div className="font-bold text-base">2 paniers/jour</div>
                     </div>
                     <div className="text-xs text-white/90 font-light leading-relaxed">
-                      Paniers suspendus gratuits
+                      Accès aux paniers suspendus
                     </div>
                   </div>
 
@@ -265,7 +265,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                       <div className="font-bold text-base">Accès simple</div>
                     </div>
                     <div className="text-xs text-white/90 font-light leading-relaxed">
-                      Juste votre ID, aucun papier
+                      Juste votre ID, sans paperasse
                     </div>
                   </div>
 
@@ -296,7 +296,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               </div>
               <div className="text-center p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg">
                 <div className="text-3xl font-black text-white mb-1">500+</div>
-                <div className="text-xs text-white/90 font-medium">Commerçants</div>
+                <div className="text-xs text-white/90 font-medium">Commerçants engagés</div>
               </div>
             </div>
           </div>
@@ -315,12 +315,12 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
             draggable={false}
           />
           <h2 className="text-3xl font-black text-gray-900 mb-3 tracking-tight">
-            {mode === 'signin' ? 'Bon retour parmi nous ! 👋' : 'Rejoignez l\'aventure ! 🌍'}
+            {mode === 'signin' ? 'Heureux de vous revoir 👋' : 'Créer un compte EcoPanier 🌍'}
           </h2>
           <p className="text-base text-gray-600 font-light leading-relaxed">
             {mode === 'signin' 
-              ? 'Connectez-vous pour continuer à sauver des paniers' 
-              : 'Créez votre compte en 2 minutes et faites la différence'}
+              ? 'Connectez-vous pour réserver vos paniers' 
+              : 'Inscrivez-vous en quelques clics'}
           </p>
         </div>
 
@@ -365,7 +365,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
           {mode === 'signup' && (
             <div className="mb-6">
               <label className="block text-base font-bold text-gray-900 mb-4">
-                Quel est votre profil ? 🎯
+                Choisissez votre rôle 🎯
               </label>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Client */}
@@ -383,7 +383,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   </div>
                   <div className="font-bold text-sm mb-1">🛒 Client</div>
                   <div className={`text-xs ${role === 'customer' ? 'text-white/90' : 'text-gray-600'}`}>
-                    Économiser -70%
+                    Réservez des paniers
                   </div>
                   {role === 'customer' && (
                     <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
@@ -407,7 +407,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   </div>
                   <div className="font-bold text-sm mb-1">🏪 Commerçant</div>
                   <div className={`text-xs ${role === 'merchant' ? 'text-white/90' : 'text-gray-600'}`}>
-                    Valoriser invendus
+                    Valorisez vos invendus
                   </div>
                   {role === 'merchant' && (
                     <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
@@ -431,7 +431,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   </div>
                   <div className="font-bold text-sm mb-1">🤝 Bénéficiaire</div>
                   <div className={`text-xs ${role === 'beneficiary' ? 'text-white/90' : 'text-gray-600'}`}>
-                    Aide gratuite
+                    Recevez 2 paniers/jour
                   </div>
                   {role === 'beneficiary' && (
                     <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
@@ -455,7 +455,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   </div>
                   <div className="font-bold text-sm mb-1">🏛️ Association</div>
                   <div className={`text-xs ${role === 'association' ? 'text-white/90' : 'text-gray-600'}`}>
-                    Enregistrer bénéficiaires
+                    Gérez vos bénéficiaires
                   </div>
                   {role === 'association' && (
                     <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
@@ -649,12 +649,12 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   <div className="p-3 bg-gradient-to-r from-secondary-50 to-primary-50 rounded-xl border border-secondary-100">
                     <p className="text-sm text-black font-semibold flex items-center gap-2">
                       <span>{role === 'merchant' ? '🏪' : '🏛️'}</span>
-                      <span>Informations de {role === 'merchant' ? 'votre commerce' : 'votre association'}</span>
+                      <span>Infos {role === 'merchant' ? 'commerce' : 'association'}</span>
                     </p>
                     <p className="text-xs text-gray-600 mt-1">
                       {role === 'merchant' 
-                        ? 'Pour créer vos premiers lots d\'invendus' 
-                        : 'Pour enregistrer vos bénéficiaires'}
+                        ? 'Publiez vos paniers en quelques minutes' 
+                        : 'Suivez vos bénéficiaires partenaires'}
                     </p>
                   </div>
                   
@@ -723,8 +723,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                       <p className="text-xs text-gray-500 mt-2 flex items-start gap-1">
                         <span>💡</span>
                         <span>
-                          Choisissez le type qui correspond le mieux à votre activité. 
-                          Cela aide les clients à trouver vos paniers.
+                          Sélectionnez la catégorie qui vous correspond pour être trouvé facilement.
                         </span>
                       </p>
                     </div>
@@ -769,10 +768,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       {siret.length > 0 && siret.length !== 14 && (
-                        <span className="text-amber-600">⚠️ Le SIRET doit contenir exactement 14 chiffres</span>
+                        <span className="text-amber-600">⚠️ 14 chiffres obligatoires</span>
                       )}
                       {siret.length === 14 && (
-                        <span className="text-success-600">✓ SIRET valide</span>
+                        <span className="text-success-600">✓ Format validé</span>
                       )}
                     </p>
                   </div>
@@ -892,7 +891,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
                 <Shield size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
                 <p className="text-xs text-blue-800 leading-relaxed">
-                  <span className="font-semibold">Vos données sont protégées.</span> Nous respectons le RGPD et ne partageons jamais vos informations personnelles avec des tiers.
+                  <span className="font-semibold">Données protégées.</span> Nous respectons le RGPD et gardons vos informations confidentielles.
                 </p>
               </div>
             </div>
@@ -937,7 +936,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
               </span>
             ) : (
               <span className="flex items-center justify-center gap-2">
-                <span>Créer mon compte gratuitement</span>
+                <span>Créer mon compte</span>
                 <span className="text-lg">🚀</span>
               </span>
             )}
