@@ -71,7 +71,7 @@ export const MerchantDashboard = () => {
 
   // Render principal
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-[url('/slide-5.png')] bg-cover bg-center bg-no-repeat">
       {/* En-tête amélioré avec un style renforcé */}
       <MerchantHeader
         logo={
@@ -171,7 +171,7 @@ export const MerchantDashboard = () => {
       />
 
       {/* Contenu principal avec animation et responsive */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 pb-28 transition-all">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8 pb-28 transition-all">
         <div className="rounded-3xl shadow-md bg-white p-4 sm:p-8 min-h-[400px]">
           {activeTab === 'lots' && (
             <LotManagement
