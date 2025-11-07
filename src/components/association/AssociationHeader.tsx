@@ -1,11 +1,12 @@
 // Imports externes
 import { useState, useEffect } from 'react';
-import { LogOut, type LucideIcon, Users, CheckCircle, Clock, FileText, Sparkles } from 'lucide-react';
+import { LogOut, type LucideIcon, Clock, Sparkles } from 'lucide-react';
 import { ReactNode } from 'react';
 
 // Imports internes
 import { useAuthStore } from '../../stores/authStore';
-import { supabase } from '../../lib/supabase';
+import { useAssociationQuickStats } from '../../hooks/useAssociationQuickStats';
+import { AssociationQuickStats } from './components/AssociationQuickStats';
 
 // Types
 interface ActionButton {
@@ -38,13 +39,6 @@ interface AssociationHeaderProps {
   showStats?: boolean;
 }
 
-interface QuickStats {
-  totalBeneficiaries: number;
-  verifiedBeneficiaries: number;
-  pendingVerification: number;
-  thisMonthRegistrations: number;
-}
-
 /**
  * Header amélioré spécifiquement pour les associations
  * Inclut des statistiques rapides, notifications et design moderne
@@ -62,16 +56,15 @@ export const AssociationHeader = ({
 }: AssociationHeaderProps) => {
   // État local
   const [isScrolled, setIsScrolled] = useState(false);
-  const [quickStats, setQuickStats] = useState<QuickStats>({
-    totalBeneficiaries: 0,
-    verifiedBeneficiaries: 0,
-    pendingVerification: 0,
-    thisMonthRegistrations: 0,
-  });
-  const [loadingStats, setLoadingStats] = useState(true);
 
   // Hooks
   const { profile, signOut } = useAuthStore();
+  const associationId = profile?.id ?? null;
+  const {
+    stats: quickStats,
+    loading: loadingStats,
+    error: quickStatsError,
+  } = useAssociationQuickStats(associationId, { enabled: showStats });
 
   // Effets
   useEffect(() => {
@@ -82,54 +75,6 @@ export const AssociationHeader = ({
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useEffect(() => {
-    if (showStats && profile?.id) {
-      fetchQuickStats();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showStats, profile?.id]);
-
-  // Handlers
-  const fetchQuickStats = async () => {
-    if (!profile?.id) return;
-
-    try {
-      setLoadingStats(true);
-
-      // Charger toutes les inscriptions de l'association
-      const { data: registrations, error } = await supabase
-        .from('association_beneficiary_registrations')
-        .select('*')
-        .eq('association_id', profile.id);
-
-      if (error) throw error;
-
-      // Calculer les statistiques
-      const total = registrations?.length || 0;
-      const verified = registrations?.filter(r => r.is_verified).length || 0;
-      const pending = total - verified;
-
-      // Inscriptions de ce mois
-      const now = new Date();
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const thisMonth = registrations?.filter(r => {
-        const registrationDate = new Date(r.registration_date);
-        return registrationDate >= firstDayOfMonth;
-      }).length || 0;
-
-      setQuickStats({
-        totalBeneficiaries: total,
-        verifiedBeneficiaries: verified,
-        pendingVerification: pending,
-        thisMonthRegistrations: thisMonth,
-      });
-    } catch (error) {
-      console.error('Erreur lors de la récupération des statistiques:', error);
-    } finally {
-      setLoadingStats(false);
-    }
-  };
 
   // Déterminer le titre final
   const finalTitle = title || profile?.business_name || profile?.full_name || 'Association';
@@ -221,67 +166,6 @@ export const AssociationHeader = ({
     );
   };
 
-  // Render des statistiques rapides
-  const renderQuickStats = () => {
-    if (!showStats) return null;
-
-    return (
-      <div className="hidden lg:flex items-center gap-3">
-        {/* Total bénéficiaires */}
-        {quickStats.totalBeneficiaries > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary-50 rounded-lg border border-secondary-200 hover:shadow-md transition-shadow">
-            <Users size={16} className="text-secondary-600" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-secondary-600 font-medium">Total</span>
-              <span className="text-sm font-bold text-secondary-700">
-                {loadingStats ? '...' : quickStats.totalBeneficiaries}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Bénéficiaires vérifiés */}
-        {quickStats.verifiedBeneficiaries > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-success-50 rounded-lg border border-success-200 hover:shadow-md transition-shadow">
-            <CheckCircle size={16} className="text-success-600" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-success-600 font-medium">Vérifiés</span>
-              <span className="text-sm font-bold text-success-700">
-                {loadingStats ? '...' : quickStats.verifiedBeneficiaries}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* En attente */}
-        {quickStats.pendingVerification > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-warning-50 rounded-lg border border-warning-200 hover:shadow-md transition-shadow">
-            <Clock size={16} className="text-warning-600" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-warning-600 font-medium">En attente</span>
-              <span className="text-sm font-bold text-warning-700">
-                {loadingStats ? '...' : quickStats.pendingVerification}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Ce mois */}
-        {quickStats.thisMonthRegistrations > 0 && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 rounded-lg border border-primary-200 hover:shadow-md transition-shadow">
-            <FileText size={16} className="text-primary-600" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-primary-600 font-medium">Ce mois</span>
-              <span className="text-sm font-bold text-primary-700">
-                {loadingStats ? '...' : quickStats.thisMonthRegistrations}
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   // Render principal
   return (
     <header
@@ -304,8 +188,13 @@ export const AssociationHeader = ({
               </p>
             </div>
             {showStats && (
-              <div className="flex items-center gap-2 mt-1">
-                {renderQuickStats()}
+              <div className="mt-1 flex flex-col gap-2">
+                <AssociationQuickStats stats={quickStats} loading={loadingStats} />
+                {quickStatsError && (
+                  <p className="text-xs text-red-600" role="alert">
+                    {quickStatsError}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -455,6 +344,15 @@ export const AssociationHeader = ({
             )}
           </div>
         </div>
+
+        {quickStatsError && (
+          <div
+            className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 lg:hidden"
+            role="alert"
+          >
+            {quickStatsError}
+          </div>
+        )}
       </div>
     </header>
   );
