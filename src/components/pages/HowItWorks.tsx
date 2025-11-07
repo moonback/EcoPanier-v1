@@ -30,57 +30,57 @@ export const HowItWorks = () => {
   const [activeRole, setActiveRole] = useState<'customer' | 'beneficiary'>('customer');
 
   const roles = [
-    { id: 'customer', name: 'Je suis client', icon: ShoppingCart },
-    { id: 'beneficiary', name: 'Je suis bénéficiaire', icon: Users },
+    { id: 'customer', name: 'Parcours client', icon: ShoppingCart },
+    { id: 'beneficiary', name: 'Parcours solidaire', icon: Users },
   ];
 
   const customerSteps = [
     {
       number: 1,
-      title: 'Créez votre compte gratuitement',
-      description: 'En 2 minutes, vous êtes prêt à sauver vos premiers paniers',
+      title: 'Créez votre compte en quelques instants',
+      description: 'Activez votre profil sécurisé et personnalisez vos préférences locales.',
       icon: UserPlus,
       details: [
-        '✉️ Inscription rapide avec votre email',
-        '📍 Indiquez votre adresse pour les paniers à proximité',
-        '✅ Validation en un clic',
-        '🎉 C\'est parti, explorez les paniers !',
+        'Inscription par email avec vérification instantanée',
+        'Préférences géographiques pour des recommandations pertinentes',
+        'Validation du consentement RGPD et notifications ciblées',
+        'Accès direct à votre espace personnalisé',
       ],
     },
     {
       number: 2,
-      title: 'Découvrez les paniers surprises',
-      description: 'Des Produits invendus jusqu\'à -70% près de chez vous',
+      title: 'Explorez les paniers disponibles',
+      description: 'Cartographie en temps réel des invendus près de chez vous.',
       icon: Search,
       details: [
-        '🔍 Parcourez les paniers disponibles sur la carte',
-        '🏪 Filtrez par type de commerce ou catégorie',
-        '⏰ Vérifiez les horaires de retrait flexibles',
-        '💰 Comparez les économies réalisées',
+        'Recherche intelligente par commerce, catégorie ou régime alimentaire',
+        'Visualisation des stocks en direct et des créneaux de retrait',
+        'Indicateurs d’impact environnemental et d’économies générées',
+        'Notifications proactives sur vos commerces favoris',
       ],
     },
     {
       number: 3,
-      title: 'Réservez votre panier en un clic',
-      description: 'Paiement 100% sécurisé, QR code envoyé instantanément',
+      title: 'Réservez et payez en toute confiance',
+      description: 'Transaction sécurisée, confirmation immédiate, QR code unique.',
       icon: CreditCard,
       details: [
-        '🛒 Sélectionnez votre panier préféré',
-        '💳 Payez de manière sécurisée en ligne',
-        '📱 Recevez votre QR code par email et SMS',
-        '🔒 Votre panier est réservé, garanti !',
+        'Sélection en un clic avec affichage des conditions de retrait',
+        'Paiement sécurisé via PSP conforme PCI-DSS',
+        'Envoi automatisé du QR code et du PIN par email et SMS',
+        'Traçabilité complète accessible depuis votre tableau de bord',
       ],
     },
     {
       number: 4,
-      title: 'Récupérez et savourez !',
-      description: 'Retrait ultra-simple avec votre QR code en 30 secondes',
+      title: 'Récupérez votre panier en station',
+      description: 'Retrait fluide accompagné d’un contrôle d’identité numérique.',
       icon: QrCode,
       details: [
-        '🚶 Rendez-vous au commerce à l\'heure indiquée',
-        '📲 Présentez votre QR code depuis votre téléphone',
-        '🔑 Validez avec votre code PIN à 6 chiffres',
-        '🎊 Profitez de vos économies et de votre impact !',
+        'Arrivée sur créneau confirmé auprès du commerçant partenaire',
+        'Scan du QR code depuis votre app ou votre wallet Apple/Google',
+        'Double validation PIN + identifiant réservation',
+        'Confirmation automatique et suivi post-retrait',
       ],
     },
   ];
@@ -89,50 +89,50 @@ export const HowItWorks = () => {
   const beneficiarySteps = [
     {
       number: 1,
-      title: 'Obtenez votre accès solidaire',
-      description: 'Via une association partenaire de votre quartier',
+      title: 'Activez votre accès solidaire',
+      description: 'Éligibilité vérifiée par une association partenaire certifiée.',
       icon: Users,
       details: [
-        '🤝 Rapprochez-vous d\'une association partenaire',
-        '🎫 Recevez votre identifiant bénéficiaire unique',
-        '✅ Créez votre compte en toute confidentialité',
-        '💚 Accédez au programme solidaire',
+        'Orientation via un réseau d’associations habilitées',
+        'Attribution d’un identifiant bénéficiaire sécurisé',
+        'Création de compte confidentielle et conforme RGPD',
+        'Activation du portefeuille solidaire et des quotas associés',
       ],
     },
     {
       number: 2,
-      title: 'Découvrez les paniers solidaires',
-      description: 'Jusqu\'à 2 paniers par jour de Produits invendus et de qualité',
+      title: 'Choisissez vos paniers solidaires',
+      description: 'Sélection quotidienne dans la limite de deux paniers par bénéficiaire.',
       icon: Gift,
       details: [
-        '🔐 Connectez-vous à votre espace personnel',
-        '🎁 Parcourez les paniers solidaires disponibles',
-        '🏪 Choisissez parmi les commerces de votre quartier',
-        '📅 Maximum 2 paniers par jour pour vous aider',
+        'Accès au catalogue solidaire depuis votre tableau de bord',
+        'Filtrage par besoin alimentaire et disponibilité horaire',
+        'Visibilité des commerçants engagés à proximité',
+        'Gestion automatique du quota journalier de paniers',
       ],
     },
     {
       number: 3,
-      title: 'Réservez solidairement',
-      description: 'Aucun paiement requis, c\'est solidaire',
+      title: 'Réservez sans avance de frais',
+      description: 'Validation instantanée, suivi transparent de vos réservations.',
       icon: Heart,
       details: [
-        '❤️ Sélectionnez votre panier sans frais',
-        '🆓 Réservation 100% solidaire via le programme',
-        '📱 Recevez votre QR code de retrait',
-        '✨ Même qualité que pour tous les clients',
+        'Confirmation en un clic via votre crédit solidaire',
+        'Notification sécurisée à l’association référente',
+        'Réception du QR code de retrait et du PIN dédié',
+        'Accès aux mêmes standards qualité que les clients payants',
       ],
     },
     {
       number: 4,
-      title: 'Retirez avec dignité',
-      description: 'Exactement le même processus que tous les autres clients',
+      title: 'Retirez votre panier en toute discrétion',
+      description: 'Processus unifié, sans différenciation côté commerçant.',
       icon: Package,
       details: [
-        '🚶 Rendez-vous au commerce à l\'heure choisie',
-        '📲 Présentez votre QR code comme tout le monde',
-        '🔑 Validez avec votre code PIN',
-        '🤗 Pas de distinction, juste de la solidarité',
+        'Retrait sur le même parcours client que les réservations payantes',
+        'Scan du QR code et validation PIN sur terminal sécurisé',
+        'Suivi temps réel côté association et commerce',
+        'Expérience confidentielle et respectueuse de votre situation',
       ],
     },
   ];
@@ -201,7 +201,7 @@ export const HowItWorks = () => {
             Votre parcours anti-gaspi en quatre étapes
           </h1>
           <p className="text-lg text-neutral-600">
-            Que vous soyez client ou bénéficiaire, ÉcoPanier vous guide pas à pas pour sauver des paniers, soutenir vos commerçants et renforcer la solidarité locale.
+            ÉcoPanier orchestre un parcours utilisateur premium : une plateforme fiable, sécurisée et pensée pour maximiser l’impact économique, social et environnemental de chaque panier sauvé.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <button onClick={() => navigate('/dashboard')} className="btn-primary">
@@ -223,7 +223,7 @@ export const HowItWorks = () => {
             align="center"
             eyebrow="Choisissez votre profil"
             title="Un parcours dédié pour chaque rôle"
-            description="Les interfaces sont adaptées à vos besoins spécifiques, tout en restant très simples à utiliser."
+            description="Deux expériences dédiées, unifiées par la même exigence de qualité de service et de performance opérationnelle."
           />
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:max-w-2xl lg:self-center">
             {roles.map((role) => {
@@ -254,8 +254,8 @@ export const HowItWorks = () => {
         <div className="flex flex-col gap-12">
           <SectionHeader
             eyebrow="Étapes clés"
-            title="Comment ça marche ?"
-            description="Quatre étapes suffisent pour récupérer vos paniers ou bénéficier du programme solidaire."
+            title="Votre parcours simplifié"
+            description="Quatre séquences fluides orchestrées par notre plateforme pour garantir fiabilité, rapidité et inclusion."
           />
           <div className="space-y-6">
             {getSteps().map((step) => {
@@ -297,7 +297,7 @@ export const HowItWorks = () => {
             align="center"
             eyebrow="Pourquoi ÉcoPanier"
             title="Une expérience fiable et transparente"
-            description="Nous combinons sécurité, rapidité, impact environnemental et économies concrètes."
+            description="Nous combinons sécurité, vitesse d’exécution, pilotage d’impact et économies mesurables pour chaque acteur."
           />
           <div className="grid gap-4 sm:grid-cols-2 lg:max-w-4xl lg:self-center">
             {features.map((feature) => {
@@ -329,15 +329,15 @@ export const HowItWorks = () => {
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-white/10 bg-white/10 p-4">
               <p className="text-2xl font-semibold">2 min</p>
-              <p className="text-xs uppercase tracking-[0.12em] text-neutral-100/70">Pour s’inscrire</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-neutral-100/70">Activation compte</p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/10 p-4">
               <p className="text-2xl font-semibold">-70 %</p>
-              <p className="text-xs uppercase tracking-[0.12em] text-neutral-100/70">D’économies possibles</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-neutral-100/70">Économies moyennes</p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/10 p-4">
-              <p className="text-2xl font-semibold">5 rôles</p>
-              <p className="text-xs uppercase tracking-[0.12em] text-neutral-100/70">Interconnectés</p>
+              <p className="text-2xl font-semibold">6 rôles</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-neutral-100/70">Écosystème complet</p>
             </div>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
