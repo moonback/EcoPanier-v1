@@ -140,7 +140,7 @@ export const howItWorks: HowItWorksStep[] = [
   },
   {
     step: 3,
-    title: 'Récupérez vos produits frais',
+    title: 'Récupérez vos Produits invendus',
     description: 'Présentez simplement votre QR code au commerce. C\'est rapide, simple et sans contact. Dégustez vos trouvailles !',
     icon: Package,
   },

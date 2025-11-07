@@ -29,7 +29,7 @@
 │                             │
 │  🍞 Boulangerie             │
 │  🥗 Fruits & Légumes        │
-│  🥖 Produits frais          │
+│  🥖 Produits invendus          │
 │                             │
 └─────────────────────────────┘
 ```
@@ -116,7 +116,7 @@ Les adresses des commerçants sont affichées sur la tablette lors de la réserv
 En utilisant ce service, vous contribuez à :
 - ✅ Réduire le gaspillage alimentaire
 - ✅ Soutenir les commerçants locaux
-- ✅ Bénéficier de produits frais de qualité
+- ✅ Bénéficier de Produits invendus de qualité
 
 **Merci aux commerçants partenaires pour leur générosité !**
 

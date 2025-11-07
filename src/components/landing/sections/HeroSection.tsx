@@ -100,7 +100,7 @@ export const HeroSection = () => {
               variants={itemVariants}
               className="max-w-xl text-xl leading-relaxed text-neutral-700 sm:text-2xl"
             >
-              <strong className="text-neutral-900">Produits frais à prix réduits</strong> près de chez vous.{' '}
+              <strong className="text-neutral-900">Produits invendus à prix réduits</strong> près de chez vous.{' '}
               <strong className="text-primary-600">Gratuit</strong> et{' '}
               <strong className="text-accent-600">sans engagement</strong>.
             </motion.p>

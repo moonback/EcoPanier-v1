@@ -70,12 +70,12 @@ Chaque panier compte, chaque geste a un impact.
 
 **Après :**
 ```
-Faites vos courses autrement : des produits frais de qualité jusqu'à -70%, 
+Faites vos courses autrement : des Produits invendus de qualité jusqu'à -70%, 
 tout en sauvant la planète, un panier à la fois.
 
 ✅ Avantages avec emojis :
 💰 Jusqu'à 70% d'économies sur vos courses quotidiennes
-✨ Produits frais et de qualité, sélectionnés par vos commerçants
+✨ Produits invendus et de qualité, sélectionnés par vos commerçants
 🌍 Réduisez votre empreinte carbone : 0.9kg CO₂ évité par repas
 📱 Récupération ultra-simple avec votre QR code
 📊 Suivez votre impact réel sur l'environnement
@@ -103,11 +103,11 @@ Valorisez votre engagement local tout en réduisant vos pertes.
 
 **Après :**
 ```
-Accédez à de bons produits frais chaque jour, gratuitement et en toute dignité, 
+Accédez à de bons Produits invendus chaque jour, gratuitement et en toute dignité, 
 grâce à la solidarité de votre quartier.
 
 ✅ Avantages :
-🎁 Jusqu'à 2 paniers gratuits par jour de produits frais
+🎁 Jusqu'à 2 paniers gratuits par jour de Produits invendus
 🏪 Soutenus par les commerçants de votre quartier
 ✨ Produits de qualité, même fraîcheur que pour tous
 📱 Retrait simple et discret avec votre QR code
@@ -157,7 +157,7 @@ je touche un nouveau public. C'est gagnant-gagnant !
 **Sophie Martin** - Coordinatrice • Association Entraide Paris 18
 ```
 Le programme solidaire d'ÉcoPanier a changé la donne pour nos bénéficiaires. 
-Ils accèdent à des produits frais de qualité, pas à des restes. Le système de 
+Ils accèdent à des Produits invendus de qualité, pas à des restes. Le système de 
 QR code préserve leur dignité. C'est de l'aide alimentaire réinventée.
 ```
 
@@ -192,7 +192,7 @@ de 15 tonnes de CO₂.
 ```
 En France, 1 personne sur 10 dépend de l'aide alimentaire. Notre mission : 
 créer un cercle vertueux où chaque panier vendu finance un panier solidaire. 
-Les bénéficiaires accèdent à de bons produits frais, en toute dignité, 
+Les bénéficiaires accèdent à de bons Produits invendus, en toute dignité, 
 jusqu'à 2 fois par jour.
 ```
 
@@ -336,7 +336,7 @@ anti-gaspi !
 - invendus pas cher
 - paniers surprises
 - réduction gaspillage
-- produits frais
+- Produits invendus
 
 ---
 

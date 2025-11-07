@@ -274,7 +274,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                       <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
                         <span className="text-lg">🏪</span>
                       </div>
-                      <div className="font-bold text-base">Produits frais</div>
+                      <div className="font-bold text-base">Produits invendus</div>
                     </div>
                     <div className="text-xs text-white/90 font-light leading-relaxed">
                       Qualité des commerces locaux

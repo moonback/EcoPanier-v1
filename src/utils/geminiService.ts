@@ -71,7 +71,7 @@ RÉPONDS AU FORMAT JSON STRICT (sans markdown, sans \`\`\`, juste le JSON brut) 
   "original_price": Prix de vente habituel en France (nombre avec décimales, ex: 12.50),
   "discounted_price": Prix anti-gaspi (40-70% du prix original, ex: 6.00),
   "quantity_total": Nombre exact d'unités/portions visibles (minimum 1),
-  "requires_cold_chain": true/false (true pour TOUS produits frais, surgelés, réfrigérés, viandes, poissons, laitiers, traiteur),
+  "requires_cold_chain": true/false (true pour TOUS Produits invendus, surgelés, réfrigérés, viandes, poissons, laitiers, traiteur),
   "is_urgent": true/false (true si visiblement très mûr, pain de veille, emballage ouvert, DLC proche),
   "confidence": Score 0-1 basé sur la netteté de l'image et la visibilité des infos,
   "expiry_date": "Date DLC/DDM si VISIBLE sur l'emballage au format DD/MM/YYYY, sinon null",

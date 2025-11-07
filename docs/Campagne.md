@@ -8,7 +8,7 @@ Format : Carrousel ou image unique avec texte concis.
 
 Image/Visuel suggéré :
 
-Version 1 (Impact général) : Un panier de produits frais, variés et colorés, avec la moitié du panier en pleine lumière et l'autre moitié dans une douce lumière, symbolisant le don. Le logo EcoPanier bien visible.
+Version 1 (Impact général) : Un panier de Produits invendus, variés et colorés, avec la moitié du panier en pleine lumière et l'autre moitié dans une douce lumière, symbolisant le don. Le logo EcoPanier bien visible.
 
 Version 2 (Solidarité) : Des mains (diverses) tendues vers un panier généreux, avec un focus sur la dignité (pas de visage reconnaissable, ambiance chaleureuse).
 
@@ -20,7 +20,7 @@ Titre accrocheur : Stop au gaspillage. Agissez avec EcoPanier !
 
 Corps du message :
 
-Pour tous : "Sauvez des produits frais à prix mini (-30% à -70%) et aidez votre communauté en même temps. EcoPanier, c'est l'app qui fait du bien à la planète et à ceux qui en ont besoin. Un geste simple, un double impact."
+Pour tous : "Sauvez des Produits invendus à prix mini (-30% à -70%) et aidez votre communauté en même temps. EcoPanier, c'est l'app qui fait du bien à la planète et à ceux qui en ont besoin. Un geste simple, un double impact."
 
 Pour les commerçants : "Commerçants, réduisez vos pertes d'invendus et augmentez votre visibilité ! Grâce à l'IA d'EcoPanier, créez vos lots en 2 clics. Devenez un acteur de la solidarité locale sans effort."
 
@@ -54,7 +54,7 @@ Voix-off (optionnel) : Courte et percutante, décrivant les actions.
 3. Bannière Web Statique/Animée
 Visuel :
 
-Côté gauche : Un panier plein de produits frais (avec le logo EcoPanier discrètement intégré).
+Côté gauche : Un panier plein de Produits invendus (avec le logo EcoPanier discrètement intégré).
 
 Côté droit : Deux zones de texte claires.
 

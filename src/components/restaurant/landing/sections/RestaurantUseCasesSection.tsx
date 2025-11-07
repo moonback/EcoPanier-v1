@@ -42,7 +42,7 @@ const useCases = [
     icon: Coffee,
     title: 'Brunch & Buffets',
     scenario: 'Buffet à volonté du dimanche',
-    solution: 'Les produits frais non consommés (pâtisseries, viennoiseries, fruits) sont collectés et distribués.',
+    solution: 'Les Produits invendus non consommés (pâtisseries, viennoiseries, fruits) sont collectés et distribués.',
     impact: '20-30 portions sauvées',
     emoji: '🥐',
   },

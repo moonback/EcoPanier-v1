@@ -215,7 +215,7 @@ Transformer EcoPanier en véritable marketplace solidaire.
 ### Fonctionnalités Envisagées
 
 #### 🏪 Marketplace de Producteurs Locaux
-- 💡 **Vente de produits frais** (pas que invendus)
+- 💡 **Vente de Produits invendus** (pas que invendus)
 - 💡 Profils producteurs (fermiers, artisans)
 - 💡 Abonnements paniers hebdomadaires
 - 💡 Livraison à domicile

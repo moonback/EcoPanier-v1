@@ -9,7 +9,7 @@ const testimonials = [
     name: 'Sophie Martin',
     role: 'Coordinatrice',
     association: 'Entraide Paris 18',
-    text: "Le programme solidaire d'ÉcoPanier a changé la donne pour nos bénéficiaires. Ils accèdent à des produits frais de qualité, pas à des restes. Le système de QR code préserve leur dignité. C'est de l'aide alimentaire réinventée. La plateforme de gestion nous a fait gagner un temps précieux.",
+    text: "Le programme solidaire d'ÉcoPanier a changé la donne pour nos bénéficiaires. Ils accèdent à des Produits invendus de qualité, pas à des restes. Le système de QR code préserve leur dignité. C'est de l'aide alimentaire réinventée. La plateforme de gestion nous a fait gagner un temps précieux.",
     avatar: '/testimonial/testimonials-3.png',
     stats: { beneficiaries: '120', lotsDistributed: '2400+' },
   },

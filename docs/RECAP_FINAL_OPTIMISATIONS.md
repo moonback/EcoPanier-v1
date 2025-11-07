@@ -82,7 +82,7 @@ La planète vous dit merci.
 ```
 Clients :
 💰 Jusqu'à 70% d'économies sur vos courses quotidiennes
-✨ Produits frais et de qualité, sélectionnés par vos commerçants
+✨ Produits invendus et de qualité, sélectionnés par vos commerçants
 🌍 Réduisez votre empreinte carbone : 0.9kg CO₂ évité par repas
 📱 Récupération ultra-simple avec votre QR code
 📊 Suivez votre impact réel sur l'environnement

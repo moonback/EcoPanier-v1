@@ -28,7 +28,7 @@ EcoPanier est une plateforme unique qui agit simultanément contre le gaspillage
 
 Chaque client peut devenir un acteur du changement en réalisant des actions simples et concrètes sur la plateforme.
 
-* Faire des économies : Accédez à des lots d'invendus de qualité (fruits, légumes, produits frais...) avec des réductions importantes, allant de -30% à -70%.
+* Faire des économies : Accédez à des lots d'invendus de qualité (fruits, légumes, Produits invendus...) avec des réductions importantes, allant de -30% à -70%.
 * Soutenir la solidarité : Offrez un "panier suspendu" en ajoutant un don solidaire lors de votre achat, finançant ainsi directement un lot gratuit pour un bénéficiaire.
 * Suivre son impact : Visualisez en temps réel, via un tableau de bord personnel, vos économies en argent, le nombre de repas sauvés et la quantité de CO₂ que vous avez contribué à éviter.
 
@@ -43,7 +43,7 @@ La plateforme offre aux commerçants un moyen efficace de réduire leurs pertes 
 
 L'engagement social est au cœur de notre mission. EcoPanier garantit un accès à l'aide alimentaire de manière respectueuse et non-discriminante.
 
-* Accès à des lots 100% gratuits : Les bénéficiaires, dont le statut est vérifié en amont, peuvent réserver jusqu'à 2 lots gratuits par jour, leur donnant accès à des produits frais et variés.
+* Accès à des lots 100% gratuits : Les bénéficiaires, dont le statut est vérifié en amont, peuvent réserver jusqu'à 2 lots gratuits par jour, leur donnant accès à des Produits invendus et variés.
 * Un retrait sans aucune distinction : L'interface de retrait est strictement identique pour un lot acheté ou un lot gratuit. Cette approche préserve l'anonymat et la dignité de chacun, évitant toute forme de stigmatisation.
 
 Ainsi, chaque action sur la plateforme renforce un écosystème où tout le monde est gagnant.
