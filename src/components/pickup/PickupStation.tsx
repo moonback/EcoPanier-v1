@@ -65,6 +65,7 @@ export const PickupStation = () => {
   // État local
   const [scannerActive, setScannerActive] = useState(false);
   const [helpActive, setHelpActive] = useState(false);
+  const [processModalOpen, setProcessModalOpen] = useState(false);
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [reservations, setReservations] = useState<Reservation[]>([]); // Mode multi-retrait
   const [selectedReservationIds, setSelectedReservationIds] = useState<Set<string>>(new Set());
@@ -716,96 +717,107 @@ export const PickupStation = () => {
 
   return (
     <>
-      <div className="min-h-screen lg:h-screen flex flex-col relative overflow-y-auto lg:overflow-hidden" style={{
-        backgroundImage: 'url("/slide-3.png")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-      }}>
-        {/* Overlay pour améliorer la lisibilité */}
-        <div className="absolute inset-0 bg-white/50 pointer-events-none"></div>
+      <div className="relative min-h-screen bg-neutral-50">
+        <div className="absolute inset-0 section-gradient opacity-70"></div>
 
-      {/* Header */}
-      <div className="sticky top-0 bg-gradient-to-r from-white via-primary-50/30 to-white border-b-2 border-gray-100 px-4 sm:px-6 py-4 shadow-sm z-20 backdrop-blur-sm">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Logo commerçant et stats */}
-          <div className="flex items-center justify-between sm:justify-start gap-3">
-            <div className="flex items-center gap-3">
-              <div className="relative flex items-center justify-center overflow-hidden h-12 w-12 bg-white rounded-xl shadow-md">
-                <img
-                  src={merchantLogoUrl}
-                  alt={merchantLogoAlt}
-                  className="h-full w-full object-cover"
-                  onError={handleMerchantLogoError}
-                />
+        <div className="relative flex min-h-screen flex-col overflow-y-auto lg:overflow-hidden">
+          {/* Header */}
+          <header className="sticky top-0 z-20 border-b border-white/60 bg-white/80 backdrop-blur-xl">
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 sm:flex-row sm:items-center sm:justify-between">
+              {/* Logo commerçant et stats */}
+              <div className="flex items-center justify-between gap-3 sm:justify-start">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
+                    <img
+                      src={merchantLogoUrl}
+                      alt={merchantLogoAlt}
+                      className="h-full w-full object-cover"
+                      onError={handleMerchantLogoError}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-gray-900">
+                      {profile?.business_name ?? 'EcoPanier'}
+                    </span>
+                    <span className="text-xs font-medium text-gray-500">Mode commerçant</span>
+                  </div>
+                </div>
+                {todayStats && (
+                  <div className="hidden items-center gap-2 rounded-lg border border-success-200 bg-success-50 px-3 py-1.5 sm:flex">
+                    <CheckCircle size={14} className="text-success-600" strokeWidth={2.5} />
+                    <span className="text-xs font-bold text-success-700">
+                      {todayStats.completed}/{todayStats.total} aujourd'hui
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-gray-900">
-                  {profile?.business_name ?? 'EcoPanier'}
+
+              {/* Titre */}
+              <div className="flex flex-col items-start gap-1 text-left sm:items-center">
+                <span className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700 shadow-sm">
+                  <Sparkles size={12} />
+                  Espace commerçant
                 </span>
-                <span className="text-xs font-medium text-gray-500">Mode commerçant</span>
+                <h1 className="flex items-center gap-2 text-lg font-bold text-gray-900 sm:text-xl">
+                  <Scan size={22} className="text-primary-600" strokeWidth={2} />
+                  Station de Retrait
+                </h1>
+                <p className="text-xs font-medium text-gray-600">Scannez • Validez • Remettez</p>
+              </div>
+
+              {/* Actions header */}
+              <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+                {todayStats && (
+                  <div className="flex items-center gap-2 rounded-lg border border-success-200 bg-success-50 px-3 py-1.5 sm:hidden">
+                    <CheckCircle size={14} className="text-success-600" strokeWidth={2.5} />
+                    <span className="text-xs font-bold text-success-700">
+                      {todayStats.completed}/{todayStats.total} aujourd'hui
+                    </span>
+                  </div>
+                )}
+                <button
+                  onClick={() => setHelpActive(true)}
+                  className="rounded-xl border border-primary-100 bg-white px-3 py-2 text-sm font-semibold text-primary-600 shadow-sm transition-all hover:border-primary-200 hover:text-primary-700"
+                  aria-label="Ouvrir l'aide"
+                >
+                  <HelpCircle size={18} strokeWidth={2} />
+                </button>
               </div>
             </div>
-            {todayStats && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-success-100 rounded-lg border border-success-200">
-                <CheckCircle size={14} className="text-success-600" strokeWidth={2.5} />
-                <span className="text-xs font-bold text-success-700">
-                  {todayStats.completed}/{todayStats.total} aujourd'hui
-                </span>
+          </header>
+
+          {/* Message d'erreur */}
+          {error && (
+            <div className="relative z-10 px-4 pt-4 sm:px-6 lg:px-10">
+              <div className="mx-auto flex w-full max-w-4xl items-start gap-3 rounded-2xl border border-red-100 bg-red-50/90 p-4 shadow-lg">
+                <AlertCircle size={20} className="text-red-600" />
+                <p className="flex-1 text-sm font-medium text-red-800">{error}</p>
+                <button
+                  onClick={() => setError(null)}
+                  className="rounded-lg p-1 transition-all hover:bg-red-100"
+                >
+                  <XCircle size={20} className="text-red-600" />
+                </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Titre */}
-          <div className="flex flex-col items-start sm:items-center gap-1 text-left sm:text-center">
-            <h1 className="text-lg sm:text-xl font-bold text-black flex items-center gap-2">
-              <Scan size={22} className="text-primary-600" strokeWidth={2} />
-              <span>Station de Retrait</span>
-            </h1>
-            <p className="text-xs text-gray-600 font-medium">Scannez • Validez • Remettez</p>
-          </div>
-
-          {/* Bouton aide */}
-          <div className="flex justify-end">
-            <button
-              onClick={() => setHelpActive(true)}
-              className="p-2.5 hover:bg-primary-50 rounded-xl transition-all group"
-              aria-label="Ouvrir l'aide"
-            >
-              <HelpCircle size={20} className="text-gray-700 group-hover:text-primary-600" strokeWidth={2} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Message d'erreur */}
-      {error && (
-        <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 relative z-10">
-          <AlertCircle size={20} className="text-red-600 flex-shrink-0" />
-          <p className="text-red-800 font-medium text-sm flex-1">{error}</p>
-          <button
-            onClick={() => setError(null)}
-            className="p-1 hover:bg-red-100 rounded-lg transition-all"
-          >
-            <XCircle size={20} className="text-red-600" />
-          </button>
-        </div>
-      )}
-
-      {/* Contenu principal */}
-      {suspendedBaskets.length > 0 ? (
+          {/* Contenu principal */}
+          <div className="relative z-10 flex-1 px-4 pb-6 pt-4 sm:px-6 lg:px-10">
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-col">
+              {suspendedBaskets.length > 0 ? (
         // 🎯 MODE PANIERS SUSPENDUS : Affichage des paniers suspendus disponibles
-        <div className="flex-1 flex flex-col lg:flex-row gap-3 p-3 overflow-hidden relative z-10">
+        <div className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Liste des paniers suspendus */}
-          <div className="lg:w-1/2 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden flex flex-col">
+          <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-accent-200/60 bg-white/90 shadow-xl backdrop-blur">
             {/* En-tête */}
-            <div className="bg-gradient-to-r from-accent-600 via-pink-600 to-accent-700 text-white p-4 flex items-center justify-between">
+            <div className="flex items-center justify-between bg-gradient-to-r from-accent-600 via-pink-600 to-accent-700 px-5 py-4 text-white">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
                   <Heart size={24} strokeWidth={2.5} className="fill-current" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold">Paniers Suspendus</h3>
+                  <h3 className="text-lg font-bold">Paniers suspendus</h3>
                   <p className="text-sm text-pink-100">
                     {beneficiaryProfile?.full_name} • {suspendedBaskets.length} panier{suspendedBaskets.length > 1 ? 's' : ''} disponible{suspendedBaskets.length > 1 ? 's' : ''}
                   </p>
@@ -819,14 +831,14 @@ export const PickupStation = () => {
                     setSelectedBasketIds(new Set(suspendedBaskets.map((b) => b.id)));
                   }
                 }}
-                className="px-4 py-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-lg transition-all text-sm font-semibold"
+                className="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold transition-all hover:bg-white/20"
               >
                 {selectedBasketIds.size === suspendedBaskets.length ? 'Tout désélectionner' : 'Tout sélectionner'}
               </button>
             </div>
 
             {/* Liste scrollable des paniers */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
               {suspendedBaskets.map((basket, index: number) => {
                 const lot = basket.lot;
                 if (!lot) return null;
@@ -835,7 +847,7 @@ export const PickupStation = () => {
                   <div
                     key={basket.id}
                     onClick={() => toggleBasketSelection(basket.id)}
-                    className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                    className={`cursor-pointer rounded-xl border-2 p-3 transition-all ${
                       selectedBasketIds.has(basket.id)
                         ? 'border-accent-500 bg-accent-50 shadow-md'
                         : 'border-gray-200 bg-white hover:border-accent-300 hover:bg-accent-50/50'
@@ -873,8 +885,8 @@ export const PickupStation = () => {
 
                       {/* Contenu */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <h4 className="font-bold text-gray-900 text-sm truncate">{lot.title}</h4>
+                      <div className="mb-2 flex items-start justify-between gap-2">
+                          <h4 className="truncate text-sm font-bold text-gray-900">{lot.title}</h4>
                           <Heart size={14} className="text-accent-600 flex-shrink-0" strokeWidth={2.5} />
                         </div>
 
@@ -895,7 +907,7 @@ export const PickupStation = () => {
                         </div>
 
                         {/* Montant offert */}
-                        <div className="mt-2 px-2 py-1 bg-accent-100 rounded text-xs font-semibold text-accent-700">
+                        <div className="mt-2 rounded bg-accent-100 px-2 py-1 text-xs font-semibold text-accent-700">
                           Offert : {basket.amount.toFixed(2)}€
                         </div>
                       </div>
@@ -906,9 +918,9 @@ export const PickupStation = () => {
             </div>
 
             {/* Résumé sélection */}
-            <div className="border-t border-gray-200 p-3 bg-gray-50">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 text-sm">
-                <span className="text-gray-600 font-medium">
+            <div className="border-t border-gray-200 bg-gray-50 px-5 py-3">
+              <div className="flex flex-col items-start justify-between gap-1 text-sm sm:flex-row sm:items-center">
+                <span className="font-medium text-gray-600">
                   Sélection : {selectedBasketIds.size}/{suspendedBaskets.length}
                 </span>
                 <span className="font-bold text-accent-700">
@@ -919,13 +931,12 @@ export const PickupStation = () => {
           </div>
 
           {/* Validation */}
-          <div className="lg:w-1/2 flex flex-col gap-3">
-            <div className="flex-1 bg-gradient-to-br from-white via-accent-50/30 to-white rounded-xl p-4 border border-gray-200 shadow-lg flex flex-col justify-center min-h-0">
-              <div className="text-center mb-4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl mb-3 shadow-lg bg-gradient-to-br from-accent-500 to-pink-600">
+          <div className="flex h-full flex-col rounded-2xl border border-accent-200/60 bg-white/90 p-6 shadow-xl backdrop-blur">
+            <div className="mb-4 text-center">
+              <div className="mx-auto mb-3 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-accent-500 to-pink-600 shadow-lg">
                   <Heart size={24} className="text-white fill-current" strokeWidth={2.5} />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">
+                <h3 className="mb-1 text-lg font-bold text-gray-900">
                   Validation Paniers Suspendus
                 </h3>
                 <p className="text-xs text-gray-600">
@@ -933,45 +944,44 @@ export const PickupStation = () => {
                     ? `Prêt à valider ${selectedBasketIds.size} panier${selectedBasketIds.size > 1 ? 's' : ''}`
                     : 'Sélectionnez au moins un panier'}
                 </p>
-              </div>
+            </div>
 
-              {/* Informations bénéficiaire */}
-              {beneficiaryProfile && (
-                <div className="bg-white rounded-lg p-3 border border-gray-200 mb-4">
-                  <div className="flex items-center gap-2 mb-2">
+            {/* Informations bénéficiaire */}
+            {beneficiaryProfile && (
+              <div className="mb-4 rounded-xl border border-accent-100 bg-white/70 p-4 shadow-sm">
+                <div className="mb-2 flex items-center gap-2">
                     <User size={16} className="text-gray-600" />
                     <span className="text-xs font-semibold text-gray-600 uppercase">Bénéficiaire</span>
                   </div>
-                  <p className="font-bold text-gray-900">{beneficiaryProfile.full_name}</p>
-                  {beneficiaryProfile.beneficiary_id && (
-                    <p className="text-xs text-gray-600 mt-1 font-mono">{beneficiaryProfile.beneficiary_id}</p>
-                  )}
-                </div>
-              )}
-
-              {/* Bouton de validation */}
-              <button
-                onClick={handleValidateSuspendedBaskets}
-                disabled={selectedBasketIds.size === 0 || loading}
-                className={`w-full py-4 rounded-xl font-bold text-white transition-all duration-300 shadow-lg ${
-                  selectedBasketIds.size > 0 && !loading
-                    ? 'bg-gradient-to-r from-accent-600 to-pink-600 hover:from-accent-700 hover:to-pink-700 transform hover:scale-[1.02] active:scale-[0.98]'
-                    : 'bg-gray-300 cursor-not-allowed'
-                }`}
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Validation...</span>
-                  </div>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Heart size={18} className="fill-current" />
-                    Valider {selectedBasketIds.size} panier{selectedBasketIds.size > 1 ? 's' : ''}
-                  </span>
+                <p className="font-bold text-gray-900">{beneficiaryProfile.full_name}</p>
+                {beneficiaryProfile.beneficiary_id && (
+                  <p className="mt-1 font-mono text-xs text-gray-600">{beneficiaryProfile.beneficiary_id}</p>
                 )}
-              </button>
-            </div>
+              </div>
+            )}
+
+            {/* Bouton de validation */}
+            <button
+              onClick={handleValidateSuspendedBaskets}
+              disabled={selectedBasketIds.size === 0 || loading}
+              className={`mt-auto w-full rounded-xl py-4 text-sm font-bold text-white transition-all duration-300 shadow-lg ${
+                selectedBasketIds.size > 0 && !loading
+                  ? 'bg-gradient-to-r from-accent-600 to-pink-600 hover:from-accent-700 hover:to-pink-700 hover:shadow-xl'
+                  : 'bg-gray-300 cursor-not-allowed'
+              }`}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span>Validation...</span>
+                </div>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <Heart size={18} className="fill-current" />
+                  Valider {selectedBasketIds.size} panier{selectedBasketIds.size > 1 ? 's' : ''}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       ) : !reservation && reservations.length === 0 ? (
@@ -979,69 +989,49 @@ export const PickupStation = () => {
           <div className="w-full max-w-7xl">
             
 
-            {/* Layout 2 colonnes modernisé */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Colonne gauche - Scanner avec effet glassmorphism */}
+            {/* Layout colonne unique modernisé */}
+            <div className="flex flex-col gap-4">
               <div className="flex flex-col">
-                <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white/50 shadow-2xl overflow-hidden group hover:shadow-3xl transition-all duration-500">
-                  {/* Effet de brillance */}
+                <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/40 shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-300">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary-400/10 via-transparent to-secondary-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
                   <div className="relative z-10">
-                    <div className="text-center mb-6">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-100 to-secondary-100 rounded-full mb-4">
-                        <div className="w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-bold text-primary-700">Étape 1</span>
-                      </div>
-                      <h3 className="text-3xl font-black text-gray-900 mb-3">Scanner QR Code</h3>
-                      <p className="text-gray-600 font-medium leading-relaxed">
-                        Activez la caméra pour identifier instantanément la réservation
-                      </p>
+                    <div className="text-center mb-3">
+                      <h3 className="text-xl font-black text-gray-900 mb-1">Scanner QR Code</h3>
+                      <p className="text-gray-600 text-sm">Activez la caméra pour identifier la réservation</p>
                     </div>
-                    
                     <button
                       onClick={() => setScannerActive(true)}
                       disabled={loading}
-                      className="group/btn relative w-full py-10 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 text-white rounded-2xl hover:from-primary-700 hover:via-primary-800 hover:to-secondary-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl hover:shadow-3xl overflow-hidden transform hover:scale-[1.02] active:scale-[0.98]"
+                      className="group/btn w-full py-4 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-700 text-white rounded-xl hover:from-primary-700 hover:via-primary-800 hover:to-secondary-800 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl overflow-hidden"
                     >
-                      {/* Effet de particules */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000"></div>
-                      
-                      <div className="relative flex flex-col items-center gap-5">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-white/30 rounded-2xl blur-xl animate-pulse"></div>
-                          <div className="relative w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover/btn:scale-110 group-hover/btn:rotate-3 transition-all duration-300 shadow-2xl">
-                            <Scan size={48} className="text-white drop-shadow-lg" strokeWidth={2.5} />
-                          </div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
+                      <div className="relative flex flex-col items-center gap-3">
+                        <div className="relative w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover/btn:scale-105 group-hover/btn:rotate-2 transition-all duration-200 shadow-xl">
+                          <Scan size={36} className="text-white drop-shadow" strokeWidth={2.5} />
                         </div>
-                        <div className="text-center">
-                          <span className="text-2xl font-black block mb-2 drop-shadow-md">Activer le Scanner</span>
-                          <span className="text-sm text-white/90 font-semibold flex items-center justify-center gap-2">
-                            <Sparkles size={14} />
-                            Cliquez pour démarrer
-                          </span>
-                        </div>
+                        <span className="text-base font-bold drop-shadow">Activer le Scanner</span>
+                        <span className="text-xs text-white/80 flex items-center gap-1">
+                          <Sparkles size={12} /> Cliquez pour démarrer
+                        </span>
                       </div>
                     </button>
-                    
-                    {/* Statistiques rapides */}
                     {todayStats && todayStats.total > 0 && (
-                      <div className="mt-6 p-4 bg-gradient-to-r from-success-50 to-emerald-50 rounded-2xl border border-success-200">
+                      <div className="mt-4 p-2 bg-success-50 rounded-xl border border-success-100">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-success-500 rounded-xl flex items-center justify-center shadow-lg">
-                              <CheckCircle size={20} className="text-white" strokeWidth={2.5} />
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 bg-success-500 rounded-lg flex items-center justify-center shadow">
+                              <CheckCircle size={16} className="text-white" strokeWidth={2.5} />
                             </div>
                             <div>
-                              <p className="text-xs text-gray-600 font-semibold uppercase">Aujourd'hui</p>
-                              <p className="text-lg font-black text-success-700">{todayStats.completed} retraits validés</p>
+                              <p className="text-[10px] text-gray-600 font-semibold uppercase mb-0.5">Aujourd'hui</p>
+                              <p className="text-sm font-black text-success-700">{todayStats.completed} retraits</p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-3xl font-black text-success-600">
+                            <div className="text-lg font-black text-success-600">
                               {Math.round((todayStats.completed / todayStats.total) * 100)}%
                             </div>
-                            <p className="text-xs text-gray-600 font-semibold">Taux de succès</p>
+                            <p className="text-[10px] text-gray-600 font-semibold">succès</p>
                           </div>
                         </div>
                       </div>
@@ -1049,102 +1039,14 @@ export const PickupStation = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Colonne droite - Instructions modernisées */}
-              <div className="flex flex-col gap-5">
-                <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white/50 shadow-2xl overflow-hidden">
-                  <div className="text-center mb-8">
-                    {/* <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full mb-4">
-                      <Sparkles size={14} className="text-purple-600" />
-                      <span className="text-sm font-bold text-purple-700">Guide Rapide</span>
-                    </div> */}
-                    <h3 className="text-3xl font-black text-gray-900 mb-3">Processus de Retrait</h3>
-                    <p className="text-gray-600 font-medium">3 étapes simples pour valider le retrait</p>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {/* Étape 1 - Design moderne */}
-                    <div className="group/step relative bg-gradient-to-br from-primary-50 via-white to-primary-50/50 rounded-2xl p-5 border-2 border-primary-200 hover:border-primary-400 hover:shadow-xl transition-all duration-300 overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/30 rounded-full blur-3xl group-hover/step:bg-primary-300/40 transition-all duration-500"></div>
-                      
-                      <div className="relative flex items-start gap-4">
-                        <div className="relative flex-shrink-0">
-                          <div className="absolute inset-0 bg-primary-400 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
-                          <div className="relative w-14 h-14 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 rounded-2xl flex items-center justify-center shadow-xl group-hover/step:scale-110 group-hover/step:-rotate-6 transition-all duration-300">
-                            <Scan size={24} className="text-white" strokeWidth={2.5} />
-                          </div>
-                        </div>
-                        <div className="flex-1 pt-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="px-2 py-0.5 bg-primary-600 text-white text-xs font-black rounded-md">1</span>
-                            <h4 className="text-xl font-black text-gray-900">Scanner le QR Code</h4>
-                          </div>
-                          <p className="text-sm text-gray-700 font-medium mb-3 leading-relaxed">
-                            Le client présente son QR code de réservation depuis son téléphone
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-primary-700 font-bold">
-                            <CheckCircle size={14} strokeWidth={2.5} />
-                            <span>Validation automatique instantanée</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Étape 2 - Design moderne */}
-                    <div className="group/step relative bg-gradient-to-br from-warning-50 via-white to-orange-50/50 rounded-2xl p-5 border-2 border-warning-200 hover:border-warning-400 hover:shadow-xl transition-all duration-300 overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-warning-200/30 rounded-full blur-3xl group-hover/step:bg-warning-300/40 transition-all duration-500"></div>
-                      
-                      <div className="relative flex items-start gap-4">
-                        <div className="relative flex-shrink-0">
-                          <div className="absolute inset-0 bg-warning-400 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
-                          <div className="relative w-14 h-14 bg-gradient-to-br from-warning-600 via-orange-600 to-warning-800 rounded-2xl flex items-center justify-center shadow-xl group-hover/step:scale-110 group-hover/step:-rotate-6 transition-all duration-300">
-                            <Lock size={24} className="text-white" strokeWidth={2.5} />
-                          </div>
-                        </div>
-                        <div className="flex-1 pt-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="px-2 py-0.5 bg-warning-600 text-white text-xs font-black rounded-md">2</span>
-                            <h4 className="text-xl font-black text-gray-900">Vérifier le Code PIN</h4>
-                          </div>
-                          <p className="text-sm text-gray-700 font-medium mb-3 leading-relaxed">
-                            Saisissez le code PIN à 6 chiffres fourni par le client
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-warning-700 font-bold">
-                            <Lock size={14} strokeWidth={2.5} />
-                            <span>Double authentification sécurisée</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Étape 3 - Design moderne */}
-                    <div className="group/step relative bg-gradient-to-br from-success-50 via-white to-emerald-50/50 rounded-2xl p-5 border-2 border-success-200 hover:border-success-400 hover:shadow-xl transition-all duration-300 overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-success-200/30 rounded-full blur-3xl group-hover/step:bg-success-300/40 transition-all duration-500"></div>
-                      
-                      <div className="relative flex items-start gap-4">
-                        <div className="relative flex-shrink-0">
-                          <div className="absolute inset-0 bg-success-400 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
-                          <div className="relative w-14 h-14 bg-gradient-to-br from-success-600 via-emerald-600 to-success-800 rounded-2xl flex items-center justify-center shadow-xl group-hover/step:scale-110 group-hover/step:-rotate-6 transition-all duration-300">
-                            <CheckCircle size={24} className="text-white" strokeWidth={2.5} />
-                          </div>
-                        </div>
-                        <div className="flex-1 pt-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="px-2 py-0.5 bg-success-600 text-white text-xs font-black rounded-md">3</span>
-                            <h4 className="text-xl font-black text-gray-900">Remettre le Panier</h4>
-                          </div>
-                          <p className="text-sm text-gray-700 font-medium mb-3 leading-relaxed">
-                            Validation finale et remise du panier au client satisfait
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-success-700 font-bold">
-                            <Heart size={14} strokeWidth={2.5} className="fill-current" />
-                            <span>Transaction anti-gaspi réussie !</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex flex-col items-center">
+                <button
+                  onClick={() => setProcessModalOpen(true)}
+                  className="inline-flex items-center gap-1 rounded-xl border border-primary-200 bg-white px-4 py-2 text-xs font-bold text-primary-700 shadow transition-all hover:border-primary-300 hover:bg-primary-50 hover:text-primary-800 hover:shadow-md"
+                >
+                  <Sparkles size={14} />
+                  Processus de retrait
+                </button>
               </div>
             </div>
           </div>
@@ -1731,8 +1633,127 @@ export const PickupStation = () => {
             </div>
           </div>
         </div>
-      ) : null}
+              ) : null}
+            </div>
+          </div>
+        </div>
       </div>
+
+      {processModalOpen && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setProcessModalOpen(false)}
+          ></div>
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="relative z-10 w-full max-w-2xl overflow-hidden rounded-3xl border border-white/60 bg-white/95 shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+              <div className="flex items-center gap-2">
+                <Sparkles size={20} className="text-primary-600" />
+                <h3 className="text-lg font-bold text-gray-900">Processus de Retrait</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProcessModalOpen(false)}
+                className="rounded-xl border border-gray-200 bg-white p-2 text-gray-500 transition-all hover:border-primary-200 hover:text-primary-600"
+                aria-label="Fermer le processus de retrait"
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            <div className="max-h-[70vh] space-y-5 overflow-y-auto px-6 py-6">
+              <p className="text-sm font-medium text-gray-600">
+                Suivez ces trois étapes pour valider en toute sérénité la remise du panier à votre client.
+              </p>
+              <div className="space-y-4">
+                <div className="group/step relative overflow-hidden rounded-2xl border-2 border-primary-200 bg-gradient-to-br from-primary-50 via-white to-primary-50/50 p-5 transition-all duration-300 hover:border-primary-400 hover:shadow-xl">
+                  <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-primary-200/30 blur-3xl transition-all duration-500 group-hover/step:bg-primary-300/40"></div>
+                  <div className="relative flex items-start gap-4">
+                    <div className="relative flex-shrink-0">
+                      <div className="absolute inset-0 rounded-2xl bg-primary-400 opacity-50 blur-lg"></div>
+                      <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white shadow-xl transition-all duration-300 group-hover/step:-rotate-6 group-hover/step:scale-110">
+                        <Scan size={24} strokeWidth={2.5} />
+                      </div>
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="rounded-md bg-primary-600 px-2 py-0.5 text-xs font-black text-white">1</span>
+                        <h4 className="text-xl font-black text-gray-900">Scanner le QR Code</h4>
+                      </div>
+                      <p className="mb-3 text-sm font-medium leading-relaxed text-gray-700">
+                        Présentez le QR code de réservation vers la caméra afin d'identifier automatiquement le client et son panier.
+                      </p>
+                      <div className="flex items-center gap-2 text-xs font-bold text-primary-700">
+                        <CheckCircle size={14} strokeWidth={2.5} />
+                        <span>Validation instantanée du panier</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="group/step relative overflow-hidden rounded-2xl border-2 border-warning-200 bg-gradient-to-br from-warning-50 via-white to-orange-50/50 p-5 transition-all duration-300 hover:border-warning-400 hover:shadow-xl">
+                  <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-warning-200/30 blur-3xl transition-all duration-500 group-hover/step:bg-warning-300/40"></div>
+                  <div className="relative flex items-start gap-4">
+                    <div className="relative flex-shrink-0">
+                      <div className="absolute inset-0 rounded-2xl bg-warning-400 opacity-50 blur-lg"></div>
+                      <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-warning-600 via-orange-600 to-warning-800 text-white shadow-xl transition-all duration-300 group-hover/step:-rotate-6 group-hover/step:scale-110">
+                        <Lock size={24} strokeWidth={2.5} />
+                      </div>
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="rounded-md bg-warning-600 px-2 py-0.5 text-xs font-black text-white">2</span>
+                        <h4 className="text-xl font-black text-gray-900">Vérifier le code PIN</h4>
+                      </div>
+                      <p className="mb-3 text-sm font-medium leading-relaxed text-gray-700">
+                        Demandez le code PIN à 6 chiffres au client et saisissez-le pour sécuriser l'opération de retrait.
+                      </p>
+                      <div className="flex items-center gap-2 text-xs font-bold text-warning-700">
+                        <Lock size={14} strokeWidth={2.5} />
+                        <span>Double contrôle de sécurité</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="group/step relative overflow-hidden rounded-2xl border-2 border-success-200 bg-gradient-to-br from-success-50 via-white to-emerald-50/50 p-5 transition-all duration-300 hover:border-success-400 hover:shadow-xl">
+                  <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-success-200/30 blur-3xl transition-all duration-500 group-hover/step:bg-success-300/40"></div>
+                  <div className="relative flex items-start gap-4">
+                    <div className="relative flex-shrink-0">
+                      <div className="absolute inset-0 rounded-2xl bg-success-400 opacity-50 blur-lg"></div>
+                      <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-success-600 via-emerald-600 to-success-800 text-white shadow-xl transition-all duration-300 group-hover/step:-rotate-6 group-hover/step:scale-110">
+                        <CheckCircle size={24} strokeWidth={2.5} />
+                      </div>
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="rounded-md bg-success-600 px-2 py-0.5 text-xs font-black text-white">3</span>
+                        <h4 className="text-xl font-black text-gray-900">Remettre le panier</h4>
+                      </div>
+                      <p className="mb-3 text-sm font-medium leading-relaxed text-gray-700">
+                        Validez la réservation, remettez le panier et félicitez votre client pour son geste anti-gaspi.
+                      </p>
+                      <div className="flex items-center gap-2 text-xs font-bold text-success-700">
+                        <Heart size={14} strokeWidth={2.5} className="fill-current" />
+                        <span>Transaction solidaire réussie</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProcessModalOpen(false)}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary-600 to-secondary-600 py-3 text-sm font-bold text-white shadow-lg transition-all hover:from-primary-700 hover:to-secondary-700 hover:shadow-xl"
+              >
+                <CheckCircle size={18} />
+                Compris, retourner au scan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <QRScanner
         isActive={scannerActive}
