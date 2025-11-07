@@ -1,152 +1,78 @@
-import { useState, useEffect } from 'react';
-import { useAuthStore } from '../../stores/authStore';
-import { supabase } from '../../lib/supabase';
+import { useEffect, useMemo, useState } from 'react';
 import { Clock, Package, CheckCircle, XCircle, AlertCircle, Calendar } from 'lucide-react';
-import { formatDate, formatDateTime } from '../../utils/helpers';
 
-interface BeneficiaryWithActivity {
-  id: string;
-  full_name: string;
-  email: string;
-  beneficiary_id: string | null;
-  phone: string | null;
-  created_at: string;
-  reservations: Array<{
-    id: string;
-    created_at: string;
-    status: string;
-    quantity: number;
-    completed_at: string | null;
-    lot: {
-      title: string;
-      category: string;
-      merchant: {
-        business_name: string;
-      };
-    };
-  }>;
+import { useAuthStore } from '../../stores/authStore';
+import { useBeneficiaryActivity } from '../../hooks/useBeneficiaryActivity';
+import { formatDate } from '../../utils/helpers';
+
+interface StatusBadgeConfig {
+  label: string;
+  icon: typeof Clock;
+  container: string;
+  text: string;
 }
+
+const STATUS_CONFIG: Record<string, StatusBadgeConfig> = {
+  completed: {
+    label: 'Récupéré',
+    icon: CheckCircle,
+    container: 'bg-success-100',
+    text: 'text-success-700',
+  },
+  confirmed: {
+    label: 'Confirmé',
+    icon: Clock,
+    container: 'bg-primary-100',
+    text: 'text-primary-700',
+  },
+  pending: {
+    label: 'En attente',
+    icon: AlertCircle,
+    container: 'bg-warning-100',
+    text: 'text-warning-700',
+  },
+  cancelled: {
+    label: 'Annulé',
+    icon: XCircle,
+    container: 'bg-neutral-100',
+    text: 'text-neutral-600',
+  },
+};
 
 export function BeneficiaryActivityHistory() {
   const { user } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  const [beneficiaries, setBeneficiaries] = useState<BeneficiaryWithActivity[]>([]);
+  const associationId = user?.id ?? null;
   const [selectedBeneficiary, setSelectedBeneficiary] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+
+  const {
+    beneficiaries,
+    loading,
+    error,
+    refresh,
+  } = useBeneficiaryActivity({ associationId });
 
   useEffect(() => {
-    if (user?.id) {
-      fetchBeneficiariesActivity();
+    if (beneficiaries.length > 0 && !selectedBeneficiary) {
+      setSelectedBeneficiary(beneficiaries[0].id);
     }
-  }, [user]);
+  }, [beneficiaries, selectedBeneficiary]);
 
-  const fetchBeneficiariesActivity = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Récupérer les bénéficiaires de l'association
-      const { data: registrations, error: regError } = await supabase
-        .from('association_beneficiary_registrations')
-        .select(`
-          beneficiary_id,
-          profiles!association_beneficiary_registrations_beneficiary_id_fkey (
-            id,
-            full_name,
-            beneficiary_id,
-            phone,
-            created_at
-          )
-        `)
-        .eq('association_id', user!.id);
-
-      if (regError) throw regError;
-
-      // Pour chaque bénéficiaire, récupérer ses réservations
-      const beneficiariesWithActivity: BeneficiaryWithActivity[] = [];
-
-      for (const reg of registrations || []) {
-        const beneficiaryProfile = (reg as any).profiles;
-        
-        const { data: reservations, error: resError } = await supabase
-          .from('reservations')
-          .select(`
-            id,
-            created_at,
-            status,
-            quantity,
-            completed_at,
-            lot:lots!inner (
-              title,
-              category,
-              merchant:profiles!lots_merchant_id_fkey (
-                business_name
-              )
-            )
-          `)
-          .eq('user_id', beneficiaryProfile.id)
-          .eq('is_donation', true)
-          .order('created_at', { ascending: false })
-          .limit(50);
-
-        if (resError) {
-          console.error('Erreur lors de la récupération des réservations:', resError);
-          continue;
-        }
-
-        beneficiariesWithActivity.push({
-          id: beneficiaryProfile.id,
-          full_name: beneficiaryProfile.full_name,
-          email: '', // Email non disponible dans profiles
-          beneficiary_id: beneficiaryProfile.beneficiary_id,
-          phone: beneficiaryProfile.phone,
-          created_at: beneficiaryProfile.created_at,
-          reservations: (reservations || []).map((r: any) => ({
-            id: r.id,
-            created_at: r.created_at,
-            status: r.status,
-            quantity: r.quantity,
-            completed_at: r.completed_at,
-            lot: {
-              title: r.lot.title,
-              category: r.lot.category,
-              merchant: {
-                business_name: r.lot.merchant.business_name,
-              },
-            },
-          })),
-        });
-      }
-
-      setBeneficiaries(beneficiariesWithActivity);
-    } catch (err) {
-      console.error('Erreur lors de la récupération de l\'historique:', err);
-      setError('Impossible de charger l\'historique d\'activité.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const selectedBeneficiaryData = useMemo(
+    () => beneficiaries.find((beneficiary) => beneficiary.id === selectedBeneficiary) ?? null,
+    [beneficiaries, selectedBeneficiary]
+  );
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      completed: { label: 'Récupéré', icon: CheckCircle, color: 'success' },
-      confirmed: { label: 'Confirmé', icon: Clock, color: 'primary' },
-      pending: { label: 'En attente', icon: AlertCircle, color: 'warning' },
-      cancelled: { label: 'Annulé', icon: XCircle, color: 'neutral' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending;
     const Icon = config.icon;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-${config.color}-100 text-${config.color}-700`}>
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${config.container} ${config.text}`}>
         <Icon size={14} />
         {config.label}
       </span>
     );
   };
-
-  const selectedBeneficiaryData = beneficiaries.find(b => b.id === selectedBeneficiary);
 
   if (loading) {
     return (
@@ -174,9 +100,23 @@ export function BeneficiaryActivityHistory() {
       </div>
 
       {error && (
-        <div className="bg-accent-50 border border-accent-200 rounded-lg p-4 flex items-center gap-3">
-          <AlertCircle size={20} className="text-accent-600" />
-          <p className="text-accent-800">{error}</p>
+        <div className="flex items-start justify-between gap-3 rounded-lg border border-accent-200 bg-accent-50 p-4" role="alert">
+          <div className="flex items-start gap-2 text-accent-700">
+            <AlertCircle size={20} className="mt-0.5" />
+            <div>
+              <p className="font-semibold">{error}</p>
+              <p className="text-xs">Vous pouvez tenter de relancer le chargement.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              void refresh();
+            }}
+            className="btn-secondary px-3 py-1 text-xs"
+          >
+            Réessayer
+          </button>
         </div>
       )}
 
@@ -210,9 +150,11 @@ export function BeneficiaryActivityHistory() {
                       <p className="font-semibold text-neutral-900">
                         {beneficiary.full_name}
                       </p>
-                      <p className="text-sm text-neutral-600 mt-1">
-                        ID: {beneficiary.beneficiary_id}
-                      </p>
+                      {beneficiary.beneficiary_id && (
+                        <p className="text-sm text-neutral-600 mt-1">
+                          ID: {beneficiary.beneficiary_id}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-1 px-2 py-1 bg-purple-100 rounded-full">
                       <Package size={14} className="text-purple-600" />
