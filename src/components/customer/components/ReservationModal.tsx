@@ -109,7 +109,7 @@ export function ReservationModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50">
-      <div className="bg-white rounded-2xl max-w-xl w-full p-8">
+      <div className="bg-white rounded-2xl max-w-4xl w-full p-8">
         {/* En-tête */}
         <div className="flex items-start justify-between mb-6">
           <h3 className="text-2xl font-bold text-black pr-4">
