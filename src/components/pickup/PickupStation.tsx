@@ -59,7 +59,7 @@ interface QRData {
 }
 
 const PIN_INPUT_LENGTH = 6;
-const STATION_BACKGROUND = "bg-[url('/slide-5.png')] bg-cover bg-center bg-fixed";
+const STATION_BACKGROUND = "bg-[url('/slide-8.png')] bg-contain bg-center bg-fixed";
 const SUCCESS_OVERLAY = 'bg-gradient-to-br from-success-600/90 via-success-500/90 to-success-600/90';
 
 export const PickupStation = () => {
