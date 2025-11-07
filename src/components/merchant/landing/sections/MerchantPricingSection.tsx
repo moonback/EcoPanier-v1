@@ -58,7 +58,7 @@ export const MerchantPricingSection = () => {
                   <span className="text-neutral-500 text-base font-medium">/ mois</span>
                 </div>
                 <p className="text-neutral-600 mt-2">
-                  Aucun frais fixe. Une commission transparente de <strong>8%</strong> sur les ventes réalisées.
+                  Aucun frais fixe. Une commission transparente de <strong>8%</strong> sur chaque versement de <strong>100&nbsp;€</strong> minimum.
                 </p>
               </div>
 
