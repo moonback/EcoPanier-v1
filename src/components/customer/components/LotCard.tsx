@@ -1,5 +1,5 @@
-import { Package, MapPin, Clock, ShoppingCart } from 'lucide-react';
-import { format } from 'date-fns';
+import { Package, MapPin, Clock, ShoppingCart, Sparkles, Flame } from 'lucide-react';
+import { format, differenceInCalendarDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Database } from '../../../lib/database.types';
 
@@ -29,10 +29,48 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
     ((lot.original_price - lot.discounted_price) / lot.original_price) * 100
   );
   const isOutOfStock = availableQty === 0;
+  const createdAtDate =
+    typeof lot.created_at === 'string' || lot.created_at instanceof Date
+      ? new Date(lot.created_at)
+      : null;
+  const isNew =
+    createdAtDate !== null
+      ? differenceInCalendarDays(new Date(), createdAtDate) <= 5
+      : false;
+  const popularityRatio =
+    lot.quantity_total > 0
+      ? (lot.quantity_reserved + lot.quantity_sold) / lot.quantity_total
+      : 0;
+  const isPopular = popularityRatio >= 0.6;
+  const savings = lot.original_price - lot.discounted_price;
+
+  const getHighlightBadge = () => {
+    if (isOutOfStock) {
+      return null;
+    }
+    if (isNew) {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-primary-600/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
+          <Sparkles className="h-3 w-3" strokeWidth={2.5} />
+          Nouveau
+        </span>
+      );
+    }
+    if (isPopular) {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
+          <Flame className="h-3 w-3" strokeWidth={2.5} />
+          Populaire
+        </span>
+      );
+    }
+    return null;
+  };
+  const highlightBadge = getHighlightBadge();
 
   return (
-    <div 
-      className={`group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer ${
+    <div
+      className={`group hover-lift relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 ${
         isOutOfStock ? 'opacity-60' : ''
       }`}
       onClick={() => onViewDetails?.(lot)}
@@ -40,12 +78,12 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
       {/* Image avec overlay */}
       <div className="relative overflow-hidden">
         {/* Image */}
-        <div className="h-36 bg-gradient-to-br from-gray-100 to-gray-200">
+        <div className="bg-gradient-to-br from-gray-100 to-gray-200">
           {lot.image_urls && lot.image_urls.length > 0 ? (
             <img
               src={lot.image_urls[0]}
               alt={lot.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-48 md:h-44 lg:h-48"
             />
           ) : (
             <div className="flex items-center justify-center h-full">
@@ -55,12 +93,14 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
         </div>
 
         {/* Overlay gradient subtil au hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
+        {/* Badge mise en avant */}
         {/* Badges haut gauche - Design pro */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
+        <div className="absolute left-2 top-2 z-20 flex flex-col gap-1.5">
+          {highlightBadge}
           {/* Catégorie - Always visible */}
-          <span className="inline-flex items-center px-2 py-0.5 bg-white/75 backdrop-blur-sm text-[9px] font-bold text-gray-800 rounded shadow-md border border-white/30 uppercase tracking-wide">
+          <span className="inline-flex items-center rounded border border-white/30 bg-white/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-800 backdrop-blur-sm shadow">
             {lot.category}
           </span>
           
@@ -134,42 +174,59 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
             />
           </div>
         )}
+
+        {/* Hover info détaillée */}
+        {!isOutOfStock && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 translate-y-6 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <div className="mx-3 mb-3 rounded-xl bg-slate-900/85 px-3 py-2 text-white shadow-xl backdrop-blur-lg">
+              <p className="line-clamp-3 text-[11px] text-white/90">
+                {lot.description}
+              </p>
+              <div className="mt-2 flex items-center justify-between text-[10px] text-slate-200/90">
+                <span>
+                  Retrait {format(new Date(lot.pickup_start), 'dd/MM HH:mm', { locale: fr })}
+                </span>
+                <span>Économie {(savings > 0 ? savings : 0).toFixed(2)}€</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Contenu compact */}
-      <div className="p-2.5">
+      <div className="flex flex-1 flex-col p-3">
         {/* Titre et commerçant */}
-        <div className="mb-1.5">
-          <h3 className="text-[13px] font-bold text-gray-900 line-clamp-1 mb-0.5">
+        <div className="mb-2">
+          <h3 className="mb-1 line-clamp-2 text-sm font-semibold text-slate-900">
             {lot.title}
           </h3>
-          <div className="flex items-center gap-1 text-xs text-gray-600 font-light">
-            <div className="w-3.5 h-3.5 bg-gray-100 rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+            <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center overflow-hidden rounded bg-slate-100">
               {lot.profiles.business_logo_url ? (
                 <img
                   src={lot.profiles.business_logo_url}
                   alt={lot.profiles.business_name}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
                 />
               ) : null}
-              <MapPin className={`w-2 h-2 text-gray-500 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
+              <MapPin className={`h-2.5 w-2.5 text-slate-400 ${lot.profiles.business_logo_url ? 'hidden' : ''}`} strokeWidth={1.5} />
             </div>
-            <span className="truncate text-[10px]">{lot.profiles.business_name}</span>
+            <span className="truncate">{lot.profiles.business_name}</span>
           </div>
         </div>
 
         {/* Prix */}
-        <div className="mb-1.5">
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-bold text-gray-900">
+        <div className="mb-2">
+          <div className="flex items-baseline gap-2">
+            <span className="text-lg font-bold text-slate-900">
               {lot.discounted_price}€
             </span>
             {lot.original_price > lot.discounted_price && (
-              <span className="text-[10px] text-gray-400 line-through">
+              <span className="text-xs text-slate-400 line-through">
                 {lot.original_price}€
               </span>
             )}
@@ -177,17 +234,17 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
         </div>
 
         {/* Quantité disponible et horaires */}
-        <div className="flex items-center justify-between text-[9px] text-gray-500 mb-2 pb-2 border-b border-gray-100">
-          <div className="flex items-center gap-0.5">
-            <Clock className="w-2.5 h-2.5" strokeWidth={1.5} />
+        <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-3 text-[11px] text-slate-500">
+          <div className="flex items-center gap-1">
+            <Clock className="h-3 w-3" strokeWidth={1.5} />
             <span>
               {format(new Date(lot.pickup_start), 'dd/MM', { locale: fr })} • {format(new Date(lot.pickup_start), 'HH:mm', { locale: fr })}-{format(new Date(lot.pickup_end), 'HH:mm', { locale: fr })}
             </span>
           </div>
-          <div className={`flex items-center gap-0.5 font-semibold ${
-            availableQty > 3 ? 'text-green-600' : availableQty > 0 ? 'text-orange-600' : 'text-red-600'
+          <div className={`flex items-center gap-1 font-semibold ${
+            availableQty > 3 ? 'text-emerald-600' : availableQty > 0 ? 'text-amber-600' : 'text-rose-600'
           }`}>
-            <Package className="w-2.5 h-2.5" strokeWidth={1.5} />
+            <Package className="h-3 w-3" strokeWidth={1.5} />
             <span>{availableQty} dispo</span>
           </div>
         </div>
@@ -199,13 +256,13 @@ export function LotCard({ lot, onReserve, onViewDetails }: LotCardProps) {
             onReserve(lot);
           }}
           disabled={isOutOfStock}
-          className={`w-full py-1.5 rounded-lg transition-all flex items-center justify-center gap-1 text-xs font-semibold ${
+          className={
             isOutOfStock
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-primary-600 text-white hover:bg-primary-700'
-          }`}
+              ? 'flex w-full items-center justify-center gap-1.5 rounded-lg bg-slate-200 py-2 text-sm font-semibold text-slate-400'
+              : 'btn-primary flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-semibold'
+          }
         >
-          <ShoppingCart size={12} strokeWidth={2} />
+          <ShoppingCart size={14} strokeWidth={2} />
           <span>{isOutOfStock ? 'Épuisé' : 'Réserver'}</span>
         </button>
       </div>

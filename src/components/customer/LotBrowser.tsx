@@ -1,5 +1,5 @@
 // Imports externes
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, X, Zap, Euro } from 'lucide-react';
 
@@ -27,6 +27,18 @@ type Lot = Database['public']['Tables']['lots']['Row'] & {
     business_logo_url?: string | null;
   };
 };
+
+type ReservationToast =
+  | {
+      type: 'success';
+      message: string;
+      pin?: string;
+    }
+  | {
+      type: 'error';
+      message: string;
+    }
+  | null;
 
 const DEFAULT_FILTERS: AdvancedFilters = {
   category: '',
@@ -57,12 +69,40 @@ export const LotBrowser = ({
   const [reservationMode, setReservationMode] = useState<'reserve' | null>(null);
   const [showMerchantLotsModal, setShowMerchantLotsModal] = useState(false);
   const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_FILTERS);
+  const [reservationToast, setReservationToast] = useState<ReservationToast>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Hooks (stores, contexts, router)
   const navigate = useNavigate();
   const { profile } = useAuthStore();
   const { lots, loading, error, reserveLot } = useLots(''); // Charger tous les lots
-  
+
+  useEffect(
+    () => () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    },
+    [],
+  );
+
+  const showReservationToast = (toast: Exclude<ReservationToast, null>) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setReservationToast(toast);
+    toastTimeoutRef.current = setTimeout(() => {
+      setReservationToast(null);
+    }, 6000);
+  };
+
+  const dismissReservationToast = () => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setReservationToast(null);
+  };
+
   // Appliquer les filtres et tri côté client
   const filteredLots = useAdvancedFilters(lots, filters);
 
@@ -79,9 +119,25 @@ export const LotBrowser = ({
   const handleConfirmReservation = async (quantity: number, useWallet: boolean) => {
     if (!selectedLot || !profile) return;
 
-    await reserveLot(selectedLot, quantity, profile.id, false, useWallet);
-    setSelectedLot(null);
-    setReservationMode(null);
+    try {
+      const pin = await reserveLot(selectedLot, quantity, profile.id, false, useWallet);
+      showReservationToast({
+        type: 'success',
+        message: `Panier réservé avec succès !`,
+        pin,
+      });
+      setSelectedLot(null);
+      setReservationMode(null);
+    } catch (reservationError) {
+      const message =
+        reservationError instanceof Error
+          ? reservationError.message
+          : 'Impossible de finaliser la réservation. Veuillez réessayer.';
+      showReservationToast({
+        type: 'error',
+        message,
+      });
+    }
   };
 
   const handleCloseModal = () => {
@@ -155,7 +211,7 @@ export const LotBrowser = ({
 
       {/* Contenu principal avec margin pour la sidebar */}
       <div className="lg:ml-80">
-        <div className="w-full px-4 pt-4">
+        <div className="w-full px-4 pt-6">
 
         {/* Badges filtres actifs */}
         {activeFiltersCount > 0 && (
@@ -232,7 +288,7 @@ export const LotBrowser = ({
             </button>
           </div>
         ) : (
-          <div className="grid gap-4
+          <div className="grid gap-x-4 gap-y-7
             /* Mobile : 1 lot par ligne (pleine largeur) */
             grid-cols-1
             /* Petits écrans : 2 colonnes */
@@ -251,6 +307,42 @@ export const LotBrowser = ({
                 onViewDetails={handleViewDetails}
               />
             ))}
+          </div>
+        )}
+
+        {/* Toast de réservation */}
+        {reservationToast && (
+          <div className="fixed right-6 top-6 z-50 w-full max-w-sm">
+            <div
+              className={`flex flex-col gap-2 rounded-2xl border px-4 py-3 shadow-xl backdrop-blur ${
+                reservationToast.type === 'success'
+                  ? 'border-emerald-200 bg-emerald-50/95 text-emerald-800'
+                  : 'border-rose-200 bg-rose-50/95 text-rose-800'
+              }`}
+              role="status"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">
+                    {reservationToast.message}
+                  </p>
+                  {reservationToast.type === 'success' && reservationToast.pin ? (
+                    <p className="mt-1 text-xs font-medium">
+                      Code PIN retrait :{' '}
+                      <span className="font-bold tracking-widest">{reservationToast.pin}</span>
+                    </p>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={dismissReservationToast}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/70 text-slate-500 transition-colors hover:bg-white hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-200"
+                  aria-label="Fermer la notification"
+                >
+                  <X className="h-4 w-4" strokeWidth={2.25} />
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

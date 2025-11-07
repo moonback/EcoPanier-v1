@@ -148,8 +148,8 @@ export const MerchantHeader = memo(
             <div className="flex items-center gap-3">
               {renderLogo()}
               <div className="flex flex-col gap-1">
-                <h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">{finalTitle}</h1>
-                <p className="text-sm font-medium text-slate-600 sm:text-base">{finalSubtitle}</p>
+                <h1 className="text-lg font-black tracking-tight text-slate-900 sm:text-xl">{finalTitle}</h1>
+                <p className="text-xs font-medium text-slate-600 sm:text-sm">{finalSubtitle}</p>
               </div>
             </div>
             {(actions.length > 0 || showLogout) && (
