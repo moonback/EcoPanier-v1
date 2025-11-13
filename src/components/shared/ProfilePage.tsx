@@ -7,6 +7,9 @@ import { BankAccountModal } from '../merchant/components/BankAccountModal';
 import { getMerchantBankAccounts, type MerchantBankAccount } from '../../utils/walletService';
 import { useProfileStats } from '../../hooks/useProfileStats';
 import { maskIban } from '../../utils/helpers';
+import { fetchMerchantSubscriptionInfo, type MerchantSubscriptionInfo } from '../../utils/subscriptionService';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import type { LucideIcon } from 'lucide-react';
 import {
   User,
@@ -26,7 +29,8 @@ import {
   FileCheck,
   Briefcase,
   FileText,
-  CreditCard
+  CreditCard,
+  Crown
 } from 'lucide-react';
 
 // Types de commerces disponibles
@@ -78,6 +82,8 @@ export const ProfilePage = () => {
   const [showBankAccountModal, setShowBankAccountModal] = useState(false);
   const [bankAccounts, setBankAccounts] = useState<MerchantBankAccount[]>([]);
   const [loadingBankAccounts, setLoadingBankAccounts] = useState(false);
+  const [subscriptionInfo, setSubscriptionInfo] = useState<MerchantSubscriptionInfo | null>(null);
+  const [loadingSubscription, setLoadingSubscription] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -113,12 +119,28 @@ export const ProfilePage = () => {
     }
   };
 
+  // Charger les informations d'abonnement pour les commerçants
+  const loadSubscriptionInfo = async () => {
+    if (!user?.id || profile?.role !== 'merchant') return;
+
+    try {
+      setLoadingSubscription(true);
+      const info = await fetchMerchantSubscriptionInfo(user.id);
+      setSubscriptionInfo(info);
+    } catch (err) {
+      console.error('Erreur lors du chargement des informations d\'abonnement:', err);
+    } finally {
+      setLoadingSubscription(false);
+    }
+  };
+
   useEffect(() => {
     if (profile?.role === 'merchant' && user?.id) {
       loadBankAccounts();
+      loadSubscriptionInfo();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.role, user?.id]);
+  }, [profile?.role, user?.id, profile?.subscription_status, profile?.subscription_expires_at]);
 
   // Role-specific stats
   const getRoleStats = (): ProfileStats[] => {
@@ -800,6 +822,68 @@ export const ProfilePage = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* Statut d'abonnement */}
+                    <div className={`flex items-center gap-4 p-4 rounded-xl border shadow-sm hover:shadow-md transition-all duration-200 group ${
+                      loadingSubscription
+                        ? 'bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200'
+                        : subscriptionInfo?.status === 'active'
+                        ? 'bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200'
+                        : subscriptionInfo?.status === 'expired'
+                        ? 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200'
+                        : 'bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200'
+                    }`}>
+                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center border shadow-sm group-hover:scale-110 transition-transform duration-200 ${
+                        loadingSubscription
+                          ? 'bg-white border-gray-200'
+                          : subscriptionInfo?.status === 'active'
+                          ? 'bg-emerald-500 border-emerald-300'
+                          : subscriptionInfo?.status === 'expired'
+                          ? 'bg-amber-500 border-amber-300'
+                          : 'bg-white border-gray-200'
+                      }`}>
+                        {loadingSubscription ? (
+                          <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                        ) : (
+                          <Crown size={18} className={
+                            subscriptionInfo?.status === 'active'
+                              ? 'text-white'
+                              : subscriptionInfo?.status === 'expired'
+                              ? 'text-white'
+                              : 'text-gray-600'
+                          } />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Abonnement</div>
+                        {loadingSubscription ? (
+                          <div className="text-base font-semibold text-gray-900">Chargement...</div>
+                        ) : subscriptionInfo?.status === 'active' ? (
+                          <div className="space-y-0.5">
+                            <div className="text-base font-semibold text-emerald-700">Actif</div>
+                            {subscriptionInfo.expiresAt && (
+                              <div className="text-xs text-emerald-600">
+                                Jusqu'au {format(new Date(subscriptionInfo.expiresAt), 'd MMMM yyyy', { locale: fr })}
+                                {subscriptionInfo.daysRemaining !== null && subscriptionInfo.daysRemaining > 0 && (
+                                  <span className="ml-1">({subscriptionInfo.daysRemaining} jour{subscriptionInfo.daysRemaining > 1 ? 's' : ''} restant{subscriptionInfo.daysRemaining > 1 ? 's' : ''})</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ) : subscriptionInfo?.status === 'expired' ? (
+                          <div className="space-y-0.5">
+                            <div className="text-base font-semibold text-amber-700">Expiré</div>
+                            {subscriptionInfo.expiresAt && (
+                              <div className="text-xs text-amber-600">
+                                Expiré le {format(new Date(subscriptionInfo.expiresAt), 'd MMMM yyyy', { locale: fr })}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-base font-semibold text-gray-700">Aucun abonnement</div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {profile?.business_description && (
